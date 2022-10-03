@@ -2,7 +2,7 @@ import multiprocessing
 from functools import wraps
 
 
-class TimeExceededException(Exception):
+class TestCaseTimeoutException(Exception):
     pass
 
 
@@ -20,7 +20,6 @@ def function_runner(*args, **kwargs):
     send_end.send(result)
 
 
-@parametrized
 def run_with_timer(func, max_execution_time):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -34,7 +33,7 @@ def run_with_timer(func, max_execution_time):
         if p.is_alive():
             p.terminate()
             p.join()
-            raise TimeExceededException("Exceeded Execution Time")
+            raise TestCaseTimeoutException("Exceeded test case timeout.")
         result = recv_end.recv()
 
         if isinstance(result, Exception):

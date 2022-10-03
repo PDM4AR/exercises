@@ -47,7 +47,7 @@ class Exercise(Generic[ExInT, ExOutT]):
     """A series of test cases for the exercise"""
     expected_results: Sequence[Optional[ExOutT]] = field(default_factory=list)
     """A series of expected results for the exercise, could be None if unknown"""
-    test_case_timeout: float = 999
+    test_case_timeout: float = 60*3
     """Timeout for each test case, in seconds?"""
 
     def __post_init__(self):
@@ -72,6 +72,7 @@ class ExerciseEvaluator(ABC):
             try:
                 expected_out = self.ex.expected_results[i] if self.ex.expected_results is not None else None
                 eval_out = self.ex.evaluation_fun(test_input, expected_out)
+                print(eval_out)
             except Exception as e:
                 n_failed_test_cases += 1
                 print(f"Failed because of:\n {e.args} \n{''.join(traceback.format_tb(e.__traceback__))}")
