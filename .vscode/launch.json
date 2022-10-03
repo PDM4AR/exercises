@@ -1,0 +1,46 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Exercise1 - Run",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": ["--exercise", "exercise1"],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "noDebug": true
+        },
+        {
+            "name": "Exercise1 - Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": ["--exercise", "exercise1"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Exercise2 - Run",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": ["--exercise", "exercise2"],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "noDebug": true
+        },
+        {
+            "name": "Exercise2 - Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": ["--exercise", "exercise2"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

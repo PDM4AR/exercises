@@ -1,0 +1,83 @@
+version: 2.1
+
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME: pdm4ar
+    docker:
+      - image: circleci/buildpack-deps:stretch
+
+jobs:
+  build:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t ${IMAGE_NAME}:latest .
+      - run:
+          name: Archive Docker image
+          command: docker save -o image.tar ${IMAGE_NAME}:latest
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
+            - ./Makefile
+
+  test:
+    executor: docker-publisher
+    parameters:
+      exercise:
+        default: 1
+        description: The exercise number.
+        type: integer
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Enter image and run tests
+          command: |
+            mv /tmp/workspace/Makefile Makefile
+            make run-exercise<< parameters.exercise >>-nobuild
+      - store_artifacts:
+          path: out-docker/exercise<< parameters.exercise >>
+          destination: exercise<< parameters.exercise >>
+
+
+workflows:
+  version: 2
+
+  build_test:
+    jobs:
+      - build
+      - test:
+          name: "test_exercise"
+          exercise: 0
+          requires:
+            - build
+      - test:
+          name: "test_exercise_1"
+          exercise: 1
+          requires:
+            - build
+      - test:
+          name: "test_exercise_2"
+          exercise: 2
+          requires:
+            - build
+      - test:
+          name: "test_exercise_3"
+          exercise: 3
+          requires:
+            - build
+      - test:
+          name: "test_exercise_4"
+          exercise: 4
+          requires:
+            - build

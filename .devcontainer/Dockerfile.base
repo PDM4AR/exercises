@@ -1,0 +1,17 @@
+# [Choice] Python version (use -bullseye variants on local arm64/Apple Silicon): 3, 3.10, 3.9, 3.8, 3.7, 3.6, 3-bullseye, 3.10-bullseye, 3.9-bullseye, 3.8-bullseye, 3.7-bullseye, 3.6-bullseye, 3-buster, 3.10-buster, 3.9-buster, 3.8-buster, 3.7-buster, 3.6-buster
+ARG VARIANT="3.10-bullseye"
+FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
+
+# Fix for Apple Silicon
+RUN apt update && apt upgrade -y
+RUN apt install -y --no-install-recommends libgeos-dev python3-gdal libgdal-dev libspatialindex-dev libspatialindex-c6
+RUN apt install -y --no-install-recommends build-essential cmake ffmpeg libeigen3-dev libboost-dev libboost-thread-dev libboost-test-dev libboost-filesystem-dev libomp-dev libcgal-dev git-lfs libssl-dev libffi-dev
+
+# Fix for commonroad-drivability-checker/fcl compatibility with M1
+RUN git clone --branch v2022.1 --recurse-submodules https://gitlab.lrz.de/tum-cps/commonroad-drivability-checker.git
+RUN cd /commonroad-drivability-checker/third_party/fcl && \
+   git checkout df2702ca5e703dec98ebd725782ce13862e87fc8 
+RUN cd /commonroad-drivability-checker && pip install . 
+
+
+LABEL maintainer="A. Zanardi (azanardi@ethz.ch)"
