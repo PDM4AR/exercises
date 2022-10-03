@@ -1,6 +1,6 @@
 # PDM4AR-exercises
 
-Website: [https://idsc-frazzoli.github.io/PDM4AR-exercises/](https://idsc-frazzoli.github.io/PDM4AR-exercises/)
+Website: [https://pdm4ar.github.io/exercises/](https://pdm4ar.github.io/exercises/)
 
 ## gen report locally
 
