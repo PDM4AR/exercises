@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from asyncio.log import logger
 from dataclasses import asdict, dataclass, field
 import traceback
+from fractions import Fraction
 from typing import Callable, Generic, List, Optional, Sequence, Tuple, TypeVar
 
 from reprep import Report
@@ -27,6 +28,17 @@ ExOutT = TypeVar("ExOutT")
 
 @dataclass(frozen=True)
 class PerformanceResults:
+    def __str__(self):
+        return json.dumps(asdict(self))
+
+
+@dataclass(frozen=True)
+class AggregatedPerformanceRes:
+    test_cases_completion_ratio: Fraction
+    """Number of completed test cases during evaluation"""
+    perf_res: PerformanceResults
+    """Performance results (already aggregated from the ones that did not fail)"""
+
     def __str__(self):
         return json.dumps(asdict(self))
 
@@ -63,7 +75,7 @@ class ExerciseEvaluator(ABC):
     def __init__(self, exercise: Exercise) -> None:
         self.ex: Exercise = exercise
 
-    def evaluate(self) -> Tuple[PerformanceResults, Report]:
+    def evaluate(self) -> Tuple[AggregatedPerformanceRes, Report]:
         n_failed_test_cases: int = 0
         eval_outputs: List[Tuple[PerformanceResults, Report]] = []
 
@@ -76,18 +88,25 @@ class ExerciseEvaluator(ABC):
             except Exception as e:
                 n_failed_test_cases += 1
                 print(f"Failed because of:\n {e.args} \n{''.join(traceback.format_tb(e.__traceback__))}")
-                logger.info(f"Test case: \n{test_input} \nfailed because of:\n {e.args}")
+                logger.info(
+                        f"Test case: \n{test_input} \nfailed because of:\n {e.args}")
                 continue
             eval_outputs.append(eval_out)
 
         # combine all the evaluations
         r = Report("Evaluation")
         n_test_values = len(self.ex.test_values)
-        r.text(
-                "Evaluated", text=f"Succesfully evaluated {n_test_values - n_failed_test_cases}/{n_test_values}")
+        test_cases_completion_ratio = Fraction(n_test_values - n_failed_test_cases, n_test_values)
+        r.text("Evaluated",
+               text=f"Test cases completion ratio:\n\t"
+               f"{test_cases_completion_ratio} ({n_test_values - n_failed_test_cases}/{n_test_values})")
 
-        overall_perf = self.ex.perf_aggregator(
+        agg_perf = self.ex.perf_aggregator(
                 [out_res[0] for out_res in eval_outputs])
+
+        overall_perf = AggregatedPerformanceRes(
+                test_cases_completion_ratio=test_cases_completion_ratio,
+                perf_res=agg_perf)
         r.text("OverallPerformance",
                text=f"{remove_escapes(debug_print(overall_perf))} ")
 
