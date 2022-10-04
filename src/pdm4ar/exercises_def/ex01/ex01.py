@@ -46,9 +46,13 @@ def exercise1_eval(
 
 
 def exercise1_perf_aggregator(perf_outs: List[LexiPerformance, ]) -> LexiPerformance:
-    "this exercise has only one test case"
-    assert len(perf_outs) == 1
-    return perf_outs[0]
+    """Aggregating by average accuracy"""
+    if not perf_outs:
+        return LexiPerformance(accuracy=0)
+    else:
+        assert len(perf_outs) > 0, perf_outs
+        avg_accuracy = sum([p.accuracy for p in perf_outs])/len(perf_outs)
+        return LexiPerformance(accuracy=avg_accuracy)
 
 
 def get_exercise1() -> Exercise:
