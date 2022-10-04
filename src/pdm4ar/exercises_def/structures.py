@@ -34,7 +34,9 @@ class PerformanceResults:
 
 @dataclass(frozen=True)
 class AggregatedPerformanceRes:
-    test_cases_completion_ratio: Fraction
+    n_test_cases: int
+    """Number of total test cases"""
+    n_completed_test_cases: int
     """Number of completed test cases during evaluation"""
     perf_res: PerformanceResults
     """Performance results (already aggregated from the ones that did not fail)"""
@@ -96,16 +98,17 @@ class ExerciseEvaluator(ABC):
         # combine all the evaluations
         r = Report("Evaluation")
         n_test_values = len(self.ex.test_values)
-        test_cases_completion_ratio = Fraction(n_test_values - n_failed_test_cases, n_test_values)
+        n_completed_test_cases = n_test_values - n_failed_test_cases
         r.text("Evaluated",
                text=f"Test cases completion ratio:\n\t"
-               f"{test_cases_completion_ratio} ({n_test_values - n_failed_test_cases}/{n_test_values})")
+               f"({n_completed_test_cases}/{n_test_values})")
 
         agg_perf = self.ex.perf_aggregator(
                 [out_res[0] for out_res in eval_outputs])
 
         overall_perf = AggregatedPerformanceRes(
-                test_cases_completion_ratio=test_cases_completion_ratio,
+                n_completed_test_cases=n_completed_test_cases,
+                n_test_cases=n_test_values,
                 perf_res=agg_perf)
         r.text("OverallPerformance",
                text=f"{remove_escapes(debug_print(overall_perf))} ")
