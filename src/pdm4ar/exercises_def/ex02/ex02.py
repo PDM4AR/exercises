@@ -97,7 +97,10 @@ def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
             path_edges = list(sliding_window(2, path))
         else:
             path_str = "No path"
-            opened_str = str_from_path(opened)
+            try:
+                opened_str = str_from_path(opened)
+            except:
+                opened_str = "No opened node"
             path_edges = []
             path = []
 
