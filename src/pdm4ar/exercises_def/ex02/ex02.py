@@ -97,9 +97,11 @@ def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
             path_edges = list(sliding_window(2, path))
         else:
             path_str = "No path"
-            opened_str = str_from_path(opened)
+            try: 
+                opened_str = str_from_path(opened)
+            except:
+                opened_str = "No opened node"
             path_edges = []
-            path = []
 
         msg += f"Your algo path: {path_str}\n"
         msg += f"Your algo opened nodes: {opened_str}\n"
@@ -149,7 +151,7 @@ def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
             nx.draw_networkx_labels(G, ax=ax, pos=pos)
 
     # aggregate performance of each query
-    query_perf = list(map(Ex02PerformanceResult, solve_times, accuracy))
+    query_perf = list(map(Ex02PerformanceResult, accuracy, solve_times))
     perf = ex2_perf_aggregator(query_perf)
     return perf, r
 
