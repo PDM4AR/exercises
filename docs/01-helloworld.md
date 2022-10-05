@@ -31,7 +31,7 @@ Once your repository is created, clone it on your local computer and open it in 
 #### Setting up the _git remote_ repository for updates
 
 From time to time we might release fixes and/or new exercises on the "parent" repository
-(the template form which your repo was created).
+(the template from which your repo was created).
 In order to get the updates in the future we need to tell git that there exist a _template_ repository to pull from.
 You can set this running `make set-template`.
 Verify that everything went well typing `git remote -v` in your terminal:
