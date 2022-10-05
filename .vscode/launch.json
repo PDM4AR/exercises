@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "exercise1"],
+            "args": ["--exercise", "01"],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -19,7 +19,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "exercise1"],
+            "args": ["--exercise", "01"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -28,7 +28,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "exercise2"],
+            "args": ["--exercise", "02"],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -38,7 +38,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "exercise2"],
+            "args": ["--exercise", "02"],
             "console": "integratedTerminal",
             "justMyCode": true
         }
