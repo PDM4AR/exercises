@@ -71,13 +71,17 @@ reads as follows:
 
 You are now ready to implement your solution and check it locally.
 You can run it using the preinstalled hooks in `.vscode` folder.
-Simply click on the Run & Debug icon and select from the dropdown menu:
+Simply click on the Run & Debug icon and select from the dropdown menu (*Run* mode ignores breakpoints and debug settings, while *Debug* mode stops at breakpoints):
 
 ![image](https://user-images.githubusercontent.com/18750753/194089273-dc9f95e4-0553-45c4-a261-233727ef72ae.png)
 
-You cna also run it from the VS Code terminal via:
+You can also run it from the VS Code terminal via:
 ```bash
+pip3 install -e [path/to/exercises_repo]
 python3 [path/to/]src/pdm4ar/main.py --exercise [name of exercise]
+### # e.g. to run the first exercise (no debug)
+### pip3 install -e .
+### python3 src/pdm4ar/main.py --exercise 01
 ```
 
 You should the find in the `out/` folder a _html_ report that gets generated.
@@ -98,7 +102,7 @@ where `xx` is the exercise ID you want to submit for evaluation.
 For example, if you want to submit your solution for exercise 1 (after implementing a solution):
 commit and push your changes with the following message:
 ```[submit][01] luky solution?```
-After a few minutes you should see your summary results directly on the github feedback branch.
+After a few minutes you should see your summary results directly on the Github pull request named Feedback.
 
-**Important**: your grade for the upcoming exercises will depend *only* on the last valid submission that you make for that specific exercise.
+**Important**: your grade for the upcoming exercises will depend *only* on the ***last valid*** submission that you make for that specific exercise.
 Make sure to extensively test locally your solution before submitting it.
