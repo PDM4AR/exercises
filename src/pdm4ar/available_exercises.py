@@ -11,7 +11,6 @@ available_exercises: Mapping[str, Callable[[], Exercise]] = frozendict(
         "exercise2": get_exercise2,
         "exercise3": get_exercise3,
         "exercise4": get_exercise4,
-        "final21": get_final21,
         "collision_check": get_exercise_collision_check,
         "opt-milp": get_exercise_optimization_milp,
     }
