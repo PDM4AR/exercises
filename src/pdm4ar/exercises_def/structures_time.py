@@ -29,12 +29,12 @@ def run_with_timer(func, max_execution_time):
 
         p = multiprocessing.Process(target=function_runner, args=args, kwargs=kwargs)
         p.start()
+        result = recv_end.recv()
         p.join(max_execution_time)
         if p.is_alive():
             p.terminate()
             p.join()
             raise TestCaseTimeoutException("Exceeded test case timeout.")
-        result = recv_end.recv()
 
         if isinstance(result, Exception):
             raise result
