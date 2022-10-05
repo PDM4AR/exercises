@@ -44,16 +44,16 @@ it uses, etc.). Performance criteria will be declared in the exercise descriptio
 Make sure to extensively test your code locally, consider this as a learning experience for robotics, field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
-| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** |
-|-----------------|-----------------------|----------------------|-----------------------|
-| 02              | Graph Search          | Oct. 7th             | TBD (23:59 CET)       |
-| 03              | Informed Graph Search | TBD                  | TBD (23:59 CET)       |
-| 04              | Dynamic Programming   | TBD                  | TBD (23:59 CET)       |
-| 05              | Collision Checking    | TBD                  | TBD (23:59 CET)       |
-| ...             | ....                  | TBD                  | TBD (23:59 CET)       |
+| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** | **Deadline status** |
+|-----------------|-----------------------|----------------------|-----------------------|---------------------|
+| 02              | Graph Search          | Oct. 8th             | Oct. 19th (23:59 CET) | CONFIRMED           |
+| 03              | Informed Graph Search | Oct. 12th            | Oct. 23th (23:59 CET) | TENTATIVE           |
+| 04              | Dynamic Programming   | Oct. 16th            | Oct. 26th (23:59 CET) | TENTATIVE           |
+| 05              | Steering              | TBD                  | TBD (23:59 CET)       | TBD                 |
+| ...             | ....                  | TBD                  | TBD (23:59 CET)       | TBD                 |
 
 * Most of these exercises are already accessible before the evaluation opens. 
-You are free to read them but be aware that we might still decide to change them.
+You are free to read them but be aware that we might still decide to change them until the evaluation opens.
 After the evaluation opens the exercise is "frozen" and you can solve it and submit it.
 
 #### **Mid/Final term** exercises, graded.

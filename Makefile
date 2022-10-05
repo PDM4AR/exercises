@@ -1,6 +1,6 @@
-##### to get the new exercises run "make update"
-set-upstream: # Run this only once to set the upstream
+##### to get the new exercises run set-template (needed only once) and then "make update"
+set-template:
 	git remote add template git@github.com:PDM4AR/exercises.git
 
-update: # todo check if this works
-	git pull template master --allow-unrelated-histories
+update:
+	git pull -X theirs template master --allow-unrelated-histories
