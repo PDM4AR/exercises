@@ -13,7 +13,8 @@ By accepting it, you will create you personal private repository from the exerci
 
 ## Create your repository
 
-TODO LINK TO THE ASSIGNMENT
+On Piazza you will find an invitation link to the Github Classroom exercise.
+With a few clicks  you will associate your Github account to your _Legi_ number and create your own private repository.
 
 Once your repository is created, clone it on your local computer and open it in VS Code:
 
@@ -78,10 +79,10 @@ Simply click on the Run & Debug icon and select from the dropdown menu (*Run* mo
 You can also run it from the VS Code terminal via:
 ```bash
 pip3 install -e [path/to/exercises_repo]
-python3 [path/to/]src/pdm4ar/main.py --exercise [name of exercise]
+python3 [path/to/]src/pdm4ar/main.py --exercise [exercise ID]
 ### # e.g. to run the first exercise (no debug)
 ### pip3 install -e .
-### python3 src/pdm4ar/main.py --exercise 01
+### python3 src/pdm4ar/main.py --exercise "01"
 ```
 
 You should the find in the `out/` folder a _html_ report that gets generated.
