@@ -1,4 +1,5 @@
 import json
+from tqdm import tqdm
 from abc import ABC, abstractmethod
 from asyncio.log import logger
 from dataclasses import asdict, dataclass, field
@@ -82,11 +83,10 @@ class ExerciseEvaluator(ABC):
         eval_outputs: List[Tuple[PerformanceResults, Report]] = []
 
         # evaluate each test case
-        for i, test_input in enumerate(self.ex.test_values):
+        for i, test_input in enumerate(tqdm(self.ex.test_values)):
             try:
                 expected_out = self.ex.expected_results[i] if self.ex.expected_results is not None else None
                 eval_out = self.ex.evaluation_fun(test_input, expected_out)
-                print(eval_out)
             except Exception as e:
                 n_failed_test_cases += 1
                 print(f"Failed because of:\n {e.args} \n{''.join(traceback.format_tb(e.__traceback__))}")

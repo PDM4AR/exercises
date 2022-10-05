@@ -36,7 +36,7 @@ def queries_from_adjacency(adj_list: AdjacencyList, n: int, n_seed=None) -> Set[
 
 
 
-def get_graph_search_problems(n_seed=None) -> List[GraphSearchProblem]:
+def get_graph_search_problems(n_seed=None, evaluation=False) -> List[GraphSearchProblem]:
     graphsearch_prob = list()
     # test graph 1
     easy01_id = 'easy01'
@@ -56,7 +56,7 @@ def get_graph_search_problems(n_seed=None) -> List[GraphSearchProblem]:
 
     # test graph three
     branching = 3
-    height = 4
+    height = 5 if evaluation else 4
     graph03_id = 'graph03'
     graph03_nx = nx.balanced_tree(branching, height)
     graph03_nx = nx.bfs_tree(graph03_nx, 0)
@@ -71,6 +71,16 @@ def get_graph_search_problems(n_seed=None) -> List[GraphSearchProblem]:
         )
     )
     graphsearch_prob.append(GraphSearchProblem(graph=graph03, queries=graph03_queries, graph_id=graph03_id))
+
+    if evaluation:
+        # test graph 4
+        size_g4 = 200
+        graph04_id = 'graph04'
+        graph04_nx = random_geometric_graph(size_g4, 0.125, seed=2)
+        graph04: AdjacencyList = networkx_2_adjacencylist(graph04_nx)
+        graph04_queries = queries_from_adjacency(graph04, 1, n_seed)
+
+        graphsearch_prob.append(GraphSearchProblem(graph=graph04, queries=graph04_queries, graph_id=graph04_id))
 
     return graphsearch_prob
 

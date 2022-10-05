@@ -19,16 +19,16 @@ class GraphSearch(ABC):
 class DepthFirst(GraphSearch):
     def search(self, graph: AdjacencyList, start: X, goal: X) -> Tuple[Path, OpenedNodes]:
         # todo implement here your solution
-        return None, None
+        return [], []
 
 
 class BreadthFirst(GraphSearch):
     def search(self, graph: AdjacencyList, start: X, goal: X) -> Tuple[Path, OpenedNodes]:
         # todo implement here your solution
-        return None, None
+        return [], []
 
 
 class IterativeDeepening(GraphSearch):
     def search(self, graph: AdjacencyList, start: X, goal: X) -> Tuple[Path, OpenedNodes]:
         # todo implement here your solution
-        return None, None
+        return [], []
