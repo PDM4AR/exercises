@@ -71,16 +71,8 @@ def get_graph_search_problems(n_seed: int=None, height: int=4, extra_test_graph_
     )
     graphsearch_prob.append(GraphSearchProblem(graph=graph03, queries=graph03_queries, graph_id=graph03_id))
 
-    if evaluation:
-        # test graph 4
-        size_g4 = 200
-        graph04_id = 'graph04'
-        graph04_nx = random_geometric_graph(size_g4, 0.125, seed=2)
-        graph04: AdjacencyList = networkx_2_adjacencylist(graph04_nx)
-        graph04_queries = queries_from_adjacency(graph04, 1, n_seed)
-
-        graphsearch_prob.append(GraphSearchProblem(graph=graph04, queries=graph04_queries, graph_id=graph04_id))
-
+    for extra_problem in extra_test_graph_problems:
+        graphsearch_prob.append(extra_problem)
     return graphsearch_prob
 
 def ex2_get_expected_results() -> List[Optional[List[Tuple[Path, OpenedNodes]]]]:
