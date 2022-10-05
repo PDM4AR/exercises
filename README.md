@@ -1,28 +1,17 @@
 # PDM4AR-exercises
 
-Website: [https://pdm4ar.github.io/exercises/](https://pdm4ar.github.io/exercises/)
+All the necessary instructions are on our website: [https://pdm4ar.github.io/exercises/](https://pdm4ar.github.io/exercises/).
 
-## gen report locally
 
-### The easy way
-look at the vscode side panel, click on the "Run and Debug" icon. On the top, select the exercise, in debug mode or run mode. Click the triangle "Play" button next to the selection.
+### Highlights from the previous year
 
-### the way used in evaluation server
-```bash
-# in each new vscode terminal
-pip3 install -e .
+|                                           *Using safety certificates...*                                           |                                                  *Informed RRT**                                                   |                                       *Navigating through an asteroids' field*                                        |
+|:------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------:|
+| <img src="https://user-images.githubusercontent.com/18750753/194148816-c19705da-9c0a-42a8-ad2f-137706b4b07b.png"/> | <img src="https://user-images.githubusercontent.com/79461707/156462386-3d27f2f3-669e-414f-9134-fbc28b89ed49.png"/> | <video src="https://user-images.githubusercontent.com/79461707/156427479-312f6e81-f16a-478d-add3-de01ce2eece4.mp4" /> |
 
-python3 [path/to/]src/pdm4ar/main.py --exercise [name of exercise]
-# e.g.
-python3 /workspaces/exercise1-student/src/pdm4ar/main.py --exercise exercise1
-```
+And few spaceships we rather not hop on:
 
-### Kept for ref: with compmake
-```bash
-# in each new vscode terminal
-pip3 install -e .
 
-# generate report in local_reports/$ex
-ex=exercise1 && pdm4ar-exercise -o local_reports/$ex --reset -c "rparmake" --exercises $ex
-```
-
+|                                                                                      *Out of control...*                                                                                      |                                              *Some seeds are tougher...*                                              |
+|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------:|
+| ![PDM4AR-final21-staticenvironment0-PDM4AR-EpisodeVisualisation-figure1-Animation (1)](https://user-images.githubusercontent.com/18750753/194147922-20cdc861-830b-42e0-9282-9d0955c5cf77.gif) | <video src="https://user-images.githubusercontent.com/18750753/194151123-2c98d01f-8e18-46e4-92b0-31b94f6d0842.mp4" /> |
