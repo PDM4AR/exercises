@@ -36,7 +36,7 @@ def queries_from_adjacency(adj_list: AdjacencyList, n: int, n_seed=None) -> Set[
 
 
 
-def get_graph_search_problems(n_seed=None, evaluation=False) -> List[GraphSearchProblem]:
+def get_graph_search_problems(n_seed: int=None, height: int=4, extra_test_graph_problems: List[GraphSearchProblem]=[]) -> List[GraphSearchProblem]:
     graphsearch_prob = list()
     # test graph 1
     easy01_id = 'easy01'
