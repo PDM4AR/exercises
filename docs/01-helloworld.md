@@ -34,10 +34,13 @@ From time to time we might release fixes and/or new exercises on the "parent" re
 (the template form which your repo was created).
 In order to get the updates in the future we need to tell git that there exist a _template_ repository to pull from.
 You can set this running `make set-template`.
+Verify that everything went well typing `git remote -v` in your terminal:
 
-[todo update] 
+* origin should point to your repository;
+* template should point to the template repository.
 
-Verify that everything went well typing `git remote -v` in your terminal.
+Then update via `make update`, if your OS does not support Makefiles, 
+you can run the commands from the terminal directly by copying them from the Makefile.
 
 # Exercise1 - Lexicographic comparison [Not graded]
 
@@ -65,11 +68,24 @@ reads as follows:
 > _"compare is a function that takes two arguments, each is expected to be a tuple of floats. The type of the returned argument should be ComparisonOutcome"_
 
 ### Evaluating locally your solution
-You are now ready to implement your solution and check it locally:
 
-[todo]
+You are now ready to implement your solution and check it locally.
+You can run it using the preinstalled hooks in `.vscode` folder.
+Simply click on the Run & Debug icon and select from the dropdown menu:
 
-Open the generated report and check your results!
+![image](https://user-images.githubusercontent.com/18750753/194089273-dc9f95e4-0553-45c4-a261-233727ef72ae.png)
+
+You cna also run it from the VS Code terminal via:
+```bash
+python3 [path/to/]src/pdm4ar/main.py --exercise [name of exercise]
+```
+
+You should the find in the `out/` folder a _html_ report that gets generated.
+You can open it from the filesystem in you favorite browser!
+Here is an example for the lexi comparison:
+![image](https://user-images.githubusercontent.com/18750753/194091460-4e0896ea-26fa-4f43-a4b2-341991da0e5a.png)
+
+
 
 ### Submitting your solution to the server
 
@@ -77,9 +93,12 @@ Once you are happy with your solution, you can submit it to the server for evalu
 To do so, it is sufficient to *push* a commit with special keywords in the commit message.
 The keywords are:
 ```[submit][xx] your commit message```
-where `xx` is the number of the exercise you want to submit for evaluation.
+where `xx` is the exercise ID you want to submit for evaluation.
 
 For example, if you want to submit your solution for exercise 1 (after implementing a solution):
 commit and push your changes with the following message:
 ```[submit][01] luky solution?```
 After a few minutes you should see your summary results directly on the github feedback branch.
+
+**Important**: your grade for the upcoming exercises will depend *only* on the last valid submission that you make for that specific exercise.
+Make sure to extensively test locally your solution before submitting it.
