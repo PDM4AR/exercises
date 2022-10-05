@@ -56,7 +56,6 @@ def get_graph_search_problems(n_seed=None, evaluation=False) -> List[GraphSearch
 
     # test graph three
     branching = 3
-    height = 5 if evaluation else 4
     graph03_id = 'graph03'
     graph03_nx = nx.balanced_tree(branching, height)
     graph03_nx = nx.bfs_tree(graph03_nx, 0)
