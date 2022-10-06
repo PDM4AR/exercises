@@ -91,17 +91,18 @@ def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
         start_time = process_time()
         path, opened = search_algo.search(test_graph, query[0], query[1])
         solve_time = process_time() - start_time
-        if path and opened:
+        # check path
+        if path:
             path_str = str_from_path(path)
-            opened_str = str_from_path(opened)
             path_edges = list(sliding_window(2, path))
         else:
             path_str = "No path"
-            try: 
-                opened_str = str_from_path(opened)
-            except:
-                opened_str = "No opened node"
             path_edges = []
+        # check opened
+        if opened:
+            opened_str = str_from_path(opened)
+        else:
+            opened_str = "No opened node"
 
         msg += f"Your algo path: {path_str}\n"
         msg += f"Your algo opened nodes: {opened_str}\n"

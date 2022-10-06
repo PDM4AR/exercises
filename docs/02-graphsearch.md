@@ -62,12 +62,9 @@ A `Path`/`OpenedNodes` to be considered correct has to **fully** match the corre
 Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths).Thus, accuracy will be in the interval [0, 1].
 * **Solve time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required.
 
-##### Update your repo
+#### Update & Run
 
-TODO
-###### Run the exercise
-
-TODO
+Please refer to [Hello World](01-helloworld.md) for instructions.
 
 #### Food for thought
 
