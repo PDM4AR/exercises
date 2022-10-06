@@ -170,5 +170,3 @@ replicate exactly the development evironment in `.devcontainer/` but we won't su
 ## Support
 
 Use the forums on Piazza for general questions: this way, you can help other students who experience the same issues.
-Open a [github issue](https://github.com/idsc-frazzoli/PDM4AR-exercises/issues) if you suspect that there is a bug in
-the code or in the instructions.
