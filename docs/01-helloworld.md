@@ -72,11 +72,17 @@ reads as follows:
 
 You are now ready to implement your solution and check it locally.
 You can run it using the preinstalled hooks in `.vscode` folder.
-Simply click on the Run & Debug icon and select from the dropdown menu (*Run* mode ignores breakpoints and debug settings, while *Debug* mode stops at breakpoints):
+First, install the pdm4ar as a python package running in the terminal: ``
+```bash
+pip3 install -e [path/to/exercises_repo]
+### e.g.:
+### pip3 install -e .
+```
+Then, click on the Run & Debug icon and select from the dropdown menu (*Run* mode ignores breakpoints and debug settings, while *Debug* mode stops at breakpoints):
 
 ![image](https://user-images.githubusercontent.com/18750753/194089273-dc9f95e4-0553-45c4-a261-233727ef72ae.png)
 
-You can also run it from the VS Code terminal via:
+You can also run it from the VS Code terminal in a equivalent way:
 ```bash
 pip3 install -e [path/to/exercises_repo]
 python3 [path/to/]src/pdm4ar/main.py --exercise [exercise ID]
