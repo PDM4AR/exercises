@@ -62,12 +62,21 @@ A `Path`/`OpenedNodes` to be considered correct has to **fully** match the corre
 Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths).Thus, accuracy will be in the interval [0, 1].
 * **Solve time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required.
 
-##### Update your repo
+#### Update your repo
 
-TODO
-###### Run the exercise
+In order to update your repo you can run the following command in the terminal:
+```python
+make update
+```
 
-TODO
+##### Run the exercise
+
+You can run your algorithms `locally` on the given test case with the following command:
+```python
+python3 src/pdm4ar/main.py -e 02
+```
+
+Alternatively you can open the project in a `VScode remote container`. The command to run the exercise is the same as above.
 
 #### Food for thought
 
