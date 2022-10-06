@@ -64,7 +64,7 @@ Averaging over the test cases we compute an accuracy metric as (# of correct pat
 
 #### Update & Run
 
-Please refer to [Hello World](01-helloworld) for instructions.
+Please refer to [Hello World](01-helloworld.md) for instructions.
 
 #### Food for thought
 
