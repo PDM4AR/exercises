@@ -3,7 +3,6 @@ from enum import Enum, unique
 from typing import Tuple, Mapping, Optional, Any
 
 from networkx import MultiDiGraph
-from osmnx.distance import great_circle_vec
 
 from pdm4ar.exercises.ex02.structures import AdjacencyList, X
 
@@ -15,16 +14,6 @@ class EdgeNotFound(Exception):
 class NodePropertyNotFound(Exception):
     pass
 
-
-class WrongHeuristic(Exception):
-    pass
-
-@unique
-class Heuristic(Enum):
-    MANHATTAN = 0
-    EUCLIDEAN = 1
-    CHEBYSHEV = 2
-    INADMISSIBLE = 3
 
 @unique
 class NodeAttribute(str, Enum):
@@ -41,12 +30,9 @@ class TravelSpeed(float, Enum):
 
 @dataclass
 class WeightedGraph:
-    
-    def __init__(self, adj_list, weights, _G) -> None:
-        # init graph
-        self.adj_list: AdjacencyList = adj_list
-        self.weights: Mapping[Tuple[X, X], float] = weights
-        self._G: MultiDiGraph = _G
+    adj_list: AdjacencyList
+    weights: Mapping[Tuple[X, X], float]
+    _G: MultiDiGraph
 
     def get_weight(self, u: X, v: X) -> Optional[float]:
         """
@@ -68,37 +54,10 @@ class WeightedGraph:
         """
         return self._G.nodes[node_id][attribute]
 
-    def __get_node_coordinates(self, u: X) -> Tuple[float]:
-        # todo
-        return ()
-
-    def heuristic_manhattan(self, u:X, v:X) -> float:
-        # todo
-        pass
-    
-    def heuristic_euclidean(self, u:X, v:X) -> float:
-        # todo
-        pass
-    
-    def heuristic_chebyshev(self, u:X, v:X) -> float:
-        # todo
-        pass
-    
-    def heuristic_inadmissible(self, u:X, v:X) -> float:
-        # todo
-        pass
-
-    def get_heuristic(self, u: X, goal: X, heuristic: Optional[Heuristic]) -> float:
+    def get_node_coordinates(self, u: X) -> Tuple[float]:
         """
-        :param u: The current node
-        :param goal: The goal node of the query
-        :return: The associated heuristic cost to go to the goal node
+        Method of class WeightedGraph:
+        :param u: node id
+        :return (x, y): coordinates (LON & LAT) of node u
         """
-
-        if heuristic is None:
-            return 0.0
-
-        # todo 
-        pass
-
-
+        return (self._G.nodes[u][NodeAttribute.LONGITUDE], self._G.nodes[u][NodeAttribute.LATITUDE])
