@@ -66,14 +66,16 @@ def networkx_2_weighted_graph(G: MultiDiGraph) -> WeightedGraph:
     return wG
 
 
-def get_test_informed_gsproblem(n_queries=1, n_seed=None) -> List[InformedGraphSearchProblem]:
+def get_test_informed_gsproblem(n_queries=1, n_seed=None, extra_test_graph_problems:List[InformedGraphSearchProblem] = []) -> List[InformedGraphSearchProblem]:
+    # get city graphs
     graph_ids = ['ny', 'eth', 'milan']
     G_empire = ox.graph_from_address("350 5th Ave, New York, New York", network_type="drive")
     G_eth = ox.graph_from_address("Rämistrasse 101, 8092 Zürich, Switzerland", network_type="drive")
     G_milan = ox.graph_from_address("P.za del Duomo, 20122 Milano MI, Italy", network_type="drive")
+    # add travel time as weight
     test_graphs = map(add_travel_time_weight, [G_empire, G_eth, G_milan])
     test_wgraphs = map(networkx_2_weighted_graph, test_graphs)
-
+    # convert graph to InformedGraphSearchProblem
     data_in: List[InformedGraphSearchProblem] = []
     for i, G in enumerate(test_wgraphs):
         q = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)
@@ -83,6 +85,9 @@ def get_test_informed_gsproblem(n_queries=1, n_seed=None) -> List[InformedGraphS
             graph_id=graph_ids[i],
         )
         data_in.append(p)
+    # add InformedGraphSearchProblem for evaluation
+    for extra_problem in extra_test_graph_problems:
+        data_in.append(extra_problem)
 
     return data_in
 
