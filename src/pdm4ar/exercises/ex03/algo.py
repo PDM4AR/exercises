@@ -35,6 +35,8 @@ class Astar(InformedGraphSearch):
 
 def compute_path_cost(wG: WeightedGraph, path: Path):
     """A utility function to compute the cumulative cost along a path"""
+    if not path:
+        return float("inf")
     total: float = 0
     for i in range(1, len(path)):
         inc = wG.get_weight(path[i - 1], path[i])
