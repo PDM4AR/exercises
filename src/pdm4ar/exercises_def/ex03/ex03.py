@@ -57,15 +57,13 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Report:
         solve_time = process_time() - start
         if path:
             path_str = str_from_path(path)
-            msg += f"Your path: {path_str}\n"
             path_cost = compute_path_cost(wG, path)
-            msg += f"Your path cost:\t{path_cost:.2f}\n"
             with rfig.plot(nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
                 ax = plt.gca()
                 ox.plot_graph(wG._G, ax=ax, node_color=nc, node_edgecolor="k", edge_color=ec, show=False, close =False)
                 ox.plot_graph_route(wG._G, route=path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False, close=False)
         else:
-            msg += "Your algo did not find any path.\n"
+            path_str += "Your algo did not find any path.\n"
             path_cost = None
             path = []
         # ground truths
@@ -75,8 +73,6 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Report:
             # Compute gt path cost
             gt_path_cost = compute_path_cost(wG, gt_path)
             gt_path_str = str_from_path(gt_path)
-            msg += f"Ground truth path: {gt_path_str}\n"
-            msg += f"Ground truth path cost: {gt_path_cost:.2f}\n"
             # Plot ground truth
             with rfig.plot(nid=f"GroundTruth{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
                 ax = plt.gca()
@@ -85,11 +81,22 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Report:
             # Compare your algo to ground truth
             if  gt_path_cost == path_cost:
                 accuracy.append(1.)
+                msg += "Student solution : CORRECT\n"
             else:
                 accuracy.append(0.)
+                msg += "Student solution : WRONG\n"
             solve_times.append(solve_time)
         else:
             msg += "Ground truth: Solution not given"
+
+
+        # output path to report
+        msg += f"Ground truth path: {gt_path_str}\n"
+        msg += f"Ground truth path cost: {gt_path_cost:.2f}\n"
+
+        msg += f"Your path: {path_str}\n"
+        msg += f"Your path cost:\t{path_cost:.2f}\n"
+
             
         r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
     
