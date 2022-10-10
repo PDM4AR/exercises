@@ -50,7 +50,6 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Report:
         msg = f"Start: {query[0]},\tGoal: {query[1]}\n"
         search_algo = informed_graph_search_algo[algo_name](wG)
         rfig = r.figure(cols=2)
-        
         # Your algo
         start = process_time()
         path = search_algo.path(query[0], query[1])
@@ -64,7 +63,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Report:
                 ox.plot_graph_route(wG._G, route=path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False, close=False)
         else:
             path_str = "Your algo did not find any path.\n"
-            path_cost = None
+            path_cost = float("inf")
             path = []
         # ground truths
         gt_path = ex_out[i]
@@ -87,8 +86,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Report:
                 msg += "Student solution : WRONG\n"
             solve_times.append(solve_time)
         else:
-            msg += "Ground truth: Solution not given"
-
+            gt_path_str = "Solution not given"
 
         # output path to report
         msg += f"Ground truth path: {gt_path_str}\n"
