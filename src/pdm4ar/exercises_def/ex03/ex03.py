@@ -62,7 +62,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Report:
                 ox.plot_graph(wG._G, ax=ax, node_color=nc, node_edgecolor="k", edge_color=ec, show=False, close =False)
                 ox.plot_graph_route(wG._G, route=path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False, close=False)
         else:
-            path_str = "Your algo did not find any path.\n"
+            path_str = "Your algo did not find any path."
             path_cost = float("inf")
             path = []
         # ground truths
