@@ -8,6 +8,9 @@
 
 ## Informed graph search
 
+In this exercise you'll be implementing weighted graph search algoritms for finding the shortest path within a map. 
+Specifically, you'll have to implement 2 algorithms: Uniform Cost Search (UCS) and A*.
+
 ### Graph structures
 
 In this exercise we need to augment the `AdjacencyList` seen in <a href="./02-graphsearch.html" target="_top">Exercise
@@ -17,12 +20,9 @@ to keep track of the weights of the edges. A simple extension is the following:
 ```python
 @dataclass
 class WeightedGraph:
-    
-    def __init__(self, adj_list, weights, _G) -> None:
-        # init graph
-        self.adj_list: AdjacencyList = adj_list
-        self.weights: Mapping[Tuple[X, X], float] = weights
-        self._G: MultiDiGraph = _G
+    adj_list: AdjacencyList
+    weights: Mapping[Tuple[X, X], float]
+    _G: MultiDiGraph
 
     def get_weight(self, u: X, v: X) -> Optional[float]:
         """
@@ -44,36 +44,54 @@ class WeightedGraph:
         """
         return self._G.nodes[node_id][attribute]
 
-    def __get_node_coordinates(self, u: X) -> List[float]:
+    def get_node_coordinates(self, u: X) -> Tuple[float]:
+        """
+        Method of class WeightedGraph:
+        :param u: node id
+        :return (x, y): coordinates (LON & LAT) of node u
+        """
+        return (self._G.nodes[u][NodeAttribute.LONGITUDE], self._G.nodes[u][NodeAttribute.LATITUDE])
+```
+
+
+The graphs are obtained from maps of famous cities.
+In order to properly implement your algorithms, you will need to get some property from the nodes (e.g., their position on the map). You can access a nodes coordinate using the method `get_node_coordinates()`.
+
+The edge weight between 2 nodes is given as the travel time required to go from a node to the other and it is directly retrievable from the function `get_weight()`.
+
+
+### Task
+
+
+Implement the following algorithms in `src/pdm4ar/exercises/ex03/algo.py`:
+
+```python
+@dataclass
+class UniformCostSearch(InformedGraphSearch):
+    def path(self, start: X, goal: X) -> Path:
         # todo
-        return ()
+        pass
 
-    def get_heuristic(self, u: X, goal: X, heuristic: Optional[Heuristic]) -> float:
-        """
-        :param u: The current node
-        :param goal: The goal node of the query
-        :return: The associated heuristic cost to go to the goal node
-        """
+@dataclass
+class Astar(InformedGraphSearch):
 
-        if heuristic is None:
-            return 0.0
-
-        # todo 
+    def heuristic(self, u: X, v: X) -> float:
+        # todo
+        pass
+        
+    def path(self, start: X, goal: X) -> Path:
+        # todo
         pass
 ```
 
-To properly implement a heuristic, we will need to get some property from the nodes (e.g., their position on the map). You'll have to implement the private method `__get_node_coordinates` in order to obtain the position (x, y) of each node.
-For that you can use the private method `__get_node_attribute`. For example, in this exercises the graphs will be maps; a custom struct `NodeAttribute` is provided such that each node attribute can be retrieved within the class `WeightedGraph` as follows:
+Unlike UCS, A* is an informed algorithm thus requires implementing a heuristic function. While worst time complexity is the same for UCS and A*, the use of an admissible heuristic often leads to a lower number of explored nodes to find the shortest path. If not path is found, your algorithms should return an empty list.
 
-```python
-node: X  # the node id
-lon = self.__get_node_attribute(node, NodeAttribute.LONGITUDE)
-lat = self.__get_node_attribute(node, NodeAttribute.LATITUDE)
-```
+You are free to implement the `heuristic()` function based on any metric of your choice (make sure it is admissible!). 
+There exist many distance metrics. Below is provided a visual representation of the most common.
+![image](https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
+[image reference](#https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
 
-The edge weight between 2 nodes is given as the travel time required to go from a node to the other and it will be directly retrievable from the function `get_weight`.
-
-In order to implement the function`get_heuristic` it is sufficient to know that there are in total 4 possible travel speeds. You can access the speed floating value using the `.value` property of the struct.
+As mentioend, the edge weight between 2 nodes is given as travel time. There's a finite number (4) of speed regimes that can be followed along an edge, as represented in the class below. You can access the speed value using the `.value` property of the struct, i.e. `HIGHWAY.value`.
 ```python
 @unique
 class TravelSpeed(float, Enum):
@@ -83,89 +101,13 @@ class TravelSpeed(float, Enum):
     PEDESTRIAN = 5.0 / 3.6
 ```
 
-You will have to implement 4 different metrics for your heuristic function. 
-```python
-@unique
-class Heuristic(Enum):
-    MANHATTAN = 0
-    EUCLIDEAN = 1
-    CHEBYSHEV = 2
-    INADMISSIBLE = 3
-```
-You can easily google what each of the first 3 metrics represents. Below is provided a visual representation of these distance metrics.
-![image](https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
 
-As for the `INADMISSIBLE` heuristic, you are free to explore and see the effects on the optimality of your search algorithms.
+(HINT 1) The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. Under which condition will the time metric be admissible?
 
-(HINT 1) As already specified, the edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. Moreover, which of the distance metrics will provide an admissible heuristic? Under which conditions?
-(HINT 2) To obtain the distance between 2 coordinates, you may find useful the function `osmnx.distance.great_circle_vec`.
+(HINT 2) To obtain the distance between 2 coordinates, you may find useful the function `osmnx.distance.great_circle_vec()`.
 
 
-### Task
-
-Implement the following functions in `src/pdm4ar/exercises/ex03/structures.py`:
-
-```python
-def __get_node_coordinates(self, u: X) -> List[float]:
-    # todo
-    return ()
-
-def heuristic_manhattan(self, u:X, v:X) -> float:
-        # todo
-        pass
-    
-def heuristic_euclidean(self, u:X, v:X) -> float:
-    # todo
-    pass
-
-def heuristic_chebyshev(self, u:X, v:X) -> float:
-    # todo
-    pass
-
-def heuristic_inadmissible(self, u:X, v:X) -> float:
-    # todo
-    pass
-
-def get_heuristic(self, u: X, goal: X, heuristic: Optional[Heuristic]) -> float:
-    """
-    :param u: The current node
-    :param goal: The goal node of the query
-    :return: The associated heuristic cost to go to the goal node
-    """
-
-    if heuristic is None:
-        return 0.0
-    # todo 
-    pass
-
-
-```
-
-Implement the following algorithms in `src/pdm4ar/exercises/ex03/algo.py`:
-
-```python
-class UniformCostSearch(InformedGraphSearch):
-    def path(self, graph: WeightedGraph, start: X, goal: X, heuristic: Optional[Heuristic]) -> Optional[List[X]]:
-        # todo
-        pass
-
-
-class GreedyBestFirst(InformedGraphSearch):
-    def path(self, graph: WeightedGraph, start: X, goal: X, heuristic: Optional[Heuristic]) -> Optional[List[X]]:
-        # todo
-        pass
-
-
-class Astar(InformedGraphSearch):
-    def path(self, graph: WeightedGraph, start: X, goal: X, heuristic: Optional[Heuristic]) -> Optional[List[X]]:
-        # todo
-        pass
-```
-
-Note that the type of heuristic is an input argument to the `search` function. For `UniformCostSearch` it will be `None`.
-
-
-#### Test cases and performance criteria
+### Test cases and performance criteria
 
 The algorithms are going to be tested on different graphs, each containing randomly generated queries (start &
 goal node).
@@ -173,18 +115,10 @@ You'll be able to test your algorithms on some test cases with given solution, t
 After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution. These test cases aren't graded but serve as a guideline for how the exercise will be graded overall.
 
 The final evaluation will combine 2 metrics lexicographically <accuracy,time>:
-* **Accuracy**: All 3 algorithms will be evaluated, however only on the admissible heuristics. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
-* **Solve time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required.
+* **Accuracy**: Both UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
+* **Solve time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required. How do you expect the heuristic in A* to affect its solve time?
 
-#### Update your repo
+### Update your repo and run exercise
 
+Please refer to [Hello World](01-helloworld.md) for instructions.
 
-
-###### Run the exercise
-
-
-
-#### Food for thoughts
-
-* Which of the methods above is supposed to always find the shortest path?
-* What are valid heuristic you can think of for the A* algorithm? Given the different topology of the three cities, do you expect some to work better on specific cities?
