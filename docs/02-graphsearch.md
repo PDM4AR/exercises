@@ -56,7 +56,7 @@ goal node).
 You'll be able to test your algorithms on some test cases with given solution, both the `Path` and `OpenedNodes` will be compared to the solution. 
 After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution. These test cases aren't graded but serve as a guideline for how the exercise will be graded overall.
 
-The final evaluation will combine 2 metrics lexicographically <accuracy,time>:
+The final evaluation will combine 3 metrics lexicographically <number of solved test cases, accuracy, time>:
 * **Accuracy**: The problem has been formulated to allow for 1 unique solution to both `Path` and `OpenedNodes`. 
 A `Path`/`OpenedNodes` to be considered correct has to **fully** match the correct solution.
 Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths).Thus, accuracy will be in the interval [0, 1].

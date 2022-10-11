@@ -8,14 +8,14 @@
 
 ## Informed graph search
 
-In this exercise you'll be implementing weighted graph search algoritms for finding the shortest path within a map. 
-Specifically, you'll have to implement 2 algorithms: Uniform Cost Search (UCS) and A*.
+In this exercise we look at weighted graph and related search algorithms for finding the shortest path. 
+Specifically, you are tasked with the implementation of two algorithms: Uniform Cost Search (UCS) and A*.
 
 ### Graph structures
 
 In this exercise we need to augment the `AdjacencyList` seen in <a href="./02-graphsearch.html" target="_top">Exercise
 2</a>
-to keep track of the weights of the edges. A simple extension is the following:
+to keep track of the weights on the edges. A simple extension is the following:
 
 ```python
 @dataclass
@@ -35,7 +35,7 @@ class WeightedGraph:
         except KeyError:
             raise EdgeNotFound(f"Cannot find weight for edge: {(u, v)}")
 
-    def __get_node_attribute(self, node_id: X, attribute: NodeAttribute) -> Any:
+    def _get_node_attribute(self, node_id: X, attribute: NodeAttribute) -> Any:
         """
         Private method of class WeightedGraph
         :param node_id: The node id
@@ -44,25 +44,24 @@ class WeightedGraph:
         """
         return self._G.nodes[node_id][attribute]
 
-    def get_node_coordinates(self, u: X) -> Tuple[float]:
+    def get_node_coordinates(self, u: X) -> Tuple[float, float]:
         """
         Method of class WeightedGraph:
         :param u: node id
         :return (x, y): coordinates (LON & LAT) of node u
         """
-        return (self._G.nodes[u][NodeAttribute.LONGITUDE], self._G.nodes[u][NodeAttribute.LATITUDE])
+        return self._G.nodes[u][NodeAttribute.LONGITUDE], self._G.nodes[u][NodeAttribute.LATITUDE]
 ```
 
 
-The graphs are obtained from maps of famous cities.
-In order to properly implement your algorithms, you will need to get some property from the nodes (e.g., their position on the map). You can access a nodes coordinate using the method `get_node_coordinates()`.
+We will be using connectivity graphs of few (famous) cities around the world.
+In order to properly implement your algorithms, you will need to get some property from the nodes (e.g., their position on the map).
+You can access a nodes coordinate using the method `get_node_coordinates()`.
 
-The edge weight between 2 nodes is given as the travel time required to go from a node to the other and it is directly retrievable from the function `get_weight()`.
+The edge weight between 2 nodes is given as the travel time required to go from a node to the other, and it is directly retrievable with the function `get_weight()`.
 
 
 ### Task
-
-
 Implement the following algorithms in `src/pdm4ar/exercises/ex03/algo.py`:
 
 ```python
@@ -91,7 +90,8 @@ There exist many distance metrics. Below is provided a visual representation of 
 ![image](https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
 [image reference](#https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
 
-As mentioend, the edge weight between 2 nodes is given as travel time. There's a finite number (4) of speed regimes that can be followed along an edge, as represented in the class below. You can access the speed value using the `.value` property of the struct, i.e. `HIGHWAY.value`.
+As mentioend, the edge weight between 2 nodes is given as travel time. There's a finite number (4) of speed regimes that can be followed along an edge, as represented in the class below.
+You can access the speed value using the `.value` property of the struct, i.e. `HIGHWAY.value`.
 ```python
 @unique
 class TravelSpeed(float, Enum):
@@ -101,24 +101,24 @@ class TravelSpeed(float, Enum):
     PEDESTRIAN = 5.0 / 3.6
 ```
 
-
-(HINT 1) The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. Under which condition will the time metric be admissible?
+(HINT 1) The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. 
+Under which condition will the time metric be admissible?
 
 (HINT 2) To obtain the distance between 2 coordinates, you may find useful the function `osmnx.distance.great_circle_vec()`.
 
-
 ### Test cases and performance criteria
 
-The algorithms are going to be tested on different graphs, each containing randomly generated queries (start &
-goal node).
-You'll be able to test your algorithms on some test cases with given solution, the outputted `Path` will be compared to the solution. 
-After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution. These test cases aren't graded but serve as a guideline for how the exercise will be graded overall.
+The algorithms are going to be tested on different graphs, each containing randomly generated queries (start & goal node).
+You will be able to test your algorithms on some test cases with given solution, the outputted `Path` will be compared to the solution. 
+After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution.
+These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
 
-The final evaluation will combine 2 metrics lexicographically <accuracy,time>:
+The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, time>:
 * **Accuracy**: Both UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
 * **Solve time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required. How do you expect the heuristic in A* to affect its solve time?
 
 ### Update your repo and run exercise
 
+Make sure to update your repo before running the exercise.
 Please refer to [Hello World](01-helloworld.md) for instructions.
 

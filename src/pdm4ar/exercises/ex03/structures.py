@@ -20,6 +20,7 @@ class NodeAttribute(str, Enum):
     LONGITUDE = 'x'
     LATITUDE = 'y'
 
+
 @unique
 class TravelSpeed(float, Enum):
     HIGHWAY = 100.0 / 3.6
@@ -45,7 +46,7 @@ class WeightedGraph:
         except KeyError:
             raise EdgeNotFound(f"Cannot find weight for edge: {(u, v)}")
 
-    def __get_node_attribute(self, node_id: X, attribute: NodeAttribute) -> Any:
+    def _get_node_attribute(self, node_id: X, attribute: NodeAttribute) -> Any:
         """
         Private method of class WeightedGraph
         :param node_id: The node id
@@ -54,10 +55,10 @@ class WeightedGraph:
         """
         return self._G.nodes[node_id][attribute]
 
-    def get_node_coordinates(self, u: X) -> Tuple[float]:
+    def get_node_coordinates(self, u: X) -> Tuple[float, float]:
         """
         Method of class WeightedGraph:
         :param u: node id
         :return (x, y): coordinates (LON & LAT) of node u
         """
-        return (self._G.nodes[u][NodeAttribute.LONGITUDE], self._G.nodes[u][NodeAttribute.LATITUDE])
+        return self._G.nodes[u][NodeAttribute.LONGITUDE], self._G.nodes[u][NodeAttribute.LATITUDE]
