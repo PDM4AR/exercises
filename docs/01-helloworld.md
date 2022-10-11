@@ -42,6 +42,7 @@ Verify that everything went well typing `git remote -v` in your terminal:
 
 Then update via `make update`, if your OS does not support Makefiles, 
 you can run the commands from the terminal directly by copying them from the Makefile.
+It could be that you have to commit the merge of the incoming updates from the template repository.
 
 # Exercise1 - Lexicographic comparison [Not graded]
 

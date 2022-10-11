@@ -83,7 +83,7 @@ def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
         # Set all edge color attribute to black
         for e in G.edges():
             G[e[0]][e[1]]["color"] = EdgeColors.default
-        msg = f"Start: {query[0]},\tGoal: {query[1]}\n"
+        
         rfig = r.figure(cols=2)
 
         # Your algo
@@ -104,8 +104,8 @@ def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
         else:
             opened_str = "No opened node"
 
-        msg += f"Your algo path: {path_str}\n"
-        msg += f"Your algo opened nodes: {opened_str}\n"
+        # output message
+        msg = f"Start: {query[0]},\tGoal: {query[1]}\n"
 
         # Ground truth
         expected_result = ex_out[i]
@@ -117,11 +117,18 @@ def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
             gt_path_str = str_from_path(gt_path) if len(gt_path) > 0 else "No path"
             gt_opened_str = str_from_path(gt_opened)
             gt_path_edges = list(sliding_window(2, gt_path))
+            if correct == 2:
+                msg += "Student solution : CORRECT\n"
+            else:
+                msg += "Student solution : WRONG\n"
         else:
             gt_path_edges = []
             gt_path = []
             gt_path_str = "Solution not given"
             gt_opened_str = "Solution not given"
+
+        msg += f"Your algo path: {path_str}\n"
+        msg += f"Your algo opened nodes: {opened_str}\n"
 
         msg += f"Ground truth path: {gt_path_str} \n"
         msg += f"Ground truth opened nodes: {gt_opened_str}\n \n"
