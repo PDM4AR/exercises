@@ -47,10 +47,10 @@ Make sure to extensively test your code locally, consider this as a learning exp
 | Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** | **Deadline status** |
 |-----------------|-----------------------|----------------------|-----------------------|---------------------|
 | 02              | Graph Search          | Oct. 8th             | Oct. 19th (23:59 CET) | CONFIRMED           |
-| 03              | Informed Graph Search | Oct. 12th            | Oct. 23th (23:59 CET) | TENTATIVE           |
-| 04              | Dynamic Programming   | Oct. 16th            | Oct. 26th (23:59 CET) | TENTATIVE           |
-| 05              | Steering              | TBD                  | TBD (23:59 CET)       | TBD                 |
-| ...             | ....                  | TBD                  | TBD (23:59 CET)       | TBD                 |
+| 03              | Informed Graph Search | Oct. 13th            | Oct. 24th (23:59 CET) | CONFIRMED           |
+| 04              | Dynamic Programming   | Oct. 17th            | Oct. 30th (23:59 CET) | TENTATIVE           |
+| 05              | Steering (Dubins)     | TBD                  | TBD (23:59 CET)       | TBD                 |
+| 06              | ....                  | TBD                  | TBD (23:59 CET)       | TBD                 |
 
 * Most of these exercises are already accessible before the evaluation opens. 
 You are free to read them but be aware that we might still decide to change them until the evaluation opens.
