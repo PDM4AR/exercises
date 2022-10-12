@@ -8,4 +8,4 @@ from .ex02 import *
 from .ex03 import *
 from .ex04 import *
 from .ex06 import *
-from .optimization.milp.milp import *
+from .ex07 import *
