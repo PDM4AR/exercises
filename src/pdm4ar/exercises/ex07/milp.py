@@ -1,5 +1,5 @@
 import numpy as np
-from pdm4ar.exercises_def.optimization.milp.structures import Island, MilpSolution, MilpFeasibility, ProblemVoyage1, ProblemSolutions
+from pdm4ar.exercises_def.ex07.structures import Island, MilpSolution, MilpFeasibility, ProblemVoyage1, ProblemSolutions
 
 
 def solve_milp(milp_problem_1: ProblemVoyage1) -> ProblemSolutions:

@@ -1,9 +1,9 @@
 from typing import Dict, Optional
-from pdm4ar.exercises_def.optimization.milp.data import *
+from pdm4ar.exercises_def.ex07.data import *
 from matplotlib import pyplot as plt
 from reprep import Report, MIME_PDF
 
-from pdm4ar.exercises_def.optimization.milp.structures import MilpFeasibility, ProblemVoyage1, ProblemSolutions, SolutionViolations, SolutionsCosts
+from pdm4ar.exercises_def.ex07.structures import MilpFeasibility, ProblemVoyage1, ProblemSolutions, SolutionViolations, SolutionsCosts
 
 
 # bool variable to display the islands (slow) or display just the text data

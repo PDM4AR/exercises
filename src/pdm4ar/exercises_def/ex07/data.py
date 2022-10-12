@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Dict, List, Tuple, Any, Literal, Union
 import numpy as np
 
-from pdm4ar.exercises_def.optimization.milp.structures import Island, ProblemVoyage, ProblemVoyage1, \
+from pdm4ar.exercises_def.ex07.structures import Island, ProblemVoyage, ProblemVoyage1, \
         ProblemSolutions, SlackCosts, SlackViolations, SolutionViolations, aViolations
 
 

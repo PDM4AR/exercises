@@ -8,4 +8,4 @@ from .ex02 import *
 from .ex03 import *
 from .ex04 import *
 from .ex_collision_check import *
-from .optimization.milp.milp import *
+from .ex07 import *

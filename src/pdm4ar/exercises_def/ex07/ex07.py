@@ -6,14 +6,14 @@ from typing import Any, Callable, Dict, Optional
 from reprep import Report
 import numpy as np
 import timeit
-from pdm4ar.exercises_def.optimization.milp.structures import MilpFeasibility, MilpFinalPerformance, MilpPerformance, \
+from pdm4ar.exercises_def.ex07.structures import MilpFeasibility, MilpFinalPerformance, MilpPerformance, \
     MilpSolution, PerformanceWeight, ProblemSolutions, SolutionViolations, SolutionsCosts, aViolations
 
-from pdm4ar.exercises_def.optimization.milp.visualization import visualize_journey_plan
+from pdm4ar.exercises_def.ex07.visualization import visualize_journey_plan
 from pdm4ar.exercises_def.structures import PerformanceResults
 
 from .data import *
-from pdm4ar.exercises.optimization.milp.milp import solve_milp
+from pdm4ar.exercises.ex07.milp import solve_milp
 from pdm4ar.exercises_def import Exercise, ExIn
 
 
@@ -336,7 +336,7 @@ def get_exercise_optimization_milp() -> Exercise:
     test_types = MilpCase.get_test_milp_cases_types()
     test_difficulties = MilpCase.get_test_milp_cases_difficulties()
 
-    test_numbers = 1
+    test_numbers = 2
     seed = 1
 
     if MilpCase.testvoyage1 in test_types or MilpCase.testvoyage2 in test_types:
@@ -346,7 +346,7 @@ def get_exercise_optimization_milp() -> Exercise:
     test_values = []
     expected_results = []
 
-    test_difficulties = [MilpCase.easy]
+    test_difficulties = [MilpCase.easy, MilpCase.medium]
 
     for test_type, test_difficulty in product(test_types, test_difficulties):
 
