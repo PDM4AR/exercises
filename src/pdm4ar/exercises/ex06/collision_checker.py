@@ -1,4 +1,4 @@
-from pdm4ar.exercises_def.ex_collision_check.data import *
+from pdm4ar.exercises_def.ex06.data import *
 
 
 class CollisionChecker:

@@ -3,14 +3,14 @@ import numpy as np
 from typing import Any, Callable,Sequence
 from dataclasses import dataclass
 
-from pdm4ar.exercises.ex_collision_check.collision_checker import (
+from pdm4ar.exercises.ex06.collision_checker import (
     CollisionChecker,
 )
-from pdm4ar.exercises.ex_collision_check.collision_primitives import (
+from pdm4ar.exercises.ex06.collision_primitives import (
     CollisionPrimitives,
 )
-from pdm4ar.exercises_def.ex_collision_check import Pose2D, Polygon
-from pdm4ar.exercises_def.ex_collision_check.visualization import *
+from pdm4ar.exercises_def.ex06 import Pose2D, Polygon
+from pdm4ar.exercises_def.ex06.visualization import *
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 
 
@@ -28,6 +28,12 @@ class TestCollisionCheck(ExIn):
     def str_id(self) -> str:
         return f"step-{self.step_id}-"
 
+@dataclass(frozen=True)
+class CollisionCheckWeightedAccuracy(PerformanceResults):
+    accuracy: float
+
+    def __post_init__(self):
+        assert 0 <= self.accuracy <= 1
 
 @dataclass(frozen=True)
 class CollisionCheckPerformance(PerformanceResults):
@@ -39,11 +45,15 @@ class CollisionCheckPerformance(PerformanceResults):
         assert 0 <= self.accuracy <= 1
 
     @staticmethod
-    def perf_aggregator(eval_list: Sequence['CollisionCheckPerformance']) -> 'CollisionCheckPerformance':
+    def perf_aggregator(eval_list: Sequence['CollisionCheckPerformance']) -> 'CollisionCheckWeightedAccuracy':
+
+        if len(eval_list) == 0:
+            return CollisionCheckWeightedAccuracy(0.0)
+
         total_acccuracy = np.sum([eval.accuracy * eval.weight for eval in eval_list])
         total_weight = np.sum([eval.weight for eval in eval_list])
 
-        return CollisionCheckPerformance(total_acccuracy/total_weight, 1)
+        return CollisionCheckWeightedAccuracy(total_acccuracy/total_weight)
 
 def _collision_check_rep(
     algo_in: TestCollisionCheck, alg_out: Any
@@ -106,7 +116,7 @@ def collision_check_robot_frame_loop(
     return result
 
 
-def get_exercise_collision_check() -> Exercise:
+def get_exercise6() -> Exercise:
     # Generate Test Data
     test_values = [
         TestCollisionCheck(
