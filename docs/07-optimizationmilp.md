@@ -231,7 +231,8 @@ Feel free to make your modifications to the visualization file to match your deb
 ## Run the exercise
 
 ```shell
-make run-opt-milp
+pip3 install -e [path/to/exercises_repo]
+python3 [path/to/]src/pdm4ar/main.py --exercise 07
 ```
 
 After running the exercise, a report will be generated that shows your results.
