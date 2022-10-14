@@ -44,7 +44,7 @@ def str_from_path(path:Path) -> str:
     return "".join(list(map(lambda u: f"{u}->", path)))[:-2]
 
 
-def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
+def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceResult, Report]:
     # draw graph
     graph_search_prob, algo_name = ex_in
     test_graph = graph_search_prob.graph
@@ -136,27 +136,28 @@ def ex2_evaluation(ex_in, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
         r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
 
         # Plot graphs
-        with rfig.plot(nid=f"Path{i}", mime=MIME_PDF, figsize=figsize) as _:
-            node_colors = [
-                NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default)
-                for n in G
-            ]
-            ax = plt.gca()
-            nx.draw_networkx_nodes(G, ax=ax, pos=pos, node_color=node_colors)
-            nx.draw_networkx_edges(G, ax=ax, pos=pos, edge_color=EdgeColors.default)
-            nx.draw_networkx_edges(G, ax=ax, pos=pos, edgelist=path_edges, edge_color=EdgeColors.path)
-            nx.draw_networkx_labels(G, ax=ax, pos=pos)
+        if plotGraph:
+            with rfig.plot(nid=f"Path{i}", mime=MIME_PDF, figsize=figsize) as _:
+                node_colors = [
+                    NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default)
+                    for n in G
+                ]
+                ax = plt.gca()
+                nx.draw_networkx_nodes(G, ax=ax, pos=pos, node_color=node_colors)
+                nx.draw_networkx_edges(G, ax=ax, pos=pos, edge_color=EdgeColors.default)
+                nx.draw_networkx_edges(G, ax=ax, pos=pos, edgelist=path_edges, edge_color=EdgeColors.path)
+                nx.draw_networkx_labels(G, ax=ax, pos=pos)
 
-        with rfig.plot(nid=f"GroundTruth{i}", mime=MIME_PDF, figsize=figsize) as _:
-            node_colors = [
-                NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default)
-                for n in G
-            ]
-            ax = plt.gca()
-            nx.draw_networkx_nodes(G, ax=ax, pos=pos, node_color=node_colors)
-            nx.draw_networkx_edges(G, ax=ax, pos=pos, edge_color=EdgeColors.default)
-            nx.draw_networkx_edges(G, ax=ax, pos=pos, edgelist=gt_path_edges, edge_color=EdgeColors.path)
-            nx.draw_networkx_labels(G, ax=ax, pos=pos)
+            with rfig.plot(nid=f"GroundTruth{i}", mime=MIME_PDF, figsize=figsize) as _:
+                node_colors = [
+                    NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default)
+                    for n in G
+                ]
+                ax = plt.gca()
+                nx.draw_networkx_nodes(G, ax=ax, pos=pos, node_color=node_colors)
+                nx.draw_networkx_edges(G, ax=ax, pos=pos, edge_color=EdgeColors.default)
+                nx.draw_networkx_edges(G, ax=ax, pos=pos, edgelist=gt_path_edges, edge_color=EdgeColors.path)
+                nx.draw_networkx_labels(G, ax=ax, pos=pos)
 
     # aggregate performance of each query
     query_perf = list(map(Ex02PerformanceResult, accuracy, solve_times))
