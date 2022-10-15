@@ -19,7 +19,7 @@ class TestValueEx3(ExIn, Tuple[InformedGraphSearchProblem, str]):
         return str(self[1])
 
 
-def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Tuple[Ex02PerformanceResult, Report]:
+def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceResult, Report]:
     # ex properties
     prob, algo_name = ex_in
     wG = prob.graph
@@ -57,11 +57,12 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Tuple[Ex02PerformanceRes
         if path:
             path_str = str_from_path(path)
             path_cost = compute_path_cost(wG, path)
-            with rfig.plot(nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
-                ax = plt.gca()
-                ox.plot_graph(wG._G, ax=ax, node_color=nc, node_edgecolor="k", edge_color=ec, show=False, close=False)
-                ox.plot_graph_route(wG._G, route=path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False,
-                                    close=False)
+            if plotGraph:
+                with rfig.plot(nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
+                    ax = plt.gca()
+                    ox.plot_graph(wG._G, ax=ax, node_color=nc, node_edgecolor="k", edge_color=ec, show=False, close=False)
+                    ox.plot_graph_route(wG._G, route=path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False,
+                                        close=False)
         else:
             path_str = "Your algo did not find any path."
             path_cost = float("inf")
@@ -74,11 +75,12 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None) -> Tuple[Ex02PerformanceRes
             gt_path_cost = compute_path_cost(wG, gt_path)
             gt_path_str = str_from_path(gt_path)
             # Plot ground truth
-            with rfig.plot(nid=f"GroundTruth{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
-                ax = plt.gca()
-                ox.plot_graph(wG._G, ax=ax, node_color=nc, node_edgecolor="k", edge_color=ec, show=False, close=False)
-                ox.plot_graph_route(wG._G, route=gt_path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False,
-                                    close=False)
+            if plotGraph:
+                with rfig.plot(nid=f"GroundTruth{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
+                    ax = plt.gca()
+                    ox.plot_graph(wG._G, ax=ax, node_color=nc, node_edgecolor="k", edge_color=ec, show=False, close=False)
+                    ox.plot_graph_route(wG._G, route=gt_path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False,
+                                        close=False)
             # Compare your algo to ground truth
             if gt_path_cost == path_cost:
                 accuracy.append(1.)
