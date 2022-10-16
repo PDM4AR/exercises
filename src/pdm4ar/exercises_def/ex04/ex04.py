@@ -10,7 +10,7 @@ from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
 from pdm4ar.exercises_def import Exercise, ExIn
-from pdm4ar.exercises_def.ex04.data import get_test_grids
+from pdm4ar.exercises_def.ex04.data import get_expected_results, get_test_grids
 from pdm4ar.exercises_def.ex04.utils import action2arrow, head_width
 from pdm4ar.exercises_def.structures import PerformanceResults
 from time import process_time
@@ -74,7 +74,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
         if ex_out is not None:
             value_func_gt, policy_gt = ex_out[k]
             # evaluate accuracy
-            policy_accuracy = 1 - np.sum(policy_gt-policy) / policy_gt.size
+            policy_accuracy = 1 - np.sum(np.abs(policy_gt-policy)) / policy_gt.size
             value_func_mse = 0.0 # TODO: find percentage error equation
 
             policy_accuracy_list.append(policy_accuracy)
@@ -119,7 +119,7 @@ def get_exercise4() -> Exercise:
     test_values = [TestValueEx4(algo=ValueIteration, grid_list=grid_mdp_list),
                    TestValueEx4(algo=PolicyIteration, grid_list=grid_mdp_list)]
 
-    expected_results = None # TODO: add ground truth
+    expected_results = get_expected_results()
 
     return Exercise[TestValueEx4, Any](
             desc='This exercise is about graph search',
