@@ -8,7 +8,7 @@ from reprep import Report, MIME_PDF
 from zuper_commons.text import remove_escapes
 
 from pdm4ar.exercises_def.ex05.comparison import *
-from pdm4ar.exercises_def.ex05.data import *
+#from pdm4ar.exercises_def.ex05.data import *
 from pdm4ar.exercises_def.structures import Exercise
 from pdm4ar.exercises_def.ex05.problem_def import *
 
@@ -47,10 +47,13 @@ def exercise_dubins_eval(prob: DubinsProblem,
         msg = ""
         msg += f"Input: \t {*query,} \n"
         msg += pre_msg
-        comp_out = (*algo_out,) if isinstance(algo_out, Iterable) else str(algo_out)
+        comp_out = [*algo_out,] if isinstance(algo_out, Iterable) else str(algo_out)
         msg += f"Computed: \t {comp_out} \n"
         if expected is not None:
-            exp_out = (*expected[i],) if isinstance(expected[i], Iterable) else str(expected[i])
+            if isinstance(expected[i], dict):
+                exp_out = [p[1] for p in expected[i]["opt_paths"]]
+            else:
+                exp_out = (*expected[i],) if isinstance(expected[i], Iterable) else str(expected[i])
             msg += f"Expected: \t {exp_out} \n"
         msg += result_msg
         r.text(f"Query: {i + 1}", text=remove_escapes(msg))
