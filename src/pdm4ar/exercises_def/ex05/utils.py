@@ -6,7 +6,7 @@ import numpy as np
 from dg_commons import SE2Transform
 from matplotlib.lines import Line2D, segment_hits
 from matplotlib.patches import Circle
-from pdm4ar.exercises.exdubins.structures import DubinsSegmentType, Curve, Line, Path
+from pdm4ar.exercises.ex05.structures import DubinsSegmentType, Curve, Line, Path
 
 
 def get_rot_matrix(alpha: float) -> np.ndarray:

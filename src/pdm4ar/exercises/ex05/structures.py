@@ -1,13 +1,21 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, unique
-from typing import List
+from typing import List, Sequence
 import numpy as np
 from dg_commons import SE2Transform
 
 
 def mod_2_pi(x: float) -> float:
     return x - 2 * np.pi * np.floor(x / (2 * np.pi))
+
+
+@dataclass(frozen=True)
+class DubinsParam:
+    min_radius: float
+
+    def __post__init__(self):
+        assert self.min_radius > 0, "Minimum radius has to be larger than 0"
 
 
 @unique
