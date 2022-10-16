@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import Any, Type, Sequence
+from typing import Any, Type, Sequence, List
 
 from matplotlib import pyplot as plt
 from reprep import Report, MIME_PDF
 
 from pdm4ar.exercises_def.ex04.map import map2image
-from pdm4ar.exercises.ex04.mdp import GridMdpSolver
+from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
 from pdm4ar.exercises_def import Exercise, ExIn
@@ -17,6 +17,7 @@ from pdm4ar.exercises_def.structures import PerformanceResults
 @dataclass
 class TestValueEx4(ExIn):
     algo: Type[GridMdpSolver]
+    grid_list: List[GridMdp]
 
     def str_id(self) -> str:
         return str(self.algo.__name__)
@@ -32,12 +33,12 @@ class Ex04PerformanceResult(PerformanceResults):
 
 
 def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
-
-    solver: GridMdpSolver = ex_in.algo()
+    grid_mdp_list, mdp_solver = ex_in
+    solver: GridMdpSolver = mdp_solver.algo()
     algo_name = solver.__class__.__name__
     r = Report(f"Ex4-{algo_name}")
     
-    for k, grid_mdp in enumerate(get_test_grids()):
+    for k, grid_mdp in enumerate(grid_mdp_list):
         
         value_func, policy = solver.solve(grid_mdp)
 
@@ -71,7 +72,9 @@ def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04Performanc
 
 
 def get_exercise4() -> Exercise:
-    test_values = [TestValueEx4(ValueIteration), TestValueEx4(PolicyIteration)]
+    grid_mdp_list = get_test_grids()
+    test_values = [TestValueEx4(algo=ValueIteration, grid_list=grid_mdp_list),
+                   TestValueEx4(algo=PolicyIteration, grid_list=grid_mdp_list)]
 
     expected_results = None # TODO: add ground truth
 
