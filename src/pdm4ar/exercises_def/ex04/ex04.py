@@ -1,3 +1,4 @@
+from email import policy
 import numpy as np
 from dataclasses import dataclass
 from typing import Any, Type, Sequence, List
@@ -75,7 +76,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
             value_func_gt, policy_gt = ex_out[k]
             # evaluate accuracy
             policy_accuracy = np.sum(policy_gt==policy) / policy_gt.size
-            value_func_mse = 0.0 # TODO: find percentage error equation
+            value_func_mse = np.sum(np.divide(value_func_gt-value_func, value_func_gt)) / value_func_gt.size
 
             policy_accuracy_list.append(policy_accuracy)
             value_func_mse_list.append(value_func_mse)
@@ -108,10 +109,24 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
 
 
 def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult: # TODO
-    if perf:
-        return perf[0]
-    else:
-        return Ex04PerformanceResult(policy_accuracy=0., value_func_mse=0., solve_time=0.)
+    # perfomance for valid results
+    policy_accuracy = [p.policy_accuracy for p in perf]
+    value_func_mse = [p.value_func_mse for p in perf]
+    solve_time = [p.solve_time for p in perf]
+    try:
+        # average accuracy and solve_time
+        avg_policy_accuracy = sum(policy_accuracy) / float(len(policy_accuracy))
+        avg_value_func_mse = sum(value_func_mse) / float(len(value_func_mse)) 
+        avg_solve_time = sum(solve_time) / float(len(solve_time))
+    except ZeroDivisionError:
+        # None if gt wasn't provided
+        avg_policy_accuracy = 0
+        avg_value_func_mse = 0
+        avg_solve_time = 0
+
+    return Ex04PerformanceResult(policy_accuracy=avg_policy_accuracy,
+                                 value_func_mse=avg_value_func_mse,
+                                 solve_time=avg_solve_time)
 
 
 def get_exercise4() -> Exercise:
