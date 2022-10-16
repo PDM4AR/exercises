@@ -7,7 +7,7 @@ from typing import Sequence
 from dg_commons import SE2Transform
 
 from pdm4ar.exercises.ex05.structures import Curve, Line, Path, Segment, TurningCircle
-from pdm4ar.exercises_def.exdubins.utils import extract_path_points
+from pdm4ar.exercises_def.ex05.utils import extract_path_points
 
 
 class PathPlanner(ABC):
