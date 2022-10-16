@@ -108,7 +108,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
     return perf, r
 
 
-def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult: # TODO
+def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
     # perfomance for valid results
     policy_accuracy = [p.policy_accuracy for p in perf]
     value_func_mse = [p.value_func_mse for p in perf]
