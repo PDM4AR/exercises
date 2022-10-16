@@ -74,7 +74,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
         if ex_out is not None:
             value_func_gt, policy_gt = ex_out[k]
             # evaluate accuracy
-            policy_accuracy = 1 - np.sum(np.abs(policy_gt-policy)) / policy_gt.size
+            policy_accuracy = np.sum(policy_gt==policy) / policy_gt.size
             value_func_mse = 0.0 # TODO: find percentage error equation
 
             policy_accuracy_list.append(policy_accuracy)
