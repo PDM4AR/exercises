@@ -27,7 +27,7 @@ class TestValueEx4(ExIn):
 @dataclass(frozen=True)
 class Ex04PerformanceResult(PerformanceResults):
     policy_accuracy: float 
-    value_func_mse: float   # mean squared error of value function
+    value_func_mspa: float   # mean squared percentage accuracy of value function
     solve_time: float
 
     def __post__init__(self):
@@ -43,7 +43,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
 
     solve_time_list = []
     policy_accuracy_list = []
-    value_func_mse_list = []
+    value_func_mspa_list = []
     
     for k, grid_mdp in enumerate(grid_mdp_list):
         t = process_time()
@@ -76,10 +76,10 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
             value_func_gt, policy_gt = ex_out[k]
             # evaluate accuracy
             policy_accuracy = np.sum(policy_gt==policy) / policy_gt.size
-            value_func_mse = np.sum(np.divide(value_func_gt-value_func, value_func_gt)) / value_func_gt.size
+            value_func_mspa = 1 - np.sum(np.divide(value_func_gt-value_func, value_func_gt)) / value_func_gt.size
 
             policy_accuracy_list.append(policy_accuracy)
-            value_func_mse_list.append(value_func_mse)
+            value_func_mspa_list.append(value_func_mspa)
             solve_time_list.append(solve_time)
 
             # plot ground truth
@@ -103,7 +103,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
                         ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
 
     # aggregate performance of each query
-    query_perf = list(map(Ex04PerformanceResult, policy_accuracy_list, value_func_mse_list, solve_time_list))
+    query_perf = list(map(Ex04PerformanceResult, policy_accuracy_list, value_func_mspa_list, solve_time_list))
     perf = ex4_perf_aggregator(query_perf)
     return perf, r
 
@@ -111,21 +111,21 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
 def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
     # perfomance for valid results
     policy_accuracy = [p.policy_accuracy for p in perf]
-    value_func_mse = [p.value_func_mse for p in perf]
+    value_func_mspa = [p.value_func_mspa for p in perf]
     solve_time = [p.solve_time for p in perf]
     try:
         # average accuracy and solve_time
         avg_policy_accuracy = sum(policy_accuracy) / float(len(policy_accuracy))
-        avg_value_func_mse = sum(value_func_mse) / float(len(value_func_mse)) 
+        avg_value_func_mspa = sum(value_func_mspa) / float(len(value_func_mspa)) 
         avg_solve_time = sum(solve_time) / float(len(solve_time))
     except ZeroDivisionError:
         # None if gt wasn't provided
         avg_policy_accuracy = 0
-        avg_value_func_mse = 0
+        avg_value_func_mspa = 0
         avg_solve_time = 0
 
     return Ex04PerformanceResult(policy_accuracy=avg_policy_accuracy,
-                                 value_func_mse=avg_value_func_mse,
+                                 value_func_mse=avg_value_func_mspa,
                                  solve_time=avg_solve_time)
 
 
