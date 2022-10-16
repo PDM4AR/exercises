@@ -125,7 +125,7 @@ def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04Performanc
         avg_solve_time = 0
 
     return Ex04PerformanceResult(policy_accuracy=avg_policy_accuracy,
-                                 value_func_mse=avg_value_func_mspa,
+                                 value_func_mspa=avg_value_func_mspa,
                                  solve_time=avg_solve_time)
 
 
