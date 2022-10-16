@@ -18,31 +18,7 @@ DubinsQuery = Tuple[SE2Transform, SE2Transform, float]
 RadiusQuery = Tuple[float, float]
 
 @dataclass(frozen=True)
-class DubinsProblem(ABC):
-    weight: float
-
-@dataclass(frozen=True)
-class DubinsPathRadiusProblem(DubinsProblem):
-    queries: List[RadiusQuery]
-
-@dataclass(frozen=True)
-class TurningCircleProblem(DubinsProblem):
-    queries: List[Tuple[SE2Transform, float]]
-
-@dataclass(frozen=True)
-class TangentConstructionProblem(DubinsProblem):
-    queries: List[Tuple[Curve, Curve]]
-
-@dataclass(frozen=True)
-class DubinsPathSearchProblem(DubinsProblem):
-    queries: List[DubinsQuery]
-
-@dataclass(frozen=True)
-class ReedsSheppPathSearchProblem(DubinsProblem):
-    queries: List[DubinsQuery]
-
-@dataclass(frozen=True)
-class NewDubProblem():
+class DubinsProblem():
     queries: List[Any]
     eval_weight: float
     id_num: int
@@ -126,7 +102,6 @@ def ex4_pre_tf_fun(algo_out):
     return success, (algo_se2_path, algo_se2_np), pre_msg
 
 
-
 def ex3_tangent_plot_fun(rfig, query, algo_out, algo_out_tf, expected):
     with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
@@ -134,6 +109,7 @@ def ex3_tangent_plot_fun(rfig, query, algo_out, algo_out_tf, expected):
         if expected is not None:
             plot_circle_tangents(circle1=query[0], circle2=query[1], tan_list=expected, ax=ax)
         ax.axis('equal')
+
 
 def ex4_path_plot_fun(rfig, query, algo_out, algo_out_tf, expected):
     with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=None) as _:
