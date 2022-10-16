@@ -89,7 +89,6 @@ def exercise_dubins_eval(prob: DubinsProblem,
     if isinstance(prob, TurningCircleProblem):
         r = Report(f"Turning Circle Test")
         for i, query in enumerate(test_queries):
-            # Your method TODO replace with student's version
             algo_turning_circle = algo.calculate_turning_circles(query[0], radius=query[1])
                         
             if expected is not None:
