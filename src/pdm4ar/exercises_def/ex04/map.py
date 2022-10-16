@@ -1,5 +1,5 @@
 from itertools import product
-from random import sample
+from random import sample, seed
 from typing import Tuple
 
 import numpy as np
@@ -8,7 +8,8 @@ from pdm4ar.exercises.ex04.structures import Cell
 from pdm4ar.exercises_def.ex04.utils import cell2color
 
 
-def generate_map(shape: Tuple[int, int], swamp_percentage: float) -> np.ndarray:
+def generate_map(shape: Tuple[int, int], swamp_percentage: float, n_seed=3) -> np.ndarray:
+    seed(n_seed)
     xs, ys = range(0, shape[0]), range(0, shape[1])
     map = Cell.GRASS * np.ones(shape, dtype=int)
     xxyy = list(product(xs, ys))
