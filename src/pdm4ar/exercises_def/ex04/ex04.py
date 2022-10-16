@@ -32,11 +32,13 @@ class Ex04PerformanceResult(PerformanceResults):
 
 
 def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
-    r = Report("Ex4-ValueAndPolicyIteration")
 
+    solver: GridMdpSolver = ex_in.algo()
+    algo_name = solver.__class__.__name__
+    r = Report(f"Ex4-{algo_name}")
+    
     for k, grid_mdp in enumerate(get_test_grids()):
-        solver: GridMdpSolver = ex_in.algo()
-        algo_name = solver.__class__.__name__
+        
         value_func, policy = solver.solve(grid_mdp)
 
         MAP_SHAPE = grid_mdp.grid.shape
