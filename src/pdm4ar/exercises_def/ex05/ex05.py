@@ -1,8 +1,7 @@
-# TODO this file should be avaiable to student move to other repo
 from numpy import empty
 import pdm4ar.exercises.ex05.algo as algo
 import math
-from pdm4ar.exercises_def import Exercise, PerformanceResults
+from pdm4ar.exercises_def import PerformanceResults
 from pdm4ar.exercises_def.ex05.comparison import *
 from dataclasses import dataclass
 from abc import ABC
@@ -170,9 +169,7 @@ def exercise_dubins_eval(prob: DubinsProblem,
             r = Report(f"Reeds-Shepp Path Test")
             
         for i, query in enumerate(test_queries):
-            # TODO replace with students version
-            algo_path = algo.calculate_dubins_path(start_config=query[0], end_config=query[1], radius=query[2], return_all_valid_dubins_paths=True)
-            
+            algo_path = algo.calculate_dubins_path(start_config=query[0], end_config=query[1], radius=query[2])
             algo_nonempty = bool(len(algo_path)) and all([isinstance(seg, Segment) for seg in algo_path])
 
             if algo_nonempty:
