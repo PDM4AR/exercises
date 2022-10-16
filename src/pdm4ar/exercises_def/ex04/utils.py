@@ -4,7 +4,6 @@ from typing import Callable
 
 from frozendict import frozendict
 from matplotlib.colors import to_rgb
-
 from pdm4ar.exercises.ex04.structures import Action, Cell
 from pdm4ar.exercises_def import logger
 

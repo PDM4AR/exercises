@@ -1,20 +1,19 @@
-from email import policy
-import numpy as np
 from dataclasses import dataclass
-from typing import Any, Type, Sequence, List
+from time import process_time
+from typing import Any, List, Sequence, Type
 
+import numpy as np
 from matplotlib import pyplot as plt
-from reprep import Report, MIME_PDF
-
-from pdm4ar.exercises_def.ex04.map import map2image
 from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex04.data import get_expected_results, get_test_grids
+from pdm4ar.exercises_def.ex04.map import map2image
 from pdm4ar.exercises_def.ex04.utils import action2arrow, head_width
 from pdm4ar.exercises_def.structures import PerformanceResults
-from time import process_time
+from reprep import MIME_PDF, Report
+
 
 @dataclass
 class TestValueEx4(ExIn):
@@ -31,7 +30,7 @@ class Ex04PerformanceResult(PerformanceResults):
     solve_time: float
 
     def __post__init__(self):
-        assert self.accuracy <= 1, self.accuracy
+        assert self.policy_accuracy <= 1, self.policy_accuracy
         assert self.solve_time >= 0, self.solve_time
 
 
@@ -137,7 +136,7 @@ def get_exercise4() -> Exercise:
     expected_results = get_expected_results()
 
     return Exercise[TestValueEx4, Any](
-            desc='This exercise is about graph search',
+            desc='This exercise is about dynamic programming',
             evaluation_fun=ex4_evaluation,
             perf_aggregator=ex4_perf_aggregator,
             test_values=test_values,
