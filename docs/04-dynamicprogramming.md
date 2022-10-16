@@ -143,7 +143,7 @@ These test cases are not graded but serve as a guideline for how the exercise wi
 
 The final evaluation will combine 3 metrics lexicographically <number of solved cases, policy_accuracy, value_func_mspa, solve_time>:
 * **policy_accuracy**: This metric will evaluate the accuracy of your `Policy`, in particular, it averages for each state of the MDP the number of correct actions (# of correct actions)/(# of states). Thus, policy_accuracy will be in the interval [0, 1].
-* **value_func_mspa**: This metric will evaluate the accuracy of your `ValueFunc`. It is a measure of the mean accuracy of the given `ValueFunc` and it is calculated as: $ 1 - \frac{1}{n}\sum \frac{|VF^{gt} - VF|}{VF^{gt}}$.     
+* **value_func_mspa**: This metric will evaluate the accuracy of your `ValueFunc`. It is a measure of the mean accuracy of the given `ValueFunc` and it is calculated as: $1 - \frac{1}{n}\sum \frac{|VF^{gt} - VF|}{VF^{gt}}$.     
 $VF^{gt}$ and $VF$ are the ground truth and your `ValueFunc` respectively. value_func_mspa will be in the interval $(-\infty, 1]$ where 1 means $VF^{gt} = VF$.
 * **solve_time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required. How do you expect the heuristic in A* to affect its solve time?
 
