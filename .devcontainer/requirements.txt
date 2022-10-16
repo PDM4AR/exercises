@@ -5,6 +5,7 @@ numpy>=1.21.0
 networkx
 osmnx>=1.1.1
 matplotlib>=3.4.0
+cvxpy==1.2.0
 
 PyGeometry-z6
 quickapp-z6>=6.0.5,<7
