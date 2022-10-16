@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Type
+from typing import Any, Type, Sequence
 
 from matplotlib import pyplot as plt
 from reprep import Report, MIME_PDF
@@ -11,6 +11,7 @@ from pdm4ar.exercises.ex04.value_iteration import ValueIteration
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex04.data import get_test_grids
 from pdm4ar.exercises_def.ex04.utils import action2arrow, head_width
+from pdm4ar.exercises_def.structures import PerformanceResults
 
 
 @dataclass
@@ -20,8 +21,17 @@ class TestValueEx4(ExIn):
     def str_id(self) -> str:
         return str(self.algo.__name__)
 
+@dataclass(frozen=True)
+class Ex04PerformanceResult(PerformanceResults):
+    accuracy_mse: float # mean squared error between ground truth and solution
+    solve_time: float
 
-def exercise4_report(ex_in: TestValueEx4, ex_out=None) -> Report:
+    def __post__init__(self):
+        assert self.accuracy <= 1, self.accuracy
+        assert self.solve_time >= 0, self.solve_time
+
+
+def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
     r = Report("Ex4-ValueAndPolicyIteration")
 
     for k, grid_mdp in enumerate(get_test_grids()):
@@ -50,18 +60,23 @@ def exercise4_report(ex_in: TestValueEx4, ex_out=None) -> Report:
                 for j in range(MAP_SHAPE[1]):
                     arrow = action2arrow[policy[i, j]]
                     ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
-    return r
+    
+    return Ex04PerformanceResult(accuracy_mse=0.0, solve_time=0.0), r # TODO: add performance
 
 
-def algo_placeholder(ex_in):
-    return None
+def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
+    return Ex04PerformanceResult(accuracy_mse=0.0, solve_time=0.0) # TODO: add function
 
 
 def get_exercise4() -> Exercise:
     test_values = [TestValueEx4(ValueIteration), TestValueEx4(PolicyIteration)]
+
+    expected_results = None # TODO: add ground truth
+
     return Exercise[TestValueEx4, Any](
-        desc="This exercise is about value and policy iteration",
-        algorithm=algo_placeholder,
-        evaluation_fun=exercise4_report,
-        test_values=test_values,
+            desc='This exercise is about graph search',
+            evaluation_fun=ex4_evaluation,
+            perf_aggregator=ex4_perf_aggregator,
+            test_values=test_values,
+            expected_results=expected_results,
     )
