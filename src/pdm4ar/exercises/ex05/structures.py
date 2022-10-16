@@ -81,8 +81,11 @@ class Line(Segment):
             self.direction = SE2Transform.identity().p
         super().__init__(DubinsSegmentType.STRAIGHT, start_config, end_config, gear)
 
-    def __str__(self):
+    def __str__(self)-> str:
         return f"S{'-' if self.gear is Gear.REVERSE else ''}({self.length :.1f})"
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 class Curve(Segment):
@@ -130,9 +133,12 @@ class Curve(Segment):
         self.arc_angle = mod_2_pi(arc_angle)
         super().__init__(curve_type, start_config, end_config, gear)
 
-    def __str__(self):
+    def __str__(self)-> str:
         return f"L{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self.arc_angle):.1f})" if self.type is DubinsSegmentType.LEFT\
             else f"R{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self.arc_angle):.1f})"
+
+    def __repr__(self) -> str:
+        return str(self)
     
     @staticmethod
     def create_circle(center: SE2Transform, config_on_circle: SE2Transform, radius: float, curve_type: DubinsSegmentType)-> 'Curve':

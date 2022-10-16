@@ -54,7 +54,7 @@ def ex1_radius_eval(algo_out, algo_out_tf, expected):
     return correct, result_str
 
 def ex2_turning_circle_eval(algo_out, algo_out_tf, expected):
-    gt_turning_circle = expected[i]
+    gt_turning_circle = expected
     are_equal = curves_are_equal(algo_out.left, gt_turning_circle.left) and curves_are_equal(algo_out.right,
                                                                                    gt_turning_circle.right)
     result_str = PASSED_STR if are_equal else FAILED_STR
@@ -63,6 +63,7 @@ def ex2_turning_circle_eval(algo_out, algo_out_tf, expected):
 def ex3_tangent_construct_eval(algo_out, algo_out_tf, expected):
     gt_tangent = expected
     correct_answers = 0
+    result_str = ""
     if len(algo_out) == 0 and len(gt_tangent) == 0:
         correct_answers += 1
         result_str = PASSED_STR
@@ -84,6 +85,7 @@ def ex3_tangent_construct_eval(algo_out, algo_out_tf, expected):
 def ex4_path_eval(algo_out, algo_out_tf, expected):
     gt_sol_dict = expected
     correct_answers = 0
+    result_str = ""
     if algo_out_tf:
         correct_answers, success, result_str = compare_paths(correct_answers, algo_out, algo_out_tf[1], gt_sol_dict)
     return correct_answers, result_str
@@ -102,21 +104,21 @@ def ex4_pre_tf_fun(algo_out):
     return success, (algo_se2_path, algo_se2_np), pre_msg
 
 
-def ex3_tangent_plot_fun(rfig, query, algo_out, algo_out_tf, expected):
+def ex3_tangent_plot_fun(rfig, query, algo_out, algo_out_tf, expected, sucess):
     with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         plot_circle_tangents(circle1=query[0], circle2=query[1], tan_list=algo_out, ax=ax)
-        if expected is not None:
+        if expected is not None and not sucess:
             plot_circle_tangents(circle1=query[0], circle2=query[1], tan_list=expected, ax=ax)
         ax.axis('equal')
 
 
-def ex4_path_plot_fun(rfig, query, algo_out, algo_out_tf, expected):
+def ex4_path_plot_fun(rfig, query, algo_out, algo_out_tf, expected, sucess):
     with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         if algo_out_tf:
             plot_2d_path(algo_out_tf[1], ax=ax)
-        if expected is not None:
+        if expected is not None and not sucess:
             for gt_opt_path_np in expected["opt_np_points_list"] :
                 plot_2d_path(gt_opt_path_np, ax=ax)
         plot_configuration(query[0], ax=ax, color='blue')

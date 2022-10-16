@@ -21,6 +21,7 @@ def exercise_dubins_eval(prob: DubinsProblem,
    
     r = Report(prob.id_str)
     for i, query in enumerate(test_queries):
+        sucess = False
         algo_out = prob.algo_fun(*query)
 
         if prob.pre_tf_fun is not None:
@@ -33,6 +34,7 @@ def exercise_dubins_eval(prob: DubinsProblem,
         if expected is not None:
             if pre_success:
                 is_correct, result_msg = prob.eval_fun(algo_out, algo_out_tf, expected[i]) 
+                sucess = bool(int(is_correct))
                 correct_answers += is_correct
         else:
             result_msg = "Solution unavailable \n"
@@ -40,7 +42,7 @@ def exercise_dubins_eval(prob: DubinsProblem,
         if prob.plot_fun is not None:
             figsize = None
             rfig = r.figure(cols=1)
-            prob.plot_fun(rfig, query, algo_out, algo_out_tf, expected[i] if expected is not None else None)
+            prob.plot_fun(rfig, query, algo_out, algo_out_tf, expected[i] if expected is not None else None, sucess)
         
         msg = ""
         msg += f"Input: \t {*query,} \n"
