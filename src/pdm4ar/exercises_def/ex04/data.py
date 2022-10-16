@@ -26,5 +26,5 @@ def get_test_grids(evaluation_tests: List[Tuple[int, int]] = []) -> List[GridMdp
 
     return data_in
 
-def get_expected_results() -> List[ValueFunc, Policy]:
+def get_expected_results() -> List[Tuple[ValueFunc, Policy]]:
     pass
