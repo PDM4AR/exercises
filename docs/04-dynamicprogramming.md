@@ -2,18 +2,25 @@
 
 | _Prerequisites_:    | [Preliminaries](00-preliminaries.md) | [Hello-world](01-helloworld.md)|
 
-In this programming exercise you will implement _Value_ and _Policy iterations_ for a particular stationary Markov
+In this exercise you will implement _Value_ and _Policy iterations_ to solve a particular stationary Markov
 Decision Process (MDP).
 
-You (autonomous robot) will be parachuted in a remote area of the planet for a rescue mission. You need to compute the optimal policy to reach the goal cell (visualized in RED). The world is modeled as a 2D grid, which is represented through a NxM matrix (numpy array). Rows and columns representing the “x” and “y” coordinates of the robot, respectively.
+Your autonomous robot will be parachuted in a remote area of the planet for a rescue mission.
+As communication is unreliable, your task is to compute offline the optimal policy to reach the target (cell visualized in RED). 
+The world is modeled as a 2D grid, which is represented through a _NxM_ matrix (numpy array).
+Rows and columns representing the “_x_” and “_y_” coordinates of the robot, respectively.
 
-The area seems to be a tropical rainforest. Some cells in the map are simply ``GRASS`` (green), it will take you 1 time step to cross them. Some others are of type SWAMP (light blue), it will take you 5 time step to cross them. The reward at the GOAL cell is +10. For now, consider also the starting cell ``START`` as a ``GRASS`` cell.
+The area is a tropical rainforest. Some cells in the map are simply ``GRASS`` (green), it will take the robot 1 time step to cross them. 
+Some others are of type ```SWAMP``` (light blue), it will take the robot 5 time steps to cross them. 
+The reward at the GOAL cell is +10. 
+Also the starting cell ``START`` cna be considered a ``GRASS`` cell.
 When in a specific cell, the robot can move ``SOUTH, NORTH, EAST, WEST`` and if arrived at the ``GOAL``, it can ``STAY`` (actions and cells described in exercises/ex04/structures.py). 
 The planet's atmosphere is very foggy and when the robot decides for an action, it may not end up where initially planned. In fact, for all other transitions, the following probabilities are given:
 - When in ``GRASS``: all chosen transitions (``SOUTH, NORTH, EAST, WEST``) happen with probability of 0.75, the remaining 0.25 is split among the other 3 transitions not chosen.
-- When in a ``SWAMP``: because it is also harder to move, with probability 0.25, the robot will not be able to move out of the current cell regardless of the chosen action. Any chosen transition will occur with 0.5 probability and because it is still foggy, the robot may end up with equal probability in one of the 3 remaining transitions.
+- When in a ``SWAMP``: because it is harder to move, with probability 0.25, the robot will not be able to move out of the current cell regardless of the chosen action. 
+Any chosen transition will occur with 0.5 probability and because it is still foggy, the robot may end up with equal probability in one of the 3 remaining transitions.
 - When in the ``GOAL`` the robot will ``STAY``  with probability of 1.
-Moreover, although the robot cannot go directly out of the map, it may end up there accidentally, because this planet is flat the robot would fall off the planet and be transported back to the START cell.
+Moreover, although the robot cannot go directly out of the map, it may end up there accidentally, because this planet is flat the robot would fall off the planet and a new one will be transported back to the START cell.
 
 ## Tasks
 
@@ -73,7 +80,7 @@ class GridMdp:
         # todo
 
     def stage_reward(self, state: State, action: Action) -> float:
-# todo
+        # todo
 
 
 ```
@@ -130,7 +137,8 @@ grass, swamps, goal,...) and the corresponding optimal policy.
 
 The algorithms are going to be tested on different MDPs, each containing randomly located queries (start & goal cells).
 You will be able to test your algorithms on some test cases with given solution, the outputted `Policy` and `ValueFunc` will be compared to the solution. 
-After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the MDPS, your output and the solution.
+After running the exercise, you will find the reports in `out/04/` for each test case. 
+There you will be able to visualize the MDPs, your output and the expected solution.
 These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
 
 The final evaluation will combine 3 metrics lexicographically <number of solved cases, policy_accuracy, value_func_mspa, solve_time>:
