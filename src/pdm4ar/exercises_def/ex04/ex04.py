@@ -35,8 +35,8 @@ class Ex04PerformanceResult(PerformanceResults):
 
 
 def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
-    grid_mdp_list, mdp_solver = ex_in
-    solver: GridMdpSolver = mdp_solver.algo()
+    grid_mdp_list = ex_in.grid_list
+    solver: GridMdpSolver = ex_in.algo()
     algo_name = solver.__class__.__name__
     r = Report(f"Ex4-{algo_name}")
 
