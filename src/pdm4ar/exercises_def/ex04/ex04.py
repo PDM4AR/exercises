@@ -107,8 +107,11 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
     return perf, r
 
 
-def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
-    return perf[0] # TODO: add function
+def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult: # TODO
+    if perf:
+        return perf[0]
+    else:
+        return Ex04PerformanceResult(policy_accuracy=0., value_func_mse=0., solve_time=0.)
 
 
 def get_exercise4() -> Exercise:
