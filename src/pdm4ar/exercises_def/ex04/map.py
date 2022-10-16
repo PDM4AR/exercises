@@ -3,7 +3,6 @@ from random import sample, seed
 from typing import Tuple
 
 import numpy as np
-
 from pdm4ar.exercises.ex04.structures import Cell
 from pdm4ar.exercises_def.ex04.utils import cell2color
 

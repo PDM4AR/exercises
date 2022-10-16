@@ -1,13 +1,10 @@
-import imp
-from inspect import ismethoddescriptor
-import numpy as np
-from typing import List, Tuple
-from pdm4ar.exercises.ex04.structures import Policy, ValueFunc
 from collections import defaultdict
+from typing import List, Tuple
 
-
-from pdm4ar.exercises_def.ex04.map import generate_map
+import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
+from pdm4ar.exercises.ex04.structures import Policy, ValueFunc
+from pdm4ar.exercises_def.ex04.map import generate_map
 
 
 def get_test_grids(evaluation_tests: List[Tuple[int, int]] = [], n_seed=3) -> List[GridMdp]:
@@ -19,7 +16,7 @@ def get_test_grids(evaluation_tests: List[Tuple[int, int]] = [], n_seed=3) -> Li
     for ms in [MAP_SHAPE_1, MAP_SHAPE_2]:
         test_maps.append(generate_map(ms, swamp_ratio, n_seed=n_seed))
 
-    # additiomal maps for evaluation
+    # additional maps for evaluation
     for ms in evaluation_tests:
         test_maps.append(generate_map(ms, swamp_ratio, n_seed=n_seed))
 

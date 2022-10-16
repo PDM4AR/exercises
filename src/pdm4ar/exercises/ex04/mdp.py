@@ -3,8 +3,7 @@ from typing import Tuple
 
 import numpy as np
 from numpy.typing import NDArray
-
-from pdm4ar.exercises.ex04.structures import Action, Policy, ValueFunc, State
+from pdm4ar.exercises.ex04.structures import Action, Policy, State, ValueFunc
 
 
 class GridMdp:
