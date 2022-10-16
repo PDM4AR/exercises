@@ -1,6 +1,6 @@
 from dg_commons import get_distance_SE2
-from pdm4ar.exercises.exdubins.structures import Segment
-from pdm4ar.exercises_def.exdubins.utils import *
+from pdm4ar.exercises.ex05.structures import Segment
+from pdm4ar.exercises_def.ex05.utils import *
 
 NUM_TOL = 1e-5
 
