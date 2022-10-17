@@ -77,7 +77,7 @@ def calculate_turning_circles(current_config: SE2Transform, radius: float) -> Tu
     # TODO implement here your solution
     return [] # i.e., [Line(),]
  ``` 
- Note in principle ```curve1``` and `curve2` can have different radii, however we will only check the case when the radii are equal, you free to implement a more general method however.
+ Note in principle ```curve1``` and `curve2` can have different radii, however we will only check the case when the radii are equal, you free to implement a more general method.
  Only return the valid tangent line(s) which are physically possible, if no tangent exists return an empty ```List```. 
 The order of the lines in the List is not important.
 
