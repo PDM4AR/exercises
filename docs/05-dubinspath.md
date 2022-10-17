@@ -13,10 +13,10 @@ In this programming exercises you will learn how to implement Dubins' path.
 ### Overview
 The self-driving taxi startup **ERMETH-ON-WHEELS** :red_car: has tasked you to write a path generation procedure for its fleet of 
 autonomous vehicles. The navigation and planning teams have already found an algorithm for constructing waypoints which the 
-cars need to follow for completing different tasks (e.g. parking). 
+cars need to follow for completing different tasks (e.g., parking). 
 Unfortunately, they are completely clueless (since they have not attended PDM4AR) on how to construct physically realistic paths in between.
 The car fleet is grounded - the investors are furious. Your job is it to use Dubins' method to construct a path between two waypoints,
-which represent the start and end configuration ($x,y,\theta$) of the vehicle, so that the cars
+which represent the start and end configuration $(x,y,\theta)$ of the vehicle, so that the cars
 can finally reach their desired locations and the investors are happy again ($).
 You can assume that the provided waypoints are physically possible and are reachable.
 We assume that the kinematics of the car can be described by a simplified bicycle model (also known as Dubins' car):
@@ -29,7 +29,7 @@ $\dot{\theta} = \frac{v}{L} \tan (\delta)$
 
 $\theta$ is the heading angle of the base, $v$ is the current car velocity in the cars reference frame. 
 The wheel-base of the car is given by L, the steering angle of the car is $\delta$.
-Note that for this project we are only interested in the path the car needs to follow not the trajectory (i.e. the path as function of time).
+Note that for this project we are only interested in the path the car needs to follow not the trajectory (i.e., the path as function of time).
 ### Structure
 Please have a look at the files  `structures.py` to familiarize yourself with the data structures and the algorithms. It is important that you return the right data structures (specified in the method definition). You will do your implementations 
 in `algo.py`. First, have a look at the Dubins PathPlanner class:
@@ -81,8 +81,8 @@ def calculate_turning_circles(current_config: SE2Transform, radius: float) -> Tu
  Only return the valid tangent line(s) which are physically possible, if no tangent exists return an empty ```List```. 
 The order of the lines in the List is not important.
 
-4. [xx%,xx%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, always the same length). Keep segments with zero length (e.g. line with length = 0) in the returned list.
-Implement it in :
+4. [xx%,xx%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, always the same length). Keep segments with zero length (e.g., line with length = 0) in the returned list.
+Implement it in:
 ```python
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
     # TODO implement here your solution
