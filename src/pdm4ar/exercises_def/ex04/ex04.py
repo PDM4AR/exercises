@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from time import process_time
 from typing import Any, List, Sequence, Type
+from zuper_commons.text import remove_escapes
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -75,7 +76,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
             value_func_gt, policy_gt = ex_out[k]
             # evaluate accuracy
             policy_accuracy = np.sum(policy_gt==policy) / policy_gt.size
-            value_func_mspa = 1 - np.sum(np.divide(value_func_gt-value_func, value_func_gt)) / value_func_gt.size
+            value_func_mspa = 1 - np.sum(np.abs(np.divide(value_func_gt-value_func, value_func_gt))) / value_func_gt.size
 
             policy_accuracy_list.append(policy_accuracy)
             value_func_mspa_list.append(value_func_mspa)
@@ -100,6 +101,11 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
                     for j in range(MAP_SHAPE[1]):
                         arrow = action2arrow[policy_gt[i, j]]
                         ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
+
+            msg += f"policy_accuracy: {policy_accuracy}\n"
+            msg += f"value_func_mspa:{value_func_mspa:.3f}\n"
+
+            r.text(f"{algo_name}-query{k}", text=remove_escapes(msg))
 
     # aggregate performance of each query
     query_perf = list(map(Ex04PerformanceResult, policy_accuracy_list, value_func_mspa_list, solve_time_list))
