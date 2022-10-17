@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Sequence
 from dg_commons import SE2Transform
 
-from pdm4ar.exercises.ex05.structures import Curve, Line, Path, Segment, TurningCircle
+from pdm4ar.exercises.ex05.structures import Curve, DubinsParam, Line, Path, Segment, TurningCircle
 from pdm4ar.exercises_def.ex05.utils import extract_path_points
 
 
@@ -14,14 +14,6 @@ class PathPlanner(ABC):
     @abstractmethod
     def compute_path(self, start: SE2Transform, end: SE2Transform) -> Sequence[SE2Transform]:
         pass
-
-
-@dataclass(frozen=True)
-class DubinsParam:
-    min_radius: float
-
-    def __post__init__(self):
-        assert self.min_radius > 0, "Minimum radius has to be larger than 0"
 
 
 class Dubins(PathPlanner):
