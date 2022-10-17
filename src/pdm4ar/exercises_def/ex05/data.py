@@ -1,6 +1,3 @@
-
-#TODO change to use different versions
-
 from abc import ABC
 import itertools
 from turtle import circle
