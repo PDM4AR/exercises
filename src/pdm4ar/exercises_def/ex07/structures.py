@@ -3,11 +3,13 @@ from enum import Enum
 from typing import List, Tuple, Literal, Optional
 import numpy as np
 
+from pdm4ar.exercises_def.structures import PerformanceResults
+
 
 @dataclass(frozen=True)
 class MilpFeasibility(Enum):
-    feasible = "feasible"
-    unfeasible = "unfeasible"
+    unfeasible = 0
+    feasible = 1
 
     def __eq__(self, other) -> bool:
         return self.value == other.value
@@ -41,11 +43,11 @@ class Island:
 class ProblemVoyage:
     start_crew: int
     islands: Tuple[Island]
-    min_fix_time_individual_island: int
-    min_crew: int
-    max_crew: int
-    max_duration_individual_journey: float
-    max_distance_individual_journey: float   
+    min_fix_time_individual_island: Optional[int]
+    min_crew: Optional[int]
+    max_crew: Optional[int]
+    max_duration_individual_journey: Optional[float]
+    max_distance_individual_journey: Optional[float]   
 
 @dataclass(frozen=True)
 class ProblemVoyage1(ProblemVoyage):
@@ -71,7 +73,7 @@ class SolutionsCosts:
     min_max_sail_time: Optional[float]
 
 @dataclass(frozen=True)
-class MilpPerformance(SolutionsCosts):
+class MilpPerformance(PerformanceResults, SolutionsCosts):
     ...
 
     def __post_init__(self):
@@ -96,6 +98,8 @@ class MilpFinalPerformance(MilpPerformance):
         perf_scores = [getattr(self, name_cost) for name_cost in self.__annotations__.keys()]
         assert  all([perf_score >= 0 or np.isnan(perf_score) for perf_score in perf_scores]), \
             f"some performance scores {perf_scores} are less than 0"
+        assert all([perf_score <= 1 or np.isnan(perf_score) for perf_score in perf_scores]), \
+            f"some performance scores {perf_scores} are greater than 1"
 
 @dataclass(frozen=True)
 class aViolations:
@@ -125,3 +129,30 @@ class SlackViolations(SolutionViolations):
 @dataclass(frozen=True)
 class SlackCosts(SolutionsCosts):
     ...
+
+
+@dataclass(frozen=True)
+class CostTolerance:
+    tol: float = 0.001
+
+    @classmethod
+    def compare(cls, cost_1: float, cost_2: float) -> bool:
+        return np.isclose(cost_1, cost_2, rtol=0.0, abs_tol=cls.tol)
+
+
+@dataclass(frozen=True)
+class ReportType(Enum):
+    none = 0
+    terminal = 1
+    report_txt = 2
+    report_viz = 3 # slow
+
+    def __eq__(self, other) -> bool:
+        return self.value == other.value
+        
+    def __ge__(self, other) -> bool:
+        return self.value >= other.value
+
+    def __le__(self, other) -> bool:
+        return self.value <= other.value
+

@@ -10,6 +10,10 @@ from pdm4ar.exercises_def.ex07.structures import Island, ProblemVoyage, ProblemV
 @dataclass(frozen=True)
 class MilpCase(Enum):
     voyage1 = "voyage1"
+    voyage1_1 = "voyage1_1"
+    voyage1_2 = "voyage1_2"
+    voyage1_3 = "voyage1_3"
+    voyage1_4 = "voyage1_4"
     voyage2 = "voyage2"
     testvoyage1 = "testvoyage1"
     testvoyage2 = "testvoyage2"
@@ -23,6 +27,9 @@ class MilpCase(Enum):
 
     def __eq__(self, other) -> bool:
         return self.value == other.value
+
+    def __contains__(self, other) -> bool:
+        return self.value in other.value or other.value in self.value
 
     @classmethod
     def get_test_milp_cases_types(cls):
@@ -57,12 +64,12 @@ def milp_generator(milp_type: Literal, milp_difficulty: Literal, milp_seed: int
 
     islands = []
 
-    if milp_type == MilpCase.voyage1:
+    if milp_type in MilpCase.voyage1:
         np.random.seed(milp_seed)
         if milp_difficulty == MilpCase.easy:
             start_crew = np.random.randint(25,50)
-            n_time_steps = np.random.randint(3,10)
-            n_islands_step = np.random.randint(3,10)
+            n_time_steps = np.random.randint(3,8)
+            n_islands_step = np.random.randint(3,8)
             x_range = [np.random.randint(10,31), np.random.randint(35,56)]
             y_range = [np.random.randint(35,60), np.random.randint(80,110)]
             departure_range = [np.random.randint(6,9), np.random.randint(10,13)]
@@ -96,8 +103,8 @@ def milp_generator(milp_type: Literal, milp_difficulty: Literal, milp_seed: int
 
         elif milp_difficulty == MilpCase.medium:
             start_crew = np.random.randint(40,60)
-            n_time_steps = np.random.randint(20,30)
-            n_islands_step = np.random.randint(10,20)
+            n_time_steps = np.random.randint(8,16)
+            n_islands_step = np.random.randint(8,16)
             x_range = [np.random.randint(10,41), np.random.randint(80,120)]
             y_range = [np.random.randint(-45,10), np.random.randint(110,150)]
             departure_range = [np.random.randint(6,8), np.random.randint(9,12)]
@@ -105,7 +112,7 @@ def milp_generator(milp_type: Literal, milp_difficulty: Literal, milp_seed: int
             time_compass_range = [np.random.randint(1,4), np.random.randint(5,8)]
             crew_range = [np.random.randint(-12,-5), np.random.randint(3,20)]
             x_offset_levels = np.random.randint(x_range[1]-x_range[0]+0, x_range[1]-x_range[0]+10)
-            y_offset_levels = [0,0]
+            y_offset_levels = [-10,10]
 
             # TODO magic numbers here should be random too
             max_distance_individual_sail = 0.5*(y_range[1]-y_range[0]) + 0.5*(x_range[1]-x_range[0]) + x_offset_levels
@@ -131,15 +138,15 @@ def milp_generator(milp_type: Literal, milp_difficulty: Literal, milp_seed: int
 
         elif milp_difficulty == MilpCase.hard:
             start_crew = np.random.randint(120,200)
-            n_time_steps = np.random.randint(30,50)
-            n_islands_step = np.random.randint(20,40)
+            n_time_steps = np.random.randint(16, 24)
+            n_islands_step = np.random.randint(12,20)
             x_range = [np.random.randint(10,41), np.random.randint(80,120)]
             y_range = [np.random.randint(-45,30), np.random.randint(110,150)]
             departure_range = [np.random.randint(6,8), np.random.randint(9,12)]
             arrival_range = [np.random.randint(15,17), np.random.randint(17,21)]
             time_compass_range = [np.random.randint(1,4), np.random.randint(5,8)]
             crew_range = [np.random.randint(-15,0), np.random.randint(3,20)]
-            x_offset_levels = np.random.randint(x_range[1]-x_range[0]-30, x_range[1]-x_range[0]+10)
+            x_offset_levels = np.random.randint(x_range[1]-x_range[0]-50, x_range[1]-x_range[0]+10)
             y_offset_levels = [-30, 30]
 
             # TODO magic numbers here should be random too
@@ -167,11 +174,14 @@ def milp_generator(milp_type: Literal, milp_difficulty: Literal, milp_seed: int
         else:
             raise ValueError(milp_difficulty)
 
-    elif milp_type == MilpCase.voyage2:
-        raise NotImplementedError
+    elif milp_type in MilpCase.voyage2:
+        raise NotImplementedError(milp_type)
+
+    else:
+        raise ValueError(milp_type)
 
 
-    max_trials_samples = 300
+    max_trials_samples = 200
     island_id = 0
     for k in range(n_time_steps):
         x_range = [i+x_offset_levels for i in x_range]
