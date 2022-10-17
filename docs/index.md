@@ -10,3 +10,4 @@ Welcome to PDM4AR programming exercises for autonomous robots :airplane: :helico
 * [Hello-world](01-helloworld.md)
 * [Graph search](02-graphsearch.md)
 * [Informed graph search](03-informedgraphsearch.md)
+* [Dynamic Programming](04-dynamicprogramming.md)
