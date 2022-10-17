@@ -1,8 +1,4 @@
-from numpy import empty
-import math
-from dataclasses import dataclass
-from abc import ABC
-from typing import Callable, Tuple, Any
+from typing import Tuple, Any
 from collections.abc import Iterable
 from reprep import Report, MIME_PDF
 from zuper_commons.text import remove_escapes
@@ -66,10 +62,7 @@ def exercise_dubins_eval(prob: DubinsProblem,
 
 
 def exercise_dubins_perf_aggregator(perf_outs: List[DubinsPerformance]) -> DubinsPerformance:
-    if len(perf_outs):
-        return DubinsPerformance(sum([el.accuracy*el.weight for el in perf_outs]) / len(perf_outs), weight = 1)
-    else:
-        return DubinsPerformance(0, weight=1)
+    return DubinsPerformance(sum([el.accuracy*el.weight for el in perf_outs]), weight = 1)
 
 
 def get_exercise5()-> Exercise:
