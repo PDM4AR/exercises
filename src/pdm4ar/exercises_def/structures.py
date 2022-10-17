@@ -88,7 +88,6 @@ class ExerciseEvaluator(ABC):
                 expected_out = self.ex.expected_results[i] if self.ex.expected_results is not None else None
                 eval_out = self.ex.evaluation_fun(test_input, expected_out)
             except Exception as e:
-                raise e
                 n_failed_test_cases += 1
                 print(f"Failed because of:\n {e.args} \n{''.join(traceback.format_tb(e.__traceback__))}")
                 logger.info(
