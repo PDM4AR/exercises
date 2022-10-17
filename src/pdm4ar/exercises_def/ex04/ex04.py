@@ -102,7 +102,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
                         arrow = action2arrow[policy_gt[i, j]]
                         ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
 
-            msg += f"policy_accuracy: {policy_accuracy}\n"
+            msg = f"policy_accuracy: {policy_accuracy}\n"
             msg += f"value_func_mspa:{value_func_mspa:.3f}\n"
 
             r.text(f"{algo_name}-query{k}", text=remove_escapes(msg))
