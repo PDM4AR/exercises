@@ -20,7 +20,7 @@ The planet's atmosphere is very foggy and when the robot decides for an action, 
 - When in a ``SWAMP``: because it is harder to move, with probability 0.25, the robot will not be able to move out of the current cell regardless of the chosen action. 
 Any chosen transition will occur with 0.5 probability and because it is still foggy, the robot may end up with equal probability in one of the 3 remaining transitions.
 - When in the ``GOAL`` the robot will ``STAY``  with probability of 1.
-- Finally, if the robot ends up outside the map, it can be considered lost (out of reach) and a new one will be parachuted at the ```START``` cell.
+- Finally, the robot cannot directly pick an action that would take him outside the map. However, it may be that the robot ends up out of the map as described from the transition probabilities above. If this happens, the robot is considered lost (out of reach) and a new one will be parachuted at the ```START``` cell.
 You can simply model this as a transition in your MDP from going outside the map to the ```START``` cell.
 
 ## Tasks
