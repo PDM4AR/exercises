@@ -4,7 +4,7 @@ from reprep import Report, MIME_PDF
 from zuper_commons.text import remove_escapes
 
 from pdm4ar.exercises_def.ex05.comparison import *
-#from pdm4ar.exercises_def.ex05.data import *
+from pdm4ar.exercises_def.ex05.data import get_example_test_values
 from pdm4ar.exercises_def.structures import Exercise
 from pdm4ar.exercises_def.ex05.problem_def import *
 
@@ -68,7 +68,7 @@ def exercise_dubins_perf_aggregator(perf_outs: List[DubinsPerformance]) -> Dubin
 def get_exercise5()-> Exercise:
     test_values = []
     expected_results = []
-    test_configs = get_test_values()
+    test_configs = get_example_test_values()
     test_values = test_configs
     expected_results = None
 
