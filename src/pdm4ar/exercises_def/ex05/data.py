@@ -62,7 +62,7 @@ def get_ex5_start_end_test_values() -> DubinsProblem:
     config_list.append((SE2Transform([0., 0.], np.pi/6), SE2Transform([8, 4.], -np.pi/2))) 
     for config in config_list:
         queries += [(*config, radius) ]
-    return DubinsProblem(queries=queries, id_num=4, id_str="Dubins' Path Test", algo_fun=algo.calculate_dubins_path, eval_fun=ex4_path_eval, eval_weight=EX_4_DUBINS_WEIGHT, plot_fun=ex4_path_plot_fun, pre_tf_fun=ex4_pre_tf_fun)
+    return DubinsProblem(queries=queries, id_num=5, id_str="Reeds' Path Test", algo_fun=algo.calculate_reeds_shepp_path, eval_fun=ex4_path_eval, eval_weight=EX_5_REEDS_WEIGHT, plot_fun=ex4_path_plot_fun, pre_tf_fun=ex4_pre_tf_fun)
 
 
 
