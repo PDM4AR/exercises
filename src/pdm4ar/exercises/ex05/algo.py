@@ -20,7 +20,7 @@ class Dubins(PathPlanner):
     def __int__(self, params: DubinsParam):
         self.params = params
 
-    def compute_path(self, start: SE2Transform, end: SE2Transform) -> List[Segment]:
+    def compute_path(self, start: SE2Transform, end: SE2Transform) -> List[SE2Transform]:
         """ Generates an optimal Dubins path between start and end configuration
 
         :param start: the start configuration of the car (x,y,theta)
