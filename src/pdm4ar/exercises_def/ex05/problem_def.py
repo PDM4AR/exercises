@@ -101,6 +101,8 @@ def ex4_pre_tf_fun(algo_out):
     else:
         pre_msg = f"{FAILED_STR}, returned list is empty or contains elements which are not of type Segment \n"
         success = False
+        algo_se2_path = None
+        algo_se2_np = None
     return success, (algo_se2_path, algo_se2_np), pre_msg
 
 
@@ -116,7 +118,7 @@ def ex3_tangent_plot_fun(rfig, query, algo_out, algo_out_tf, expected, sucess):
 def ex4_path_plot_fun(rfig, query, algo_out, algo_out_tf, expected, sucess):
     with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
-        if algo_out_tf:
+        if algo_out_tf[1] and algo_out_tf[0]:
             plot_2d_path(algo_out_tf[1], ax=ax)
         if expected is not None and not sucess:
             for gt_opt_path_np in expected["opt_np_points_list"] :

@@ -32,6 +32,8 @@ def exercise_dubins_eval(prob: DubinsProblem,
                 is_correct, result_msg = prob.eval_fun(algo_out, algo_out_tf, expected[i]) 
                 sucess = bool(int(is_correct))
                 correct_answers += is_correct
+            else:
+                result_msg = ""
         else:
             result_msg = "Solution unavailable \n"
 
