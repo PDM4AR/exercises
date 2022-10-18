@@ -48,7 +48,7 @@ def path_to_str(path: Path):
 
 def ex1_radius_eval(algo_out, algo_out_tf, expected):
     radius = algo_out.min_radius
-    gt_radius = expected
+    gt_radius = expected.min_radius
     correct = math.isclose(gt_radius, radius)
     result_str = PASSED_STR if correct else FAILED_STR
     return correct, result_str
