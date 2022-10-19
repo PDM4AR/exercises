@@ -12,7 +12,7 @@ Rows and columns representing the “_x_” and “_y_” coordinates of the rob
 
 The area is a tropical rainforest. Some cells in the map are simply ``GRASS`` (green), it will take the robot 1 time step to cross them. 
 Some others are of type ```SWAMP``` (light blue), it will take the robot 2 time steps to cross them. 
-The reward at the GOAL cell is +10. 
+Time shall be considered as the stage cost you want minimize, while reaching the GOAL cell gives you an arbitrary +10 as reward. 
 Also the starting cell ``START`` cna be considered a ``GRASS`` cell.
 When in a specific cell, the robot can move ``SOUTH, NORTH, EAST, WEST`` and if arrived at the ``GOAL``, it can ``STAY`` (actions and cells described in exercises/ex04/structures.py). 
 The planet's atmosphere is very foggy and when the robot decides for an action, it may not end up where initially planned. In fact, for all other transitions, the following probabilities are given:
