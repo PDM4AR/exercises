@@ -32,14 +32,11 @@ def exercise_dubins_eval(prob: DubinsProblem,
                 is_correct, result_msg = prob.eval_fun(algo_out, algo_out_tf, expected[i]) 
                 sucess = bool(int(is_correct))
                 correct_answers += is_correct
+            else:
+                result_msg = ""
         else:
             result_msg = "Solution unavailable \n"
 
-        if prob.plot_fun is not None:
-            figsize = None
-            rfig = r.figure(cols=1)
-            prob.plot_fun(rfig, query, algo_out, algo_out_tf, expected[i] if expected is not None else None, sucess)
-        
         msg = ""
         msg += f"Input: \t {*query,} \n"
         msg += pre_msg
@@ -53,6 +50,12 @@ def exercise_dubins_eval(prob: DubinsProblem,
             msg += f"Expected: \t {exp_out} \n"
         msg += result_msg
         r.text(f"Query: {i + 1}", text=remove_escapes(msg))
+
+        if prob.plot_fun is not None:
+            figsize = None
+            rfig = r.figure(cols=1)
+            prob.plot_fun(rfig, query, algo_out, algo_out_tf, expected[i] if expected is not None else None, sucess)
+
 
 
     msg = f"You got {correct_answers: .3f}/{len(test_queries)} correct results!"
