@@ -60,7 +60,7 @@ def calculate_turning_circles(current_config: SE2Transform, radius: float) -> Tu
     return TurningCircle(left_circle=Curve.create_circle(), right_circle=Curve.create_circle())
 
 
-def calculate_tangent_btw_circles(circle1: Curve, circle2: Curve) -> List[Line]:
+def calculate_tangent_btw_circles(circle_start: Curve, circle_end: Curve) -> List[Line]:
     # TODO implement here your solution
     return [] # i.e., [Line(),]
 

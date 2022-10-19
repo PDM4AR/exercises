@@ -70,18 +70,18 @@ def calculate_turning_circles(current_config: SE2Transform, radius: float) -> Tu
     # TODO implement here your solution
     return TurningCircle(left_circle=Curve.create_circle(), right_circle=Curve.create_circle())
 ```
-3. [xx%] As a next step, we need to be able to connect two turning circles with a straight line segment which is tangent to the two circles.
+3. [xx%] As a next step, we need to be able to connect two turning circles with a straight line segment which is tangent to the two circles.  To simplify computation for the next step, only return tangents which are possible for a car to complete starting from `circle_start` to `circle_end` (i.e., ignore tangents back to the start). Note in principle ```circle_start``` and `circle_end` can have different radii, however we will only check the case when the radii are equal, you free to implement a more general method.
+ Only return the valid tangent line(s) which are physically possible, if no tangent exists return an empty ```List```. 
+The order of the lines in the List is not important.
  Write your code in:
  ```python
- def calculate_tangent_btw_circles(circle1: Curve, circle2: Curve) -> List[Line]:
+ def calculate_tangent_btw_circles(circle_start: Curve, circle_start: Curve) -> List[Line]:
     # TODO implement here your solution
     return [] # i.e., [Line(),]
  ``` 
- Note in principle ```curve1``` and `curve2` can have different radii, however we will only check the case when the radii are equal, you free to implement a more general method.
- Only return the valid tangent line(s) which are physically possible, if no tangent exists return an empty ```List```. 
-The order of the lines in the List is not important.
 
-4. [xx%,xx%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, always the same length). Keep segments with zero length (e.g., line with length = 0) in the returned list.
+
+4. [xx%,xx%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that a optimal Dubin's path has always a fixed  number of segments). Keep segments with zero length (e.g., line with length = 0) in the returned list.
 Implement it in:
 ```python
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
