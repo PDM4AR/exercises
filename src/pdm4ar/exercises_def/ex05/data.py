@@ -10,11 +10,12 @@ from pdm4ar.exercises_def.ex05.problem_def import *
 import pdm4ar.exercises.ex05.algo as algo
 
 # TBD
+# TODO TBD
 EX_1_RADIUS_WEIGHT = 0.05
 EX_2_CURVES_WEIGHT = 0.1
 EX_3_TANGENT_WEIGHT = 0.2
-EX_4_DUBINS_WEIGHT = 0.65
-EX_5_REEDS_WEIGHT = 0
+EX_4_DUBINS_WEIGHT = 0.60
+EX_5_REEDS_WEIGHT = 0.05
 
 assert math.isclose(EX_1_RADIUS_WEIGHT + EX_2_CURVES_WEIGHT + EX_3_TANGENT_WEIGHT + EX_4_DUBINS_WEIGHT + EX_5_REEDS_WEIGHT,1)
 
@@ -58,7 +59,7 @@ def get_ex5_start_end_test_values() -> DubinsProblem:
     config_list = []
     queries = []
     radius = 3.5
-    config_list.append((SE2Transform([1., 2.5], 0.), SE2Transform([-8, -10.0], 0))) 
+    config_list.append((SE2Transform([1., 2.5], 0.), SE2Transform([-8, 2.5], 0))) 
     config_list.append((SE2Transform([0., 0.], np.pi/6), SE2Transform([8, 4.], -np.pi/2))) 
     for config in config_list:
         queries += [(*config, radius) ]
@@ -68,5 +69,5 @@ def get_ex5_start_end_test_values() -> DubinsProblem:
 
 def get_example_test_values() -> List[DubinsProblem]:
     test_values = [get_ex1_radius_test_values(), get_ex2_turning_circles_test_values(), get_ex3_tangent_start_end_test_values(),
-                   get_ex4_start_end_test_values(),]
+                   get_ex4_start_end_test_values(), get_ex5_start_end_test_values()]
     return test_values

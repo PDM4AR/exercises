@@ -75,6 +75,13 @@ def get_exercise5()-> Exercise:
     test_values = test_configs
     expected_results = None
 
+    import pickle
+    import pathlib
+    path = pathlib.Path(__file__).parent.resolve()
+    with open(f'{path}/expected.pickle', 'rb') as f:
+        expected_results = pickle.load(f)
+        #print(len(expected_results))
+
     return Exercise[List[DubinsProblem], Any](
         desc="This exercise is about dubins' path search",
         perf_aggregator=exercise_dubins_perf_aggregator,
