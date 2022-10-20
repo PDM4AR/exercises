@@ -2,22 +2,26 @@
 
 | _Prerequisites_:    | [Preliminaries](00-preliminaries.md) | [Hello-world](01-helloworld.md)|
 
-In this programming exercise you will implement _Value_ and _Policy iterations_ for a particular stationary Markov
+In this exercise you will implement _Value_ and _Policy iterations_ to solve a particular stationary Markov
 Decision Process (MDP).
 
-You (autonomous robot) you will be parachuted in a remote area of the planet for a rescue mission. You need to compute
-the optimal policy to reach the goal cell (visualized in **RED**). The world is modeled as a 2D grid, which is
-represented through a _NxM_ matrix (numpy array). Rows and columns representing the "x" and "y" coordinates of the
-robot, respectively.
+Your autonomous robot will be parachuted in a remote area of the planet for a rescue mission.
+As communication is unreliable, your task is to compute offline the optimal policy to reach the target (cell visualized in RED). 
+The world is modeled as a 2D grid, which is represented through a _NxM_ matrix (numpy array).
+Rows and columns representing the “_x_” and “_y_” coordinates of the robot, respectively.
 
-The area seems to be a tropical rainforest. Some cells in the map are simply ``GRASS`` (green), it will take you 1 time
-step to cross them. Some others are of type ``SWAMP`` (light blue), it will take you 5 time step to cross them. Hence
-you can set the respective reward to be -1 for ``GRASS`` and -10 for ``SWAMP``. The reward at the ``GOAL`` cell is +10.
-For now, consider also the starting cell ``START`` as a ``GRASS`` cell.
-
-When in a specific cell, the robot can move ``SOUTH, NORTH, EAST, WEST`` (if not next to a boundary) and if arrived at
-the ``GOAL``, it can ``STAY`` (actions and cells described in ``exercises/ex04/structures.py``). Applying an action from
-any given cell to get to an adjacent cell is successful with a probability of 1.
+The area is a tropical rainforest. Some cells in the map are simply ``GRASS`` (green), it will take the robot 1 time step to cross them. 
+Some others are of type ```SWAMP``` (light blue), it will take the robot 2 time steps to cross them. 
+Time shall be considered as the stage cost you want minimize, while reaching the GOAL cell gives you an arbitrary +10 as reward. 
+Also the starting cell ``START`` cna be considered a ``GRASS`` cell.
+When in a specific cell, the robot can move ``SOUTH, NORTH, EAST, WEST`` and if arrived at the ``GOAL``, it can ``STAY`` (actions and cells described in exercises/ex04/structures.py). 
+The planet's atmosphere is very foggy and when the robot decides for an action, it may not end up where initially planned. In fact, for all other transitions, the following probabilities are given:
+- When in ``GRASS``: all chosen transitions (``SOUTH, NORTH, EAST, WEST``) happen with probability of 0.75, the remaining 0.25 is split among the other 3 transitions not chosen.
+- When in a ``SWAMP``: because it is harder to move, with probability 0.25, the robot will not be able to move out of the current cell regardless of the chosen action. 
+Any chosen transition will occur with 0.5 probability and because it is still foggy, the robot may end up with equal probability in one of the 3 remaining transitions.
+- When in the ``GOAL`` the robot will ``STAY``  with probability of 1.
+- Finally, the robot cannot directly pick an action that would take him outside the map. However, it may be that the robot ends up out of the map as described from the transition probabilities above. If this happens, the robot is considered lost (out of reach) and a new one will be parachuted at the ```START``` cell.
+You can simply model this as a transition in your MDP from going outside the map to the ```START``` cell.
 
 ## Tasks
 
@@ -65,7 +69,7 @@ when implementing value and policy iteration.
 
 ```python
 class GridMdp:
-    def __init__(self, grid: NDArray[np.int], gamma: float = .7):
+    def __init__(self, grid: NDArray[np.int], gamma: float = .9):
         assert len(grid.shape) == 2, "Map is invalid"
         self.grid = grid
         """The map"""
@@ -77,7 +81,7 @@ class GridMdp:
         # todo
 
     def stage_reward(self, state: State, action: Action) -> float:
-# todo
+        # todo
 
 
 ```
@@ -121,27 +125,6 @@ class PolicyIteration(GridMdpSolver):
         return value_func, policy
 ```
 
-### Update your repo
-
-Update your repo using
-
-```
-make update
-```
-
-this will put the new exercises in your forked repo. If you get some merge conflicts it is because you might have
-modified/moved files that you were not supposed to touch (i.e., outside the ``exercises`` folder).
-
-### Run the exercise
-
-Now you can run the exercise.
-
-```
-make run-exercise4
-```
-
-The report will provide visual information regarding the computed values/policies.
-
 #### Expected outcome
 
 If your algorithm works, in the report you should find some results similar to this:
@@ -151,10 +134,25 @@ If your algorithm works, in the report you should find some results similar to t
 On the left the Value function is visualized as a heatmap. On the right you can see the map with the original cells (
 grass, swamps, goal,...) and the corresponding optimal policy.
 
-#### Food for thoughts
+### Test cases and performance criteria
 
-* We specified the reward of the starting cell as a ``GRASS`` cell (-1). What if you now change it to a value >=0?
-* The transition have been considered deterministic so far.
-Would anything change if now when you apply an action with probability $.75$ you move by 1 cell but with p(.25) you move by two in the desired direction?
-How would the pattern of the arrows change?
-* How do you expect your solution to change if you change the discount factor? you can change it in `exercises_def/ex04/data.py`
+The algorithms are going to be tested on different MDPs, each containing randomly located queries (start & goal cells).
+You will be able to test your algorithms on some test cases with given solution, the outputted `Policy` and `ValueFunc` will be compared to the solution. 
+After running the exercise, you will find the reports in `out/04/` for each test case. 
+There you will be able to visualize the MDPs, your output and the expected solution.
+These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
+
+The final evaluation will combine 3 metrics lexicographically <number of solved cases, policy_accuracy, value_func_mspa, solve_time>:
+* **policy_accuracy**: This metric will evaluate the accuracy of your `Policy`, in particular, it averages for each state of the MDP the number of correct actions (# of correct actions)/(# of states). Thus, policy_accuracy will be in the interval [0, 1].
+* **value_func_mspa**: This metric will evaluate the accuracy of your `ValueFunc`. It is a measure of the mean accuracy of the given `ValueFunc` and it is calculated as: $1 - \frac{1}{n}\sum \frac{|VF^{gt} - VF|}{|VF^{gt}|}$.     
+$VF^{gt}$ and $VF$ are the ground truth and your `ValueFunc` respectively. value_func_mspa will be in the interval $(-\infty, 1]$ where 1 means $VF^{gt} = VF$.
+* **solve_time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required.
+
+### Update your repo and run exercise
+
+Make sure to update your repo before running the exercise.
+Please refer to [Hello World](01-helloworld.md) for instructions.
+
+
+
+

@@ -60,6 +60,25 @@
             "args": ["--exercise", "03"],
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Exercise4 - Run",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": ["--exercise", "04"],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "noDebug": true
+        },
+        {
+            "name": "Exercise4 - Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": ["--exercise", "04"],
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }

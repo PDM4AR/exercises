@@ -3,12 +3,11 @@ from typing import Tuple
 
 import numpy as np
 from numpy.typing import NDArray
-
-from pdm4ar.exercises.ex04.structures import Action, Policy, ValueFunc, State
+from pdm4ar.exercises.ex04.structures import Action, Policy, State, ValueFunc
 
 
 class GridMdp:
-    def __init__(self, grid: NDArray[np.int], gamma: float = 0.7):
+    def __init__(self, grid: NDArray[np.int], gamma: float = 0.9):
         assert len(grid.shape) == 2, "Map is invalid"
         self.grid = grid
         """The map"""
