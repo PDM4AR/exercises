@@ -10,10 +10,10 @@ As communication is unreliable, your task is to compute offline the optimal poli
 The world is modeled as a 2D grid, which is represented through a _NxM_ matrix (numpy array).
 Rows and columns representing the “_x_” and “_y_” coordinates of the robot, respectively.
 
-The area is a tropical rainforest. Some cells in the map are simply ``GRASS`` (green), it will take the robot 1 time step to cross them. 
-Some others are of type ```SWAMP``` (light blue), it will take the robot 2 time steps to cross them. 
+The area is a tropical rainforest. Some cells in the map are simply ``GRASS`` (green), it will take the robot 1 time step to enter them. 
+Some others are of type ```SWAMP``` (light blue), it will take the robot 2 time steps to enter them. 
 Time shall be considered as the stage cost you want minimize, while reaching the GOAL cell gives you an arbitrary +10 as reward. 
-Also the starting cell ``START`` cna be considered a ``GRASS`` cell.
+Also the starting cell ``START`` can be considered a ``GRASS`` cell.
 When in a specific cell, the robot can move ``SOUTH, NORTH, EAST, WEST`` and if arrived at the ``GOAL``, it can ``STAY`` (actions and cells described in exercises/ex04/structures.py). 
 The planet's atmosphere is very foggy and when the robot decides for an action, it may not end up where initially planned. In fact, for all other transitions, the following probabilities are given:
 - When in ``GRASS``: all chosen transitions (``SOUTH, NORTH, EAST, WEST``) happen with probability of 0.75, the remaining 0.25 is split among the other 3 transitions not chosen.
