@@ -53,8 +53,8 @@ def get_expected_results() -> List[Tuple[ValueFunc, Policy]]:
     policy2 = np.array([[3., 3., 3., 3., 3., 3., 2., 2., 2., 2.],
                         [0., 3., 3., 3., 3., 3., 2., 2., 2., 1.],
                         [3., 3., 3., 3., 3., 3., 3., 2., 1., 1.],
-                        [2., 3., 3., 3., 3., 3., 3., 4., 1., 1.],
-                        [3., 3., 3., 3., 3., 3., 0., 0., 1., 1.]])
+                        [3., 3., 3., 3., 3., 3., 3., 4., 1., 1.],
+                        [3., 3., 3., 3., 3., 3., 0., 0., 1., 0.]])
 
     expected_results[0] = [(value_func1, policy1), (value_func2, policy2)]
     expected_results[1] = [(value_func1, policy1), (value_func2, policy2)]
