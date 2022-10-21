@@ -220,11 +220,18 @@ Find the voyage plan that minimize the maximum individual sailing time of the vo
 
 ## Report
 
-You can choose between a basic text report, and a complete visual report. The basic text report displays the costs and the violations of your voyage plans. The complete visual report adds an archipelagos map with the islands data and highlights in the map your voyage plan, for an optimal visualization to better comprehend and debug the problem/solution. But the report generation is way slower and could take a long time, especially if the map is big.
+You can choose between four different levels of report types: 
 
-In [src/pdm4ar/exercises_def/optimization/milp/visualization.py](../src/pdm4ar/exercises_def/optimization/milp/visualization.py), at line 10 you can enable/disable the *COMPLETE_VISUAL_REPORT*    bool variable.
+- `ReportType.none`: no evalutation information at all, no report is generated.
+- `ReportType.terminal`: print evaluation information on the terminal, no report is generated.
+- `ReportType.report_txt`: print evaluation information on the terminal and in a textual report.
+- `ReportType.report_viz`: print evaluation information on the terminal and in a visual report, with text and figures.
 
-Feel free to make your modifications to the visualization file to match your debugging needs.
+The `report_txt` report displays the costs and the violations of your voyage plans. The `report_viz` report adds an archipelagos map with the islands data and highlights in the map your voyage plan, for an optimal visualization to better comprehend and debug the problem/solution. But the report generation is way slower and could take a long time, especially if the map is big.
+
+In [src/pdm4ar/exercises_def/optimization/milp/visualization.py](../src/pdm4ar/exercises_def/optimization/milp/visualization.py), you can set the *REPORT_TYPE* global variable.
+
+Feel also free to make your modifications to the visualization file to match your debugging needs.
 
 ---
 
@@ -235,4 +242,4 @@ pip3 install -e [path/to/exercises_repo]
 python3 [path/to/]src/pdm4ar/main.py --exercise 07
 ```
 
-After running the exercise, a report will be generated that shows your results.
+After running the exercise, a report will be generated that shows your results (if you enabled the report generation).

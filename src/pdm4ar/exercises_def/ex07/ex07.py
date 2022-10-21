@@ -2,14 +2,14 @@ from itertools import product
 from dataclasses import asdict, dataclass
 import pickle
 import traceback
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, Type
 from reprep import Report
 import numpy as np
 import timeit
 from pdm4ar.exercises_def.ex07.structures import MilpFeasibility, MilpFinalPerformance, MilpPerformance, \
     MilpSolution, PerformanceWeight, ProblemSolutions, SolutionViolations, SolutionsCosts, aViolations
 
-from pdm4ar.exercises_def.ex07.visualization import visualize_journey_plan
+from pdm4ar.exercises_def.ex07.visualization import Viz
 from pdm4ar.exercises_def.structures import PerformanceResults
 
 from .data import *
@@ -19,16 +19,16 @@ from pdm4ar.exercises_def import Exercise, ExIn
 
 @dataclass
 class TestMilp(ExIn):
-    type: str
-    difficulty: str
+    type: Enum
+    difficulty: Enum
     number_of_test_cases: int
     seed: int
     sample_generator: Callable
-    visualizer: Callable
+    visualizer: Type[Viz]
     ex_function: Callable
 
     def str_id(self) -> str:
-        return f"{self.type.value}-{self.difficulty.value}"
+        return f"{self.type.name}-{self.difficulty.name}"
 
 
 def milp_performance_aggregator(performances: List[MilpPerformance]) -> MilpFinalPerformance:
@@ -193,7 +193,7 @@ def compute_costs(problem: ProblemVoyage1, solutions: ProblemSolutions) -> Dict:
                 raise ValueError(f"The attribute {name_cost} of {type(solutions).__name__} is not recognized.")
 
         elif status == MilpFeasibility.unfeasible:
-            cost = MilpFeasibility.unfeasible.value
+            cost = MilpFeasibility.unfeasible.name
         else:
             cost = None
         
@@ -219,11 +219,9 @@ def milp_report(
     algo_in: TestMilp, expected_out: Any
 ) -> Tuple[MilpPerformance, Report]:
 
-    img_width_px = 200
-
     # database = {}
 
-    title = f"MILP Exercise {algo_in.difficulty.value}"
+    title = f"MILP Exercise {algo_in.difficulty.name}"
     print('\033[33;46m'+title+'\033[0m'+"\n")
 
     r = Report(title)
@@ -232,6 +230,7 @@ def milp_report(
     algo_in_difficulty = algo_in.difficulty
     algo_in_number_of_test_cases = algo_in.number_of_test_cases
     algo_in_seed = algo_in.seed
+    algo_in_visualizer = algo_in.visualizer()
 
     weight_cost_score = 0.35
     weight_violation_score = 0.65
@@ -243,7 +242,7 @@ def milp_report(
     fail_string = '\033[91mFAIL\033[0m'
 
     for ex_num in range(algo_in_number_of_test_cases):
-        title_section = f"{algo_in_type.value}-test {ex_num}"
+        title_section = f"{algo_in_type.name}-test {ex_num}"
         rsec = r.section(title_section)
         print('\033[94;103m'+title_section+'\033[0m'+"\n")
         
@@ -320,19 +319,19 @@ def milp_report(
 
                 performance = MilpPerformance(*performance_scores)
 
-        algo_in.visualizer(rsec, problem, est_solution, est_costs, violations, timing, img_width_px)
+        algo_in_visualizer.visualize(rsec, problem, gt_optimal_costs, est_solution, est_costs, violations, timing)
 
 
-    # with open(f'{algo_in_difficulty.value}_database_tests.pkl', 'wb') as f:
+    # with open(f'{algo_in_difficulty.name}_database_tests.pkl', 'wb') as f:
     #     pickle.dump(database, f)
 
-    # with open(f'{algo_in_difficulty.value}_database_tests.pkl', 'rb') as f:
+    # with open(f'{algo_in_difficulty.name}_database_tests.pkl', 'rb') as f:
     #     database = pickle.load(f)
 
     return performance, r
 
 
-def get_exercise_optimization_milp() -> Exercise:
+def get_exercise7() -> Exercise:
     test_types = MilpCase.get_test_milp_cases_types()
     test_difficulties = MilpCase.get_test_milp_cases_difficulties()
 
@@ -356,7 +355,7 @@ def get_exercise_optimization_milp() -> Exercise:
             test_numbers,
             seed,
             milp_generator,
-            visualize_journey_plan,
+            Viz,
             solve_milp
         ))
 
