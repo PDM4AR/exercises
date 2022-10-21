@@ -9,7 +9,7 @@ from pdm4ar.exercises_def.ex07.structures import MilpFeasibility, ProblemVoyage1
 
 # -----------------------------------    REPORT  TYPE    -----------------------------------------
 #                                                                                                |
-REPORT_TYPE = ReportType.report_txt # choose among none, terminal, report_txt, and report_viz    |
+REPORT_TYPE = ReportType.report_viz # choose among none, terminal, report_txt, and report_viz    |
 #                                                                                                | 
 #-------------------------------------------------------------------------------------------------
 

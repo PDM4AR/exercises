@@ -11,10 +11,9 @@
 You are the captain of a pirate ship attempting to travel through the *Short Route*, a misleading name for a dangerous area of the oceans, to reach the *Two Slices*, the legendary treasure which lies at the end of the *Short Route*.
 The *Short Route* is an agglomerate of different archipelagos of islands, stretching horizontally from west to east.
 
-The islands are divided into different archipelagos. Due to the distances, the weather, and rare magnetic fields, you can only travel from one archipelago to the next one;
-you cannot directly set sail towards the last archipelago.
+The islands are divided into *n* different archipelagos. Apart from the first and last archipelago which contains only one island each, all of the other archipelagos have the same number of islands. Due to the distances, the weather, and rare magnetic fields, you can only travel from one archipelago to the next one; you cannot directly set sail towards the last archipelago.
 This is because to travel through the *Short Route* you cannot use a normal compass, but you need special compasses, which when you are in an archipelago, show the direction of the islands of the next archipelago. When you are at a specific island of an archipelago, the special compasses will tune with the magnetic field of the next archipelago, and so on, until you reach the last archipelago where the treasure is located.
-Note that each archipelago has the same number of islands.
+
 Here you see two examples of a planned trip:
 
 ![example 1](https://user-images.githubusercontent.com/79461707/193420646-368a6b22-6271-420b-bbec-6afe73f6bb68.png)
@@ -26,10 +25,9 @@ You start your voyage from the first archipelago of the *Short Route* (the leftm
 
 ## Data structures of the exercise
 
-You decide to solve the planning problem with a MILP formulation.
-The task is to implement the `solve_milp` function inside [src/pdm4ar/exercises/optimization/milp/milp.py](../src/pdm4ar/exercises/optimization/milp/milp.py), which takes as input a `ProblemVoyage1` data structure and outputs a `ProblemSolutions`.
+The task is to implement the `solve_milp` function inside [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py), which takes as input a `ProblemVoyage` data structure and outputs a `ProblemSolution`.
 
-The various data structures needed for the development of the exercise can be inspected in [src/pdm4ar/exercises_def/optimization/milp/structures.py](../src/pdm4ar/exercises_def/optimization/milp/structures.py). 
+The various data structures needed for the development of the exercise can be inspected in [src/pdm4ar/exercises_def/ex07/structures.py](../src/pdm4ar/exercises_def/ex07/structures.py). 
 
 ---
 
@@ -44,7 +42,7 @@ The various data structures needed for the development of the exercise can be in
 - The `departure` and `arrival` float attributes are a timetable of the exact time  you have to depart from or to arrive to the island, to exploit its specific weather to being able to set sail or to dock. Note that to keep things simple the decimal places of a number are not representing the minutes in mod 60. A value of 8.43 doesn't mean it's 43 minutes past 8, but that it's 43% of an hour past 8. Treat it a normal float value.
 To keep things simple, the arrival times of all the islands are later than the departure times of all the islands. This means you are always departing around morning and arriving around the evening of the same day.
 - The `time_compass` integer attribute specifies how many nights you have to spend on the island before you can depart to the next archipelagos. If `time_compass` is 1, it means you arrive in the island and you depart the next day, irrelevant of the hour you arrive or you depart. DEVELOPMENT NOTE: YOU SHOULD ACCOUNT FOR TIME_COMPASS VALUE OF THE LAST ISLAND YOU ARRIVE TOO. I could remove it, or keep it and add a single final island after the last archipelago at end of the voyage.
-- The `crew` integer attribute specifies how many people leave the crew (negative value) or how many join the crew (positive value) if you visit the island.
+- The `delta_crew` integer attribute specifies how many people leave the crew (negative value) or how many join the crew (positive value) if you visit the island.
 
 </details>
 
@@ -58,18 +56,21 @@ class Island:
     departure: float
     arrival: float
     time_compass: int
-    crew: int
+    dela_crew: int
 ```
 
 ---
 
-### ProblemVoyage1
+### ProblemVoyage
+
+Input of the function `solve_milp` you have to implement.
 
 <details>
 <summary><b>Detailed description</b></summary>
 
 - The `start_crew` integer attribute specify how many people are in the crew (included the captain) at the beginning of the voyage.
 - The `islands` attribute is a tuple containing the islands' data. Since the islands in the tuple ar eordered based on then`id` and since each archipelago has the same amount of islands, you can use a smart indexing to access islands of the same archipelago.
+- The `cost_to_optimize` attribute contains a value amon
 - The `min_fix_time_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
 - The `max_crew` and `min_crew` integer attributes specify the minimum and the maximum amount of people who can be in the crew at the same time. A small number of people are not adequate for the danger of the *Short Route*, and the ship is not big enough to host too many people.
 - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each voyage from one island to the next can last, otherwise the damage of the ship will be too much and it will sink.
@@ -79,9 +80,10 @@ class Island:
 
 ```python
 @dataclass(frozen=True)
-class ProblemVoyage1:
+class ProblemVoyage:
     start_crew: int
     islands: Tuple[Island]
+    cost_to_optimize: Literal
     min_fix_time_individual_island: int
     min_crew: int
     max_crew: int
@@ -89,22 +91,8 @@ class ProblemVoyage1:
     max_distance_individual_journey: float    
 ```
 
-Input of the function `solve_milp` you have to implement.
-
 ---
 
-### ProblemVoyage2
-
-```python
-@dataclass(frozen=True)
-class ProblemVoyage2(ProblemVoyage1):
-    start_pos: Tuple[float, float]
-    end_pos: Tuple[float, float] 
-```
-
-Same as `ProblemVoyage1`, but with the additional `start_pos` and `end_pos` attributes. In this version of the problem, two extra islands are present: the start island and the end island, not belonging to any archipelaos. The voyage start from the start island, which is located before the first archipelagos, and ends at the last island, which is located after the last archipelagos.
-
----
 
 ### MilpFeasibility
 
@@ -123,45 +111,20 @@ Used to indicate the `status` attribute of the `MilpSolution` data structure.
 
 ```python
 @dataclass(frozen=True)
-class MilpSolution:
+class ProblemSolution:
     status: Literal[MilpFeasibility.feasible, MilpFeasibility.unfeasible]
     voyage_plan: Optional[List[int]] = None
 
 ```
 
-Used to store the optimal solution of a MILP problem. The `status` attributes specifies if the MILP problem was found unfeasible or feasible, using the `MilpFeasibility` attribute values. If it is feasible, save in `voyage_plan` the `id`s of the island you plan to visit in order. If it is unfeasible, the content of `voyage_plan` doesn't matter.
+Used to store the optimal solution of a MILP problem. The `status` attributes specifies if the MILP problem was found unfeasible or feasible, using the `MilpFeasibility` attribute values. If the problem is feasible, `voyage_plan` is set with a list of the `id`s of the island in the order you plan to visit them. If it is unfeasible, the content of `voyage_plan` doesn't matter.
 
 ---
 
-### ProblemSolutions
 
-<details>
-<summary><b>Detailed description</b></summary>
-
-- The `min_total_compass_time` attribute stores the `MilpSolution` of the voyage associated with the minimum total amount of nights waiting for the compasses to tune.
-- The `max_final_crew` attribute stores the `MilpSolution` of the voyage associated with the maximum amount of people in the crew at the end of the voyage.
-- The `min_total_sail_time` attribute stores the `MilpSolution` of the voyage associated with the minimum total amount of time actually spent sailing the ocean with the ship, i.e. the minimum total amount of time spent in the intermediate journeys to go from one island to the next one. 
-- The `min_total_travelled_distance` attribute stores the `MilpSolution` of the voyage associated with the minimum total amount of distance travelled by the ship. 
-- The `min_max_sail_time` attribute store the `MilpSolution` of the voyage associated with the minimum value of the individual maximum individual amount of time spent sailing the ocean with the ship, i.e. minimize the maximum individual amount of time spent in the intermediate journeys to go from one island to the next one. 
-
-</details>
-
-```python
-@dataclass(frozen=True)
-class ProblemSolutions:
-    min_total_compass_time: Optional[MilpSolution] = None
-    max_final_crew: Optional[MilpSolution] = None
-    min_total_sail_time: Optional[MilpSolution] = None
-    min_total_travelled_distance: Optional[MilpSolution] = None
-    min_max_sail_time: Optional[MilpSolution] = None
-```
-
-Output of the function `solve_milp` you have to implement.
+## Task - TBD better
 
 
-## Tasks - TBD better
-
-For now, I am just listing the possible constraints and cost functions. The tasks should be a combinations of them, with an increasing difficulty.
 
 ---
 
