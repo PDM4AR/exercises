@@ -6,12 +6,6 @@
   </tr>
 </table>
 
-In this module, we use the MILP formulation to solve an optimization problem based on binary decision variables. 
-The overall goal is to solve increasing difficulty version of the problem, writing the correct linear equality and inequality constraints and linear costs.
-
-In this exercise, you are allowed to use any library you like (suggested optimization libraries are [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [pulp](https://coin-or.github.io/pulp/))
-
-
 ##  Optimize your voyage to the *Two Slices*
 
 You are the captain of a pirate ship attempting to travel through the *Short Route*, a misleading name for a dangerous area of the oceans, to reach the *Two Slices*, the legendary treasure which lies at the end of the *Short Route*.
@@ -243,3 +237,6 @@ python3 [path/to/]src/pdm4ar/main.py --exercise 07
 ```
 
 After running the exercise, a report will be generated that shows your results (if you enabled the report generation).
+
+## Hints
+To model the problem notice that in the environment there are already powerful libraries to solve optimization problems.For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [pulp](https://coin-or.github.io/pulp/))
