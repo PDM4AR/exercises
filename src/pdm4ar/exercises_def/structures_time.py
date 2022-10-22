@@ -1,6 +1,8 @@
 from typing import Union, Any
 import multiprocessing
+import traceback
 from functools import wraps
+from pdm4ar.exercises_def import logger
 
 
 class TestCaseTimeoutException(Exception):
@@ -17,6 +19,7 @@ def function_runner(*args, **kwargs):
         result = function(*args, **kwargs)
     except Exception as e:
         send_end.send(e)
+        logger.warn(f"Failed because of:\n {e.args} \n{''.join(traceback.format_tb(e.__traceback__))}")
         return
     send_end.send(result)
 
