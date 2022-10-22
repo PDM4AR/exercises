@@ -1,7 +1,9 @@
 import timeit
 import numpy as np
-from typing import Any, Callable,Sequence
+import random
+from typing import Any, Callable, Sequence, Tuple, List
 from dataclasses import dataclass
+from reprep import Report
 
 from pdm4ar.exercises.ex06.collision_checker import (
     CollisionChecker,
@@ -10,8 +12,17 @@ from pdm4ar.exercises.ex06.collision_primitives import (
     CollisionPrimitives,
 )
 from pdm4ar.exercises_def.ex06 import Pose2D, Polygon
-from pdm4ar.exercises_def.ex06.visualization import *
+from pdm4ar.exercises_def.ex06.visualization import (
+    visualize_circle_point,
+    visualize_triangle_point,
+    visualize_polygon_point,
+    visualize_circle_line,
+    visualize_polygon_line,
+    visualize_map_path,
+    visualize_robot_frame_map,
+)
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
+from pdm4ar.exercises_def.ex06.data import DataGenerator
 
 RANDOM_SEED = 0
 
