@@ -1,10 +1,8 @@
 import json
 from tqdm import tqdm
 from abc import ABC, abstractmethod
-from asyncio.log import logger
+from pdm4ar.exercises_def import logger
 from dataclasses import asdict, dataclass, field
-import traceback
-from fractions import Fraction
 from typing import Callable, Generic, List, Optional, Sequence, Tuple, TypeVar
 
 from reprep import Report
@@ -84,14 +82,11 @@ class ExerciseEvaluator(ABC):
 
         # evaluate each test case
         for i, test_input in enumerate(tqdm(self.ex.test_values)):
-            try:
-                expected_out = self.ex.expected_results[i] if self.ex.expected_results is not None else None
-                eval_out = self.ex.evaluation_fun(test_input, expected_out)
-            except Exception as e:
+            expected_out = self.ex.expected_results[i] if self.ex.expected_results is not None else None
+            eval_out = self.ex.evaluation_fun(test_input, expected_out)
+            if isinstance(eval_out, Exception):
                 n_failed_test_cases += 1
-                print(f"Failed because of:\n {e.args} \n{''.join(traceback.format_tb(e.__traceback__))}")
-                logger.info(
-                        f"Test case: \n{test_input} \nfailed because of:\n {e.args}")
+                logger.warn(f"Failed because of:\n {eval_out.args}")
                 continue
             eval_outputs.append(eval_out)
 
