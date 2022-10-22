@@ -13,6 +13,11 @@ from pdm4ar.exercises_def.ex06 import Pose2D, Polygon
 from pdm4ar.exercises_def.ex06.visualization import *
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 
+RANDOM_SEED = 0
+
+def set_random_seed():
+    random.seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
 
 @dataclass
 class TestCollisionCheck(ExIn):
@@ -115,8 +120,10 @@ def collision_check_robot_frame_loop(
             result.append(i)
     return result
 
-
 def get_exercise6() -> Exercise:
+    # Set Random Seed
+    set_random_seed()
+
     # Generate Test Data
     test_values = [
         TestCollisionCheck(
