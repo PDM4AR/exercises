@@ -50,13 +50,12 @@ class CollisionCheckPerformance(PerformanceResults):
         assert 0 <= self.accuracy <= 1
 
     @staticmethod
-    def perf_aggregator(eval_list: Sequence['CollisionCheckPerformance']) -> 'CollisionCheckWeightedAccuracy':
+    def perf_aggregator(eval_list: Sequence['CollisionCheckPerformance'], total_weight: float) -> 'CollisionCheckWeightedAccuracy':
 
         if len(eval_list) == 0:
             return CollisionCheckWeightedAccuracy(0.0)
 
         total_acccuracy = np.sum([eval.accuracy * eval.weight for eval in eval_list])
-        total_weight = np.sum([eval.weight for eval in eval_list])
 
         return CollisionCheckWeightedAccuracy(total_acccuracy/total_weight)
 
@@ -237,11 +236,13 @@ def get_exercise6() -> Exercise:
             30
         ),  # Step 11
     ]
+    
+    total_weight = np.sum([t.eval_weight for t in test_values])
 
     return Exercise[TestCollisionCheck, Any](
         desc = "This exercise is about the collision checking methods.",
         evaluation_fun = _collision_check_rep,
-        perf_aggregator = CollisionCheckPerformance.perf_aggregator,
+        perf_aggregator = lambda x: CollisionCheckPerformance.perf_aggregator(x, total_weight),
         test_values = test_values,
         expected_results = None
     )
