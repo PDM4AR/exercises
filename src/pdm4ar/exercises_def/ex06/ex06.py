@@ -15,9 +15,9 @@ from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 
 RANDOM_SEED = 0
 
-def set_random_seed():
-    random.seed(RANDOM_SEED)
-    np.random.seed(RANDOM_SEED)
+def set_random_seed(random_seed):
+    random.seed(random_seed)
+    np.random.seed(random_seed)
 
 @dataclass
 class TestCollisionCheck(ExIn):
@@ -121,7 +121,7 @@ def collision_check_robot_frame_loop(
 
 def get_exercise6() -> Exercise:
     # Set Random Seed
-    set_random_seed()
+    set_random_seed(RANDOM_SEED)
 
     # Generate Test Data
     test_values = [
