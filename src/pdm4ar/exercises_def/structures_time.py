@@ -1,3 +1,4 @@
+from typing import Union, Any
 import multiprocessing
 from functools import wraps
 
@@ -20,7 +21,7 @@ def function_runner(*args, **kwargs):
     send_end.send(result)
 
 
-def run_with_timer(func, max_execution_time):
+def run_with_timer(func, max_execution_time) -> Union[Any,Exception]:
     @wraps(func)
     def wrapper(*args, **kwargs):
         recv_end, send_end = multiprocessing.Pipe(False)
@@ -35,10 +36,7 @@ def run_with_timer(func, max_execution_time):
         if p.is_alive():
             p.terminate()
             p.join()
-            raise TestCaseTimeoutException("Exceeded test case timeout.")
-
-        if isinstance(result, Exception):
-            raise result
+            result = TestCaseTimeoutException("Exceeded test case timeout.")
 
         return result
 
