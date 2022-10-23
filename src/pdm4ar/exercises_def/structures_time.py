@@ -3,7 +3,7 @@ import multiprocessing
 import traceback
 from functools import wraps
 from pdm4ar.exercises_def import logger
-
+from pdm4ar.exercises_def.structures_memory import set_memory_limit
 
 class TestCaseTimeoutException(Exception):
     pass
@@ -15,6 +15,9 @@ def function_runner(*args, **kwargs):
 
     send_end = kwargs.pop("__send_end")
     function = kwargs.pop("__function")
+    ########
+    set_memory_limit(.3)
+    ########
     try:
         result = function(*args, **kwargs)
     except Exception as e:
@@ -24,12 +27,13 @@ def function_runner(*args, **kwargs):
     send_end.send(result)
 
 
-def run_with_timer(func, max_execution_time) -> Union[Any,Exception]:
+def run_with_timer(func, max_execution_time) -> Union[Any, Exception]:
     @wraps(func)
     def wrapper(*args, **kwargs):
         recv_end, send_end = multiprocessing.Pipe(False)
         kwargs["__send_end"] = send_end
         kwargs["__function"] = func
+
 
         p = multiprocessing.Process(target=function_runner, args=args, kwargs=kwargs)
         p.start()
