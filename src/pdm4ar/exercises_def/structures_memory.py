@@ -12,7 +12,7 @@ def _get_memory():
 
 def set_memory_limit(percentage: float):
     """
-    只在linux操作系统起作用
+    Works on Linux only
     """
     if platform.system() != "Linux":
         print('Only works on linux!')
