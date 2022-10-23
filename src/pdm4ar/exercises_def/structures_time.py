@@ -20,6 +20,8 @@ def function_runner(*args, **kwargs):
     ########
     try:
         result = function(*args, **kwargs)
+    except MemoryError as e:
+        logger.warn(f"Memory limit exceeded. {e}")
     except Exception as e:
         send_end.send(e)
         logger.warn(f"Failed because of:\n {e.args} \n{''.join(traceback.format_tb(e.__traceback__))}")
