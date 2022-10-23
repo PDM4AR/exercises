@@ -79,7 +79,7 @@ The order of the lines in the List is not important.
  ``` 
 
 
-4. [xx%,xx%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that a optimal Dubin's path has always a fixed  number of segments). Keep segments with zero length (e.g., line with length = 0) in the returned list.
+4. [xx%,xx%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g., line with length = 0) in the returned list.
 Implement it in:
 ```python
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
@@ -89,9 +89,9 @@ def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, 
 
 ```
 
-5. [xx%, bonus] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
+5. [xx%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
 park backwards and sidewards when they should pick them up. Instead, they wait in the middle of the street...
-In the following, extend the code implemented in task 4 to allow also for situation when the car needs to drive backwards. For simplicity, we will only consider cases with three path segments all completed in reverse (i.e., $C^{-}S^{-}C^{-}$ type paths) + all optimal forward dubins paths coming from ```calculate_dubins_path``` (don't forget to call this function in the new method). Use the `Gear.REVERSE` enum to indicated segments were the car needs to move backwards. Hint: You may be able to reuse some functions you implemented before. Write your code in:
+In the following, extend the code implemented in task 4 to allow also for situation when the car needs to drive backwards. For simplicity, we will **only** consider cases with three path segments all completed in reverse (i.e., $C^{-}S^{-}C^{-}$ type paths) + all optimal forward dubins paths coming from ```calculate_dubins_path``` (don't forget to call this function in the new method). Use the `Gear.REVERSE` enum to indicated segments were the car needs to move backwards. Hint: You may be able to reuse some functions you implemented before. Write your code in:
 ```python
 
 def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
@@ -100,7 +100,18 @@ def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transf
     return [] # e.g., [Curve(..,gear=Gear.REVERSE), Curve(),..]
 ```
 
+### Test cases and performance criteria
 
-#### Update & Run
+All of the described subtasks are individually graded on different test cases. For each task, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases, i.e., for task $i$: $\frac{N_{correct,i}}{N_{task,i}}$. We define a test case to be computed *correctly*, if
+
+- For task 1,2,3: The computed return values match the ones of the solution up to some numerical tolerance.
+- For task 4,5: The computed `Path` is in the set of **optimal** (i.e.,minimum distance) paths and follows the specification made in the problem description.
+
+
+We provide some example test cases for each subtask. After running the exercise locally, you will find the report in the folder `out/ex05`. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g., by modifying the existing ones in `src/pdm4ar/exercises_def/ex05/data.py`.
+
+The final evaluation result is the normalized, weighted (see [%] in each description) sum of all the individual accuracy results of the subtasks and lies between [0,1]. 
+
+### Update & Run
 
 Please refer to [Hello World](01-helloworld.md) for instructions.

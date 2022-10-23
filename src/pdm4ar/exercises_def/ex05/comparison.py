@@ -30,14 +30,14 @@ def compare_paths(correct_answers, algo_path, algo_se2_np, gt_sol_dict):
         # Check if path is a valid dubins path
         for gt_points_np in gt_sol_dict["valid_np_points_list"]:
             if points_are_close(gt_points_np, algo_se2_np):
-                correct_answers += 0.2
+                correct_answers += 0.0
                 result_str += 'Path is a valid dubins path\n'
                 break
         # Check if path is among optimal paths
         for gt_points_np in gt_sol_dict["opt_np_points_list"]:
             if points_are_close(gt_points_np, algo_se2_np):
                 success = True
-                correct_answers += 0.8
+                correct_answers += 1.0
                 result_str += f'Path is an optimal dubins path \n {PASSED_STR} \n'
                 break
     if SEGMENT_LEVEL_CHECK: 
@@ -45,14 +45,14 @@ def compare_paths(correct_answers, algo_path, algo_se2_np, gt_sol_dict):
         for path in gt_sol_dict["valid_paths"]:
             if paths_are_equal(algo_path, path[1]):
                 if not success:
-                    correct_answers += 0.2  # TODO TBD
+                    correct_answers += 0.0  # TODO TBD
                 result_str += 'Path is a valid dubins path \n'
                 break
         # Check if path is among optimal paths
         for path in gt_sol_dict["opt_paths"]:
             if paths_are_equal(algo_path, path[1]):
                 if not success:
-                    correct_answers += 0.8  # TODO TBD
+                    correct_answers += 1.0  # TODO TBD
                 result_str += f'Path is optimal \n {PASSED_STR}'
                 success = True
                 break
