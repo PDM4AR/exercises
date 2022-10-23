@@ -16,7 +16,7 @@ def function_runner(*args, **kwargs):
     send_end = kwargs.pop("__send_end")
     function = kwargs.pop("__function")
     ########
-    set_memory_limit(.3)
+    set_memory_limit()  # Limited to 8GB on the evaluation server
     ########
     try:
         result = function(*args, **kwargs)
