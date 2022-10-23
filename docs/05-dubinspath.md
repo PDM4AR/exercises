@@ -102,7 +102,7 @@ def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transf
 
 ### Test cases and performance criteria
 
-All of the described subtasks are individually graded on different test cases. For each task, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases, i.e., for task $i$: $\frac{N_{correct,i}}{N_{task,i}}$. We define a test case to be computed *correctly*, if
+All of the described subtasks are individually graded on different test cases. For each task, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases, i.e., for task $i$: $\frac{N_{correct,i}}{N_{task,i}}$. We define a test case to be computed *correctly*, if:
 
 - For task 1,2,3: The computed return values match the ones of the solution up to some numerical tolerance.
 - For task 4,5: The computed `Path` is in the set of **optimal** (i.e.,minimum distance) paths and follows the specification made in the problem description.
