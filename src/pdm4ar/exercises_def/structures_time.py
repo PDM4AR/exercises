@@ -41,6 +41,8 @@ def run_with_timer(func, max_execution_time) -> Union[Any,Exception]:
         if p.is_alive():
             p.terminate()
             p.join()
+            result = TestCaseTimeoutException("Exceeded test case timeout.")
+
 
         return result
 
