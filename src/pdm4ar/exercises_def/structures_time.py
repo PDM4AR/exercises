@@ -43,7 +43,6 @@ def run_with_timer(func, max_execution_time) -> Union[Any,Exception]:
             p.join()
             result = TestCaseTimeoutException("Exceeded test case timeout.")
 
-
         return result
 
     return wrapper
