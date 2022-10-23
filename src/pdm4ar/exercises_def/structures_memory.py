@@ -3,6 +3,10 @@ import platform
 from typing import Optional
 
 
+class MemoryLimitExceededException(Exception):
+    pass
+
+
 def _get_memory():
     """Free memory in kB, works on Linux only"""
     with open('/proc/meminfo', 'r') as mem:
