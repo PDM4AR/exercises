@@ -34,7 +34,6 @@ def run_with_timer(func, max_execution_time) -> Union[Any, Exception]:
         kwargs["__send_end"] = send_end
         kwargs["__function"] = func
 
-
         p = multiprocessing.Process(target=function_runner, args=args, kwargs=kwargs)
         p.start()
         if recv_end.poll(max_execution_time):
