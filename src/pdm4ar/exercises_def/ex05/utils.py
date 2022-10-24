@@ -47,6 +47,8 @@ def extract_path_points(path: Path) -> List[SE2Transform]:
     pts_list = []
     num_points_per_segment = 20
     for idx, seg in enumerate(path):
+        # if np.allclose(seg.length, 0):
+        #     continue
         if seg.type is DubinsSegmentType.STRAIGHT:
             line_pts = interpolate_line_points(seg, num_points_per_segment)
             pts_list.extend(line_pts)
