@@ -49,7 +49,7 @@ Make sure to extensively test your code locally, consider this as a learning exp
 | 02              | Graph Search          | Oct. 8th             | Oct. 23th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 03              | Informed Graph Search | Oct. 13th            | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 04              | Dynamic Programming   | Oct. 19th            | Oct. 31st (23:59 CET) | CONFIRMED           |
-| 05              | Steering (Dubins)     | Oct. 26th            | Nov. 6th (23:59 CET)  | TENTATIVE           |
+| 05              | Steering (Dubins)     | Oct. 29th            | Nov. 6th (23:59 CET)  | TENTATIVE           |
 | 06              | ....                  | TBD                  | TBD (23:59 CET)       | TBD                 |
 
 * Most of these exercises are already accessible before the evaluation opens. 
