@@ -59,13 +59,26 @@ def exercise_dubins_eval(prob: DubinsProblem,
 
 
     msg = f"You got {correct_answers: .3f}/{len(test_queries)} correct results!"
-    perf = DubinsPerformance(accuracy=float(correct_answers) / len(test_queries), weight=prob.eval_weight)
+    perf = DubinsPerformance(accuracy=float(correct_answers) / len(test_queries), weight=prob.eval_weight, id_= prob.id_num)
     r.text("ResultsInfo", text=remove_escapes(msg))
     return perf, r
 
 
-def exercise_dubins_perf_aggregator(perf_outs: List[DubinsPerformance]) -> DubinsPerformance:
-    return DubinsPerformance(sum([el.accuracy*el.weight for el in perf_outs]), weight = 1)
+def exercise_dubins_perf_aggregator(perf_outs: List[DubinsPerformance]) -> DubinsFinalPerformance:
+    accuracy_dict = {}
+    accuracy_combined = sum([el.accuracy*el.weight for el in perf_outs])
+    for el in perf_outs:
+        if el.id_ == 1 :
+            accuracy_dict['accuracy_radius'] = el.accuracy
+        elif el.id_ == 2 :
+            accuracy_dict['accuracy_turning'] = el.accuracy
+        elif el.id_ == 3 :
+            accuracy_dict['accuracy_tangents'] = el.accuracy
+        elif el.id_ == 4 :
+            accuracy_dict['accuracy_dubins'] = el.accuracy
+        elif el.id_ == 5 :
+            accuracy_dict['accuracy_reeds'] = el.accuracy
+    return DubinsFinalPerformance(accuracy_combined=accuracy_combined, individual_accuracies=accuracy_dict)
 
 
 def get_exercise5()-> Exercise:

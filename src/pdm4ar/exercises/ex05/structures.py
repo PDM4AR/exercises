@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, unique
-from typing import List, Sequence
+from typing import List
 import numpy as np
 from dg_commons import SE2Transform
 
@@ -107,7 +107,7 @@ class Curve(Segment):
         radius:         float
             Turning radius
         
-        arc_angle:      float [0, 2*pi) (default: 0)
+        arc_angle:      float [0, 2*pi) (default = 0)
             Angle of the curve segment. Note that 2*pi == 0, since a full 360deg turn is never in the optimal path
 
         length:         float
@@ -117,7 +117,7 @@ class Curve(Segment):
             A unit vector pointing from start to end configuration
             If start == end, then direction = SE2Transform.identity().p
 
-        gear:            Gear      (Default: Gear.Forward)
+        gear:            Gear      (Default = Gear.Forward)
             Whether the car completes the curve from start to end in forward gear or reverse gear
 
      """
@@ -126,6 +126,7 @@ class Curve(Segment):
 
         assert center.theta == 0
         assert curve_type is not DubinsSegmentType.STRAIGHT
+        assert radius > 0
 
         self.length = radius * arc_angle
         self.radius = radius
@@ -155,6 +156,6 @@ class Curve(Segment):
 
 @dataclass
 class TurningCircle:
-    """  """
+    """ Defines the possible turning circles at the current configuration """
     left: Curve
     right: Curve

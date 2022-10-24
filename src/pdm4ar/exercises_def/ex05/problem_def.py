@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from abc import ABC
 import math
 from typing import Callable, Tuple, Any, List
@@ -33,6 +33,7 @@ class DubinsProblem():
 @dataclass(frozen=True)
 class DubinsPerformance(PerformanceResults):
     accuracy: float
+    id_: int
     weight: float = 1.0
     """Percentage of correct queries"""
 
@@ -40,6 +41,16 @@ class DubinsPerformance(PerformanceResults):
         assert 0 <= self.accuracy <= 1
         assert 0 < self.weight <= 1
 
+
+@dataclass(frozen=True)
+class DubinsFinalPerformance(PerformanceResults):
+    accuracy_combined: float
+    individual_accuracies: dict
+    """Final performance"""
+
+    def __post_init__(self):
+        assert 0 <= self.accuracy_combined <= 1
+    
 
 
 def path_to_str(path: Path):

@@ -79,24 +79,24 @@ The order of the lines in the List is not important.
  ``` 
 
 
-4. [xx%,xx%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g., line with length = 0) in the returned list.
+4. [xx%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g., line with length = 0) in the returned list.
 Implement it in:
 ```python
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
     # TODO implement here your solution
-    # Important: Please keep segments with zero length in the return list!
+    # Please keep segments with zero length in the return list & return a valid dubins path!
     return [] # e.g., [Curve(), Line(),..]
 
 ```
 
 5. [xx%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
 park backwards and sidewards when they should pick them up. Instead, they wait in the middle of the street...
-In the following, extend the code implemented in task 4 to allow also for situation when the car needs to drive backwards. For simplicity, we will **only** consider cases with three path segments all completed in reverse (i.e., $C^{-}S^{-}C^{-}$ type paths) + all optimal forward dubins paths coming from ```calculate_dubins_path``` (don't forget to call this function in the new method). Use the `Gear.REVERSE` enum value to indicate that the car drives backwards. Hint: You may be able to reuse some functions you implemented before. Write your code in:
+In the following, extend the code implemented in task 4 to allow also for situation when the car needs to drive backwards. For simplicity, we will **only** consider cases with **three** path segments all completed in reverse (i.e., $C^{-}S^{-}C^{-}$ type paths) + all optimal forward dubins paths coming from ```calculate_dubins_path``` (don't forget to call this function in the new method). Use the `Gear.REVERSE` enum value to indicate that the car drives backwards. Hint: You may be able to reuse some functions you implemented before. Write your code in:
 ```python
 
 def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
     # TODO implement here your solution
-    # Important: Please keep segments with zero length in the return list!
+    # Please keep segments with zero length in the return list & return a valid reeds/dubins path!
     return [] # e.g., [Curve(..,gear=Gear.REVERSE), Curve(),..]
 ```
 
