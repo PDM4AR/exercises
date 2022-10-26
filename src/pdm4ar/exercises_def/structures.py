@@ -37,6 +37,8 @@ class AggregatedPerformanceRes:
     """Number of total test cases"""
     n_completed_test_cases: int
     """Number of completed test cases during evaluation"""
+    exceptions: List[str]
+    """List of the raised exceptions names"""
     perf_res: PerformanceResults
     """Performance results (already aggregated from the ones that did not fail)"""
 
@@ -78,6 +80,7 @@ class ExerciseEvaluator(ABC):
 
     def evaluate(self) -> Tuple[AggregatedPerformanceRes, Report]:
         n_failed_test_cases: int = 0
+        exceptions: List[str] = []
         eval_outputs: List[Tuple[PerformanceResults, Report]] = []
 
         # evaluate each test case
@@ -86,6 +89,8 @@ class ExerciseEvaluator(ABC):
             eval_out = self.ex.evaluation_fun(test_input, expected_out)
             if isinstance(eval_out, Exception):
                 n_failed_test_cases += 1
+                exception_str =f"{eval_out.__class__.__name__}" 
+                exceptions.append(exception_str)
                 logger.warn(f"Failed because of:\n {eval_out.args}")
                 continue
             eval_outputs.append(eval_out)
@@ -104,6 +109,7 @@ class ExerciseEvaluator(ABC):
         overall_perf = AggregatedPerformanceRes(
                 n_completed_test_cases=n_completed_test_cases,
                 n_test_cases=n_test_values,
+                exceptions=exceptions,
                 perf_res=agg_perf)
         r.text("OverallPerformance",
                text=f"{remove_escapes(debug_print(overall_perf))} ")
