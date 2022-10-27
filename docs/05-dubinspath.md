@@ -55,11 +55,11 @@ The final goal of this exercise is to implement the ```calculate_dubins_path``` 
 The problem is split into multiple (individually graded) subtask, to give you some guidance on how to eventually implement ```calculate_dubins_path```:
 
 ### Task
-1. [xx%] Given the above dynamics and parameters, calculate the minimum turning radius of a generic car.
+1. [xx%] Given the above dynamics and parameters, calculate the minimum turning radius of the back wheel for a generic car.
 Please implement this calculation in
  ```python 
  def calculate_car_turning_radius(wheel_base: float, max_steering_angle: float) -> DubinsParam:
-  # TODO
+  # TODO implement here your solution
   return DubinsParam(min_radius=0)
   ``` 
 2. [xx%] In order to generate a Dubins' path, we need to be able to compute the possible turning circles for a given configuration. Implement this functionality in the method
