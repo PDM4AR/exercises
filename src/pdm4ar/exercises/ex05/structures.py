@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, unique
 from typing import List
+
 import numpy as np
 from dg_commons import SE2Transform
 

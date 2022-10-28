@@ -1,8 +1,5 @@
-from typing import List
-import numpy as np
-from dg_commons import SE2Transform
-from abc import ABC, abstractmethod
 from typing import Sequence
+
 from dg_commons import SE2Transform
 
 from pdm4ar.exercises.ex05.structures import *
@@ -16,7 +13,7 @@ class PathPlanner(ABC):
 
 
 class Dubins(PathPlanner):
-    def __int__(self, params: DubinsParam):
+    def __init__(self, params: DubinsParam):
         self.params = params
 
     def compute_path(self, start: SE2Transform, end: SE2Transform) -> List[SE2Transform]:
@@ -34,7 +31,7 @@ class Dubins(PathPlanner):
 
 
 class ReedsShepp(PathPlanner):
-    def __int__(self, params: DubinsParam):
+    def __init__(self, params: DubinsParam):
         self.params = params
 
     def compute_path(self, start: SE2Transform, end: SE2Transform) -> Sequence[SE2Transform]:

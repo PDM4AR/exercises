@@ -20,6 +20,7 @@ def get_next_point_on_curve(curve: Curve,  point: SE2Transform, delta_angle: flo
     return next_point
 
 def get_next_point_on_line(line: Line, point: SE2Transform, delta_length: float) -> SE2Transform:
+    # todo missing one argument? theta=?
     return SE2Transform(point.p + delta_length*line.direction)
  
 def interpolate_line_points(line: Line, number_of_points: float) -> List[SE2Transform]:
