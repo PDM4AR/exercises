@@ -24,9 +24,8 @@ class Dubins(PathPlanner):
 
         :return: a List[SE2Transform] of configurations in the optimal path the car needs to follow
         """
-        self.path = calculate_dubins_path(start_config=start, end_config=end, radius=self.params.min_radius)
-        # fixme why self?!
-        se2_list = extract_path_points(self.path)
+        path = calculate_dubins_path(start_config=start, end_config=end, radius=self.params.min_radius)
+        se2_list = extract_path_points(path)
         return se2_list
 
 
@@ -42,9 +41,8 @@ class ReedsShepp(PathPlanner):
 
         :return: a List[SE2Transform] of configurations in the optimal path the car needs to follow 
         """
-        self.path = calculate_reeds_shepp_path(start_config=start, end_config=end, radius=self.params.min_radius)
-        # same as above
-        se2_list = extract_path_points(self.path)
+        path = calculate_reeds_shepp_path(start_config=start, end_config=end, radius=self.params.min_radius)
+        se2_list = extract_path_points(path)
         return se2_list
 
 
@@ -55,7 +53,7 @@ def calculate_car_turning_radius(wheel_base: float, max_steering_angle: float) -
 
 def calculate_turning_circles(current_config: SE2Transform, radius: float) -> TurningCircle:
     # TODO implement here your solution
-    dummy_circle = Curve.create_circle(center=SE2Transform.identity(), config_on_circle=SE2Transform.identity,
+    dummy_circle = Curve.create_circle(center=SE2Transform.identity(), config_on_circle=SE2Transform.identity(),
                                        radius=0.1, curve_type=DubinsSegmentType.LEFT)  # TODO remove
     return TurningCircle(left=dummy_circle, right=dummy_circle)
 
