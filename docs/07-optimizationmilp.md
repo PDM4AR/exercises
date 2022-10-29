@@ -41,7 +41,7 @@ The various data structures needed for the development of the exercise can be in
 - The `x` and `y` float attribute specifies the x and y position of the island in a cartesian reference system. The *Short Route* can be approximated as a flat plane, so you don't have to consider the the Earth's curvature.
 - The `departure` and `arrival` float attributes are a timetable of the exact time  you have to depart from or to arrive to the island, to exploit its specific weather to being able to set sail or to dock. Note that to keep things simple the decimal places of a number are not representing the minutes in mod 60. A value of 8.43 doesn't mean it's 43 minutes past 8, but that it's 43% of an hour past 8. Treat it a normal float value.
 To keep things simple, the arrival times of all the islands are later than the departure times of all the islands. This means you are always departing around morning and arriving around the evening of the same day.
-- The `time_compass` integer attribute specifies how many nights you have to spend on the island before you can depart to the next archipelagos. If `time_compass` is 1, it means you arrive in the island and you depart the next day, irrelevant of the hour you arrive or you depart. DEVELOPMENT NOTE: YOU SHOULD ACCOUNT FOR TIME_COMPASS VALUE OF THE LAST ISLAND YOU ARRIVE TOO. I could remove it, or keep it and add a single final island after the last archipelago at end of the voyage.
+- The `nights` integer attribute specifies how many nights you have to spend on the island before you can depart to the next archipelagos. If `nights` is 1, it means you arrive in the island and you depart the next day, irrelevant of the hour you arrive or you depart. DEVELOPMENT NOTE: YOU SHOULD ACCOUNT FOR TIME_COMPASS VALUE OF THE LAST ISLAND YOU ARRIVE TOO. I could remove it, or keep it and add a single final island after the last archipelago at end of the voyage.
 - The `delta_crew` integer attribute specifies how many people leave the crew (negative value) or how many join the crew (positive value) if you visit the island.
 
 </details>
@@ -55,7 +55,7 @@ class Island:
     y: float
     departure: float
     arrival: float
-    time_compass: int
+    nights: int
     dela_crew: int
 ```
 
@@ -71,10 +71,10 @@ Input of the function `solve_milp` you have to implement.
 - The `start_crew` integer attribute specify how many people are in the crew (included the captain) at the beginning of the voyage.
 - The `islands` attribute is a tuple containing the islands' data. Since the islands in the tuple ar eordered based on then`id` and since each archipelago has the same amount of islands, you can use a smart indexing to access islands of the same archipelago.
 - The `cost_to_optimize` attribute contains a value amon
-- The `min_fix_time_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
-- The `max_crew` and `min_crew` integer attributes specify the minimum and the maximum amount of people who can be in the crew at the same time. A small number of people are not adequate for the danger of the *Short Route*, and the ship is not big enough to host too many people.
+- The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
+- The `max_total_crew` and `min_total_crew` integer attributes specify the minimum and the maximum amount of people who can be in the crew at the same time. A small number of people are not adequate for the danger of the *Short Route*, and the ship is not big enough to host too many people.
 - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each voyage from one island to the next can last, otherwise the damage of the ship will be too much and it will sink.
-- The `max_distance_individual_journey` float attribute is a constraint specifing the maximum amount of hours each voyage from one island to the next can last, otherwise the damage of the ship will be too much and it will sink.
+- The `max_L1_distance_individual_journey` float attribute is a constraint specifing the maximum amount of hours each voyage from one island to the next can last, otherwise the damage of the ship will be too much and it will sink.
 
 </details>
 
@@ -84,11 +84,11 @@ class ProblemVoyage:
     start_crew: int
     islands: Tuple[Island]
     cost_to_optimize: Literal
-    min_fix_time_individual_island: int
-    min_crew: int
-    max_crew: int
+    min_nights_individual_island: int
+    min_total_crew: int
+    max_total_crew: int
     max_duration_individual_journey: float
-    max_distance_individual_journey: float    
+    max_L1_distance_individual_journey: float    
 ```
 
 ---
