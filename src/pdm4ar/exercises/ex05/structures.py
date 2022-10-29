@@ -133,10 +133,10 @@ class Curve(Segment):
         assert curve_type is not DubinsSegmentType.STRAIGHT
         assert radius > 0
 
-        self.length = radius * arc_angle
         self.radius = radius
         self.center = center
         self._arc_angle = mod_2_pi(arc_angle)
+        self.length = radius * self._arc_angle
         super().__init__(curve_type, start_config, end_config, gear)
 
     @property
