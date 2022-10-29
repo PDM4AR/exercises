@@ -8,7 +8,6 @@ from dg_commons import SE2Transform
 
 
 def mod_2_pi(x: float) -> float:
-    # fixme: simply use https://docs.python.org/3/library/math.html#math.fmod
     return x - 2 * np.pi * np.floor(x / (2 * np.pi))
 
 
@@ -113,7 +112,7 @@ class Curve(Segment):
         radius:         float
             Turning radius
         
-        arc_angle:      float [0, 2*pi) (default = 0)
+        arc_angle:      float [0, 2*pi) (Default = 0)
             Angle of the curve segment. Note that 2*pi == 0, since a full 360deg turn is never in the optimal path
 
         length:         float
@@ -123,7 +122,7 @@ class Curve(Segment):
             A unit vector pointing from start to end configuration
             If start == end, then direction = SE2Transform.identity().p
 
-        gear:            Gear      (Default = Gear.Forward)
+        gear:            Gear      (Default = Gear.FORWARD)
             Whether the car completes the curve from start to end in forward gear or reverse gear
 
      """
@@ -134,15 +133,24 @@ class Curve(Segment):
         assert curve_type is not DubinsSegmentType.STRAIGHT
         assert radius > 0
 
-        self.length = radius * arc_angle
         self.radius = radius
         self.center = center
-        self.arc_angle = mod_2_pi(arc_angle)
+        self._arc_angle = mod_2_pi(arc_angle)
+        self.length = radius * self._arc_angle
         super().__init__(curve_type, start_config, end_config, gear)
 
+    @property
+    def arc_angle(self):
+        return self._arc_angle
+
+    @arc_angle.setter
+    def arc_angle(self, value):
+        self._arc_angle = mod_2_pi(value)
+        self.length = self._arc_angle*self.radius
+
     def __str__(self) -> str:
-        return f"L{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self.arc_angle):.1f})" if self.type is DubinsSegmentType.LEFT \
-            else f"R{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self.arc_angle):.1f})"
+        return f"L{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self._arc_angle):.1f})" if self.type is DubinsSegmentType.LEFT \
+            else f"R{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self._arc_angle):.1f})"
 
     def __repr__(self) -> str:
         return str(self)
