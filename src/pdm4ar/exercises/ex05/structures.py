@@ -112,7 +112,7 @@ class Curve(Segment):
         radius:         float
             Turning radius
         
-        arc_angle:      float [0, 2*pi) (default = 0)
+        arc_angle:      float [0, 2*pi) (Default = 0)
             Angle of the curve segment. Note that 2*pi == 0, since a full 360deg turn is never in the optimal path
 
         length:         float
@@ -122,7 +122,7 @@ class Curve(Segment):
             A unit vector pointing from start to end configuration
             If start == end, then direction = SE2Transform.identity().p
 
-        gear:            Gear      (Default = Gear.Forward)
+        gear:            Gear      (Default = Gear.FORWARD)
             Whether the car completes the curve from start to end in forward gear or reverse gear
 
      """
