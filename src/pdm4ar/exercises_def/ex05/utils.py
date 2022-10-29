@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from dg_commons import SE2Transform
-from matplotlib.lines import Line2D, segment_hits
+from matplotlib.lines import Line2D
 from matplotlib.patches import Circle
 from pdm4ar.exercises.ex05.structures import DubinsSegmentType, Curve, Line, Path
 
@@ -20,8 +20,7 @@ def get_next_point_on_curve(curve: Curve,  point: SE2Transform, delta_angle: flo
     return next_point
 
 def get_next_point_on_line(line: Line, point: SE2Transform, delta_length: float) -> SE2Transform:
-    # todo missing one argument? theta=?
-    return SE2Transform(point.p + delta_length*line.direction)
+    return SE2Transform(point.p + delta_length*line.direction, theta=point.theta)
  
 def interpolate_line_points(line: Line, number_of_points: float) -> List[SE2Transform]:
     start = line.start_config
