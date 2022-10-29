@@ -149,8 +149,8 @@ class Curve(Segment):
         self._arc_angle = mod_2_pi(value)
 
     def __str__(self) -> str:
-        return f"L{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self.arc_angle):.1f})" if self.type is DubinsSegmentType.LEFT \
-            else f"R{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self.arc_angle):.1f})"
+        return f"L{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self._arc_angle):.1f})" if self.type is DubinsSegmentType.LEFT \
+            else f"R{'-' if self.gear is Gear.REVERSE else ''}({np.rad2deg(self._arc_angle):.1f})"
 
     def __repr__(self) -> str:
         return str(self)
