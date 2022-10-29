@@ -8,7 +8,6 @@ from dg_commons import SE2Transform
 
 
 def mod_2_pi(x: float) -> float:
-    # fixme: simply use https://docs.python.org/3/library/math.html#math.fmod
     return x - 2 * np.pi * np.floor(x / (2 * np.pi))
 
 
