@@ -8,7 +8,7 @@ def solve_milp(problem: ProblemVoyage) -> ProblemSolution:
     """
 
     # toy data for random voyage plan
-    np.random.seed(None)
+    # np.random.seed(None)
     if np.random.random() > 0.5:
         feasibility = MilpFeasibility.feasible
         voyage_plan = list(np.random.randint(0,len(problem.islands), size=(min(7,len(problem.islands)),)))
