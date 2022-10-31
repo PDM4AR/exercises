@@ -16,7 +16,7 @@ from pdm4ar.exercises_def.structures import PerformanceResults
 from pdm4ar.exercises_def.structures_time import TestCaseTimeoutException
 
 from .data import *
-from pdm4ar.exercises.ex07.ex07 import solve_milp
+from pdm4ar.exercises.ex07.ex07 import solve_optimization
 from pdm4ar.exercises_def import Exercise, ExIn
 
 class SanityCheckError(Exception):

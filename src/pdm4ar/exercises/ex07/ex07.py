@@ -2,7 +2,7 @@ import numpy as np
 from pdm4ar.exercises_def.ex07.structures import ProblemVoyage, OptimizationCost, Island, Constraints, MilpFeasibility, ProblemSolution
 
 
-def solve_milp(problem: ProblemVoyage) -> ProblemSolution:
+def solve_optimization(problem: ProblemVoyage) -> ProblemSolution:
     """
     Solve the MILP problem optimizing for the different costs while enforcing the given constraints
     """
