@@ -43,11 +43,22 @@ def exercise_dubins_eval(prob: DubinsProblem,
         comp_out = [*algo_out,] if isinstance(algo_out, Iterable) else str(algo_out)
         msg += f"Computed: \t {comp_out} \n"
         if expected is not None:
+            one_of_many = False
             if isinstance(expected[i], dict):
-                exp_out = [p[1] for p in expected[i]["opt_paths"]]
+                exp_out = ""
+                exp_paths = expected[i]["opt_paths"]
+                if len(exp_paths) > 1:
+                    one_of_many = True
+                for p in exp_paths:
+                    exp_out += str(p[1]) 
+                    if len(exp_paths) > 1:
+                        exp_out += ", "
             else:
-                exp_out = (*expected[i],) if isinstance(expected[i], Iterable) else str(expected[i])
-            msg += f"Expected: \t {exp_out} \n"
+                exp_out = [*expected[i],] if isinstance(expected[i], Iterable) else str(expected[i])
+            if one_of_many:
+                 msg += f"Expected one of: \t {exp_out} \n"
+            else:
+                msg += f"Expected: \t {exp_out} \n"
         msg += result_msg
         r.text(f"Query: {i + 1}", text=remove_escapes(msg))
 
