@@ -366,7 +366,7 @@ def ex07_evaluation(
             raise ValueError(algo_in_type)
 
         start = timeit.default_timer()
-        est_solution = solve_milp(problem)
+        est_solution = solve_optimization(problem)
         stop = timeit.default_timer()
         timing = stop-start
 
