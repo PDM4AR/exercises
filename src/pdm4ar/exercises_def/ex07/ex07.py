@@ -35,7 +35,7 @@ class TestMilp(ExIn):
         return f"{self.optimization_cost.name} - test {self.test_id}"
 
 
-def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type: Literal) -> Ex07FinalPerformance:
+def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type: MilpCase) -> Ex07FinalPerformance:
 
     overall_feasibility = 0.0
     overall_constraints = {key: 0.0 for key in Violations.__annotations__.keys()}
