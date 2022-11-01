@@ -327,7 +327,7 @@ def sanity_check(solution: ProblemSolution):
             elif isinstance(solution.voyage_plan, list):
                 if all([isinstance(island_id, (int, np.integer)) for island_id in solution.voyage_plan]):
                     return
-    raise SanityCheckError(f"The output {solution!r} of {solve_milp.__name__}"
+    raise SanityCheckError(f"The output {solution!r} of {solve_optimization.__name__}"
                             " is not respecting the required types.")
 
 def ex07_evaluation(
