@@ -345,7 +345,7 @@ def ex07_evaluation(
 
         title = algo_in.str_id()
         r = Report(title)
-        print('\033[55;45m'+2*" "+title+2*" "+'\033[0m')
+        visualizer.print_title(title)
 
         # title_section = f"{algo_in_difficulty.name} test {algo_in_test_id}"
         # rsec = r.section(title_section)
