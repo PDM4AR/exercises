@@ -78,7 +78,6 @@ The order of the lines in the List is not important.
     return [] # i.e., [Line(),]
  ``` 
 
-
 4. [60%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g., line with length = 0) in the returned list.
 Implement it in:
 ```python
@@ -86,7 +85,6 @@ def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, 
     # TODO implement here your solution
     # Please keep segments with zero length in the return list & return a valid dubins path!
     return [] # e.g., [Curve(), Line(),..]
-
 ```
 
 5. [10%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
