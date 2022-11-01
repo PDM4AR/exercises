@@ -341,12 +341,13 @@ def ex07_evaluation(
 
     title = algo_in.str_id()
     r = Report(title)
-    print('\033[55;45m'+2*" "+title+2*" "+'\033[0m')
+    visualizer.print_title(title)
 
     if algo_in_type == MilpCase.test_voyage:
         problem: ProblemVoyage = algo_in_probem
         gt_optimal_cost: ProblemSolution = expected_out
     elif algo_in_type == MilpCase.random_voyage:
+        # individual probability of each constraint to be active
         p_constraints = Constraints(0.5,0.5,0.5,0.5,0.5)
         problem = milp_generator(algo_in_seed, algo_in_optimization_cost, p_constraints)
         gt_optimal_cost = None
@@ -360,15 +361,15 @@ def ex07_evaluation(
 
     sanity_check(est_solution)
 
-    violations = compute_violations(problem, est_solution)
+    feasibility_score = compute_feasibility_score(est_solution, gt_optimal_cost)
+    violations, feasibility_score = compute_violations(problem, est_solution, feasibility_score)
     est_cost = compute_cost(problem, est_solution)
-    cost_score = compute_cost_score(problem.optimization_cost, est_cost, gt_optimal_cost, violations)
+    cost_score = compute_cost_score(problem.optimization_cost, est_cost, gt_optimal_cost, feasibility_score, violations)
 
     if timing > algo_in_timeout:
         raise TestCaseTimeoutException(f"Exceeded test case timeout: {algo_in_timeout} seconds.")
     else:
         timing = None
-        feasibility_score = compute_feasibility_score(est_cost, gt_optimal_cost)
         performance = MilpPerformance(feasibility_score, violations, cost_score)
 
     visualizer.visualize(r, problem, feasibility_score, gt_optimal_cost, cost_score, est_solution.voyage_plan, est_cost, violations, timing)

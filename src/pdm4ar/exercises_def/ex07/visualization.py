@@ -15,22 +15,31 @@ REPORT_TYPE = ReportType.report_viz # choose among none, terminal, report_txt, r
 #                                                                                                              | 
 #---------------------------------------------------------------------------------------------------------------
 
-ACTIVATE_FANCY_TERMINAL = True # set to False if the terminal is not printing correctly
+ACTIVATE_COLORS = True # set to False to remove colors from terminal and enhance contrast in the report
 
 class Viz:
     
     def __init__(self, report_type: IntEnum =REPORT_TYPE, 
-                activate_fancy_terminal: bool = ACTIVATE_FANCY_TERMINAL):
+                activate_colors: bool = ACTIVATE_COLORS):
         self.report_type = report_type
-        self.activate_fancy_terminal = activate_fancy_terminal
-        print(f"\n\033[33;100mReport type: {self.report_type.name}\033[0m\n")
+        self.activate_colors = activate_colors
+        self.print_report_type()
+
+    def print_report_type(self):
+        pre, post = ('\033[33;100m', '\033[0m') if self.activate_colors else ("", "")
+        report_type_text = f"Report type: {self.report_type.name}"
+        print(f"\n{pre}{report_type_text}{post}\n")
+
+    def print_title(self, title):
+        pre, post = ('\033[55;45m  ', '\033[0m') if self.activate_colors else ("# ", "")
+        print(f"\n\n{pre}{title}{post}")
 
     def display_text_terminal(self, problem: ProblemVoyage, feasibility_score: int,
                               voyage_plan: Optional[List[int]],
                               est_cost: Cost, gt_cost: Cost, cost_score: CostScore, 
                               timing: float, violations: Violations) -> None:
 
-        if self.activate_fancy_terminal:
+        if self.activate_colors:
             good, bad = "  \U0001F603", "  \U0001F641"
             green, red, reset = '\033[38;2;0;255;0m', '\033[38;2;255;0;0m', '\033[0m'
             arrow = ""
@@ -67,7 +76,7 @@ class Viz:
             # text_violation = f"\nConstraints {red if n_violations > 0 else green}" + \
             #                  f"{fraction_violations} violation{'s' if n_violations != 1 else ''}" + \
             #                  f":{reset}{text_violation}"
-            if not self.activate_fancy_terminal:
+            if not self.activate_colors:
                 text_violation = f"\n\t{fraction_violations} violation{'s' if n_violations != 1 else ''}" + text_violation
             text_violation = "\nConstraints: " + text_violation
             print(text_violation)
@@ -85,7 +94,7 @@ class Viz:
                 text_cost += f"\n\tGT: {gt_cost.feasibility.name}"
 
             if est_cost.feasibility == MilpFeasibility.feasible:
-                if self.activate_fancy_terminal:
+                if self.activate_colors:
                     r,g,b = self.get_cost_score_color(cost_score.cost.cost)
                     color = f'\033[38;2;{r};{g};{b}m'
                 else: 
@@ -175,6 +184,9 @@ class Viz:
         if self.report_type == ReportType.none:
             return
 
+        if self.report_type >= ReportType.terminal:
+            self.display_text_terminal(problem, feasibility_score, voyage_plan, est_cost, gt_cost, cost_score, timing, violations)
+
         if self.report_type >= ReportType.report_viz:
             width_image = 800
             island_radius_viz = 2 # THIS IS JUST FOR VISUALIZATION, NO RELATED TO PROBLEM SOLVING
@@ -194,9 +206,17 @@ class Viz:
 
             px = 1/plt.rcParams['figure.dpi']      
 
-            dict_colors = {0: 'lawngreen', 1: 'orange', 2: 'violet', 3: 'gold', 4: 'coral'}
+            if self.activate_colors:
+                arch_island_colors = {0: 'lawngreen', 1: 'orange', 2: 'violet', 3: 'gold', 4: 'coral'}
+                arch_text_colors = {key:'black' for key in arch_island_colors.keys()}
+            else:
+                arch_island_colors = {0: 'black', 1: 'yellow'}
+                arch_text_colors = {0: 'yellow', 1: 'black'}
         
         with r_sec.subsection("") as r_sub:
+
+            if self.report_type >= ReportType.report_txt:
+                self.display_text_report(r_sub, problem, feasibility_score, voyage_plan, est_cost, gt_cost, cost_score, timing, violations)
 
             if self.report_type >= ReportType.report_viz:
                 
@@ -225,27 +245,28 @@ class Viz:
                     # Draw islands
                     islands_pos = np.array([[island.x, island.y] for island in problem.islands])
 
-                    islands_color = [dict_colors[island.arch%len(dict_colors.keys())] for island in problem.islands]
+                    islands_color = [arch_island_colors[island.arch%len(arch_island_colors.keys())] for island in problem.islands]
 
                     ax.scatter(islands_pos[:,0], islands_pos[:,1], (island_radius_viz*scale)**2, islands_color, zorder=1)
 
                     if self.report_type >= ReportType.report_viz_extra:
                         for island in problem.islands:
+                            text_color = arch_text_colors[island.arch%len(arch_text_colors.keys())]
                             ax.text(island.x, island.y+0.6*island_radius_viz, 
                                 f"id: {island.id} - arch: {island.arch}", fontsize=text_size, ha='center', va='center',
-                                zorder=2)
+                                color=text_color, zorder=2)
                             ax.text(island.x, island.y+0.25*island_radius_viz, 
                                 f"x: {island.x:.1f} - y: {island.y:.1f}", fontsize=text_size, ha='center', va='center',
-                                zorder=2)
+                                color=text_color, zorder=2)
                             ax.text(island.x, island.y-0.1*island_radius_viz, 
                                 f"d: {island.departure:.1f} - a: {island.arrival:.1f}", fontsize=text_size, ha='center', va='center',
-                                zorder=2)
+                                color=text_color, zorder=2)
                             ax.text(island.x, island.y-0.4*island_radius_viz, 
                                 f"t compass: {island.nights}", fontsize=text_size, ha='center', va='center',
-                                zorder=2)
+                                color=text_color, zorder=2)
                             ax.text(island.x, island.y-0.7*island_radius_viz, 
                                 f"delta crew: {island.delta_crew}",fontsize = text_size, ha='center', va='center',
-                                zorder=2)
+                                color=text_color, zorder=2)
                             # ax.annotate(f"id: {island.id}\n - arch: {island.arch}", (island.x, island.y))
 
                 
@@ -271,10 +292,3 @@ class Viz:
                             islands_pos[:,0], islands_pos[:,1], zorder=0,
                             color='cornflowerblue', linestyle='solid', linewidth=0.2*scale*island_radius_viz, 
                             marker='o', markerfacecolor='cornflowerblue', markersize=1.3*scale*island_radius_viz)
-
-
-            if self.report_type >= ReportType.terminal:
-                self.display_text_terminal(problem, feasibility_score, voyage_plan, est_cost, gt_cost, cost_score, timing, violations)
-
-            if self.report_type >= ReportType.report_txt:
-                self.display_text_report(r_sub, problem, feasibility_score, voyage_plan, est_cost, gt_cost, cost_score, timing, violations)
