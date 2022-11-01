@@ -341,7 +341,7 @@ def ex07_evaluation(
 
     title = algo_in.str_id()
     r = Report(title)
-    print('\033[55;45m'+2*" "+title+2*" "+'\033[0m')
+    visualizer.print_title(title)
 
     if algo_in_type == MilpCase.test_voyage:
         problem: ProblemVoyage = algo_in_probem
