@@ -57,8 +57,10 @@ class Viz:
 
         text_feasibility = f"\nFeasibility: \n\tEst.: {est_cost.feasibility.name}"
         if gt_cost is not None:
-            text_feasibility += f"\n\tGT: {gt_cost.feasibility.name}\n\t" + \
-                f"{green if feasibility_score == 1 else red}Score: {feasibility_score}{reset}"
+            text_feasibility += f"\n\tGT: {gt_cost.feasibility.name}"
+            text_feasibility += f"\n\t{green if feasibility_score == 1 else red}Score: {feasibility_score}{reset}"
+        else:
+            text_feasibility += f"\n\tScore: {feasibility_score}"
         print(text_feasibility)
 
         n_violations = 0
@@ -99,13 +101,16 @@ class Viz:
             else:
                 text_cost += f"\n\tGT: {gt_cost.feasibility.name}"
 
-            if est_cost.feasibility == MilpFeasibility.feasible:
+            if (feasibility_score == 1 and est_cost.feasibility == MilpFeasibility.feasible) or \
+               (feasibility_score == 0 and est_cost.feasibility == MilpFeasibility.unfeasible):
                 if self.activate_colors:
                     r,g,b = self.get_cost_score_color(cost_score.cost.cost)
                     color = f'\033[38;2;{r};{g};{b}m'
                 else: 
                     color = ""
                 text_cost += "\n\t"+color+f"Score: {cost_score.cost.cost:.3f}"+reset
+        else:
+            text_cost += f"\n\tScore: {cost_score.cost.cost}"
         
         print(text_cost, "\n")
 
@@ -133,7 +138,8 @@ class Viz:
 
         text_feasibility = f"Est.: {est_cost.feasibility.name}"
         if gt_cost is not None:
-            text_feasibility += f"\nGT: {gt_cost.feasibility.name}\nScore: {feasibility_score}"
+            text_feasibility += f"\nGT: {gt_cost.feasibility.name}"
+            text_feasibility += f"\nScore: {feasibility_score}"
         r_viz.text("Feasibility:", text_feasibility)
 
         if est_cost.feasibility == MilpFeasibility.feasible:
@@ -166,8 +172,11 @@ class Viz:
                 text_cost += f"\nGT: " + (f"{cost:.3f}" if isinstance(cost, float) else f"{cost}")
             else:
                 text_cost += f"\nGT: {gt_cost.feasibility.name}"
-            if est_cost.feasibility == MilpFeasibility.feasible:
+            if (feasibility_score == 1 and est_cost.feasibility == MilpFeasibility.feasible) or \
+               (feasibility_score == 0 and est_cost.feasibility == MilpFeasibility.unfeasible):
                 text_cost += f"\nScore: {cost_score.cost.cost:.3f}"
+        else:
+            text_cost += f"\nScore: {cost_score.cost.cost}"
         r_viz.text("Cost:", text_cost)
 
     @staticmethod
@@ -221,9 +230,6 @@ class Viz:
                 arch_text_colors = {0: 'yellow', 1: 'black'}
         
         with r_sec.subsection("") as r_sub:
-
-            if self.report_type >= ReportType.report_txt:
-                self.display_text_report(r_sub, problem, feasibility_score, voyage_plan, est_cost, gt_cost, cost_score, timing, violations)
 
             if self.report_type >= ReportType.report_viz:
                 
@@ -299,3 +305,6 @@ class Viz:
                             islands_pos[:,0], islands_pos[:,1], zorder=0,
                             color='cornflowerblue', linestyle='solid', linewidth=0.2*scale*island_radius_viz, 
                             marker='o', markerfacecolor='cornflowerblue', markersize=1.3*scale*island_radius_viz)
+
+            if self.report_type >= ReportType.report_txt:
+                self.display_text_report(r_sub, problem, feasibility_score, voyage_plan, est_cost, gt_cost, cost_score, timing, violations)

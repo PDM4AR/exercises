@@ -76,9 +76,10 @@ def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type
                 if feasibility == MilpFeasibility.feasible:
                     overall_costs[cost.type.name] += cost.cost.cost
                     overall_n_test_costs[cost.type.name] += 1
-        else:
-            overall_costs[cost.type.name] = cost.cost.cost
-            overall_n_test_costs[cost.type.name] += 1
+            else:
+                if feasibility == MilpFeasibility.unfeasible:
+                    overall_costs[cost.type.name] += cost.cost.cost
+                    overall_n_test_costs[cost.type.name] += 1
             
 
     if overall_n_test_feasibility > 0:
@@ -92,13 +93,14 @@ def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type
 
     feasibility_performance = overall_feasibility if voyage_type == MilpCase.test_voyage else np.nan
 
-    constraints_performance = ConstraintsPerformance(*[None for _ in ConstraintsPerformance.__annotations__.keys()])
+    constraints_performance = ConstraintsPerformance(*[np.nan for _ in ConstraintsPerformance.__annotations__.keys()])
     for constraint_name in ConstraintsPerformance.__annotations__.keys():
         object.__setattr__(constraints_performance, constraint_name, overall_constraints[constraint_name])
 
-    costs_performance = CostsPerformance(*[None for _ in OptimizationCost.__members__.keys()])
-    for cost_name in CostsPerformance.__annotations__.keys():
-        object.__setattr__(costs_performance, cost_name, overall_costs[cost_name])
+    costs_performance = CostsPerformance(*[np.nan for _ in OptimizationCost.__members__.keys()])
+    if voyage_type == MilpCase.test_voyage:
+        for cost_name in CostsPerformance.__annotations__.keys():
+            object.__setattr__(costs_performance, cost_name, overall_costs[cost_name])
 
     return Ex07FinalPerformance(feasibility_performance, constraints_performance, costs_performance)
 
@@ -307,7 +309,7 @@ def compute_cost_score(cost_type: CostType, est_cost: Cost, gt_cost: Optional[Co
             cost_score = 0
 
         cost_score = max(0, min(cost_score, 1))
-        if cost_score > 0.99:
+        if cost_score > 0.995:
             cost_score = 1
 
     else:
@@ -396,13 +398,11 @@ def get_exercise7() -> Exercise:
                     expected_results.append(expected_result)
     
     elif test_type == MilpCase.random_voyage:
-
         seed = 0
         n_tests = 3
         timeout = 20
 
         for test_cost in OptimizationCost.get_costs():
-
             seed = int((seed**1.4-seed**1.3)**0.5+seed)+1
             if seed > 2**25:
                 seed = int(seed/2**18)
@@ -410,7 +410,6 @@ def get_exercise7() -> Exercise:
             for test_id in range(n_tests):
                 
                 test_seed = min(seed*(1+(test_id*2)), 2**31)
-
                 test_values.append(TestMilp(
                     test_type,
                     test_cost,
