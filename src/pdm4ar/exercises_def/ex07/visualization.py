@@ -40,9 +40,10 @@ class Viz:
         if timing is not None:
             print(red+"Time exceeded: "+reset+f"{1000*timing:.3f} ms")
 
-        text_feasibility = f"\nFeasibility: \n\tEst.: {est_cost.feasibility.name}\n\tGT: {gt_cost.feasibility.name}"
+        text_feasibility = f"\nFeasibility: \n\tEst.: {est_cost.feasibility.name}"
         if gt_cost is not None:
-            text_feasibility += f"\n\t{green if feasibility_score == 1 else red}Score: {feasibility_score}{reset}"
+            text_feasibility += f"\n\tGT: {gt_cost.feasibility.name}\n\t" + \
+                f"{green if feasibility_score == 1 else red}Score: {feasibility_score}{reset}"
         print(text_feasibility)
 
         n_violations = 0
@@ -115,9 +116,9 @@ class Viz:
         if timing is not None:
             r_viz.text("Time exceeded: ", f"{1000*timing:.3f} ms")
 
-        text_feasibility = f"Est.: {est_cost.feasibility.name}\nGT: {gt_cost.feasibility.name}"
+        text_feasibility = f"Est.: {est_cost.feasibility.name}"
         if gt_cost is not None:
-            text_feasibility += f"\nScore: {feasibility_score}"
+            text_feasibility += f"\nGT: {gt_cost.feasibility.name}\nScore: {feasibility_score}"
         r_viz.text("Feasibility:", text_feasibility)
 
         if est_cost.feasibility == MilpFeasibility.feasible:

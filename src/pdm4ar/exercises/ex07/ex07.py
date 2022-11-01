@@ -8,8 +8,8 @@ def solve_optimization(problem: ProblemVoyage) -> ProblemSolution:
     """
 
     # toy data for random voyage plan
-    # np.random.seed(None)
-    if np.random.random() > 0.5:
+    np.random.seed(None)
+    if np.random.random() > 0.3:
         feasibility = MilpFeasibility.feasible
         voyage_plan = list(np.random.randint(0,len(problem.islands), size=(min(7,len(problem.islands)),)))
     else:
