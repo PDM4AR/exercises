@@ -9,21 +9,27 @@ from reprep import Report, MIME_PDF
 from pdm4ar.exercises_def.ex07.structures import Cost, CostScore, MilpFeasibility, ProblemVoyage, ReportType, Violations
 
 
-# -----------------------------------    REPORT  TYPE    -------------------------------------------------------
+# -------------------------------------       REPORT  OPTIONS    -----------------------------------------------
 #                                                                                                              |
 REPORT_TYPE = ReportType.report_viz # choose among none, terminal, report_txt, report_viz, report_viz_extra    |
-#                                                                                                              | 
-#---------------------------------------------------------------------------------------------------------------
-
-ACTIVATE_COLORS = True # set to False to remove colors from terminal and enhance contrast in the report
+#                                                                                                              |
+FIGURE_WIDTH = 800 # choose width of the image: small value for fast rendering,                                |
+#                    trading off in large maps non-overlapping of figures, and most importantly                |
+#                    readability of the extra text if "report_viz_extra" is selected.                          |
+#                                                                                                              |
+ACTIVATE_COLORS = True # set to False to remove colors from terminal and enhance contrast in the report        |
+#                                                                                                              |
+# --------------------------------------------------------------------------------------------------------------
 
 class Viz:
     
-    def __init__(self, report_type: IntEnum =REPORT_TYPE, 
-                activate_colors: bool = ACTIVATE_COLORS):
+    def __init__(self, report_type: IntEnum =REPORT_TYPE,
+                 fig_width: int = FIGURE_WIDTH,
+                 activate_colors: bool = ACTIVATE_COLORS):
         self.report_type = report_type
         self.activate_colors = activate_colors
         self.print_report_type()
+        self.fig_width = fig_width
 
     def print_report_type(self):
         pre, post = ('\033[33;100m', '\033[0m') if self.activate_colors else ("", "")
@@ -188,7 +194,6 @@ class Viz:
             self.display_text_terminal(problem, feasibility_score, voyage_plan, est_cost, gt_cost, cost_score, timing, violations)
 
         if self.report_type >= ReportType.report_viz:
-            width_image = 800
             island_radius_viz = 2 # THIS IS JUST FOR VISUALIZATION, NO RELATED TO PROBLEM SOLVING
             text_size_m = 0.2 # meters
 
@@ -204,7 +209,9 @@ class Viz:
 
             ratio = (max_x-min_x)/(max_y-min_y)
 
-            px = 1/plt.rcParams['figure.dpi']      
+            px = 1/plt.rcParams['figure.dpi']     
+
+            fig_size = (self.fig_width*px*ratio,self.fig_width*px) if self.fig_width is not None else None
 
             if self.activate_colors:
                 arch_island_colors = {0: 'lawngreen', 1: 'orange', 2: 'violet', 3: 'gold', 4: 'coral'}
@@ -223,7 +230,7 @@ class Viz:
                 rfig = r_sub.figure(cols=1)
                 
                 with rfig.plot(
-                    nid=" ", mime=MIME_PDF, figsize=(width_image*px*ratio,width_image*px) if width_image is not None else None
+                    nid=" ", mime=MIME_PDF, figsize=fig_size
                 ) as _:
 
                     ax = plt.gca()

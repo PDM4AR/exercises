@@ -379,7 +379,7 @@ def ex07_evaluation(
 
 def get_exercise7() -> Exercise:
 
-    test_type = MilpCase.random_voyage
+    test_type = MilpCase.test_voyage
     
     test_values = []
     expected_results = []
