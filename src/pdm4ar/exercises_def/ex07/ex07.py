@@ -77,9 +77,8 @@ def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type
                     overall_costs[cost.type.name] += cost.cost.cost
                     overall_n_test_costs[cost.type.name] += 1
         else:
-            if feasibility == MilpFeasibility.feasible:
-                overall_costs[cost.type.name] += cost.cost.cost
-                overall_n_test_costs[cost.type.name] += 1
+            overall_costs[cost.type.name] = cost.cost.cost
+            overall_n_test_costs[cost.type.name] += 1
             
 
     if overall_n_test_feasibility > 0:
@@ -334,66 +333,52 @@ def ex07_evaluation(
     algo_in: TestMilp, expected_out: Any, visualizer: Viz = Viz()
 ) -> Tuple[MilpPerformance, Report]:
 
-    try:
+    algo_in_type = algo_in.type
+    algo_in_optimization_cost = algo_in.optimization_cost
+    algo_in_probem = algo_in.problem
+    algo_in_seed = algo_in.seed
+    algo_in_timeout = algo_in.timeout
 
-        algo_in_type = algo_in.type
-        algo_in_optimization_cost = algo_in.optimization_cost
-        algo_in_test_id = algo_in.test_id
-        algo_in_probem = algo_in.problem
-        algo_in_seed = algo_in.seed
-        algo_in_timeout = algo_in.timeout
+    title = algo_in.str_id()
+    r = Report(title)
+    print('\033[55;45m'+2*" "+title+2*" "+'\033[0m')
 
-        title = algo_in.str_id()
-        r = Report(title)
-        print('\033[55;45m'+2*" "+title+2*" "+'\033[0m')
+    if algo_in_type == MilpCase.test_voyage:
+        problem: ProblemVoyage = algo_in_probem
+        gt_optimal_cost: ProblemSolution = expected_out
+    elif algo_in_type == MilpCase.random_voyage:
+        p_constraints = Constraints(0.5,0.5,0.5,0.5,0.5)
+        problem = milp_generator(algo_in_seed, algo_in_optimization_cost, p_constraints)
+        gt_optimal_cost = None
+    else:
+        raise ValueError(algo_in_type)
 
-        # title_section = f"{algo_in_difficulty.name} test {algo_in_test_id}"
-        # rsec = r.section(title_section)
-        # print('\n\033[37;45m'+10*" "+title_section+10*" "+'\033[0m')
+    start = timeit.default_timer()
+    est_solution = solve_optimization(problem)
+    stop = timeit.default_timer()
+    timing = stop-start
 
-            
-        # title_subsection = f"test {ex_num}"
-        # print('\n\033[94;103m '+title_subsection+' \033[0m\n')
+    sanity_check(est_solution)
 
-        if algo_in_type == MilpCase.test_voyage:
-            problem: ProblemVoyage = algo_in_probem
-            gt_optimal_cost: ProblemSolution = expected_out
-        elif algo_in_type == MilpCase.random_voyage:
-            p_constraints = Constraints(0.5,0.5,0.5,0.5,0.5)
-            problem = milp_generator(algo_in_seed, algo_in_optimization_cost, p_constraints)
-            gt_optimal_cost = None
-        else:
-            raise ValueError(algo_in_type)
+    violations = compute_violations(problem, est_solution)
+    est_cost = compute_cost(problem, est_solution)
+    cost_score = compute_cost_score(problem.optimization_cost, est_cost, gt_optimal_cost, violations)
 
-        start = timeit.default_timer()
-        est_solution = solve_optimization(problem)
-        stop = timeit.default_timer()
-        timing = stop-start
+    if timing > algo_in_timeout:
+        raise TestCaseTimeoutException(f"Exceeded test case timeout: {algo_in_timeout} seconds.")
+    else:
+        timing = None
+        feasibility_score = compute_feasibility_score(est_cost, gt_optimal_cost)
+        performance = MilpPerformance(feasibility_score, violations, cost_score)
 
-        sanity_check(est_solution)
-
-        violations = compute_violations(problem, est_solution)
-        est_cost = compute_cost(problem, est_solution)
-        cost_score = compute_cost_score(problem.optimization_cost, est_cost, gt_optimal_cost, violations)
-
-        if timing > algo_in_timeout:
-            raise TestCaseTimeoutException(f"Exceeded test case timeout: {algo_in_timeout} seconds.")
-        else:
-            timing = None
-            feasibility_score = compute_feasibility_score(est_cost, gt_optimal_cost)
-            performance = MilpPerformance(feasibility_score, violations, cost_score)
-
-        visualizer.visualize(r, problem, feasibility_score, gt_optimal_cost, cost_score, est_solution.voyage_plan, est_cost, violations, timing)
-
-    except Exception as e:
-        print(f"Failed because of:\n {e.args} \n{''.join(traceback.format_tb(e.__traceback__))}")
+    visualizer.visualize(r, problem, feasibility_score, gt_optimal_cost, cost_score, est_solution.voyage_plan, est_cost, violations, timing)
 
     return performance, r
 
 
 def get_exercise7() -> Exercise:
 
-    test_type = MilpCase.test_voyage
+    test_type = MilpCase.random_voyage
     
     test_values = []
     expected_results = []
@@ -417,7 +402,7 @@ def get_exercise7() -> Exercise:
 
         for test_cost in OptimizationCost.get_costs():
 
-            seed = int((seed**1.4-seed**1.3)**0.5+seed)
+            seed = int((seed**1.4-seed**1.3)**0.5+seed)+1
             if seed > 2**25:
                 seed = int(seed/2**18)
 
@@ -425,14 +410,14 @@ def get_exercise7() -> Exercise:
                 
                 test_seed = min(seed*(1+(test_id*2)), 2**31)
 
-                test_values.append([TestMilp(
+                test_values.append(TestMilp(
                     test_type,
                     test_cost,
                     test_id,
                     None,
                     test_seed,
                     timeout
-                )])
+                ))
                 expected_results.append(None)
 
     else:
