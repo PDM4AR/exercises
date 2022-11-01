@@ -295,13 +295,13 @@ def compute_cost_score(cost_type: CostType, est_cost: Cost, gt_cost: Optional[Co
                     if tolerance.is_greater(est_cost.cost, gt_cost.cost):
                         cost_score = 0
                     else:
-                        rel_diff = min(est_cost.cost - gt_cost.cost, 0)/tol
+                        rel_diff = max(est_cost.cost - gt_cost.cost, 0)/tol
                         cost_score = 1 - rel_diff
                 else:
                     if tolerance.is_greater(gt_cost.cost, est_cost.cost):
                         cost_score = 0
                     else:
-                        rel_diff = min(gt_cost.cost, est_cost.cost, 0)/tol
+                        rel_diff = max(gt_cost.cost, est_cost.cost, 0)/tol
                         cost_score = 1 - rel_diff
             else:
                 cost_score = 1
