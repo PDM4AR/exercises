@@ -29,12 +29,12 @@ class Viz:
         self.print_report_type()
         self.fig_width = fig_width
 
-    def print_report_type(self):
+    def print_report_type(self) -> None:
         pre, post = ('\033[33;100m', '\033[0m') if self.activate_colors else ("", "")
         report_type_text = f"Report type: {self.report_type.name}"
         print(f"\n{pre}{report_type_text}{post}\n")
 
-    def print_title(self, title):
+    def print_title(self, title: str) -> None:
         pre, post = ('\033[55;45m  ', '  \033[0m') if self.activate_colors else ("# ", "")
         print(f"\n\n{pre}{title}{post}")
 
@@ -70,11 +70,12 @@ class Viz:
             if constraint is not None:
                 n_constraints += 1
                 violation = getattr(violations, violation_name)
-                text_violation += f"\n\t{red if violation else green}{violation_name}" + \
-                    f"{': ' if violation_name != 'voyage_order' else ''}" + \
-                    (f"{constraint:.2f}" if isinstance(constraint, float) else f"{constraint}")+ \
-                        f"{arrow}{reset}"
-                n_violations += 1 if violation else 0
+                if violation is not None:
+                    text_violation += f"\n\t{red if violation else green}{violation_name}" + \
+                        f"{': ' if violation_name != 'voyage_order' else ''}" + \
+                        (f"{constraint:.2f}" if isinstance(constraint, float) else f"{constraint}")+ \
+                            f"{arrow}{reset}"
+                    n_violations += 1 if violation else 0
         
         fraction_violations = f"{n_violations}/{n_constraints}"
         # text_violation = f"\nConstraints {red if n_violations > 0 else green}" + \
@@ -153,8 +154,9 @@ class Viz:
             if constraint is not None:
                 n_constraints += 1
                 violation = getattr(violations, violation_name)
-                text_violation += ("\u2716" if violation else "\u2714") +f" {violation_name}\n"
-                n_violations += 1 if violation else 0
+                if violation is not None:
+                    text_violation += ("\u2716" if violation else "\u2714") +f" {violation_name}\n"
+                    n_violations += 1 if violation else 0
         
         fraction_violations = f"{n_violations}/{n_constraints}"
         text_violation = f"{fraction_violations} violation{'s' if n_violations != 1 else ''}:\n" + text_violation
@@ -180,13 +182,13 @@ class Viz:
         r_viz.text("Cost:", text_cost)
 
     @staticmethod
-    def get_cost_score_color(value):
+    def get_cost_score_color(value) -> Tuple[int, int, int]:
         if value <= 0.5:
             rgb = 1.0, value/0.5, 0
         else:
             rgb = (1-value)/0.5, 1.0, 0
 
-        rgb = [min(255,max(round(255*color),0)) for color in rgb]
+        rgb = tuple([min(255,max(round(255*color),0)) for color in rgb])
 
         return rgb
 

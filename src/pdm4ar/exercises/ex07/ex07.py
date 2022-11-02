@@ -4,10 +4,22 @@ from pdm4ar.exercises_def.ex07.structures import ProblemVoyage, OptimizationCost
 
 def solve_optimization(problem: ProblemVoyage) -> ProblemSolution:
     """
-    Solve the MILP problem optimizing for the different costs while enforcing the given constraints
+    Solve the optimization problem enforcing the active constraints
+
+    Parameters
+    ---
+    problem : ProblemVoyage
+        Contains the problem data: cost to optimize, starting crew, tuple of islands, 
+        and information about active constraints.
+
+    Returns
+    ---
+    out : ProblemSolution
+        Contains the feasibility status of the problem, and the optimal voyage plan
+        as a list of ints if problem is feasible, else None
     """
 
-    # toy data for random voyage plan
+    # toy examples with random voyage plans
     np.random.seed(None)
     if np.random.random() > 0.3:
         feasibility = MilpFeasibility.feasible
