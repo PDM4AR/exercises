@@ -35,7 +35,7 @@ class Viz:
         print(f"\n{pre}{report_type_text}{post}\n")
 
     def print_title(self, title):
-        pre, post = ('\033[55;45m  ', '\033[0m') if self.activate_colors else ("# ", "")
+        pre, post = ('\033[55;45m  ', '  \033[0m') if self.activate_colors else ("# ", "")
         print(f"\n\n{pre}{title}{post}")
 
     def display_text_terminal(self, problem: ProblemVoyage, feasibility_score: int,
@@ -62,32 +62,33 @@ class Viz:
         print(text_feasibility)
 
         n_violations = 0
-        text_cost = "\nCost: "
         
-        if est_cost.feasibility == MilpFeasibility.feasible:
-            text_violation = ""
-            n_constraints = 0
-            for violation_name in violations.__annotations__.keys():         
-                constraint = getattr(problem.constraints, violation_name, "")
-                if constraint is not None:
-                    n_constraints += 1
-                    violation = getattr(violations, violation_name)
-                    text_violation += f"\n\t{red if violation else green}{violation_name}" + \
-                        f"{': ' if violation_name != 'voyage_order' else ''}" + \
-                        (f"{constraint:.2f}" if isinstance(constraint, float) else f"{constraint}")+ \
-                            f"{arrow}{reset}"
-                    n_violations += 1 if violation else 0
-            
-            fraction_violations = f"{n_violations}/{n_constraints}"
-            # text_violation = f"\nConstraints {red if n_violations > 0 else green}" + \
-            #                  f"{fraction_violations} violation{'s' if n_violations != 1 else ''}" + \
-            #                  f":{reset}{text_violation}"
-            if not self.activate_colors:
-                text_violation = f"\n\t{fraction_violations} violation{'s' if n_violations != 1 else ''}" + text_violation
-            text_violation = "\nConstraints: " + text_violation
-            print(text_violation)
+        text_violation = ""
+        n_constraints = 0
+        for violation_name in violations.__annotations__.keys():         
+            constraint = getattr(problem.constraints, violation_name, "")
+            if constraint is not None:
+                n_constraints += 1
+                violation = getattr(violations, violation_name)
+                text_violation += f"\n\t{red if violation else green}{violation_name}" + \
+                    f"{': ' if violation_name != 'voyage_order' else ''}" + \
+                    (f"{constraint:.2f}" if isinstance(constraint, float) else f"{constraint}")+ \
+                        f"{arrow}{reset}"
+                n_violations += 1 if violation else 0
+        
+        fraction_violations = f"{n_violations}/{n_constraints}"
+        # text_violation = f"\nConstraints {red if n_violations > 0 else green}" + \
+        #                  f"{fraction_violations} violation{'s' if n_violations != 1 else ''}" + \
+        #                  f":{reset}{text_violation}"
+        if not self.activate_colors:
+            text_violation = f"\n\t{fraction_violations} violation{'s' if n_violations != 1 else ''}" + text_violation
+        text_violation = "\nConstraints: " + text_violation
+        print(text_violation)
 
-            cost = est_cost.cost
+        cost = est_cost.cost
+
+        text_cost = "\nCost: "
+        if est_cost.feasibility == MilpFeasibility.feasible:
             text_cost += "\n\tEst.: " + (f"{cost:.3f}" if isinstance(cost, float) else f"{cost}")
         else:
             text_cost += f"\n\tEst.: {est_cost.feasibility.name}"
@@ -144,21 +145,22 @@ class Viz:
             text_solution = "".join(list(map(lambda u: f"{u}->", voyage_plan)))[:-2]
             r_viz.text("Solution:", text_solution)
             
-            text_violation = ""
-            n_constraints = 0
-            n_violations = 0
-            for violation_name in violations.__annotations__.keys():
-                constraint = getattr(problem.constraints, violation_name, "")
-                if constraint is not None:
-                    n_constraints += 1
-                    violation = getattr(violations, violation_name)
-                    text_violation += ("\u2716" if violation else "\u2714") +f" {violation_name}\n"
-                    n_violations += 1 if violation else 0
-            
-            fraction_violations = f"{n_violations}/{n_constraints}"
-            text_violation = f"{fraction_violations} violation{'s' if n_violations != 1 else ''}:\n" + text_violation
-            r_viz.text("Constraints: ",text_violation)
+        text_violation = ""
+        n_constraints = 0
+        n_violations = 0
+        for violation_name in violations.__annotations__.keys():
+            constraint = getattr(problem.constraints, violation_name, "")
+            if constraint is not None:
+                n_constraints += 1
+                violation = getattr(violations, violation_name)
+                text_violation += ("\u2716" if violation else "\u2714") +f" {violation_name}\n"
+                n_violations += 1 if violation else 0
+        
+        fraction_violations = f"{n_violations}/{n_constraints}"
+        text_violation = f"{fraction_violations} violation{'s' if n_violations != 1 else ''}:\n" + text_violation
+        r_viz.text("Constraints: ",text_violation)
 
+        if est_cost.feasibility == MilpFeasibility.feasible:
             cost = est_cost.cost
             text_cost = "Est.: " + (f"{cost:.3f}" if isinstance(cost, float) else f"{cost}")
         else:
