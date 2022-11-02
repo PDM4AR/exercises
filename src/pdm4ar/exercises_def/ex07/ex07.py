@@ -1,23 +1,17 @@
-from itertools import product
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 import pathlib
 import pickle
-from tkinter import E
-import traceback
-from typing import Any, Callable, Dict, Optional, Type
+from typing import Any, Optional
 from reprep import Report
 import numpy as np
 import timeit
-from pdm4ar.exercises_def.ex07.structures import ConstraintsPerformance, Cost, CostScore, CostType, CostsPerformance, MilpFeasibility, \
-    Ex07FinalPerformance, MilpPerformance, OptimizationCost, ProblemSolution, Tolerance, Violations
-
-from pdm4ar.exercises_def.ex07.visualization import Viz
-from pdm4ar.exercises_def.structures import PerformanceResults
-from pdm4ar.exercises_def.structures_time import TestCaseTimeoutException
 
 from .data import *
+from .structures import *
+from .visualization import Viz
 from pdm4ar.exercises.ex07.ex07 import solve_optimization
 from pdm4ar.exercises_def import Exercise, ExIn
+from pdm4ar.exercises_def.structures_time import TestCaseTimeoutException
 
 class SanityCheckError(Exception):
     pass
