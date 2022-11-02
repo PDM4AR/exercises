@@ -53,28 +53,27 @@ def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type
         # VIOLATIONS
         for violation_name in violations.__annotations__.keys():
             violation = getattr(violations, violation_name)
-            if feasibility_score == 1:
-                if feasibility == MilpFeasibility.feasible:
-                    if violation is False:
-                        overall_constraints[violation_name] += 1
-                    overall_n_test_constraints[violation_name] += 1
-            else:
-                if feasibility == MilpFeasibility.feasible:
-                    if violation is False:
-                        overall_constraints[violation_name] += 1
-                    overall_n_test_constraints[violation_name] += 1
+            # constraint is active
+            if violation is not None:
+                # constraint is enforced
+                if violation is False:
+                    overall_constraints[violation_name] += 1
+                overall_n_test_constraints[violation_name] += 1
 
         # COSTS
         if voyage_type == MilpCase.test_voyage:
+            # gt and solution feasibility status match
             if feasibility_score == 1:
+                # gt and solution are feasible
                 if feasibility == MilpFeasibility.feasible:
                     overall_costs[cost.type.name] += cost.cost.cost
                     overall_n_test_costs[cost.type.name] += 1
+            # gt and solution feasibility status don't match
             else:
+                # gt is feasible and solution is unfeasible
                 if feasibility == MilpFeasibility.unfeasible:
                     overall_costs[cost.type.name] += cost.cost.cost
                     overall_n_test_costs[cost.type.name] += 1
-            
 
     if overall_n_test_feasibility > 0:
         overall_feasibility /= overall_n_test_feasibility
@@ -99,7 +98,9 @@ def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type
     return Ex07FinalPerformance(feasibility_performance, constraints_performance, costs_performance)
 
 
-def compute_violations(problem: ProblemVoyage, solution: ProblemSolution) -> Violations:
+def compute_violations(problem: ProblemVoyage, solution: ProblemSolution,
+                       feasibility_score: Union[int, float]
+    ) -> Tuple[Violations, Union[int, float]]:
 
     constraints = problem.constraints
     feasibility = solution.feasibility
@@ -107,6 +108,7 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution) -> Vio
 
     tolerance = Tolerance(1e-3)
 
+    # solution is feasible
     if feasibility == MilpFeasibility.feasible:
 
         if voyage_plan is not None:
@@ -114,6 +116,7 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution) -> Vio
             islands = problem.islands
             voyage_plan = solution.voyage_plan
 
+            # always check voyage order
             violation = False
             n_arch = max(islands, key= lambda x: x.arch).arch+1
             if len(voyage_plan) != n_arch:
@@ -125,18 +128,26 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution) -> Vio
                         break
             order_voyage_violation = violation
 
+            # voyage order is violated, set all of the other active
+            # constraints as violated
             if order_voyage_violation:
+                min_fix_time_violation = None
                 if constraints.min_nights_individual_island is not None:
                     min_fix_time_violation = True
+                min_crew_violation = None
                 if constraints.min_total_crew is not None:
                     min_crew_violation = True
-
-                violations = Violations(*[None for _ in Violations.__annotations__.keys()])
-                object.__setattr__(violations, "voyage_order", True)
-                for violation_name in constraints.__annotations__.keys():
-                    if getattr(constraints, violation_name) is not None:
-                        object.__setattr__(violations, violation_name, True)
+                max_crew_violation = None
+                if constraints.max_total_crew is not None:
+                    max_crew_violation = True
+                max_duration_violation = None
+                if constraints.max_duration_individual_journey is not None:
+                    max_duration_violation = True
+                max_distance_violation = None
+                if constraints.max_L1_distance_individual_journey is not None:
+                    max_distance_violation = True
             
+            # voyage order not violated, check the others active constraints
             else:
                 violation = None
                 if constraints.min_nights_individual_island is not None:
@@ -197,16 +208,44 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution) -> Vio
                             break
                 max_distance_violation = violation
 
-                violations = Violations(order_voyage_violation, min_fix_time_violation, 
-                            min_crew_violation, max_crew_violation, 
-                            max_duration_violation, max_distance_violation)
+            violations = Violations(order_voyage_violation, min_fix_time_violation, 
+                                    min_crew_violation, max_crew_violation, 
+                                    max_duration_violation, max_distance_violation)
         else:
             violations = Violations(*[True for _ in Violations.__annotations__.keys()])
-            
+
+        # gt is unfeasible
+        if feasibility_score == 0:
+            # solution is not violating any active constraint, our error: increase feasibility score
+            if all([getattr(violations, violation_name) is not True for \
+            violation_name in violations.__annotations__.keys()]):
+                feasibility_score = 1
+            # solution is violating some active constraints, penalize these constraints,
+            # but since the problem should be unfeasible, don't awarding non-violated active constraints
+            else:
+                for violation_name in violations.__annotations__.keys():
+                    if getattr(violations, violation_name) is False:
+                        object.__setattr__(violations, violation_name, None)
+
+    # solution is unfeasible      
     elif feasibility == MilpFeasibility.unfeasible:
+        # gt is unfeasible, solution is correct
+        if feasibility_score == 1:
+            violation = False
+        # gt is feasible, solution is wrong
+        elif feasibility_score == 0:
+            violation = True
+        # no gt available
+        else:
+            violation = None   
         violations = Violations(*[None for _ in Violations.__annotations__.keys()])
+        if violation is not None:
+            # set active violations to False/True if solution feasibility was correct/wrong
+            for violation_name in violations.__annotations__.keys():
+                if getattr(constraints, violation_name, True) is not None:
+                    object.__setattr__(violations, violation_name, violation)
         
-    return violations
+    return violations, feasibility_score
 
 
 def compute_cost(problem: ProblemVoyage, solution: ProblemSolution) -> Cost:
@@ -264,22 +303,32 @@ def compute_cost(problem: ProblemVoyage, solution: ProblemSolution) -> Cost:
     
     return Cost(feasibility, cost)
 
-def compute_feasibility_score(est_cost: Cost, gt_cost: Optional[Cost]) -> int:
+def compute_feasibility_score(est_cost: ProblemSolution, gt_cost: Optional[Cost]) -> int:
+    # gt is provided
     if gt_cost is not None:
+        # solution and gt feasibility match
         if est_cost.feasibility == gt_cost.feasibility:
             feasibility_score = 1
+        # solution and gt feasibility don't match
         else:
             feasibility_score = 0
+    # gt is not provided
     else:
         feasibility_score = np.nan
 
     return feasibility_score
 
-def compute_cost_score(cost_type: CostType, est_cost: Cost, gt_cost: Optional[Cost], violations: Violations) -> CostScore:
+def compute_cost_score(cost_type: CostType, est_cost: Cost, 
+                       gt_cost: Optional[Cost], feasibility_score: Union[int, float],
+                       violations: Violations) -> CostScore:
+    # gt is provided
     if gt_cost is not None:
+        # some active constraints are violated, set cost to 0
         if any(getattr(violations, violation_name) for violation_name in violations.__annotations__.keys()):
             cost_score = 0
-        elif est_cost.feasibility == gt_cost.feasibility:
+        # no active constraints violated and correct feasibility
+        elif feasibility_score == 1:
+            # feasible
             if est_cost.feasibility == MilpFeasibility.feasible:
                 rel_tol_cost = 0.05
                 min_abs_tol_cost = 2
@@ -295,17 +344,22 @@ def compute_cost_score(cost_type: CostType, est_cost: Cost, gt_cost: Optional[Co
                     if tolerance.is_greater(gt_cost.cost, est_cost.cost):
                         cost_score = 0
                     else:
-                        rel_diff = max(gt_cost.cost, est_cost.cost, 0)/tol
+                        rel_diff = max(gt_cost.cost - est_cost.cost, 0)/tol
                         cost_score = 1 - rel_diff
+            # unfeasible
             else:
                 cost_score = 1
+        # no active constraints violated and wrong feasibility
         else:
             cost_score = 0
 
+        # just to be sure that cost is between 0 and 1
         cost_score = max(0, min(cost_score, 1))
+        # round 0.995 to 1, solution cost very close to gt cost
         if cost_score > 0.995:
             cost_score = 1
 
+    # gt is not provided
     else:
         cost_score = np.nan
 
@@ -375,6 +429,8 @@ def ex07_evaluation(
 
 def get_exercise7() -> Exercise:
 
+    # MilpCase.test_voyage to test against provided gt local tests.
+    # MilpCase.random_voyage to test against random/your local tests.
     test_type = MilpCase.test_voyage
     
     test_values = []
@@ -392,17 +448,20 @@ def get_exercise7() -> Exercise:
                     expected_results.append(expected_result)
     
     elif test_type == MilpCase.random_voyage:
-        seed = 0
-        n_tests = 3
+        seed = 0 
+        n_tests = 3 # n. tests for each cost
         timeout = 20
 
         for test_cost in OptimizationCost.get_costs():
+            # some calculus on the seed to generate a new 
+            # deterministic seed for each cost
             seed = int((seed**1.4-seed**1.3)**0.5+seed)+1
             if seed > 2**25:
                 seed = int(seed/2**18)
 
             for test_id in range(n_tests):
-                
+                # more calculus on the seed to generate a new 
+                # deterministic seed for each test
                 test_seed = min(seed*(1+(test_id*2)), 2**31)
                 test_values.append(TestMilp(
                     test_type,
