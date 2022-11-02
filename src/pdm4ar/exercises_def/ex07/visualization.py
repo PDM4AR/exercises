@@ -1,13 +1,10 @@
-from enum import Enum, IntEnum
-from tkinter import ACTIVE
+from enum import IntEnum
 from typing import Optional
-from xml.sax.handler import feature_external_ges
-from pdm4ar.exercises_def.ex07.data import *
 from matplotlib import pyplot as plt
 from reprep import Report, MIME_PDF
 
-from pdm4ar.exercises_def.ex07.structures import Cost, CostScore, MilpFeasibility, ProblemVoyage, ReportType, Violations
-
+from .structures import Cost, CostScore, MilpFeasibility, ProblemVoyage, ReportType, Violations
+from .data import *
 
 # -------------------------------------       REPORT  OPTIONS    -----------------------------------------------
 #                                                                                                              |

@@ -1,11 +1,9 @@
 from dataclasses import dataclass
 from enum import IntEnum
-import time
-import timeit
-from typing import Dict, List, Optional, Tuple, Any, Literal, Union
+from typing import List, Optional
 import numpy as np
 
-from pdm4ar.exercises_def.ex07.structures import Constraints, Island, OptimizationCost, ProblemSolution, ProblemVoyage, ProblemVoyage
+from .structures import Constraints, Island, OptimizationCost, ProblemVoyage, ProblemVoyage
 
 @dataclass(frozen=True)
 class MilpCase(IntEnum):
