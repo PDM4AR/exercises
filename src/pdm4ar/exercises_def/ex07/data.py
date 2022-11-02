@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import numpy as np
 
 from .structures import Constraints, Island, OptimizationCost, ProblemVoyage, ProblemVoyage
@@ -14,7 +14,9 @@ class MilpCase(IntEnum):
         return self.value == other.value
 
 
-def island_generator(id, level, x_range, y_range, departure_range, arrival_range, time_compass_range, crew_range):
+def island_generator(id: int, arch: int, x_range: Tuple[int, int], y_range: Tuple[int, int], 
+                     departure_range: Tuple[int, int], arrival_range: Tuple[int, int], 
+                     time_compass_range: Tuple[int, int], crew_range: Tuple[int, int]) -> Island:
     x = (x_range[1]-x_range[0])*np.random.random_sample() + x_range[0]
     y = (y_range[1]-y_range[0])*np.random.random_sample() + y_range[0]
     departure = (departure_range[1]-departure_range[0])*np.random.random_sample() + departure_range[0]
@@ -22,9 +24,9 @@ def island_generator(id, level, x_range, y_range, departure_range, arrival_range
     nights = np.random.randint(time_compass_range[0], time_compass_range[1]+1)
     crew = np.random.randint(crew_range[0], crew_range[1]+1)
 
-    return Island(id,level,x,y,departure,arrival,nights,crew)
+    return Island(id,arch,x,y,departure,arrival,nights,crew)
 
-def island_is_overlapping(generated_island: Island, islands: List[Island], viz_radius: float):
+def island_is_overlapping(generated_island: Island, islands: List[Island], viz_radius: float) -> bool:
     if len(islands) == 0:
         return False
     generated_island_pos = np.array([generated_island.x, generated_island.y]).reshape(1,2)
@@ -65,12 +67,12 @@ def milp_generator(milp_seed: int, optimization_cost: Optional[IntEnum] = None,
     start_crew = np.random.randint(40,200)
     n_arch = np.random.randint(4,25)
     n_islands_arch = np.random.randint(3,30)
-    x_range = [np.random.randint(10,41), np.random.randint(80,120)]
-    y_range = [np.random.randint(10,30), np.random.randint(110,150)]
-    departure_range = [np.random.randint(5,8), np.random.randint(9,13)]
-    arrival_range = [np.random.randint(15,18), np.random.randint(19,21)]
-    time_compass_range = [np.random.randint(1,5), np.random.randint(6,9)]
-    crew_range = [np.random.randint(-19, 0), np.random.randint(3,20)]
+    x_range = (np.random.randint(10,41), np.random.randint(80,120))
+    y_range = (np.random.randint(10,30), np.random.randint(110,150))
+    departure_range = (np.random.randint(5,8), np.random.randint(9,13))
+    arrival_range = (np.random.randint(15,18), np.random.randint(19,21))
+    time_compass_range = (np.random.randint(1,5), np.random.randint(6,9))
+    crew_range = (np.random.randint(-19, 0), np.random.randint(3,20))
     x_offset_levels = np.random.randint(x_range[1]-x_range[0]+0, x_range[1]-x_range[0]+10)
     y_offset_levels = [-10,10]
 

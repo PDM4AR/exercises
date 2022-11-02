@@ -237,14 +237,13 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution,
             violation = True
         # no gt available
         else:
-            violation = None   
+            violation = None  
         violations = Violations(*[None for _ in Violations.__annotations__.keys()])
         if violation is not None:
             # set active violations to False/True if solution feasibility was correct/wrong
             for violation_name in violations.__annotations__.keys():
                 if getattr(constraints, violation_name, True) is not None:
                     object.__setattr__(violations, violation_name, violation)
-        
     return violations, feasibility_score
 
 
