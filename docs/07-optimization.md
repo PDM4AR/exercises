@@ -1,4 +1,4 @@
-# Optimization - Mixed Integer Linear Programming :computer:
+# Optimization :computer:
 
 <table>
   <tr>
@@ -6,25 +6,23 @@
   </tr>
 </table>
 
-##  Optimize your voyage to the *Two Slices*
 
-You are the captain of a pirate ship attempting to travel through the *Short Route*, a misleading name for a dangerous area of the oceans, to reach the *Two Slices*, the legendary pirate treasure which lies on the last island of the *Short Route*.
+## Problem overview
 
-The *Short Route* is an agglomerate of islands divided into *N* different groups, which will be called archipelagos from now on. Apart from the first and last archipelago which contains only one island each, all of the other archipelagos have the same *k* number of islands. 
+> You are the captain of a pirate ship and you desire to travel through the *Short Route*, a misleading name for a dangerous area of the oceans filled with islands, to attempt to reach the *Two Slices*, the legendary pirate treasure which lies on the last island of the *Short Route*.
 
+In this exercise you will learn how to shape an optimization problem, i.e. translating concepts from the textual to the mathematical and programming realm.
 
-## Task - TBD better
-
-The map is an agglomerate of islands divided into *N* different groups, which will be called archipelagos from now on, identified with a number from *0* to *N-1*. Archipelagos n. 0 (first archipelago) and n. *N-1* (last archipelago) are composed of one island each. All of the other archipelagos (from n. 1 to n. *N-2*) are composed of the same amount *k* of islands.
+The environment of the problem is a 2D map composed of islands each with its own features. The islands are divided into *N* different groups, which will be called archipelagos henceforth, identified with a number from *0* to *N-1*. Archipelagos n. 0 (first archipelago) and n. *N-1* (last archipelago) are composed of one island each. All of the other archipelagos (from n. 1 to n. *N-2*) are composed of the same amount *k* of islands.
 Hence, the total number of islands is 1+(*N-2*)*k*+1 = (*N-2*)*k*+2. The islands are identified by a unique id, ranging from 0 to (*N-2*)*k*+1. They also have another id to know to which archipelagos they belong. Note that the distance of an island to other islands, or to the centroid of the archipelagos, is irrelevant in determining its archipelago of 
-Your job is to compute a voyage plan (an ordered list of islands to be visited) that starts from the first archipelago and ends at the last archipelago, optimizing for some specific costs while satifying some constraints.
+Your job is to compute a voyage plan (an ordered list of islands to be visited) that starts from the first archipelago and ends at the last archipelago, optimized for a specific cost while satifying some constraints.
 
 Here you can see two examples of correct planned voyages:
 
 ![example 1](https://user-images.githubusercontent.com/79461707/193420646-368a6b22-6271-420b-bbec-6afe73f6bb68.png)
 ![example 2](https://user-images.githubusercontent.com/79461707/193420649-e604125d-4781-4058-b17f-376d60ba687e.png)
 
-You have to implement the optimization inside the function `solve_milp` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py). The input you receive is a `ProblemVoyage` structure, and you have to output back a `ProblemSolution` structure. Through the `ProblemVoyage` input you have access to the different active constraints and to the particular cost your voyage plan must satisfy and optimize.
+You have to implement the optimization inside the function `solve_optimization` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py). The input you receive is a `ProblemVoyage` structure, and you have to output back a `ProblemSolution` structure. Through the `ProblemVoyage` input you have access to the different active constraints and the specific cost your voyage plan must satisfy and optimize.
 
 ---
 
@@ -75,7 +73,7 @@ When this constraint is active, the L1-norm length of every journey to move amon
 
 ### **Cost functions**
 
-> You want to conquer the *Two Slices*, the legendary pirate treasure that lies on the last island of the *Short Route*. It is a complicated voyage in itself, but that's not all! This is a gold age for piracy, and many other pirate ships are looking for the treasure. You don't only have to plan a voyage that will not sink your ship or get you lost (taking care of the magnetic fields, the crew, the weather...) but also plan a voyage that will get you to the treasure as fast as possible to leave behind the other ships, or with a crew as big as possible if there's a need to fight against other crews, or without wearing too much the ship.
+> You want to conquer the *Two Slices*, the legendary pirate treasure that lies on the last island of the *Short Route*. It is a complicated voyage in itself, but that's not all! This is a gold age for piracy, and many other pirate ships are looking for the treasure. You don't only have to plan a voyage that will not sink your ship or get you lost (taking care of the magnetic fields, the crew, the weather...) but that is also optimized for your personal needs and priorities.
 
 The input of your function is a `ProblemVoyage` structure, in which you can find information about which cost (one cost only for each test) you should optimize (while enforcing the active constraints).
 
@@ -88,7 +86,7 @@ Plan a voyage such that the total number of nights spent is minimized.
 
 #### **Maximum final crew size** (`max_final_crew`)
 
-> You believe in the power of muscles and gunpowder: better reach the treasure with a large crew, to fight and win over other pirates who could reach the tresure before you.
+> You believe in the power of muscles and gunpowder: better reach the treasure with a large crew, to attack and win over other pirates who could reach the tresure before you and to defend it afterwards.
 
 Plan a voyage such that the final crew size is maximized.
 
@@ -100,7 +98,7 @@ Plan a voyage such that the total sailing time, i.e. the total number of hours s
 
 #### **Minimize total L1-norm travelled distance** (`min_total_travelled_L1_distance`)
 
-> You are not the brightest person out there, and you think that travelling the shortest distance possible is the best way to reach the tresure before everyone else.
+> , and you think that travelling the shortest distance possible is the best way to reach the tresure before everyone else.
 
 Plan a voyage such that the total L1-norm travelled distance, i.e. the sum of the L1-norm distances of the multiple journeys to depart from an island to arrive to another island, is minimized.
 
@@ -120,6 +118,8 @@ The various data structures needed for the development of the exercise can be in
 
 ### **Island**
 
+Used to store the individual features of an island.
+
 <details>
 <summary><b>Detailed description</b></summary>
 
@@ -127,7 +127,7 @@ The various data structures needed for the development of the exercise can be in
 - The `arch` integer attribute tells you to which of the *N* archipelagos the island belongs (*0*, ..., *N-1*).
 - The `x` and `y` float attribute specifies the *x* and *y* position of the island in a cartesian reference system. The *Short Route* can be approximated as a flat plane, so you don't have to consider the the Earth's curvature.
 - The `departure` and `arrival` float attributes are a timetable of the exact time you have to depart from or to arrive to the island, to exploit its specific weather to being able to set sail or to dock. Note that to keep things simple the decimal places are not representing the minutes in *mod* 60. A value of 8.43 doesn't mean 43 minutes past 8, but that it's 43% of an hour past 8. Treat it as a normal float value.
-To keep things simple, the arrival times of all the islands are later than the departure times of all the islands. This means you are always departing and arriving around on the same day.
+To keep things simple, the arrival times of all the islands are later than the departure times of all the islands. This means in every possible journey between two island you depart and arrive later on the same day, always.
 - The `nights` integer attribute specifies how many nights you have to spend on the island before you can depart to the next archipelago. If `nights` is 1, it means you arrive in the island and you depart the next day, irrelevant of the arrival/departure timetable.
 - The `delta_crew` integer attribute specifies how many people will leave the crew (negative value) or how many join the crew (positive value) if you visit the island.
 
@@ -155,14 +155,14 @@ Input of the function `solve_milp` you have to implement.
 <details>
 <summary><b>Detailed description</b></summary>
 
-- The `start_crew` integer attribute specify how many people are in the crew (included the captain) at the beginning of the voyage.
-- The `islands` attribute is a tuple containing the islands' data. Since the islands in the tuple ar eordered based on then`id` and since each archipelago has the same amount of islands, you can use a smart indexing to access islands of the same archipelago.
-- The `constraints` attribute:
-    - The `cost_to_optimize` attribute contains a value amon
+- The `optimization_cost` IntEnum attribute declares the cost you have to optimize.
+- The `start_crew` integer attribute specifies how many people are in the crew (included the captain) at the beginning of the voyage.
+- The `islands` attribute is a tuple containing the data of all the islands. The islands are ordered based on their `id`.
+- The `constraints` attribute contains the following:
     - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
-    - The `max_total_crew` and `min_total_crew` integer attributes specify the minimum and the maximum amount of people who can be in the crew at the same time. A small number of people are not adequate for the danger of the *Short Route*, and the ship is not big enough to host too many people.
-    - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each voyage from one island to the next can last, otherwise the damage of the ship will be too much and it will sink.
-    - The `max_L1_distance_individual_journey` float attribute is a constraint specifing the maximum amount of hours each voyage from one island to the next can last, otherwise the damage of the ship will be too much and it will sink.
+    - The `max_total_crew` and `min_total_crew` integer attributes specify the minimum and the maximum amount of people who can be in the crew at the same time.
+    - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each voyage from one island to the next one can last. Treat it as a normal float value.
+    - The `max_L1_distance_individual_journey` float attribute is a constraint specifing the maximum L1-norm distance length of each voyage from one island to the next one.
 
 </details>
 
@@ -195,6 +195,15 @@ class Constraints:
 
 ### **ProblemSolution**
 
+Used to store the solution of the optimization problem.
+
+<details>
+<summary><b>Detailed description</b></summary>
+
+The `feasibility` attribute specifies if the problem is found unfeasible or feasible. If the problem is feasible, store in `voyage_plan` the list of the `id`s of the island in the order you plan to visit them. If it is unfeasible, set `voyage_plan` to **None**.
+
+</details>
+
 ```python
 @dataclass(frozen=True)
 class ProblemSolution:
@@ -209,31 +218,52 @@ FeasibilityType = Literal[MilpFeasibility.feasible, MilpFeasibility.unfeasible]
 
 VoyagePlan = List[int]
 ```
+
+## Test cases and performance criteria
+
+#### **Test cases**
+
+We provide some example test cases with ground truth to test the feasibility, the constraint violations and the cost optimizations of your solution. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g., by modifying the random test case generation in [src/pdm4ar/exercises_def/ex07/data.py](src/pdm4ar/exercises_def/ex07/data.py), and then setting `test_type = MilpCase.random_voyage` within the function `get_exercise7` in [src/pdm4ar/exercises_def/ex07/ex07.py](src/pdm4ar/exercises_def/ex07/ex07.py) to load your test cases and not the provided ones. 
+
+Note that the constraints have different difficulties, but if you do not implement or violate one constraint, it does not affect the performance score of the other constraints (except if you violate *voyage_order*). However, not implementing/violating a constraint can degrade the performance score of the optimization cost.
+Therefore, the test server will also test your code on a good number of problems with the minimum number of active constraints at the same time, so as not to penalize the performance score of the optimization costs too much if you have not implemented all constraints correctly.
+
 ---
 
-Used to store the optimal solution of a MILP problem. The `status` attributes specifies if the MILP problem was found unfeasible or feasible, using the `MilpFeasibility` attribute values. If the problem is feasible, `voyage_plan` is set with a list of the `id`s of the island in the order you plan to visit them. If it is unfeasible, the content of `voyage_plan` doesn't matter.
+The correct feasibility status and all of the described constraints and optimization costs are graded on different test cases. 
 
----
+#### **Feasibility performance**
+
+For the feasibility performance, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct,i}}{N_{task,i}}$. A test case is *correctly* computed if you match the ground truth feasibility status of the problem. If by any chance the ground truth status is *unfeasible* but your status is *feasible* and your solution is not violating any constraints, the test case is considered *correctly* computed.
+
+#### **Constraints performance**
+
+For the constraints performance, we use multiple **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{task,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints. Mistaking the fesibility status of the problem counts as a violation.
+
+#### **Costs performance**
+
+For the costs scores, we use multiple **accuracy** metrics, one for each cost, which we compute by summing the scores of the test cases where the specific cost was *correctly* optimized divided by the total number of feasible test cases where that cost should have been optimized: $\frac{\sum score_{i}}{N_{task,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, 2)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance your solution is more optimal than our ground truth, given that it is not violating any active constraint. Stating that a ground truth *feasible* problem is *unfeasible* is scored with a 0.
+
 
 ## Report
 
-You can choose between five different levels of report types: 
+The visualization of the exercise is handled within [src/pdm4ar/exercises_def/ex07/visualization.py](../src/pdm4ar/exercises_def/ex07/visualization.py).
 
-- `ReportType.none`: no evalutation information at all, no report is generated.
-- `ReportType.terminal`: print evaluation information on the terminal, no report is generated.
-- `ReportType.report_txt`: print evaluation information on the terminal and in a textual report.
-- `ReportType.report_viz`: print evaluation information on the terminal and in a visual report, with text and figures.
-- `ReportType.report_viz_extra`: print evaluation information on the terminal and in a visual report, with text and figures and data of each island.
+- We provide five different levels of report types (solely for your own debugging): 
+    - `ReportType.none`: no evalutation information at all, no report is generated.
+    - `ReportType.terminal`: print evaluation information on the terminal, no report is generated.
+    - `ReportType.report_txt`: print evaluation information on the terminal and in a textual report.
+    - `ReportType.report_viz`: print evaluation information on the terminal and in a visual report, with text and figures.
+    - `ReportType.report_viz_extra`: print evaluation information on the terminal and in a visual report, with text and figures and data of each island.
+    You can choose your preferred terminal/report output setting the ***`REPORT_TYPE`*** global variable.
+    Note that depending on the number of islands, `report_viz` starts to be slower by a non-negligible amount of time, while `report_viz_extra` will be even slower.
 
-In [src/pdm4ar/exercises_def/ex07/visualization.py](../src/pdm4ar/exercises_def/ex07/visualization.py), you can set the *REPORT_TYPE* global variable. 
+- The speed of the report generation is also greatly influenced by the size of the images generated with `report_viz` and `report_viz_extra`. The image size affects unfortunately, based on the map size, also the non-overlapping of the figures, and in case you selected `report_viz_extra`, the readability of the extra text.
+    You can choose your preferred size setting the ***`FIGURE_WIDTH`*** global variable. Bigger the value, the slower the images generation but the better the readability.
 
-Note that depending on the number of islands, `report_viz` starts to be slower by a non-negligible amount of time, while `report_viz_extra` will be even slower.
+- If your terminal is not correctly printing the colors (very improbable), or if you want/need better contrastive readability in both the terminal and the report, set the ***`ACTIVATE_COLORS`*** global variable to `False`.
 
-Feel free to make your modifications to the visualization to match your debugging needs.
-
-If your terminal is not correctly printing the colors (very improbable), or if you need a a more visually impaired
-
----
+Feel free to make your own modifications to the visualization to match your debugging needs.
 
 ## Run the exercise
 
@@ -242,7 +272,9 @@ pip3 install -e [path/to/exercises_repo]
 python3 [path/to/]src/pdm4ar/main.py --exercise 07
 ```
 
-After running the exercise, a report will be generated that shows your results (if you enabled the report generation).
+After running the exercise, a report will be generated in the folder `out/ex07` that shows your results (if you enabled the report generation).
+
 
 ## Hints
-To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [pulp](https://coin-or.github.io/pulp/))
+- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [pulp](https://coin-or.github.io/pulp/).
+- Since in the tuple containing the islands they are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
