@@ -114,6 +114,8 @@ class Path:
 ```
 In this step, two functions will be implemented. Initially, a function (`extend_obstacle`) that takes a polygon and a radius as input and returns the extended version of that polygon. And the second function (`path_collision_check`) will firstly extend all obstacles inside the environment, and check the collision via functions that were implemented before. As a result, `path_collision_check` function returns the list of line segment indices where there exists a collision.
 
+Please note that the definition of `Path` and `Polygons` are similar. `Polygon` class connects the first and last vertices by default. However, there is not any connection between first and last waypoints in `Path` objects. 
+
 #### Step 8: Collision Checking via Occupancy Grid
 
 In this step, the aim is same as `Step 7`. However, in this step, you will use different approach for collision checking. Initially, you will extend all obstacles inside the environment. Then, you will create an occupancy grid of the map. Lastly, you will return the list of line segment indices where there exists a collision. In this step, you will implement `path_collision_check_occupancy_grid` function.
