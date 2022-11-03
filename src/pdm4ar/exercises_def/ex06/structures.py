@@ -31,7 +31,6 @@ class Point(GeoPrimitive):
     y: float
 
     def apply_SE2transform(self, t: SE2value) -> "Point":
-        # todo (maybe remove this method)
         p = t @ np.array([self.x, self.y, 1])
         return Point(p[0], p[1])
 
@@ -116,6 +115,7 @@ class Path(GeoPrimitive):
 class Pose2D:
     position: Point
     theta: float
+
 
 def _transform_points(
     t: SE2value, points: Sequence[Point]

@@ -23,9 +23,9 @@ class CollisionPrimitives:
         return False
 
     @staticmethod
-    def polygon_line_collision(p: Polygon, line: Line) -> bool:
+    def polygon_line_collision_aabb(p: AABB, line: Line) -> bool:
         return False
 
     @staticmethod
-    def polygon_line_collision_aabb(p: Polygon, line: Line) -> bool:
+    def polygon_line_collision(p: Polygon, line: Line) -> bool:
         return False

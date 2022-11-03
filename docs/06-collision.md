@@ -9,12 +9,14 @@
 ## Collision check
 
 In this exercise, we will implement collision checking routines. 
-The overall goal is to obtain a module that can perform collision check for a given robot and one of its candidate paths.
+The overall goal is to obtain a module that can perform collision checks for a given robot and its candidate (sub-)paths.
 
 ### Collision check primitives
 
 We start off by implementing some collision check primitives for basic geometric shapes. These will come handy later on. 
-The first task is to implement the functions inside the `CollisionPrimitives` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file. In this section, you are allowed to use linear algebra modules like `numpy`. But you are not allowed to use modules that implements collision check directly such as `shapely`.
+The first step is to implement the functions inside the `CollisionPrimitives` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
+In this section, you are allowed to use linear algebra modules like `numpy`. 
+But you are not allowed to use modules that implements collision check directly such as `shapely`.
 
 #### Step 1: Point-Circle Collision Checking Procedure
 
@@ -27,7 +29,6 @@ class Point(GeoPrimitive):
     y: float
 
     def apply_SE2transform(self, t: SE2value) -> "Point":
-        # todo (maybe remove this method)
         p = t @ np.array([self.x, self.y, 1])
         return Point(p[0], p[1])
 
@@ -59,7 +60,11 @@ In this part, you will implement the `triangle_point_collision` function of `Col
 
 #### Step 3: Point-Polygon Collision Checking Procedure
 
-The aim of this step is to implement a function that checks whether a point is inside the given polygon or not. Initially polygon will be decomposed into triangles via the `triangulate` function of the [triangle module](https://github.com/drufat/triangle). Documentation of this module could also be found [here](https://rufat.be/triangle/).Then using the `triangle_point_collision`, collision between a polygon and point will be detected. To represent the polygon, the following data structure (`src/pdm4ar/exercises_def/ex_collision_check/data.py`) will be used:
+The aim of this step is to implement a function that checks whether a point is inside the given polygon or not. 
+Initially a polygon will be decomposed into triangles via the `triangulate` function of the [triangle module](https://github.com/drufat/triangle). 
+The documentation of this module could also be found [here](https://rufat.be/triangle/).
+Finally, using the `triangle_point_collision` collision between a polygon and point will be detected. 
+To represent the polygon, the following data structure (`src/pdm4ar/exercises_def/ex_collision_check/data.py`) will be used:
 
 ```python
 @dataclass(frozen=True)
