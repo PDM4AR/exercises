@@ -265,6 +265,8 @@ Note that depending on the number of islands, `report_viz` starts to be slower b
 
 - If your terminal is not correctly printing the colors (very improbable), or if you want/need better contrastive readability in both the terminal and the report, set the ***`ACTIVATE_COLORS`*** global variable to `False`.
 
+Remember that the images shown in the pdf report are "compressed" (*rasterized*): to see the "uncompressed" (*vector graphic*) version click the **main** link below each image.
+
 Feel free to make your own modifications to the visualization to match your debugging needs.
 
 ## Run the exercise
