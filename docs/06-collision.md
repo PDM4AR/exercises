@@ -132,6 +132,25 @@ The aim of the last step is to improve the execution time performance of the col
 
 In this section, the aim is to implement a more efficient collision check procedure by using safety certificates via `path_collision_check_safety_certificate` function. To obtain detailed information about the algorithm, you can check the part that is related to the safety certificates from the [given paper](https://journals.sagepub.com/doi/full/10.1177/0278364915625345) (`Algorithm 1`). To calculate the distance between a point and an obstacle, you are allowed to use `shapely` module. Please note that you are only allowed to use `shapely` to calculate the distance between a point and a polygon.
 
+### Evaluation
+
+For this exercise our perfromance metric is accuracy. As test data, for each step random inputs are generated with the algorithm provided in `src/pdm4ar/exercises_def/ex06/data.py`. For each step, there are multiple test cases for each step. The accuracies of steps 1-6 are calcualted by the ratio of the correct answers. For the steps 6-11, List of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path. The accuracies of steps 6-11 are calculated by the average of the accuracy of test cases. Lastly, accuracies of each step are aggregated as weighted average. Weights and number of test cases of evaluation are as follows:
+
+
+| Step **ID** | **Number of Test Cases** | Evaluation Weight |
+|-------------|--------------------------|-------------------|
+| 01          | 15                       | 5                 |
+| 02          | 15                       | 10                |
+| 03          | 15                       | 10                |
+| 04          | 15                       | 10                |
+| 05          | 15                       | 5                 |
+| 06          | 15                       | 5                 |
+| 07          | 10                       | 20                |
+| 08          | 10                       | 20                |
+| 09          | 10                       | 30                |
+| 10          | 10                       | 20                |
+| 11          | 10                       | 30                |
+
 ##### How to run
 
 Make sure to update your repo before running the exercise. Please refer to [Hello World](01-helloworld.md) for instructions. Additionally, to use `triangle` module, please trigger the following VSCode command: `Remote-Containers: Rebuild Container`.
