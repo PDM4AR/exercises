@@ -25,7 +25,7 @@ class Viz:
                  activate_colors: bool = ACTIVATE_COLORS):
         self.report_type = report_type
         self.activate_colors = activate_colors
-        self.print_report_type()
+        # self.print_report_type()
         self.fig_width = fig_width
 
     def print_report_type(self) -> None:

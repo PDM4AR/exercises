@@ -379,10 +379,8 @@ def sanity_check(solution: ProblemSolution):
                             " is not respecting the required types.")
 
 def ex07_evaluation(
-    algo_in: TestMilp, expected_out: Any
+    algo_in: TestMilp, expected_out: Any, visualizer: Viz = Viz()
 ) -> Tuple[MilpPerformance, Report]:
-
-    visualizer: Viz = Viz()
 
     algo_in_type = algo_in.type
     algo_in_optimization_cost = algo_in.optimization_cost
