@@ -156,7 +156,7 @@ The various data structures needed for the development of the exercise can be in
 
 ### **Island**
 
-Used to store the individual features of an island.
+Structure storing the individual features of an island.
 
 <details>
 <summary><b>Detailed description</b></summary>
@@ -188,7 +188,7 @@ class Island:
 
 ### **ProblemVoyage**
 
-Input of the function `solve_milp` you have to implement.
+Structure storing the data of an optimization problem. Input of the function `solve_optimization`.
 
 <details>
 <summary><b>Detailed description</b></summary>
@@ -234,7 +234,7 @@ class Constraints:
 
 ### **ProblemSolution**
 
-Used to store the solution of the optimization problem.
+Structure storing the solution of an optimization problem. Output of the function `solve_optimization`. A solution not compliant with the expected structure types will raise a **SanityCheckError**.
 
 <details>
 <summary><b>Detailed description</b></summary>
@@ -319,3 +319,4 @@ After running the exercise, a report will be generated in the folder `out/ex07` 
 ## Hints
 - To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [pulp](https://coin-or.github.io/pulp/).
 - Since the islands stored in the `islands` tuple of `ProblemVoyage` are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
+- When working with distances among islands, consider the islands as dimensionless points.
