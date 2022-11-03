@@ -9,8 +9,6 @@
 
 ## Problem overview
 
-> You are the captain of a pirate ship and you desire to travel through the *Short Route*, a misleading name for a dangerous area of the oceans filled with islands, to attempt to reach the *Two Slices*, the legendary pirate treasure which lies on the last island of the *Short Route*.
-
 In this exercise you will learn how to solve an optimization problem translating concepts from the textual to the mathematical and programming realm.
 
 The environment of the problem is a 2D map composed of islands each with its own features. The islands are divided into *N* different groups, which will be called archipelagos henceforth, identified with a number from *0* to *N-1*. Archipelagos n. *0* (first archipelago) and n. *N-1* (last archipelago) are composed of one island each. All of the other archipelagos (from n. *1* to n. *N-2*) are composed of the same amount *k* of islands.
@@ -59,44 +57,30 @@ def solve_optimization(problem: ProblemVoyage) -> ProblemSolution:
 
 ### **Constraints**
 
-> Due to the rare magnetic fields, the size of the ship, the distances, and the weather, you will experience different combinations of constraints during your adventure. You should plan your voyage accordingly, because the *Shourt Route* does not forgive incautios pirates.
-
 The input of your function is a `ProblemVoyage` structure, in which you can find information about which constraints you should enforce. When a costraint has a **None** value, it means you don't have to take care of it. Multiple constraints can be active at the same time.
 
 
 #### **Voyage order** (`voyage_order`)
 
-> The *Short Route* presents a weird and dangerous magnetic field. Travelling through it is not possible using a normal compass, but special compasses are needed. These special compases show the direction of the islands of the next archipelago: when you are at a specific island of an archipelago, they will tune with the magnetic field of the next archipelago, and so on, until you reach the last archipelago where the treasure is located. Trying to directly reach the last archipelago or moving to an archipelago that is not the next in order is impossible and you will get lost in the ocean.
-
 This constraint is always active. Your voyage plan must start from the first archipelago and end at the last archipelago, visiting one and only one island of the other archipelagos in between, following the order of the archipelago's identification number. This means that your ordered voyage plan must contain *N* islands and that these islands must belong to archipelagos with increasing identification numbers. Since the constraint is active in every test case, it is not listed within the `constraints` attribute of the `ProblemVoyage` input, to avoid reduntant information.
 
 #### **Minimum nights** (`min_nights_individual_island`)
-
-> Everytime you arrive in a new island, the special compasses should start to tune to the new magnetic fields pointing to the islands of the next archipelagos. The number of nights to tune the special compasses varies depending on the island. Unfortunately, the fastest the tuning time of a magnetic field, the more technologically complex a special compass should be to be able to tune it. Hence, you are only able to visit islands where the magnetic field pointing to the next archipelago is tunable by your special compass version. You cannot visit islands where the magnetic field requires less nights to tune than the minimum amount of nights specified by your compass. You cannot simply wait more time: if your compass is able to tune to magnetic field that requires 4 nights of waiting, you cannot visit an island with a 1, 2, or 3 nights magnetic field tunining and just wait for the remaining nights. The compass is simply not working with these faster tuning magnetic field.
 
 When this constraint is active, you can only visit island whose number of waiting nights is at least `min_nights_individual_island`. When you arrive in an island you have to wait a specific amount of nights before departing towards the next island. Each island has its specific value of how many night you should stay in it before departing. Only the starting island an the ending island have a value of 0.
 
 #### **Minimum crew size** (`min_total_crew`)
 
-> Pirate ships can be as small as life rafts or as big as vessels: since you are the captain, its dimensions depends on your wealth and ostentatiousness. Based on its size, the ship will always require a crew with a specific minimum amount of people (you included) to steer it and take care of it. 
-
 When this constraint is active, the crew size cannot be smaller than `min_total_crew`, whichever island you are in during any moment of your voyage.
 
 #### **Maximum crew size** (`max_total_crew`)
-
-> Pirate ships can be as small as life rafts or as big as vessels: since you are the captain, its dimensions depends on your wealth and ostentatiousness. Based on its size, the ship will always allow a crew with a specific maximum amount of people (you included), since there is no room for everyone.
 
 When this constraint is active, the crew size cannot be greater than `max_total_crew`, whichever island you are in during any moment of your voyage.
 
 #### **Maximum duration individual journey** (`max_duration_individual_journey`)
 
-> Your pirate ship presents structural limitations: it is able to sail the sea only only up to a certain amount of hours during the same island-to-island journey. The weather and the strenght of the currents that rule the *Short Route* make the autonomy span of the ships very limited. When you sail from an island you can reach only islands that are within this journey duration, or the ship will definetely sink. 
-
 When this constraint is active, every island-to-island journey to move among two islands must last at maximum `max_duration_individual_journey` hours. The time needed to go from one island to the next one can be inferred from the respective departure and arrival timetable.
 
 #### **Maximum L1-norm distance individual journey** (`max_L1_distance_individual_journey`)
-
-> Your pirate ship presents structural limitations: it is able to sail the sea only only up to a certain distance during the same island-to-island journey. The weather and the strenght of the currents that rule the *Short Route* make the autonomy span of the ships very limited. When you sail from an island you can reach only islands that are within this journey distance, or the ship will definetely sink. 
 
 When this constraint is active, the L1-norm length of every island-to-island journey to move among two islands (so the L1-norm distance between the two islands) must be at maximum `max_L1_distance_individual_journey`. The L1-norm distance to go from one island to the next one can be inferred from the their *x* and *y* positions.
 
@@ -104,38 +88,26 @@ When this constraint is active, the L1-norm length of every island-to-island jou
 
 ### **Cost functions**
 
-> You want to conquer the *Two Slices*, the legendary pirate treasure that lies on the last island of the *Short Route*. It is a complicated voyage in itself, but that's not all! This is a gold age for piracy, and many other pirate ships are looking for the treasure. You don't only have to plan a voyage that will not sink your ship or get you lost (taking care of the magnetic fields, the crew, the weather...) but that is also optimized for your personal needs and priorities.
-
 The input of your function is a `ProblemVoyage` structure, in which you can find information about which cost (one cost only for each test) you should optimize (while enforcing the active constraints).
 
 
 #### **Minimum nights to complete the voyage** (`min_total_nights`)
 
-> The easiest way to seize the treasure: reach it as soon as possible, before every other pirate ship. Show to the other pirates the meaning of *haste*.
-
 Plan a voyage such that the total number of nights spent is minimized.
 
 #### **Maximum final crew size** (`max_final_crew`)
-
-> You believe in the power of muscles and gunpowder: better reach the treasure with a large crew, to attack and win over other pirates who could reach the tresure before you and to defend it afterwards.
 
 Plan a voyage such that the final crew size is maximized.
 
 #### **Minimize total sailing time** (`min_total_sailing_time`)
 
-> You, a captain of a pirate ship? Puah! Since you are a seasick wimp, you want to spend as little time as possible on a ship in the middle of the sea under the effect of waves and currents.
-
 Plan a voyage such that the total sailing time, i.e. the total number of hours spent in the sea during the multiple island-tosialnd journeys, is minimized.
 
 #### **Minimize total L1-norm travelled distance** (`min_total_travelled_L1_distance`)
 
-> Your cousin's friend says that the best way to reach the tresure before everyone else is to travel the shortest total distance possible.
-
 Plan a voyage such that the total L1-norm travelled distance, i.e. the sum of the L1-norm distances of the multiple island-to-island journeys, is minimized.
 
 #### **Minimize the maximum individual sailing time** (`min_max_sailing_time`)
-
-> In these dangerous waters, caution is never too much. Better not to sail the ship for too many hours in a row, close to its limit, to avoid unnecessary wearing.
 
 Plan a voyage such that the maximum individual sailing time of the voyage, i.e. the maximum number of hours spent in a single island-to-island journey, is minimized.
 
