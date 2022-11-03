@@ -308,17 +308,13 @@ class DataGenerator:
 
         irregularity *= 2 * math.pi / num_vertices
         spikiness *= avg_radius
-        angle_steps = DataGenerator.random_angle_steps(
-            num_vertices, irregularity
-        )
+        angle_steps = DataGenerator.random_angle_steps(num_vertices, irregularity)
 
         # now generate the points
         points = []
         angle = random.uniform(0, 2 * math.pi)
         for i in range(num_vertices):
-            radius = np.clip(
-                random.gauss(avg_radius, spikiness), 0, 2 * avg_radius
-            )
+            radius = np.clip(random.gauss(avg_radius, spikiness), 0, 2 * avg_radius)
             point = (
                 center[0] + radius * math.cos(angle),
                 center[1] + radius * math.sin(angle),
@@ -388,9 +384,7 @@ class DataGenerator:
         circle = DataGenerator.generate_random_circle()
         # Generate Point
         if np.random.uniform() < 0.5:
-            point = DataGenerator.generate_random_point(
-                0, circle.radius, circle.center
-            )
+            point = DataGenerator.generate_random_point(0, circle.radius, circle.center)
             return (circle, point, True)
         else:
             point = DataGenerator.generate_random_point(
@@ -435,9 +429,7 @@ class DataGenerator:
         # Generate Query Point
         point = DataGenerator.generate_random_point(1, 5, center)
         # Check Collision via Shapely
-        poly_shapely = geometry.Polygon(
-            [[p.x, p.y] for p in poly.vertices]
-        )
+        poly_shapely = geometry.Polygon([[p.x, p.y] for p in poly.vertices])
         point_shapely = geometry.Point(point.x, point.y)
 
         return (poly, point, poly_shapely.distance(point_shapely) < 1e-5)
@@ -445,34 +437,30 @@ class DataGenerator:
     @staticmethod
     def generate_circle_line_collision_data(
         index: int,
-    ) -> Tuple[Circle, Line, bool]:
+    ) -> Tuple[Circle, Segment, bool]:
         # Generate Random Circle
         circle = DataGenerator.generate_random_circle()
         # Generate Points
-        p1 = DataGenerator.generate_random_point(
-            0, 2 * circle.radius, circle.center
-        )
-        p2 = DataGenerator.generate_random_point(
-            0, 2 * circle.radius, circle.center
-        )
+        p1 = DataGenerator.generate_random_point(0, 2 * circle.radius, circle.center)
+        p2 = DataGenerator.generate_random_point(0, 2 * circle.radius, circle.center)
         # Check Collision via Shapely
-        circle_shapely = geometry.Point(
-            circle.center.x, circle.center.y
-        ).buffer(circle.radius)
+        circle_shapely = geometry.Point(circle.center.x, circle.center.y).buffer(
+            circle.radius
+        )
         line_shapely = geometry.LineString(
             [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
         )
 
         return (
             circle,
-            Line(p1, p2),
+            Segment(p1, p2),
             circle_shapely.distance(line_shapely) < 1e-5,
         )
 
     @staticmethod
     def generate_polygon_line_collision_data(
         index: int,
-    ) -> Tuple[Polygon, Line, bool]:
+    ) -> Tuple[Polygon, Segment, bool]:
         # Generate Random Polygon
         poly = DataGenerator.generate_random_polygon()
         # Calculate Center of the Corners
@@ -488,16 +476,14 @@ class DataGenerator:
         p1 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
         p2 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
         # Check Collisions via Shapely
-        poly_shapely = geometry.Polygon(
-            [[v.x, v.y] for v in poly.vertices]
-        )
+        poly_shapely = geometry.Polygon([[v.x, v.y] for v in poly.vertices])
         line_shapely = geometry.LineString(
             [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
         )
 
         return (
             poly,
-            Line(p1, p2),
+            Segment(p1, p2),
             poly_shapely.distance(line_shapely) < 1e-5,
         )
 
@@ -527,22 +513,19 @@ class DataGenerator:
                 poly["spikiness"],
                 poly["num_vertices"],
             )
-            for poly in DataGenerator.MAP_INFO[
-                index % len(DataGenerator.MAP_INFO)
-            ]["obstacles"]
+            for poly in DataGenerator.MAP_INFO[index % len(DataGenerator.MAP_INFO)][
+                "obstacles"
+            ]
         ]
 
         # Check collision for ground truth
         ground_truth = []
         # Convert obstacles to Shapely Shapes
         shapely_obstacles = [
-            geometry.Polygon([[p.x, p.y] for p in poly.vertices])
-            for poly in obstacles
+            geometry.Polygon([[p.x, p.y] for p in poly.vertices]) for poly in obstacles
         ]
         # Check distance between each line segment with each polygon
-        for i, (p1, p2) in enumerate(
-            zip(path.waypoints[:-1], path.waypoints[1:])
-        ):
+        for i, (p1, p2) in enumerate(zip(path.waypoints[:-1], path.waypoints[1:])):
             ls_shapely = geometry.LineString(
                 [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
             )
@@ -556,9 +539,7 @@ class DataGenerator:
     @staticmethod
     def generate_robot_frame_data(
         index: int,
-    ) -> Tuple[
-        List[Pose2D], float, List[List[Polygon]], List[Polygon], List[int]
-    ]:
+    ) -> Tuple[List[Pose2D], float, List[List[Polygon]], List[Polygon], List[int]]:
         # Initialize Random Map
         (
             path,
@@ -579,21 +560,15 @@ class DataGenerator:
         # Calculate Observed Obstacles
         observation_radius = 50
         shapely_obstacles = [
-            geometry.Polygon([[p.x, p.y] for p in poly.vertices])
-            for poly in obstacles
+            geometry.Polygon([[p.x, p.y] for p in poly.vertices]) for poly in obstacles
         ]
         observations = []
         for pose in poses:
             observations.append([])
             # Check distance to obstacles
-            shapely_point = geometry.Point(
-                pose.position.x, pose.position.y
-            )
+            shapely_point = geometry.Point(pose.position.x, pose.position.y)
             for shapely_obs, obs in zip(shapely_obstacles, obstacles):
-                if (
-                    shapely_point.distance(shapely_obs)
-                    < observation_radius + r
-                ):
+                if shapely_point.distance(shapely_obs) < observation_radius + r:
                     # Calculate position of the obstacle in robot frame
                     robot_frame_poly = obs.apply_SE2transform(
                         SE2_from_translation_angle(

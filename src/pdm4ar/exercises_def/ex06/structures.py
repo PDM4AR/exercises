@@ -8,7 +8,7 @@ from geometry import SE2value
 
 __all__ = [
     "Point",
-    "Line",
+    "Segment",
     "Circle",
     "Triangle",
     "AABB",
@@ -36,11 +36,11 @@ class Point(GeoPrimitive):
 
 
 @dataclass(frozen=True)
-class Line(GeoPrimitive):
+class Segment(GeoPrimitive):
     p1: Point
     p2: Point
 
-    def apply_SE2transform(self, t: SE2value) -> "Line":
+    def apply_SE2transform(self, t: SE2value) -> "Segment":
         p1 = self.p1.apply_SE2transform(t)
         p2 = self.p2.apply_SE2transform(t)
         return replace(self, p1=p1, p2=p2)
@@ -117,7 +117,5 @@ class Pose2D:
     theta: float
 
 
-def _transform_points(
-    t: SE2value, points: Sequence[Point]
-) -> Sequence[Point]:
+def _transform_points(t: SE2value, points: Sequence[Point]) -> Sequence[Point]:
     return [p.apply_SE2transform(t) for p in points]

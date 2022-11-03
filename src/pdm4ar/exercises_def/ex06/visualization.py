@@ -3,9 +3,7 @@ from matplotlib import pyplot as plt
 from reprep import Report, MIME_PDF
 
 
-def visualize_circle_point(
-    r: Report, ex_num: str, data: Tuple[Circle, Point, bool]
-):
+def visualize_circle_point(r: Report, ex_num: str, data: Tuple[Circle, Point, bool]):
     c, p, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -74,9 +72,7 @@ def visualize_triangle_point(
         )
 
 
-def visualize_polygon_point(
-    r: Report, ex_num: str, data: Tuple[Polygon, Point, bool]
-):
+def visualize_polygon_point(r: Report, ex_num: str, data: Tuple[Polygon, Point, bool]):
     poly, p, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -110,9 +106,7 @@ def visualize_polygon_point(
         )
 
 
-def visualize_circle_line(
-    r: Report, ex_num: str, data: Tuple[Circle, Line, bool]
-):
+def visualize_circle_line(r: Report, ex_num: str, data: Tuple[Circle, Segment, bool]):
     c, l, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -121,10 +115,8 @@ def visualize_circle_line(
         ax = plt.gca()
         ax.grid()
 
-        # Draw Line
-        ax.plot(
-            [l.p1.x, l.p2.x], [l.p1.y, l.p2.y], marker="x", markersize=10
-        )
+        # Draw Segment
+        ax.plot([l.p1.x, l.p2.x], [l.p1.y, l.p2.y], marker="x", markersize=10)
 
         # Draw Circle
         draw_circle = plt.Circle(
@@ -147,9 +139,7 @@ def visualize_circle_line(
         )
 
 
-def visualize_polygon_line(
-    r: Report, ex_num: str, data: Tuple[Polygon, Line, bool]
-):
+def visualize_polygon_line(r: Report, ex_num: str, data: Tuple[Polygon, Segment, bool]):
     poly, l, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -158,10 +148,8 @@ def visualize_polygon_line(
         ax = plt.gca()
         ax.grid()
 
-        # Draw Line
-        ax.plot(
-            [l.p1.x, l.p2.x], [l.p1.y, l.p2.y], marker="x", markersize=10
-        )
+        # Draw Segment
+        ax.plot([l.p1.x, l.p2.x], [l.p1.y, l.p2.y], marker="x", markersize=10)
 
         # Draw Polygon
         draw_poly = plt.Polygon(
@@ -199,7 +187,7 @@ def visualize_map_path(
         x_values = [p.x for p in path.waypoints]
         y_values = [p.y for p in path.waypoints]
 
-        # Draw Line
+        # Draw Segment
         ax.plot(x_values, y_values, "gx--", markersize=15)
 
         for poly in obstacles:
@@ -219,9 +207,7 @@ def visualize_map_path(
 def visualize_robot_frame_map(
     r: Report,
     ex_num: str,
-    data: Tuple[
-        List[Pose2D], float, List[List[Polygon]], List[Polygon], List[int]
-    ],
+    data: Tuple[List[Pose2D], float, List[List[Polygon]], List[Polygon], List[int]],
 ):
     path, _, observations, obstacles, _ = data
 
@@ -238,7 +224,7 @@ def visualize_robot_frame_map(
         x_values = [p.position.x for p in path]
         y_values = [p.position.y for p in path]
 
-        # Draw Line
+        # Draw Segment
         ax.plot(x_values, y_values, "gx--", markersize=15)
 
         for poly in obstacles:
@@ -299,9 +285,7 @@ def visualize_robot_frame_map(
                 y_values += [p.y for p in poly.vertices]
 
             # Draw Point
-            ax.plot(
-                [0, new_goal.x], [0, new_goal.y], marker="x", markersize=10
-            )
+            ax.plot([0, new_goal.x], [0, new_goal.y], marker="x", markersize=10)
             ax.set_aspect(1)
 
             ax.set_xlim(min(x_values) - 1, max(x_values) + 1)
