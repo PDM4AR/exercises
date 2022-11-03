@@ -46,11 +46,12 @@ Make sure to extensively test your code locally, consider this as a learning exp
 
 | Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** | **Deadline status** |
 |-----------------|-----------------------|----------------------|-----------------------|---------------------|
-| 02              | Graph Search          | Oct. 8th             | Oct. 23th (23:59 CET) | CONFIRMED (EXTENDED)|
+| 02              | Graph Search          | Oct. 8th             | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 03              | Informed Graph Search | Oct. 13th            | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
-| 04              | Dynamic Programming   | Oct. 19th            | Oct. 31st (23:59 CET) | CONFIRMED           |
-| 05              | Steering (Dubins)     | Oct. 26th            | Nov. 6th (23:59 CET)  | TENTATIVE           |
-| 06              | ....                  | TBD                  | TBD (23:59 CET)       | TBD                 |
+| 04              | Dynamic Programming   | Oct. 19th            | Nov. 4th  (23:59 CET) | CONFIRMED (EXTENDED)|
+| 05              | Steering (Dubins)     | Nov. 1st             | Nov. 15th (23:59 CET) | CONFIRMED           |
+| 06              | Collision Checking    | TBD                  | TBD (23:59 CET)       | TBD                 |
+| 07              | Optimization          | TBD                  | TBD (23:59 CET)       | TBD                 |
 
 * Most of these exercises are already accessible before the evaluation opens. 
 You are free to read them but be aware that we might still decide to change them until the evaluation opens.
@@ -61,7 +62,7 @@ Same modality as the weekly exercises, but they will be a bit more involved.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes** |
 |-----------------|-----------|----------------------|-----------------------|
-| TBD             | Surprise  | Nov. 1st (TBC)       | Nov. 15th (TBC)       |
+| TBD             | Surprise  | Nov. 7th (TBC)       | Nov. 31st (TBC)       |
 | TBD             | Surprise  | Dec. 15th            | Jan. 15th (23:59 CET) |
 
 

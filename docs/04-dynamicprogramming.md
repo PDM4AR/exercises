@@ -12,8 +12,8 @@ Rows and columns representing the “_x_” and “_y_” coordinates of the rob
 
 The area is a tropical rainforest. Some cells in the map are simply ``GRASS`` (green), it will take the robot 1 time step to cross them. 
 Some others are of type ```SWAMP``` (light blue), it will take the robot 2 time steps to cross them. 
-Time shall be considered as the stage cost you want minimize, while reaching the GOAL cell gives you an arbitrary +10 as reward. 
-Also the starting cell ``START`` cna be considered a ``GRASS`` cell.
+Time shall be considered as the stage cost you want minimize. While reaching the GOAL cell gives you an arbitrary +10 as reward. 
+Also the starting cell ``START`` can be considered a ``GRASS`` cell.
 When in a specific cell, the robot can move ``SOUTH, NORTH, EAST, WEST`` and if arrived at the ``GOAL``, it can ``STAY`` (actions and cells described in exercises/ex04/structures.py). 
 The planet's atmosphere is very foggy and when the robot decides for an action, it may not end up where initially planned. In fact, for all other transitions, the following probabilities are given:
 - When in ``GRASS``: all chosen transitions (``SOUTH, NORTH, EAST, WEST``) happen with probability of 0.75, the remaining 0.25 is split among the other 3 transitions not chosen.
@@ -21,7 +21,7 @@ The planet's atmosphere is very foggy and when the robot decides for an action, 
 Any chosen transition will occur with 0.5 probability and because it is still foggy, the robot may end up with equal probability in one of the 3 remaining transitions.
 - When in the ``GOAL`` the robot will ``STAY``  with probability of 1.
 - Finally, the robot cannot directly pick an action that would take him outside the map. However, it may be that the robot ends up out of the map as described from the transition probabilities above. If this happens, the robot is considered lost (out of reach) and a new one will be parachuted at the ```START``` cell.
-You can simply model this as a transition in your MDP from going outside the map to the ```START``` cell.
+You can model this as a transition in your MDP from going outside the map to the ```START``` cell.
 
 ## Tasks
 
