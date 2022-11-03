@@ -19,13 +19,17 @@ class CollisionPrimitives:
         return False
 
     @staticmethod
-    def circle_line_collision(c: Circle, line: Segment) -> bool:
+    def circle_line_collision(c: Circle, segment: Segment) -> bool:
         return False
 
     @staticmethod
-    def polygon_line_collision_aabb(p: AABB, line: Segment) -> bool:
+    def covert_polygon_to_aabb(p: Polygon) -> AABB:
+        return AABB(p_min=Point(0, 0), p_max=Point(1, 1))
+
+    @staticmethod
+    def polygon_line_collision_aabb(p: Polygon, segment: Segment) -> bool:
         return False
 
     @staticmethod
-    def polygon_line_collision(p: Polygon, line: Segment) -> bool:
+    def polygon_line_collision(p: Polygon, segment: Segment) -> bool:
         return False

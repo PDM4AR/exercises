@@ -97,7 +97,7 @@ In this part, you will implement the `polygon_line_collision` function of `Colli
 
 Inside a planning algorithm, one of the most computationally expensive part is collision check due to its frequent usage. Therefore, it is important to have a collision checking algorithm as optimized as possible. In this step, the aim is to remove unnecessary collision check operations via axis-aligned bounding boxes. As a result, we aim to see the execution time difference between pure collision checking and collision checking with the optimization.
 
-In this part, you will implement the `polygon_line_collision_aabb` function of `CollisionPrimitives` class.
+In this part, you will firstly implement `covert_polygon_to_aabb` that calculates the axis-aligned bounding box of given polygon. Then, you will implement the `polygon_line_collision_aabb` function of `CollisionPrimitives` class.
 
 ### Collision check module
 
