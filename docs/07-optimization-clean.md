@@ -18,8 +18,17 @@ Your job is to compute a voyage plan (an ordered list of islands to be visited) 
 
 Here you can see two examples of correct planned voyages:
 
-![example 1](https://user-images.githubusercontent.com/79461707/193420646-368a6b22-6271-420b-bbec-6afe73f6bb68.png)
-![example 2](https://user-images.githubusercontent.com/79461707/193420649-e604125d-4781-4058-b17f-376d60ba687e.png)
+<!--- | ![Example1](https://user-images.githubusercontent.com/79461707/199726616-4b6eff71-90a0-4416-83de-e5c98260db46.png) | -->
+| ![Example1](https://user-images.githubusercontent.com/79461707/199729360-26647058-7399-46fc-a4aa-aa2353171643.jpeg) |
+|:--:|
+| <b>voyage plan: 0 -> 1 -> 8 -> 12 -> 13</b>|
+
+<!--- | ![Example2](https://user-images.githubusercontent.com/79461707/199726634-d0222b71-c160-42de-b7cb-c877febf7b40.png) | -->
+| ![Example2](https://user-images.githubusercontent.com/79461707/199729335-40cfaca9-2256-498f-bd4e-163cb8429dba.jpeg) |
+|:--:|
+| <b>voyage plan: 0 -> 15 -> 21 -> 38 -> 67 -> 88 -> 91 -> 117 -> 130 -> 151 -> 165 -> 196 -> 203 -> 224 -> 235</b>|
+
+---
 
 You have to implement the optimization inside the function `solve_optimization` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py). The input you receive is a `ProblemVoyage` structure, and you have to output back a `ProblemSolution` structure. Through the `ProblemVoyage` input you have access to the different active constraints and the specific cost your voyage plan must satisfy and optimize.
 
