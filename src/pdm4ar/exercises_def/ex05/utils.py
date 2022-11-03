@@ -6,7 +6,7 @@ import numpy as np
 from dg_commons import SE2Transform
 from matplotlib.lines import Line2D
 from matplotlib.patches import Circle
-from pdm4ar.exercises.ex05.structures import DubinsSegmentType, Curve, Line, Path
+from pdm4ar.exercises.ex05.structures import DubinsSegmentType, Curve, Line, Path, mod_2_pi
 
 
 def get_rot_matrix(alpha: float) -> np.ndarray:
@@ -49,6 +49,8 @@ def extract_path_points(path: Path) -> List[SE2Transform]:
     for idx, seg in enumerate(path):
         # if np.allclose(seg.length, 0):
         #     continue
+        seg.start_config.theta = mod_2_pi(seg.start_config.theta)
+        seg.end_config.theta = mod_2_pi(seg.end_config.theta)
         if seg.type is DubinsSegmentType.STRAIGHT:
             line_pts = interpolate_line_points(seg, num_points_per_segment)
             pts_list.extend(line_pts)
