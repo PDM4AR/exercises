@@ -283,8 +283,6 @@ class Viz:
                                 color=text_color, zorder=2)
                             # ax.annotate(f"id: {island.id}\n - arch: {island.arch}", (island.x, island.y))
 
-                
-                    
                     if est_cost.feasibility == MilpFeasibility.feasible and voyage_plan is not None:
                         # Draw lines
                         # for idx_solution in range(len(est_solution.voyage_plan)-1):
