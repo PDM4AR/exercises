@@ -98,8 +98,7 @@
             "args": ["--exercise", "05"],
             "console": "integratedTerminal",
             "justMyCode": true
-        }
-        ,
+        },
         {
             "name": "Exercise7 - Run",
             "type": "python",
