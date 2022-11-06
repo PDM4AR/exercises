@@ -12,7 +12,6 @@ from .visualization import Viz
 from pdm4ar.exercises.ex07.ex07 import solve_optimization
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.structures_time import TestCaseTimeoutException
-import pyAesCrypt
 
 class TestCaseSanityCheckException(Exception):
     pass
