@@ -205,7 +205,7 @@ class CostScore:
 
 
 @dataclass(frozen=True)
-class MilpPerformance(PerformanceResults):
+class OptimizationPerformance(PerformanceResults):
     feasibility: int
     constraints: Violations
     cost: CostScore
