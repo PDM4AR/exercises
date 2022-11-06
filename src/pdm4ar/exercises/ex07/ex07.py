@@ -5,7 +5,7 @@ from pdm4ar.exercises_def.ex07.structures import (
     OptimizationCost,
     Island,
     Constraints,
-    MilpFeasibility,
+    Feasibility,
     SolutionVoyage,
 )
 
@@ -31,10 +31,10 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     # toy examples with random voyage plans
     np.random.seed(None)
     if np.random.random() > 0.3:
-        feasibility = MilpFeasibility.feasible
+        feasibility = Feasibility.feasible
         voyage_plan = list(np.random.randint(0, len(problem.islands), size=(min(7, len(problem.islands)),)))
     else:
-        feasibility = MilpFeasibility.unfeasible
+        feasibility = Feasibility.unfeasible
         voyage_plan = None
 
     return SolutionVoyage(feasibility, voyage_plan)

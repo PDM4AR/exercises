@@ -112,7 +112,7 @@ class Viz:
         cost = est_cost.cost
 
         text_cost = "\nCost: "
-        if est_cost.feasibility == MilpFeasibility.feasible:
+        if est_cost.feasibility == Feasibility.feasible:
             text_cost += "\n\tEst.: " + (
                 f"{cost:.3f}" if isinstance(cost, float) else f"{cost}"
             )
@@ -120,7 +120,7 @@ class Viz:
             text_cost += f"\n\tEst.: {est_cost.feasibility.name}"
 
         if gt_cost is not None:
-            if gt_cost.feasibility == MilpFeasibility.feasible:
+            if gt_cost.feasibility == Feasibility.feasible:
                 cost = gt_cost.cost
                 text_cost += "\n\tGT: " + (
                     f"{cost:.3f}" if isinstance(cost, float) else f"{cost}"
@@ -130,10 +130,10 @@ class Viz:
 
             if (
                 feasibility_score == 1
-                and est_cost.feasibility == MilpFeasibility.feasible
+                and est_cost.feasibility == Feasibility.feasible
             ) or (
                 feasibility_score == 0
-                and est_cost.feasibility == MilpFeasibility.unfeasible
+                and est_cost.feasibility == Feasibility.unfeasible
             ):
                 if self.activate_colors:
                     r, g, b = self.get_cost_score_color(cost_score.cost.cost)
@@ -187,7 +187,7 @@ class Viz:
             text_feasibility += f"\nScore: {feasibility_score}"
         r_viz.text("Feasibility:", text_feasibility)
 
-        if est_cost.feasibility == MilpFeasibility.feasible:
+        if est_cost.feasibility == Feasibility.feasible:
             text_solution = "".join(list(map(lambda u: f"{u}->", voyage_plan)))[:-2]
             r_viz.text("Solution:", text_solution)
 
@@ -212,7 +212,7 @@ class Viz:
         )
         r_viz.text("Constraints: ", text_violation)
 
-        if est_cost.feasibility == MilpFeasibility.feasible:
+        if est_cost.feasibility == Feasibility.feasible:
             cost = est_cost.cost
             text_cost = "Est.: " + (
                 f"{cost:.3f}" if isinstance(cost, float) else f"{cost}"
@@ -221,7 +221,7 @@ class Viz:
             text_cost = "Est.: " + est_cost.feasibility.name
 
         if gt_cost is not None:
-            if gt_cost.feasibility == MilpFeasibility.feasible:
+            if gt_cost.feasibility == Feasibility.feasible:
                 cost = gt_cost.cost
                 text_cost += f"\nGT: " + (
                     f"{cost:.3f}" if isinstance(cost, float) else f"{cost}"
@@ -230,10 +230,10 @@ class Viz:
                 text_cost += f"\nGT: {gt_cost.feasibility.name}"
             if (
                 feasibility_score == 1
-                and est_cost.feasibility == MilpFeasibility.feasible
+                and est_cost.feasibility == Feasibility.feasible
             ) or (
                 feasibility_score == 0
-                and est_cost.feasibility == MilpFeasibility.unfeasible
+                and est_cost.feasibility == Feasibility.unfeasible
             ):
                 text_cost += f"\nScore: {cost_score.cost.cost:.3f}"
         else:
@@ -418,7 +418,7 @@ class Viz:
                             # ax.annotate(f"id: {island.id}\n - arch: {island.arch}", (island.x, island.y))
 
                     if (
-                        est_cost.feasibility == MilpFeasibility.feasible
+                        est_cost.feasibility == Feasibility.feasible
                         and voyage_plan is not None
                     ):
                         # Draw lines

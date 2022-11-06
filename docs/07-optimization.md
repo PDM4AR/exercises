@@ -60,10 +60,10 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     # toy examples with random voyage plans
     np.random.seed(None)
     if np.random.random() > 0.3:
-        feasibility = MilpFeasibility.feasible
+        feasibility = Feasibility.feasible
         voyage_plan = list(np.random.randint(0,len(problem.islands), size=(min(7,len(problem.islands)),)))
     else:
-        feasibility = MilpFeasibility.unfeasible
+        feasibility = Feasibility.unfeasible
         voyage_plan = None
 
     return SolutionVoyage(feasibility, voyage_plan)
@@ -259,7 +259,7 @@ class SolutionVoyage:
 with 
 
 ```python3
-FeasibilityType = Literal[MilpFeasibility.feasible, MilpFeasibility.unfeasible]
+FeasibilityType = Literal[Feasibility.feasible, Feasibility.unfeasible]
 
 VoyagePlan = List[int]
 ```
@@ -320,8 +320,8 @@ python3 [path/to/]src/pdm4ar/main.py --exercise 07
 
 After running the exercise, a report will be generated in the folder `out/ex07` that shows your results (if you enabled the report generation).
 
-
+- 
 ## Hints
-- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [pulp](https://coin-or.github.io/pulp/).
+- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [pulp](https://coin-or.github.io/pulp/). You might want to model the problem as a Mixed Integer Linear Programming.
 - Since the islands stored in the `islands` tuple of `ProblemVoyage` are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
 - When working with distances among islands, consider the islands as dimensionless points.

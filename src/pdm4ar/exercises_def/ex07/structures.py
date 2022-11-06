@@ -26,7 +26,7 @@ class OptimizationCost(IntEnum):
 
 
 @dataclass(frozen=True)
-class MilpFeasibility(IntEnum):
+class Feasibility(IntEnum):
     """Used to specify feasibility/unfeasibility status."""
 
     unfeasible = 0
@@ -44,7 +44,7 @@ CostType = Literal[
     OptimizationCost.min_max_sailing_time,
 ]
 
-FeasibilityType = Literal[MilpFeasibility.feasible, MilpFeasibility.unfeasible]
+FeasibilityType = Literal[Feasibility.feasible, Feasibility.unfeasible]
 
 VoyagePlan = List[int]
 

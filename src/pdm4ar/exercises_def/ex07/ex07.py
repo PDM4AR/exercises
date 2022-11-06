@@ -68,13 +68,13 @@ def ex07_performance_aggregator(
             # gt and solution feasibility status match
             if feasibility_score == 1:
                 # gt and solution are feasible
-                if feasibility == MilpFeasibility.feasible:
+                if feasibility == Feasibility.feasible:
                     overall_costs[cost.type.name] += cost.cost.cost
                     overall_n_test_costs[cost.type.name] += 1
             # gt and solution feasibility status don't match
             else:
                 # gt is feasible and solution is unfeasible
-                if feasibility == MilpFeasibility.unfeasible:
+                if feasibility == Feasibility.unfeasible:
                     overall_costs[cost.type.name] += cost.cost.cost
                     overall_n_test_costs[cost.type.name] += 1
 
@@ -128,7 +128,7 @@ def compute_violations(
     tolerance = Tolerance(1e-3)
 
     # solution is feasible
-    if feasibility == MilpFeasibility.feasible:
+    if feasibility == Feasibility.feasible:
 
         if voyage_plan is not None:
 
@@ -264,7 +264,7 @@ def compute_violations(
                 feasibility_score = 1
 
     # solution is unfeasible
-    elif feasibility == MilpFeasibility.unfeasible:
+    elif feasibility == Feasibility.unfeasible:
         # gt is unfeasible, solution is correct
         if feasibility_score == 1:
             violation = False
@@ -291,7 +291,7 @@ def compute_cost(problem: ProblemVoyage, solution: SolutionVoyage) -> Cost:
     feasibility = solution.feasibility
     voyage_plan = solution.voyage_plan
 
-    if feasibility == MilpFeasibility.feasible and voyage_plan is not None:
+    if feasibility == Feasibility.feasible and voyage_plan is not None:
 
         if optimization_cost == OptimizationCost.min_total_nights:
             cost = 0
@@ -333,7 +333,7 @@ def compute_cost(problem: ProblemVoyage, solution: SolutionVoyage) -> Cost:
         else:
             raise ValueError(optimization_cost)
 
-    elif feasibility == MilpFeasibility.unfeasible:
+    elif feasibility == Feasibility.unfeasible:
         cost = None
 
     else:
@@ -381,9 +381,9 @@ def compute_cost_score(
         # no active constraints violated and correct feasibility
         elif feasibility_score == 1:
             # solution feasible
-            if est_cost.feasibility == MilpFeasibility.feasible:
+            if est_cost.feasibility == Feasibility.feasible:
                 # gt feasible
-                if gt_cost.feasibility == MilpFeasibility.feasible:
+                if gt_cost.feasibility == Feasibility.feasible:
                     tol = max(rel_tol_cost * gt_cost.cost, min_abs_tol_cost)
                     tolerance = Tolerance(tol)
                     if cost_type != OptimizationCost.max_final_crew:
@@ -426,7 +426,7 @@ def compute_cost_score(
 
 def sanity_check(solution: SolutionVoyage) -> None:
     if isinstance(solution, SolutionVoyage):
-        if isinstance(solution.feasibility, MilpFeasibility):
+        if isinstance(solution.feasibility, Feasibility):
             if solution.voyage_plan is None:
                 return
             elif isinstance(solution.voyage_plan, list):
