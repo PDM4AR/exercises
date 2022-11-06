@@ -5,6 +5,11 @@
     <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-hello-world.html" target="_top">Hello-world</a></td>
   </tr>
 </table>
+<table>
+  <tr>
+    <th><i>Storytelling version:</i></th><td><a href="./07-optimization.html" target="_top">here</a></td>
+  </tr>
+</table>
 
 
 ## Problem overview
@@ -14,7 +19,7 @@ In this exercise you will learn how to solve an optimization problem translating
 The environment of the problem is a 2D map composed of islands each with its own features. The islands are divided into *N* different groups, which will be called archipelagos henceforth, identified with a number from *0* to *N-1*. Archipelagos n. *0* (first archipelago) and n. *N-1* (last archipelago) are composed of one island each. All of the other archipelagos (from n. *1* to n. *N-2*) are composed of the same amount *k* of islands.
 Hence, the total number of islands is 1+(*N-2*)\**k* +1 = (*N-2*)\**k* +2. The islands are identified by a unique id, ranging from *0* to (*N-2*)*k*+1. They also have another tag to discern to which archipelagos they belong. Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption, just take it as it is.
 
-Your job is to compute a voyage plan (an ordered list of islands to be visited) that starts from the first archipelago and ends at the last archipelago, optimized for a specific cost while satifying some constraints.
+Your task is to compute a voyage plan (an ordered list of islands to be visited) that starts from the first archipelago and ends at the last archipelago, optimized for a specific cost while satifying some constraints.
 
 Here you can see two examples of correct planned voyages:
 
@@ -30,10 +35,10 @@ Here you can see two examples of correct planned voyages:
 
 ---
 
-You have to implement the optimization inside the function `solve_optimization` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py). The input you receive is a `ProblemVoyage` structure, and you have to output back a `ProblemSolution` structure. Through the `ProblemVoyage` input you have access to the different active constraints and the specific cost your voyage plan must satisfy and optimize.
+You have to implement the optimization inside the function `solve_optimization` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py). The input you receive is a `ProblemVoyage` structure, and you have to output back a `SolutionVoyage` structure. Through the `ProblemVoyage` input you have access to the different active constraints and the specific cost your voyage plan must satisfy and optimize.
 
 ```python
-def solve_optimization(problem: ProblemVoyage) -> ProblemSolution:
+def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     """
     Solve the optimization problem enforcing the active constraints
 
@@ -45,7 +50,7 @@ def solve_optimization(problem: ProblemVoyage) -> ProblemSolution:
 
     Returns
     ---
-    out : ProblemSolution
+    out : SolutionVoyage
         Contains the feasibility status of the problem, and the optimal voyage plan
         as a list of ints if problem is feasible, else None
     """
@@ -59,7 +64,7 @@ def solve_optimization(problem: ProblemVoyage) -> ProblemSolution:
         feasibility = MilpFeasibility.unfeasible
         voyage_plan = None
 
-    return ProblemSolution(feasibility, voyage_plan)
+    return SolutionVoyage(feasibility, voyage_plan)
 ```
 
 ---
@@ -204,9 +209,9 @@ class Constraints:
 ```
 ---
 
-### **ProblemSolution**
+### **SolutionVoyage**
 
-Structure storing the solution of an optimization problem. Output of the function `solve_optimization`. A solution not compliant with the expected structure types will raise a **SanityCheckError**.
+Structure storing the solution of an optimization problem. Output of the function `solve_optimization`. A solution not compliant with the expected structure types will raise a **TestCaseSanityCheckException**.
 
 <details>
 <summary><b>Detailed description</b></summary>
@@ -218,7 +223,7 @@ Structure storing the solution of an optimization problem. Output of the functio
 
 ```python
 @dataclass(frozen=True)
-class ProblemSolution:
+class SolutionVoyage:
     feasibility: FeasibilityType
     voyage_plan: Optional[VoyagePlan]
 ```
@@ -248,11 +253,11 @@ For the feasibility performance, we use an **accuracy** metric which we compute 
 
 #### **Constraints performance**
 
-For the constraints performance, we use multiple **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{task,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints. Mistaking the fesibility status of the problem counts as a violation.
+For the constraints performance, we use multiple **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{task,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints.
 
 #### **Costs performance**
 
-For the costs scores, we use multiple **accuracy** metrics, one for each cost, which we compute by summing the scores of the test cases where the specific cost was *correctly* optimized divided by the total number of feasible test cases where that cost should have been optimized: $\frac{\sum score_{i}}{N_{task,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, 2)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance your solution is more optimal than our ground truth, given that it is not violating any active constraint. Stating that a ground truth *feasible* problem is *unfeasible* is scored with a 0.
+For the costs scores, we use multiple **accuracy** metrics, one for each cost, which we compute by summing the scores of the test cases where the specific cost was *correctly* optimized divided by the total number of feasible test cases where that cost should have been optimized: $\frac{\sum score_{i}}{N_{task,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance your solution is more optimal than our ground truth, given that it is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
 
 
 ## Report

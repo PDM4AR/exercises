@@ -12,12 +12,14 @@ from .visualization import Viz
 from pdm4ar.exercises.ex07.ex07 import solve_optimization
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.structures_time import TestCaseTimeoutException
+import pyAesCrypt
 
-class SanityCheckError(Exception):
+class TestCaseSanityCheckException(Exception):
     pass
 
+
 @dataclass
-class TestMilp(ExIn):
+class TestVoyage(ExIn):
     type: IntEnum
     optimization_cost: CostType
     test_id: int
@@ -29,7 +31,9 @@ class TestMilp(ExIn):
         return f"{self.optimization_cost.name} - test {self.test_id}"
 
 
-def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type: MilpCase) -> Ex07FinalPerformance:
+def ex07_performance_aggregator(
+    performances: List[MilpPerformance], voyage_type: MilpCase
+) -> Ex07FinalPerformance:
 
     overall_feasibility = 0.0
     overall_constraints = {key: 0.0 for key in Violations.__annotations__.keys()}
@@ -37,7 +41,7 @@ def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type
     overall_n_test_feasibility = 0
     overall_n_test_constraints = {key: 0 for key in Violations.__annotations__.keys()}
     overall_n_test_costs = {key: 0 for key in OptimizationCost.__members__.keys()}
-    
+
     for performance in performances:
 
         feasibility_score = performance.feasibility
@@ -82,25 +86,41 @@ def ex07_performance_aggregator(performances: List[MilpPerformance], voyage_type
             overall_costs[cost_name] /= overall_n_test_costs[cost_name]
     for constraint_name in Violations.__annotations__.keys():
         if overall_n_test_constraints[constraint_name] > 0:
-            overall_constraints[constraint_name] /= overall_n_test_constraints[constraint_name]
+            overall_constraints[constraint_name] /= overall_n_test_constraints[
+                constraint_name
+            ]
 
-    feasibility_performance = overall_feasibility if voyage_type == MilpCase.test_voyage else np.nan
+    feasibility_performance = (
+        overall_feasibility if voyage_type == MilpCase.test_voyage else np.nan
+    )
 
-    constraints_performance = ConstraintsPerformance(*[np.nan for _ in ConstraintsPerformance.__annotations__.keys()])
+    constraints_performance = ConstraintsPerformance(
+        *[np.nan for _ in ConstraintsPerformance.__annotations__.keys()]
+    )
     for constraint_name in ConstraintsPerformance.__annotations__.keys():
-        object.__setattr__(constraints_performance, constraint_name, overall_constraints[constraint_name])
+        object.__setattr__(
+            constraints_performance,
+            constraint_name,
+            overall_constraints[constraint_name],
+        )
 
-    costs_performance = CostsPerformance(*[np.nan for _ in OptimizationCost.__members__.keys()])
+    costs_performance = CostsPerformance(
+        *[np.nan for _ in OptimizationCost.__members__.keys()]
+    )
     if voyage_type == MilpCase.test_voyage:
         for cost_name in CostsPerformance.__annotations__.keys():
             object.__setattr__(costs_performance, cost_name, overall_costs[cost_name])
 
-    return Ex07FinalPerformance(feasibility_performance, constraints_performance, costs_performance)
+    return Ex07FinalPerformance(
+        feasibility_performance, constraints_performance, costs_performance
+    )
 
 
-def compute_violations(problem: ProblemVoyage, solution: ProblemSolution,
-                       feasibility_score: Union[int, float]
-    ) -> Tuple[Violations, Union[int, float]]:
+def compute_violations(
+    problem: ProblemVoyage,
+    solution: SolutionVoyage,
+    feasibility_score: Union[int, float],
+) -> Tuple[Violations, Union[int, float]]:
 
     constraints = problem.constraints
     feasibility = solution.feasibility
@@ -112,13 +132,13 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution,
     if feasibility == MilpFeasibility.feasible:
 
         if voyage_plan is not None:
-        
+
             islands = problem.islands
             voyage_plan = solution.voyage_plan
 
             # always check voyage order
             violation = False
-            n_arch = max(islands, key= lambda x: x.arch).arch+1
+            n_arch = max(islands, key=lambda x: x.arch).arch + 1
             if len(voyage_plan) != n_arch:
                 violation = True
             else:
@@ -146,19 +166,22 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution,
                 max_distance_violation = None
                 if constraints.max_L1_distance_individual_journey is not None:
                     max_distance_violation = True
-            
+
             # voyage order not violated, check the others active constraints
             else:
                 violation = None
                 if constraints.min_nights_individual_island is not None:
                     violation = False
                     for island_id in voyage_plan:
-                        if islands[island_id].arch not in (0, n_arch-1):
-                            if tolerance.is_greater(constraints.min_nights_individual_island, islands[island_id].nights):
+                        if islands[island_id].arch not in (0, n_arch - 1):
+                            if tolerance.is_greater(
+                                constraints.min_nights_individual_island,
+                                islands[island_id].nights,
+                            ):
                                 violation = True
                                 break
                 min_fix_time_violation = violation
-                
+
                 violation = None
                 if constraints.min_total_crew is not None:
                     violation = False
@@ -184,12 +207,14 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution,
                 violation = None
                 if constraints.max_duration_individual_journey is not None:
                     violation = False
-                    for voyage_idx in range(len(voyage_plan)-1):
+                    for voyage_idx in range(len(voyage_plan) - 1):
                         island_id = voyage_plan[voyage_idx]
-                        next_island_id = voyage_plan[voyage_idx+1]
+                        next_island_id = voyage_plan[voyage_idx + 1]
                         dep = islands[island_id].departure
                         arr = islands[next_island_id].arrival
-                        if tolerance.is_greater(arr-dep, constraints.max_duration_individual_journey):
+                        if tolerance.is_greater(
+                            arr - dep, constraints.max_duration_individual_journey
+                        ):
                             violation = True
                             break
                 max_duration_violation = violation
@@ -197,37 +222,49 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution,
                 violation = None
                 if constraints.max_L1_distance_individual_journey is not None:
                     violation = False
-                    for voyage_idx in range(len(voyage_plan)-1):
+                    for voyage_idx in range(len(voyage_plan) - 1):
                         island_id = voyage_plan[voyage_idx]
-                        next_island_id = voyage_plan[voyage_idx+1]
-                        island_pos = np.array([islands[island_id].x, islands[island_id].y])
-                        next_island_pos = np.array([islands[next_island_id].x, islands[next_island_id].y])
-                        if tolerance.is_greater(np.linalg.norm(next_island_pos-island_pos, ord=1), 
-                                                constraints.max_L1_distance_individual_journey):
+                        next_island_id = voyage_plan[voyage_idx + 1]
+                        island_pos = np.array(
+                            [islands[island_id].x, islands[island_id].y]
+                        )
+                        next_island_pos = np.array(
+                            [islands[next_island_id].x, islands[next_island_id].y]
+                        )
+                        if tolerance.is_greater(
+                            np.linalg.norm(next_island_pos - island_pos, ord=1),
+                            constraints.max_L1_distance_individual_journey,
+                        ):
                             violation = True
                             break
                 max_distance_violation = violation
 
-            violations = Violations(order_voyage_violation, min_fix_time_violation, 
-                                    min_crew_violation, max_crew_violation, 
-                                    max_duration_violation, max_distance_violation)
+            violations = Violations(
+                order_voyage_violation,
+                min_fix_time_violation,
+                min_crew_violation,
+                max_crew_violation,
+                max_duration_violation,
+                max_distance_violation,
+            )
         else:
-            violations = Violations(*[True for _ in Violations.__annotations__.keys()])
+            violations = Violations(*[
+                                        True if getattr(constraints, violation_name, True) is not None 
+                                        else None for violation_name in Violations.__annotations__.keys()
+                                    ])
 
         # gt is unfeasible
         if feasibility_score == 0:
-            # solution is not violating any active constraint, our error: increase feasibility score
-            if all([getattr(violations, violation_name) is not True for \
-            violation_name in violations.__annotations__.keys()]):
+            # solution is not violating any active constraint, fix score: increase feasibility score
+            if all(
+                [
+                    getattr(violations, violation_name) is not True
+                    for violation_name in violations.__annotations__.keys()
+                ]
+            ):
                 feasibility_score = 1
-            # solution is violating some active constraints, penalize these constraints,
-            # but since the problem should be unfeasible, don't awarding non-violated active constraints
-            else:
-                for violation_name in violations.__annotations__.keys():
-                    if getattr(violations, violation_name) is False:
-                        object.__setattr__(violations, violation_name, None)
 
-    # solution is unfeasible      
+    # solution is unfeasible
     elif feasibility == MilpFeasibility.unfeasible:
         # gt is unfeasible, solution is correct
         if feasibility_score == 1:
@@ -237,17 +274,18 @@ def compute_violations(problem: ProblemVoyage, solution: ProblemSolution,
             violation = True
         # no gt available
         else:
-            violation = None  
+            violation = None
         violations = Violations(*[None for _ in Violations.__annotations__.keys()])
         if violation is not None:
             # set active violations to False/True if solution feasibility was correct/wrong
             for violation_name in violations.__annotations__.keys():
                 if getattr(constraints, violation_name, True) is not None:
                     object.__setattr__(violations, violation_name, violation)
+
     return violations, feasibility_score
 
 
-def compute_cost(problem: ProblemVoyage, solution: ProblemSolution) -> Cost:
+def compute_cost(problem: ProblemVoyage, solution: SolutionVoyage) -> Cost:
 
     islands = problem.islands
     optimization_cost = problem.optimization_cost
@@ -268,25 +306,27 @@ def compute_cost(problem: ProblemVoyage, solution: ProblemSolution) -> Cost:
 
         elif optimization_cost == OptimizationCost.min_total_sailing_time:
             cost = 0
-            for idx in range(len(voyage_plan)-1):
+            for idx in range(len(voyage_plan) - 1):
                 island_id = voyage_plan[idx]
-                next_island_id = voyage_plan[idx+1]
+                next_island_id = voyage_plan[idx + 1]
                 cost += islands[next_island_id].arrival - islands[island_id].departure
 
         elif optimization_cost == OptimizationCost.min_total_travelled_L1_distance:
             cost = 0
-            for idx in range(len(voyage_plan)-1):
+            for idx in range(len(voyage_plan) - 1):
                 island_id = voyage_plan[idx]
-                next_island_id = voyage_plan[idx+1]
+                next_island_id = voyage_plan[idx + 1]
                 island_pos = np.array([islands[island_id].x, islands[island_id].y])
-                next_island_pos = np.array([islands[next_island_id].x, islands[next_island_id].y])
-                cost += np.linalg.norm(next_island_pos-island_pos, ord=1)
+                next_island_pos = np.array(
+                    [islands[next_island_id].x, islands[next_island_id].y]
+                )
+                cost += np.linalg.norm(next_island_pos - island_pos, ord=1)
 
         elif optimization_cost == OptimizationCost.min_max_sailing_time:
             cost = 0
-            for idx in range(len(voyage_plan)-1):
+            for idx in range(len(voyage_plan) - 1):
                 island_id = voyage_plan[idx]
-                next_island_id = voyage_plan[idx+1]
+                next_island_id = voyage_plan[idx + 1]
                 sail_time = islands[next_island_id].arrival - islands[island_id].departure
                 if sail_time > cost:
                     cost = sail_time
@@ -299,10 +339,13 @@ def compute_cost(problem: ProblemVoyage, solution: ProblemSolution) -> Cost:
 
     else:
         raise ValueError(feasibility)
-    
+
     return Cost(feasibility, cost)
 
-def compute_feasibility_score(est_cost: ProblemSolution, gt_cost: Optional[Cost]) -> int:
+
+def compute_feasibility_score(
+    est_cost: SolutionVoyage, gt_cost: Optional[Cost]
+) -> int:
     # gt is provided
     if gt_cost is not None:
         # solution and gt feasibility match
@@ -317,35 +360,49 @@ def compute_feasibility_score(est_cost: ProblemSolution, gt_cost: Optional[Cost]
 
     return feasibility_score
 
-def compute_cost_score(cost_type: CostType, est_cost: Cost, 
-                       gt_cost: Optional[Cost], feasibility_score: Union[int, float],
-                       violations: Violations) -> CostScore:
+
+def compute_cost_score(
+    cost_type: CostType,
+    est_cost: Cost,
+    gt_cost: Optional[Cost],
+    feasibility_score: Union[int, float],
+    violations: Violations,
+) -> CostScore:
+
+    rel_tol_cost, min_abs_tol_cost = CostTolerances[cost_type]
+
     # gt is provided
     if gt_cost is not None:
         # some active constraints are violated, set cost to 0
-        if any(getattr(violations, violation_name) for violation_name in violations.__annotations__.keys()):
+        if any(
+            getattr(violations, violation_name)
+            for violation_name in violations.__annotations__.keys()
+        ):
             cost_score = 0
         # no active constraints violated and correct feasibility
         elif feasibility_score == 1:
-            # feasible
+            # solution feasible
             if est_cost.feasibility == MilpFeasibility.feasible:
-                rel_tol_cost = 0.05
-                min_abs_tol_cost = 2
-                tol = max(rel_tol_cost*gt_cost.cost, min_abs_tol_cost)
-                tolerance = Tolerance(tol)
-                if cost_type != OptimizationCost.max_final_crew:
-                    if tolerance.is_greater(est_cost.cost, gt_cost.cost):
-                        cost_score = 0
+                # gt feasible
+                if gt_cost.feasibility == MilpFeasibility.feasible:
+                    tol = max(rel_tol_cost * gt_cost.cost, min_abs_tol_cost)
+                    tolerance = Tolerance(tol)
+                    if cost_type != OptimizationCost.max_final_crew:
+                        if tolerance.is_greater(est_cost.cost, gt_cost.cost):
+                            cost_score = 0
+                        else:
+                            rel_diff = max(est_cost.cost - gt_cost.cost, 0) / tol
+                            cost_score = 1 - rel_diff
                     else:
-                        rel_diff = max(est_cost.cost - gt_cost.cost, 0)/tol
-                        cost_score = 1 - rel_diff
+                        if tolerance.is_greater(gt_cost.cost, est_cost.cost):
+                            cost_score = 0
+                        else:
+                            rel_diff = max(gt_cost.cost - est_cost.cost, 0) / tol
+                            cost_score = 1 - rel_diff
+                # gt unfeasible
                 else:
-                    if tolerance.is_greater(gt_cost.cost, est_cost.cost):
-                        cost_score = 0
-                    else:
-                        rel_diff = max(gt_cost.cost - est_cost.cost, 0)/tol
-                        cost_score = 1 - rel_diff
-            # unfeasible
+                    cost_score = 1
+            # solution unfeasible
             else:
                 cost_score = 1
         # no active constraints violated and wrong feasibility
@@ -367,19 +424,29 @@ def compute_cost_score(cost_type: CostType, est_cost: Cost,
 
     return cost_score
 
-def sanity_check(solution: ProblemSolution):
-    if isinstance(solution, ProblemSolution):
+
+def sanity_check(solution: SolutionVoyage) -> None:
+    if isinstance(solution, SolutionVoyage):
         if isinstance(solution.feasibility, MilpFeasibility):
             if solution.voyage_plan is None:
                 return
             elif isinstance(solution.voyage_plan, list):
-                if all([isinstance(island_id, (int, np.integer)) for island_id in solution.voyage_plan]):
+                if all(
+                    [
+                        isinstance(island_id, (int, np.integer))
+                        for island_id in solution.voyage_plan
+                    ]
+                ):
                     return
-    raise SanityCheckError(f"The output {solution!r} of {solve_optimization.__name__}"
-                            " is not respecting the required types.")
+    raise TestCaseSanityCheckException(
+        f"The output {solution!r} of {solve_optimization.__name__} "
+        "is not compliant with the expected structure types of "
+        f"{SolutionVoyage.__name__}."
+    )
+
 
 def ex07_evaluation(
-    algo_in: TestMilp, expected_out: Any, visualizer: Viz = Viz()
+    algo_in: TestVoyage, expected_out: Any, visualizer: Viz = Viz()
 ) -> Tuple[MilpPerformance, Report]:
 
     algo_in_type = algo_in.type
@@ -394,10 +461,10 @@ def ex07_evaluation(
 
     if algo_in_type == MilpCase.test_voyage:
         problem: ProblemVoyage = algo_in_probem
-        gt_optimal_cost: ProblemSolution = expected_out
+        gt_optimal_cost: SolutionVoyage = expected_out
     elif algo_in_type == MilpCase.random_voyage:
         # individual probability of each constraint to be active
-        p_constraints = Constraints(0.5,0.5,0.5,0.5,0.5)
+        p_constraints = Constraints(0.5, 0.5, 0.5, 0.5, 0.5)
         problem = milp_generator(algo_in_seed, algo_in_optimization_cost, p_constraints)
         gt_optimal_cost = None
     else:
@@ -406,22 +473,42 @@ def ex07_evaluation(
     start = timeit.default_timer()
     est_solution = solve_optimization(problem)
     stop = timeit.default_timer()
-    timing = stop-start
+    timing = stop - start
 
     sanity_check(est_solution)
 
     feasibility_score = compute_feasibility_score(est_solution, gt_optimal_cost)
-    violations, feasibility_score = compute_violations(problem, est_solution, feasibility_score)
+    violations, feasibility_score = compute_violations(
+        problem, est_solution, feasibility_score
+    )
     est_cost = compute_cost(problem, est_solution)
-    cost_score = compute_cost_score(problem.optimization_cost, est_cost, gt_optimal_cost, feasibility_score, violations)
+    cost_score = compute_cost_score(
+        problem.optimization_cost,
+        est_cost,
+        gt_optimal_cost,
+        feasibility_score,
+        violations,
+    )
 
     if timing > algo_in_timeout:
-        raise TestCaseTimeoutException(f"Exceeded test case timeout: {algo_in_timeout} seconds.")
+        raise TestCaseTimeoutException(
+            f"Exceeded test case timeout: {algo_in_timeout} seconds."
+        )
     else:
         timing = None
         performance = MilpPerformance(feasibility_score, violations, cost_score)
 
-    visualizer.visualize(r, problem, feasibility_score, gt_optimal_cost, cost_score, est_solution.voyage_plan, est_cost, violations, timing)
+    visualizer.visualize(
+        r,
+        problem,
+        feasibility_score,
+        gt_optimal_cost,
+        cost_score,
+        est_solution.voyage_plan,
+        est_cost,
+        violations,
+        timing,
+    )
 
     return performance, r
 
@@ -431,13 +518,13 @@ def get_exercise7() -> Exercise:
     # MilpCase.test_voyage to test against provided gt local tests.
     # MilpCase.random_voyage to test against random/your local tests.
     test_type = MilpCase.test_voyage
-    
+
     test_values = []
     expected_results = []
 
     if test_type == MilpCase.test_voyage:
         path = pathlib.Path(__file__).parent.resolve()
-        with open(f"{path}/local_tests_GT.pkl", 'rb') as f:
+        with open(f"{path}/local_tests_GT.pkl", "rb") as f:
             database_tests = pickle.load(f)
             for opt_cost in database_tests:
                 for test_id in database_tests[opt_cost]:
@@ -445,41 +532,36 @@ def get_exercise7() -> Exercise:
                     expected_result = database_tests[opt_cost][test_id]["expected_result"]
                     test_values.append(test_value)
                     expected_results.append(expected_result)
-    
+
     elif test_type == MilpCase.random_voyage:
-        seed = 0 
-        n_tests = 3 # n. tests for each cost
+        seed = 0
+        n_tests = 3  # n. tests for each cost
         timeout = 20
 
         for test_cost in OptimizationCost.get_costs():
-            # some calculus on the seed to generate a new 
+            # some calculus on the seed to generate a new
             # deterministic seed for each cost
-            seed = int((seed**1.4-seed**1.3)**0.5+seed)+1
+            seed = int((seed**1.4 - seed**1.3) ** 0.5 + seed) + 1
             if seed > 2**25:
-                seed = int(seed/2**18)
+                seed = int(seed / 2**18)
 
             for test_id in range(n_tests):
-                # more calculus on the seed to generate a new 
+                # more calculus on the seed to generate a new
                 # deterministic seed for each test
-                test_seed = min(seed*(1+(test_id*2)), 2**31)
-                test_values.append(TestMilp(
-                    test_type,
-                    test_cost,
-                    test_id,
-                    None,
-                    test_seed,
-                    timeout
-                ))
+                test_seed = min(seed * (1 + (test_id * 2)), 2**31)
+                test_values.append(
+                    TestVoyage(test_type, test_cost, test_id, None, test_seed, timeout)
+                )
                 expected_results.append(None)
 
     else:
         raise ValueError(test_type)
 
-    return Exercise[TestMilp, Any](
+    return Exercise[TestVoyage, Any](
         desc="This exercise solves MILPs.",
-        evaluation_fun= ex07_evaluation,
-        perf_aggregator= lambda x: ex07_performance_aggregator(x, test_type),
+        evaluation_fun=ex07_evaluation,
+        perf_aggregator=lambda x: ex07_performance_aggregator(x, test_type),
         test_values=test_values,
         expected_results=expected_results,
-        test_case_timeout = 40
+        test_case_timeout=40,
     )
