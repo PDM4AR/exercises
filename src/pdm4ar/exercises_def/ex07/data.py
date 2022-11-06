@@ -8,8 +8,8 @@ from .structures import *
 
 @dataclass(frozen=True)
 class CaseVoyage(IntEnum):
-    test_voyage = 0
-    random_voyage = 1
+    test_gt = 0
+    random = 1
 
     def __eq__(self, other: IntEnum) -> bool:
         return self.value == other.value
@@ -81,8 +81,8 @@ def randomize_reset_constraints(
     return Constraints(*output_constraints)
 
 
-def milp_generator(
-    milp_seed: int,
+def problem_generator(
+    seed: int,
     optimization_cost: Optional[IntEnum] = None,
     p_constraints: Optional[List[float]] = None,
 ) -> ProblemVoyage:
@@ -93,7 +93,7 @@ def milp_generator(
             np.random.choice(optimization_costs_enum_values, 1)
         )
 
-    np.random.seed(milp_seed)
+    np.random.seed(seed)
     start_crew = np.random.randint(40, 200)
     n_arch = np.random.randint(4, 25)
     n_islands_arch = np.random.randint(3, 30)
