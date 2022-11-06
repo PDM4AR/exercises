@@ -7,7 +7,7 @@ from .structures import *
 
 
 @dataclass(frozen=True)
-class MilpCase(IntEnum):
+class CaseVoyage(IntEnum):
     test_voyage = 0
     random_voyage = 1
 

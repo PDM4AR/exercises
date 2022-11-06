@@ -31,7 +31,7 @@ class TestVoyage(ExIn):
 
 
 def ex07_performance_aggregator(
-    performances: List[MilpPerformance], voyage_type: MilpCase
+    performances: List[MilpPerformance], voyage_type: CaseVoyage
 ) -> Ex07FinalPerformance:
 
     overall_feasibility = 0.0
@@ -49,7 +49,7 @@ def ex07_performance_aggregator(
         feasibility = cost.cost.feasibility
 
         # FEASIBILITY
-        if voyage_type == MilpCase.test_voyage:
+        if voyage_type == CaseVoyage.test_voyage:
             overall_feasibility += feasibility_score
             overall_n_test_feasibility += 1
 
@@ -64,7 +64,7 @@ def ex07_performance_aggregator(
                 overall_n_test_constraints[violation_name] += 1
 
         # COSTS
-        if voyage_type == MilpCase.test_voyage:
+        if voyage_type == CaseVoyage.test_voyage:
             # gt and solution feasibility status match
             if feasibility_score == 1:
                 # gt and solution are feasible
@@ -90,7 +90,7 @@ def ex07_performance_aggregator(
             ]
 
     feasibility_performance = (
-        overall_feasibility if voyage_type == MilpCase.test_voyage else np.nan
+        overall_feasibility if voyage_type == CaseVoyage.test_voyage else np.nan
     )
 
     constraints_performance = ConstraintsPerformance(
@@ -106,7 +106,7 @@ def ex07_performance_aggregator(
     costs_performance = CostsPerformance(
         *[np.nan for _ in OptimizationCost.__members__.keys()]
     )
-    if voyage_type == MilpCase.test_voyage:
+    if voyage_type == CaseVoyage.test_voyage:
         for cost_name in CostsPerformance.__annotations__.keys():
             object.__setattr__(costs_performance, cost_name, overall_costs[cost_name])
 
@@ -458,10 +458,10 @@ def ex07_evaluation(
     r = Report(title)
     visualizer.print_title(title)
 
-    if algo_in_type == MilpCase.test_voyage:
+    if algo_in_type == CaseVoyage.test_voyage:
         problem: ProblemVoyage = algo_in_probem
         gt_optimal_cost: SolutionVoyage = expected_out
-    elif algo_in_type == MilpCase.random_voyage:
+    elif algo_in_type == CaseVoyage.random_voyage:
         # individual probability of each constraint to be active
         p_constraints = Constraints(0.5, 0.5, 0.5, 0.5, 0.5)
         problem = milp_generator(algo_in_seed, algo_in_optimization_cost, p_constraints)
@@ -514,14 +514,14 @@ def ex07_evaluation(
 
 def get_exercise7() -> Exercise:
 
-    # MilpCase.test_voyage to test against provided gt local tests.
-    # MilpCase.random_voyage to test against random/your local tests.
-    test_type = MilpCase.test_voyage
+    # CaseVoyage.test_voyage to test against provided gt local tests.
+    # CaseVoyage.random_voyage to test against random/your local tests.
+    test_type = CaseVoyage.test_voyage
 
     test_values = []
     expected_results = []
 
-    if test_type == MilpCase.test_voyage:
+    if test_type == CaseVoyage.test_voyage:
         path = pathlib.Path(__file__).parent.resolve()
         with open(f"{path}/local_tests_GT.pkl", "rb") as f:
             database_tests = pickle.load(f)
@@ -532,7 +532,7 @@ def get_exercise7() -> Exercise:
                     test_values.append(test_value)
                     expected_results.append(expected_result)
 
-    elif test_type == MilpCase.random_voyage:
+    elif test_type == CaseVoyage.random_voyage:
         seed = 0
         n_tests = 3  # n. tests for each cost
         timeout = 20
