@@ -6,15 +6,6 @@ import numpy as np
 from .structures import *
 
 
-@dataclass(frozen=True)
-class CaseVoyage(IntEnum):
-    test_gt = 0
-    random = 1
-
-    def __eq__(self, other: IntEnum) -> bool:
-        return self.value == other.value
-
-
 def island_generator(
     id: int,
     arch: int,

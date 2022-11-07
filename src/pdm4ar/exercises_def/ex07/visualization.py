@@ -23,6 +23,9 @@ ACTIVATE_COLORS = True
 
 
 class Viz:
+    """The `Viz` class manages the whole printing, visualization, and report generation.\n
+       Changes can be made to match one's own debugging needs for local testing.
+    """
     def __init__(
         self,
         report_type: IntEnum = REPORT_TYPE,

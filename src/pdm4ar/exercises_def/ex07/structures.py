@@ -131,19 +131,20 @@ class SolutionVoyage:
 
 
 
+# Following structures are not that important for the student's exercise implementation,
+# but changes can be made to match one's own debugging needs for local testing.
 
 
+@dataclass(frozen=True)
+class CaseVoyage(IntEnum):
+    """Used to specify the test case type"""
+    
+    test_gt = 0
+    random = 1
 
+    def __eq__(self, other: IntEnum) -> bool:
+        return self.value == other.value
 
-
-
-
-
-
-
-
-
-# Following structures are not important for the student's exercise development.
 
 @dataclass(frozen=True)
 class ReportType(IntEnum):
@@ -171,6 +172,15 @@ class ReportType(IntEnum):
     def __le__(self, other: IntEnum) -> bool:
         return self.value <= other.value
 
+
+
+
+
+
+
+
+
+# Following structures are not important for the student's exercise implementation.
 
 CostTolerances = frozendict(
     {
