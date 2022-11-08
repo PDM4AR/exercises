@@ -61,8 +61,14 @@ COLLISION_PRIMITIVES = {
 }
 
 
-def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive):
-
+def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
+    """
+    Checks collision between 2 geometric primitives
+    Note that this function only uses the funtions that you implemented in CollisionPrimitives class.
+        Parameters:
+                p_1 (GeoPrimitive): Geometric Primitive
+                p_w (GeoPrimitive): Geometric Primitive
+    """
     assert type(p_1) in COLLISION_PRIMITIVES, "Collision primitive does not exist."
     assert (
         type(p_2) in COLLISION_PRIMITIVES[type(p_1)]
