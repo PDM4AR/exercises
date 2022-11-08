@@ -164,7 +164,7 @@ def visualize_polygon_line(r: Report, ex_num: str, data: Tuple[Polygon, Segment,
 def visualize_map_path(
     r: Report,
     ex_num: str,
-    data: Tuple[Path, float, List[Polygon], List[int]],
+    data: Tuple[Path, float, List[GeoPrimitive], List[int]],
 ):
     path, radius, obstacles, _ = data
     rfig = r.figure(cols=1)
@@ -174,26 +174,33 @@ def visualize_map_path(
         ax = plt.gca()
         ax.grid()
 
-        x_values = [p.x for p in path.waypoints]
-        y_values = [p.y for p in path.waypoints]
-
         # Draw Segment
         path.visualize(ax)
 
-        for poly in obstacles:
-            poly.visualize(ax)
-            x_values += [p.x for p in poly.vertices]
-            y_values += [p.y for p in poly.vertices]
+        for obs in obstacles:
+            obs.visualize(ax)
         ax.set_aspect(1)
 
-        ax.set_xlim(min(x_values) - 1, max(x_values) + 1)
-        ax.set_ylim(min(y_values) - 1, max(y_values) + 1)
+        boundaries = [path.get_boundaries()] + [
+            obs.get_boundaries() for obs in obstacles
+        ]
+
+        ax.set_xlim(
+            min([p_min.x for p_min, _ in boundaries]) - 1,
+            max([p_max.x for _, p_max in boundaries]) + 1,
+        )
+        ax.set_ylim(
+            min([p_min.y for p_min, _ in boundaries]) - 1,
+            max([p_max.y for _, p_max in boundaries]) + 1,
+        )
 
 
 def visualize_robot_frame_map(
     r: Report,
     ex_num: str,
-    data: Tuple[List[Pose2D], float, List[List[Polygon]], List[Polygon], List[int]],
+    data: Tuple[
+        List[Pose2D], float, List[List[GeoPrimitive]], List[GeoPrimitive], List[int]
+    ],
 ):
     path, _, observations, obstacles, _ = data
 
@@ -216,12 +223,18 @@ def visualize_robot_frame_map(
         for poly in obstacles:
             # Draw Polygon
             poly.visualize(ax)
-            x_values += [p.x for p in poly.vertices]
-            y_values += [p.y for p in poly.vertices]
         ax.set_aspect(1)
 
-        ax.set_xlim(min(x_values) - 1, max(x_values) + 1)
-        ax.set_ylim(min(y_values) - 1, max(y_values) + 1)
+        boundaries = [obs.get_boundaries() for obs in obstacles]
+
+        ax.set_xlim(
+            min(x_values + [p_min.x for p_min, _ in boundaries]) - 1,
+            max(x_values + [p_max.x for _, p_max in boundaries]) + 1,
+        )
+        ax.set_ylim(
+            min(y_values + [p_min.y for p_min, _ in boundaries]) - 1,
+            max(y_values + [p_max.y for _, p_max in boundaries]) + 1,
+        )
 
     # Visualize Inputs Step by Step
     for i, (pose, observation) in enumerate(zip(path, observations)):
@@ -254,18 +267,24 @@ def visualize_robot_frame_map(
                 )
             )
 
-            x_values, y_values = [0, new_goal.x], [0, new_goal.y]
-
-            for poly in observation:
+            for obs in observation:
                 # Draw Polygon
-                poly.visualize(ax)
-                x_values += [p.x for p in poly.vertices]
-                y_values += [p.y for p in poly.vertices]
+                obs.visualize(ax)
 
             # Draw Point
             segment = Segment(Point(0, 0), new_goal)
             segment.visualize(ax)
             ax.set_aspect(1)
 
-            ax.set_xlim(min(x_values) - 1, max(x_values) + 1)
-            ax.set_ylim(min(y_values) - 1, max(y_values) + 1)
+            boundaries = [segment.get_boundaries()] + [
+                obs.get_boundaries() for obs in observation
+            ]
+
+            ax.set_xlim(
+                min([p_min.x for p_min, _ in boundaries]) - 1,
+                max([p_max.x for _, p_max in boundaries]) + 1,
+            )
+            ax.set_ylim(
+                min([p_min.y for p_min, _ in boundaries]) - 1,
+                max([p_max.y for _, p_max in boundaries]) + 1,
+            )

@@ -6,7 +6,16 @@ import numpy as np
 from geometry.poses import SE2_from_translation_angle
 from shapely import geometry
 
-from .structures import *
+from .structures import (
+    GeoPrimitive,
+    Point,
+    Path,
+    Polygon,
+    Pose2D,
+    Circle,
+    Segment,
+    Triangle,
+)
 
 
 class DataGenerator:
@@ -530,7 +539,7 @@ class DataGenerator:
     @staticmethod
     def generate_random_robot_map_and_path(
         index: int,
-    ) -> Tuple[Path, float, List[Polygon], List[int]]:
+    ) -> Tuple[Path, float, List[GeoPrimitive], List[int]]:
 
         # Generate Random Robot Radius
         r = float(np.random.randint(3, 7))
@@ -579,7 +588,9 @@ class DataGenerator:
     @staticmethod
     def generate_robot_frame_data(
         index: int,
-    ) -> Tuple[List[Pose2D], float, List[List[Polygon]], List[Polygon], List[int]]:
+    ) -> Tuple[
+        List[Pose2D], float, List[List[GeoPrimitive]], List[GeoPrimitive], List[int]
+    ]:
         # Initialize Random Map
         (
             path,
