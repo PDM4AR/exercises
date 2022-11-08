@@ -1,5 +1,4 @@
 from pdm4ar.exercises_def.ex06.structures import *
-from pdm4ar.exercises_def.ex06.structures import GeoPrimitive
 
 
 class CollisionPrimitives:
@@ -20,15 +19,19 @@ class CollisionPrimitives:
         return False
 
     @staticmethod
-    def circle_line_collision(c: Circle, segment: Segment) -> bool:
+    def circle_segment_collision(c: Circle, segment: Segment) -> bool:
         return False
 
     @staticmethod
-    def polygon_line_collision(p: Polygon, segment: Segment) -> bool:
+    def triangle_segment_collision(t: Triangle, segment: Segment) -> bool:
         return False
 
     @staticmethod
-    def polygon_line_collision_aabb(p: Polygon, segment: Segment) -> bool:
+    def polygon_segment_collision(p: Polygon, segment: Segment) -> bool:
+        return False
+
+    @staticmethod
+    def polygon_segment_collision_aabb(p: Polygon, segment: Segment) -> bool:
         return False
 
     @staticmethod

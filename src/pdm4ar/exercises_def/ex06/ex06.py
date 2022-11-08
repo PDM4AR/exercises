@@ -17,6 +17,7 @@ from pdm4ar.exercises_def.ex06.visualization import (
     visualize_triangle_point,
     visualize_polygon_point,
     visualize_circle_line,
+    visualize_triangle_line,
     visualize_polygon_line,
     visualize_map_path,
     visualize_robot_frame_map,
@@ -26,9 +27,11 @@ from pdm4ar.exercises_def.ex06.data import DataGenerator
 
 RANDOM_SEED = 0
 
+
 def set_random_seed(random_seed):
     random.seed(random_seed)
     np.random.seed(random_seed)
+
 
 @dataclass
 class TestCollisionCheck(ExIn):
@@ -44,12 +47,14 @@ class TestCollisionCheck(ExIn):
     def str_id(self) -> str:
         return f"step-{self.step_id}-"
 
+
 @dataclass(frozen=True)
 class CollisionCheckWeightedAccuracy(PerformanceResults):
     accuracy: float
 
     def __post_init__(self):
         assert 0 <= self.accuracy <= 1
+
 
 @dataclass(frozen=True)
 class CollisionCheckPerformance(PerformanceResults):
@@ -61,14 +66,17 @@ class CollisionCheckPerformance(PerformanceResults):
         assert 0 <= self.accuracy <= 1
 
     @staticmethod
-    def perf_aggregator(eval_list: Sequence['CollisionCheckPerformance'], total_weight: float) -> 'CollisionCheckWeightedAccuracy':
+    def perf_aggregator(
+        eval_list: Sequence["CollisionCheckPerformance"], total_weight: float
+    ) -> "CollisionCheckWeightedAccuracy":
 
         if len(eval_list) == 0:
             return CollisionCheckWeightedAccuracy(0.0)
 
         total_acccuracy = np.sum([eval.accuracy * eval.weight for eval in eval_list])
 
-        return CollisionCheckWeightedAccuracy(total_acccuracy/total_weight)
+        return CollisionCheckWeightedAccuracy(total_acccuracy / total_weight)
+
 
 def _collision_check_rep(
     algo_in: TestCollisionCheck, alg_out: Any
@@ -92,7 +100,13 @@ def _collision_check_rep(
 
     r.text(
         f"{algo_in.str_id()}-results",
-        "\n".join([f"Accuracy #{ex_num}: {ex_perf}" for ex_num, ex_perf in enumerate(eval_list)] + [f"Total Accuracy = {np.mean(eval_list)}"])
+        "\n".join(
+            [
+                f"Accuracy #{ex_num}: {ex_perf}"
+                for ex_num, ex_perf in enumerate(eval_list)
+            ]
+            + [f"Total Accuracy = {np.mean(eval_list)}"]
+        ),
     )
 
     return CollisionCheckPerformance(np.mean(eval_list), algo_in.eval_weight), r
@@ -101,15 +115,18 @@ def _collision_check_rep(
 def algo_placeholder(ex_in):
     return None
 
+
 def float_eval_function(data, estimation):
     return float(data[-1] == estimation)
 
+
 def idx_list_eval_function(data, estimation):
     path_len = len(data[0])
-    ground_truth_bool = np.array([i in data[-1] for i in range(path_len-1)])
-    estimation_bool = np.array([i in estimation for i in range(path_len-1)])
+    ground_truth_bool = np.array([i in data[-1] for i in range(path_len - 1)])
+    estimation_bool = np.array([i in estimation for i in range(path_len - 1)])
 
     return (ground_truth_bool == estimation_bool).mean()
+
 
 def collision_check_robot_frame_loop(
     poses: List[Pose2D],
@@ -130,6 +147,7 @@ def collision_check_robot_frame_loop(
             result.append(i)
     return result
 
+
 def get_exercise6() -> Exercise:
     # Set Random Seed
     set_random_seed(RANDOM_SEED)
@@ -144,7 +162,7 @@ def get_exercise6() -> Exercise:
             visualize_circle_point,
             CollisionPrimitives.circle_point_collision,
             float_eval_function,
-            5
+            5,
         ),  # Step 1
         TestCollisionCheck(
             10,
@@ -154,7 +172,7 @@ def get_exercise6() -> Exercise:
             visualize_triangle_point,
             CollisionPrimitives.triangle_point_collision,
             float_eval_function,
-            10
+            10,
         ),  # Step 2
         TestCollisionCheck(
             10,
@@ -164,96 +182,108 @@ def get_exercise6() -> Exercise:
             visualize_polygon_point,
             CollisionPrimitives.polygon_point_collision,
             float_eval_function,
-            10
+            10,
         ),  # Step 3
         TestCollisionCheck(
             10,
             4,
-            "Line-Circle Collision Primitive",
-            DataGenerator.generate_circle_line_collision_data,
+            "Segment-Circle Collision Primitive",
+            DataGenerator.generate_circle_segment_collision_data,
             visualize_circle_line,
-            CollisionPrimitives.circle_line_collision,
+            CollisionPrimitives.circle_segment_collision,
             float_eval_function,
-            10
+            10,
         ),  # Step 4
         TestCollisionCheck(
             10,
             5,
-            "Line-Polygon Collision Primitive",
-            DataGenerator.generate_polygon_line_collision_data,
-            visualize_polygon_line,
-            CollisionPrimitives.polygon_line_collision,
+            "Segment-Triangle Collision Primitive",
+            DataGenerator.generate_tringle_segment_collision_data,
+            visualize_triangle_line,
+            CollisionPrimitives.triangle_segment_collision,
             float_eval_function,
-            5
+            10,
         ),  # Step 5
         TestCollisionCheck(
             10,
             6,
-            "Line-Polygon (AABB) Collision Primitive",
-            DataGenerator.generate_polygon_line_collision_data,
+            "Segment-Polygon Collision Primitive",
+            DataGenerator.generate_polygon_segment_collision_data,
             visualize_polygon_line,
-            CollisionPrimitives.aabb_line_collision,
+            CollisionPrimitives.polygon_segment_collision,
             float_eval_function,
-            5
+            5,
         ),  # Step 6
         TestCollisionCheck(
-            5,
+            10,
             7,
+            "Segment-Polygon (AABB) Collision Primitive",
+            DataGenerator.generate_polygon_segment_collision_data,
+            visualize_polygon_line,
+            CollisionPrimitives.polygon_segment_collision_aabb,
+            float_eval_function,
+            5,
+        ),  # Step 7
+        TestCollisionCheck(
+            5,
+            8,
             "Path Collision Check",
             DataGenerator().generate_random_robot_map_and_path,
             visualize_map_path,
             CollisionChecker().path_collision_check,
             idx_list_eval_function,
-            20
-        ),  # Step 7
+            20,
+        ),  # Step 8
         TestCollisionCheck(
             5,
-            8,
+            9,
             "Path Collision Check - Occupancy Grid",
             DataGenerator().generate_random_robot_map_and_path,
             visualize_map_path,
             CollisionChecker().path_collision_check_occupancy_grid,
             idx_list_eval_function,
-            20
-        ),  # Step 8
+            20,
+        ),  # Step 9
         TestCollisionCheck(
             5,
-            9,
+            10,
             "Path Collision Check - R-Tree",
             DataGenerator().generate_random_robot_map_and_path,
             visualize_map_path,
             CollisionChecker().path_collision_check_r_tree,
             idx_list_eval_function,
-            30
-        ),  # Step 9
+            30,
+        ),  # Step 10
         TestCollisionCheck(
             5,
-            10,
+            11,
             "Collision Check - Rigid Body Transformation",
             DataGenerator().generate_robot_frame_data,
             visualize_robot_frame_map,
             collision_check_robot_frame_loop,
             idx_list_eval_function,
-            20
-        ),  # Step 10
+            20,
+        ),  # Step 11
         TestCollisionCheck(
             5,
-            11,
+            12,
             "Path Collision Check - Safety Certificates",
             DataGenerator().generate_random_robot_map_and_path,
             visualize_map_path,
             CollisionChecker().path_collision_check_safety_certificate,
             idx_list_eval_function,
-            30
-        ),  # Step 11
+            30,
+        ),  # Step 12
     ]
-    
+
     total_weight = np.sum([t.eval_weight for t in test_values])
 
     return Exercise[TestCollisionCheck, Any](
-        desc = "This exercise is about the collision checking methods.",
-        evaluation_fun = _collision_check_rep,
-        perf_aggregator = lambda x: CollisionCheckPerformance.perf_aggregator(x, total_weight),
-        test_values = test_values,
-        expected_results = None
+        desc="This exercise is about the collision checking methods.",
+        evaluation_fun=_collision_check_rep,
+        perf_aggregator=lambda x: CollisionCheckPerformance.perf_aggregator(
+            x, total_weight
+        ),
+        test_values=test_values,
+        expected_results=None,
     )

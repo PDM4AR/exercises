@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
-from typing import List, Sequence
+from typing import List, Sequence, Any
 
 import numpy as np
 from geometry import SE2value
+import matplotlib.pyplot as plt
 
 __all__ = [
     "Point",
@@ -24,6 +25,10 @@ class GeoPrimitive(ABC):
     def apply_SE2transform(self, t: SE2value) -> "GeoPrimitive":
         pass
 
+    @abstractmethod
+    def visualize(self, ax: Any):
+        pass
+
 
 @dataclass(frozen=True)
 class Point(GeoPrimitive):
@@ -33,6 +38,10 @@ class Point(GeoPrimitive):
     def apply_SE2transform(self, t: SE2value) -> "Point":
         p = t @ np.array([self.x, self.y, 1])
         return Point(p[0], p[1])
+
+    def visualize(self, ax: Any):
+        # Draw Point
+        ax.plot(self.x, self.y, marker="x", markersize=10)
 
 
 @dataclass(frozen=True)
@@ -45,6 +54,11 @@ class Segment(GeoPrimitive):
         p2 = self.p2.apply_SE2transform(t)
         return replace(self, p1=p1, p2=p2)
 
+    def visualize(self, ax: Any):
+        ax.plot(
+            [self.p1.x, self.p2.x], [self.p1.y, self.p2.y], marker="x", markersize=10
+        )
+
 
 @dataclass(frozen=True)
 class Circle(GeoPrimitive):
@@ -54,6 +68,17 @@ class Circle(GeoPrimitive):
     def apply_SE2transform(self, t: SE2value) -> "Circle":
         c1 = self.center.apply_SE2transform(t)
         return replace(self, center=c1)
+
+    def visualize(self, ax: Any):
+        draw_circle = plt.Circle(
+            (self.center.x, self.center.y),
+            self.radius,
+            color="r",
+            fill=False,
+            linewidth=5,
+        )
+        ax.set_aspect(1)
+        ax.add_artist(draw_circle)
 
 
 @dataclass(frozen=True)
@@ -72,6 +97,16 @@ class Triangle(GeoPrimitive):
             (self.v1.y + self.v2.y + self.v3.y) / 3,
         )
 
+    def visualize(self, ax: Any):
+        draw_triangle = plt.Polygon(
+            [[self.v1.x, self.v1.y], [self.v2.x, self.v2.y], [self.v3.x, self.v3.y]],
+            color="r",
+            fill=False,
+            linewidth=5,
+        )
+        ax.set_aspect(1)
+        ax.add_artist(draw_triangle)
+
 
 @dataclass(frozen=True)
 class AABB(GeoPrimitive):
@@ -81,6 +116,9 @@ class AABB(GeoPrimitive):
     def apply_SE2transform(self, t: SE2value) -> "AABB":
         points = _transform_points(t, [self.p_min, self.p_max])
         return AABB(*points)
+
+    def visualize(self, ax: Any):
+        raise NotImplementedError()
 
 
 @dataclass(frozen=True)
@@ -98,6 +136,16 @@ class Polygon(GeoPrimitive):
             sum([v.y for v in self.vertices]) / number_of_vertices,
         )
 
+    def visualize(self, ax: Any):
+        draw_poly = plt.Polygon(
+            [[p.x, p.y] for p in self.vertices],
+            color="r",
+            fill=False,
+            linewidth=5,
+        )
+        ax.set_aspect(1)
+        ax.add_artist(draw_poly)
+
 
 @dataclass(frozen=True)
 class Path(GeoPrimitive):
@@ -109,6 +157,14 @@ class Path(GeoPrimitive):
 
     def __len__(self):
         return len(self.waypoints)
+
+    def visualize(self, ax: Any):
+        ax.plot(
+            [w.x for w in self.waypoints],
+            [w.y for w in self.waypoints],
+            "gx--",
+            markersize=15,
+        )
 
 
 @dataclass(frozen=True)

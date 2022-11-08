@@ -78,26 +78,32 @@ class Polygon(GeoPrimitive):
 
 In this part, you will implement the `polygon_point_collision` function of `CollisionPrimitives` class.
 
-#### Step 4: Line-Circle Collision Checking Procedure
+#### Step 4: Segment-Circle Collision Checking Procedure
 
 The aim is to implement a function that checks whether a line collides with a circle or not. The algorithm which will be implemented is explained [here](https://www.jeffreythompson.org/collision-detection/line-circle.php). To represent the line, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
 @dataclass(frozen=True)
-class Line:
+class Segment:
     p1: Point
     p2: Point
 ```
 
 In this part, you will implement the `circle_line_collision` function of `CollisionPrimitives` class.
 
-#### Step 5: Line-Polygon Collision Checking Procedure
+#### Step 5: Segment-Triangle Collision Checking Procedure
+
+The aim is to implement a function that checks whether a Segment collides with a triangle or not. The idea is to sample points on the line and check whether they collide or not via the function implemented on `Step 2`.
+
+In this part, you will implement the `triangle_segment_collision` function of `CollisionPrimitives` class.
+
+#### Step 6: Segment-Polygon Collision Checking Procedure
 
 The aim is to implement a function that checks whether a line collides with a polygon or not. The idea is to sample points on the line and check whether they collide or not via the function implemented on `Step 3`.
 
 In this part, you will implement the `polygon_line_collision` function of `CollisionPrimitives` class.
 
-#### Step 6: Optimization via Axis-Aligned Bounding Boxes
+#### Step 7: Optimization via Axis-Aligned Bounding Boxes
 
 The performance of the collision checker are quite important for running planning algorithm in reasonable time.
 In this step, the aim is to remove unnecessary collision check operations via axis-aligned bounding boxes. 
@@ -111,7 +117,7 @@ Then, use it within the `polygon_line_collision_aabb` function of `CollisionPrim
 In the second part of this exercise, we leverage the collision primitives just implemented to perform collision checking for our robot. 
 The task is to implement the functions in the `CollisionChecker` class in `src/pdm4ar/exercises/ex06/collision_checker.py`.
 
-#### Step 7: Collision Checking Procedure for Circle-shaped Robot
+#### Step 8: Collision Checking Procedure for Circle-shaped Robot
 
 In this step, the aim is to find the collisions inside a 2D world that contains fixed polygon-shaped obstacles. The input will be a set of points that represents the path of the robot. Because, robot is a circle-shaped collision check can be done by extending the sizes of obstacles by the radius of the robot, and checking line-obstacle collisions. 
 To represent the path of robot, the following data structure (`src/pdm4ar/exercises_def/ex06/data.py`) will be used:
@@ -128,7 +134,7 @@ Please note that the definition of `Path` and `Polygons` are similar.
 `Polygon` class connects the first and last vertices by default. 
 However, there is not any connection between first and last waypoints in `Path` objects. 
 
-#### Step 8: Collision Checking via Occupancy Grid
+#### Step 9: Collision Checking via Occupancy Grid
 
 In this step, the aim is same as `Step 7`. 
 However, in this step, you will use different approach for collision checking. 
@@ -137,21 +143,21 @@ Then, you will create an occupancy grid of the map.
 Lastly, you will return the list of line segment indices where there exists a collision. 
 In this step, you will implement `path_collision_check_occupancy_grid` function.
 
-#### Step 9: Collision Checking on Robot Frame
+#### Step 10: Collision Checking on Robot Frame
 
 In this step, the function (`collision_check_robot_frame`) which will be implemented will be called sequentially. 
 At each step, current pose of the robot, and currently observed obstacles in the robot frame will be given as input. 
 At each step, observed obstacles will be converted into the fixed frame and stored. 
 Then, at each step, the function will return whether there exists a collision of not between current position and next position of the robot with the function implemented at the first part of the exercise. 
 
-#### Step 10: Collision Checking via R-Tree
+#### Step 11: Collision Checking via R-Tree
 
 The aim of the last step is to improve the execution time performance of the collision checking module via r-tree. 
 Initially, the r-tree will be constructed with the given map. 
 Then, collision check will be applied using constructed r-tree. 
 `path_collision_check_r_tree` is the name of the function that will be implemented.
 
-#### Step 11: Collision Checking via Safety Certificates
+#### Step 12: Collision Checking via Safety Certificates
 
 In this section, the aim is to implement a more efficient collision check procedure by using safety certificates via `path_collision_check_safety_certificate` function. 
 To obtain detailed information about the algorithm, you can check the part that is related to the safety certificates from the [given paper](https://journals.sagepub.com/doi/full/10.1177/0278364915625345) (`Algorithm 1`). 

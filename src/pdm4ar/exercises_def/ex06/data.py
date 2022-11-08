@@ -435,7 +435,7 @@ class DataGenerator:
         return (poly, point, poly_shapely.distance(point_shapely) < 1e-5)
 
     @staticmethod
-    def generate_circle_line_collision_data(
+    def generate_circle_segment_collision_data(
         index: int,
     ) -> Tuple[Circle, Segment, bool]:
         # Generate Random Circle
@@ -447,18 +447,58 @@ class DataGenerator:
         circle_shapely = geometry.Point(circle.center.x, circle.center.y).buffer(
             circle.radius
         )
-        line_shapely = geometry.LineString(
+        segment_shapely = geometry.LineString(
             [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
         )
 
         return (
             circle,
             Segment(p1, p2),
-            circle_shapely.distance(line_shapely) < 1e-5,
+            circle_shapely.distance(segment_shapely) < 1e-5,
         )
 
     @staticmethod
-    def generate_polygon_line_collision_data(
+    def generate_tringle_segment_collision_data(
+        index: int,
+    ) -> Tuple[Triangle, Segment, bool]:
+        # Generate Random Polygon
+        triangle = DataGenerator.generate_random_triangle()
+        # Calculate Center of the Corners
+        center = triangle.center()
+        # Calculate Max Distance to Corners
+        max_dist = max(
+            [
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
+                ** 0.5,
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
+                ** 0.5,
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
+                ** 0.5,
+            ]
+        )
+        # Generate Points
+        p1 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
+        p2 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
+        # Check Collisions via Shapely
+        poly_shapely = geometry.Polygon(
+            [
+                [triangle.v1.x, triangle.v1.y],
+                [triangle.v2.x, triangle.v2.y],
+                [triangle.v3.x, triangle.v3.y],
+            ]
+        )
+        segment_shapely = geometry.LineString(
+            [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
+        )
+
+        return (
+            triangle,
+            Segment(p1, p2),
+            poly_shapely.distance(segment_shapely) < 1e-5,
+        )
+
+    @staticmethod
+    def generate_polygon_segment_collision_data(
         index: int,
     ) -> Tuple[Polygon, Segment, bool]:
         # Generate Random Polygon
@@ -477,14 +517,14 @@ class DataGenerator:
         p2 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
         # Check Collisions via Shapely
         poly_shapely = geometry.Polygon([[v.x, v.y] for v in poly.vertices])
-        line_shapely = geometry.LineString(
+        segment_shapely = geometry.LineString(
             [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
         )
 
         return (
             poly,
             Segment(p1, p2),
-            poly_shapely.distance(line_shapely) < 1e-5,
+            poly_shapely.distance(segment_shapely) < 1e-5,
         )
 
     @staticmethod

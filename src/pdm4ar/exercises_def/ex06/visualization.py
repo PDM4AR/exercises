@@ -13,18 +13,10 @@ def visualize_circle_point(r: Report, ex_num: str, data: Tuple[Circle, Point, bo
         ax.grid()
 
         # Draw Point
-        ax.plot(p.x, p.y, marker="x", markersize=10)
+        p.visualize(ax)
 
         # Draw Circle
-        draw_circle = plt.Circle(
-            (c.center.x, c.center.y),
-            c.radius,
-            color="r",
-            fill=False,
-            linewidth=5,
-        )
-        ax.set_aspect(1)
-        ax.add_artist(draw_circle)
+        c.visualize(ax)
 
         ax.set_xlim(
             min(c.center.x - c.radius, p.x) - 1,
@@ -50,17 +42,10 @@ def visualize_triangle_point(
         ax.grid()
 
         # Draw Point
-        ax.plot(p.x, p.y, marker="x", markersize=10)
+        p.visualize(ax)
 
         # Draw Triangle
-        draw_triangle = plt.Polygon(
-            [[t.v1.x, t.v1.y], [t.v2.x, t.v2.y], [t.v3.x, t.v3.y]],
-            color="r",
-            fill=False,
-            linewidth=5,
-        )
-        ax.set_aspect(1)
-        ax.add_artist(draw_triangle)
+        t.visualize(ax)
 
         ax.set_xlim(
             min([t.v1.x, t.v2.x, t.v3.x, p.x]) - 1,
@@ -84,17 +69,10 @@ def visualize_polygon_point(r: Report, ex_num: str, data: Tuple[Polygon, Point, 
         ax.grid()
 
         # Draw Point
-        ax.plot(p.x, p.y, marker="x", markersize=10)
+        p.visualize(ax)
 
         # Draw Polygon
-        draw_poly = plt.Polygon(
-            [[p.x, p.y] for p in poly.vertices],
-            color="r",
-            fill=False,
-            linewidth=5,
-        )
-        ax.set_aspect(1)
-        ax.add_artist(draw_poly)
+        poly.visualize(ax)
 
         ax.set_xlim(
             min([c.x for c in poly.vertices] + [p.x]) - 1,
@@ -116,18 +94,10 @@ def visualize_circle_line(r: Report, ex_num: str, data: Tuple[Circle, Segment, b
         ax.grid()
 
         # Draw Segment
-        ax.plot([l.p1.x, l.p2.x], [l.p1.y, l.p2.y], marker="x", markersize=10)
+        l.visualize(ax)
 
         # Draw Circle
-        draw_circle = plt.Circle(
-            (c.center.x, c.center.y),
-            c.radius,
-            color="r",
-            fill=False,
-            linewidth=5,
-        )
-        ax.set_aspect(1)
-        ax.add_artist(draw_circle)
+        c.visualize(ax)
 
         ax.set_xlim(
             min([c.center.x - c.radius, l.p1.x, l.p2.x]) - 1,
@@ -136,6 +106,33 @@ def visualize_circle_line(r: Report, ex_num: str, data: Tuple[Circle, Segment, b
         ax.set_ylim(
             min([c.center.y - c.radius, l.p1.y, l.p2.y]) - 1,
             max([c.center.y + c.radius, l.p1.y, l.p2.y]) + 1,
+        )
+
+
+def visualize_triangle_line(
+    r: Report, ex_num: str, data: Tuple[Triangle, Segment, bool]
+):
+    t, l, _ = data
+    rfig = r.figure(cols=1)
+    with rfig.plot(
+        nid=f"line-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
+    ) as _:
+        ax = plt.gca()
+        ax.grid()
+
+        # Draw Segment
+        l.visualize(ax)
+
+        # Draw Circle
+        t.visualize(ax)
+
+        ax.set_xlim(
+            min([t.v1.x, t.v2.x, t.v3.x, l.p1.x, l.p2.x]) - 1,
+            max([t.v1.x, t.v2.x, t.v3.x, l.p1.x, l.p2.x]) + 1,
+        )
+        ax.set_ylim(
+            min([t.v1.y, t.v2.y, t.v3.y, l.p1.y, l.p2.y]) - 1,
+            max([t.v1.y, t.v2.y, t.v3.y, l.p1.y, l.p2.y]) + 1,
         )
 
 
@@ -149,17 +146,10 @@ def visualize_polygon_line(r: Report, ex_num: str, data: Tuple[Polygon, Segment,
         ax.grid()
 
         # Draw Segment
-        ax.plot([l.p1.x, l.p2.x], [l.p1.y, l.p2.y], marker="x", markersize=10)
+        l.visualize(ax)
 
         # Draw Polygon
-        draw_poly = plt.Polygon(
-            [[p.x, p.y] for p in poly.vertices],
-            color="r",
-            fill=False,
-            linewidth=5,
-        )
-        ax.set_aspect(1)
-        ax.add_artist(draw_poly)
+        poly.visualize(ax)
 
         ax.set_xlim(
             min([c.x for c in poly.vertices] + [l.p1.x, l.p2.x]) - 1,
@@ -188,14 +178,10 @@ def visualize_map_path(
         y_values = [p.y for p in path.waypoints]
 
         # Draw Segment
-        ax.plot(x_values, y_values, "gx--", markersize=15)
+        path.visualize(ax)
 
         for poly in obstacles:
-            # Draw Polygon
-            draw_poly = plt.Polygon(
-                [[p.x, p.y] for p in poly.vertices], color="r", linewidth=5
-            )
-            ax.add_artist(draw_poly)
+            poly.visualize(ax)
             x_values += [p.x for p in poly.vertices]
             y_values += [p.y for p in poly.vertices]
         ax.set_aspect(1)
@@ -229,10 +215,7 @@ def visualize_robot_frame_map(
 
         for poly in obstacles:
             # Draw Polygon
-            draw_poly = plt.Polygon(
-                [[p.x, p.y] for p in poly.vertices], color="r", linewidth=5
-            )
-            ax.add_artist(draw_poly)
+            poly.visualize(ax)
             x_values += [p.x for p in poly.vertices]
             y_values += [p.y for p in poly.vertices]
         ax.set_aspect(1)
@@ -275,17 +258,13 @@ def visualize_robot_frame_map(
 
             for poly in observation:
                 # Draw Polygon
-                draw_poly = plt.Polygon(
-                    [[p.x, p.y] for p in poly.vertices],
-                    color="r",
-                    linewidth=5,
-                )
-                ax.add_artist(draw_poly)
+                poly.visualize(ax)
                 x_values += [p.x for p in poly.vertices]
                 y_values += [p.y for p in poly.vertices]
 
             # Draw Point
-            ax.plot([0, new_goal.x], [0, new_goal.y], marker="x", markersize=10)
+            segment = Segment(Point(0, 0), new_goal)
+            segment.visualize(ax)
             ax.set_aspect(1)
 
             ax.set_xlim(min(x_values) - 1, max(x_values) + 1)
