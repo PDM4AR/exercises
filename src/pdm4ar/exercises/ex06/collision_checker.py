@@ -11,11 +11,14 @@ class CollisionChecker:
 
     @staticmethod
     def extend_obstacle(r: float, obstacle: Polygon) -> Polygon:
+        # I would remove this one, up to them to figure out how that they need to inflate obstacles
         return Polygon([])
 
     def path_collision_check(
         self, t: Path, r: float, obstacles: List[Polygon]
     ) -> List[int]:
+        # fixme if r is the radius of the robot maybe it is something that I would pass to the constructor
+        # fixme, why the obstacles are only Polygons, shouldn't it be GeoPrimitive ?
         return []
 
     def path_collision_check_occupancy_grid(
@@ -32,7 +35,7 @@ class CollisionChecker:
         self,
         r: float,
         current_pose: Pose2D,
-        next_position: Point,
+        next_pose: Pose2D,
         observed_obstacles: List[Polygon],
     ) -> bool:
         return False

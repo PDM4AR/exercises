@@ -192,7 +192,7 @@ def get_exercise6() -> Exercise:
             "Line-Polygon (AABB) Collision Primitive",
             DataGenerator.generate_polygon_line_collision_data,
             visualize_polygon_line,
-            CollisionPrimitives.polygon_line_collision_aabb,
+            CollisionPrimitives.aabb_line_collision,
             float_eval_function,
             5
         ),  # Step 6

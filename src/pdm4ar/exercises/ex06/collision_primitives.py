@@ -1,4 +1,5 @@
 from pdm4ar.exercises_def.ex06.structures import *
+from pdm4ar.exercises_def.ex06.structures import GeoPrimitive
 
 
 class CollisionPrimitives:
@@ -23,13 +24,15 @@ class CollisionPrimitives:
         return False
 
     @staticmethod
-    def covert_polygon_to_aabb(p: Polygon) -> AABB:
-        return AABB(p_min=Point(0, 0), p_max=Point(1, 1))
+    def polygon_line_collision(p: Polygon, segment: Segment) -> bool:
+        return False
 
     @staticmethod
     def polygon_line_collision_aabb(p: Polygon, segment: Segment) -> bool:
         return False
 
     @staticmethod
-    def polygon_line_collision(p: Polygon, segment: Segment) -> bool:
-        return False
+    def _poly_to_aabb(g: Polygon) -> AABB:
+        # todo feel free to implement functions that upper-bound a shape with an
+        #  AABB or simpler shapes for faster collision checks
+        return AABB(p_min=Point(0, 0), p_max=Point(1, 1))
