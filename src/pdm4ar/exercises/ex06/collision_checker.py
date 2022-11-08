@@ -9,11 +9,6 @@ class CollisionChecker:
     def __init__(self):
         pass
 
-    @staticmethod
-    def extend_obstacle(r: float, obstacle: Polygon) -> Polygon:
-        # I would remove this one, up to them to figure out how that they need to inflate obstacles
-        return Polygon([])
-
     def path_collision_check(
         self, t: Path, r: float, obstacles: List[Polygon]
     ) -> List[int]:
