@@ -142,7 +142,7 @@ def collision_check_robot_frame_loop(
         zip(poses[:-1], poses[1:], observed_obstacles_list)
     ):
         if collision_checker.collision_check_robot_frame(
-            r, pose, next_pose.position, observed_obstacles
+            r, pose, next_pose, observed_obstacles
         ):
             result.append(i)
     return result
