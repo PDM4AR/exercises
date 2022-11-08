@@ -1,2 +1,1 @@
-from .structures import *
-from .ex06 import *
+from pdm4ar.exercises_def.ex06.ex06 import get_exercise6

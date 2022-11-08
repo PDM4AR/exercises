@@ -1,6 +1,65 @@
-from pdm4ar.exercises_def.ex06.structures import GeoPrimitive, Pose2D, Path
-from pdm4ar.exercises_def.ex06.ex06 import check_collision
 from typing import List
+from pdm4ar.exercises.ex06.collision_primitives import CollisionPrimitives
+from pdm4ar.exercises_def.ex06.structures import (
+    Pose2D,
+    Polygon,
+    GeoPrimitive,
+    Point,
+    Segment,
+    Circle,
+    Triangle,
+    Path,
+)
+
+##############################################################################################
+############################# This is a helper function. #####################################
+# Feel free to use this function or not
+
+COLLISION_PRIMITIVES = {
+    Point: {
+        Circle: lambda x, y: CollisionPrimitives.circle_point_collision(y, x),
+        Triangle: lambda x, y: CollisionPrimitives.triangle_point_collision(y, x),
+        Polygon: lambda x, y: CollisionPrimitives.polygon_point_collision(y, x),
+    },
+    Segment: {
+        Circle: lambda x, y: CollisionPrimitives.circle_segment_collision(y, x),
+        Triangle: lambda x, y: CollisionPrimitives.triangle_segment_collision(y, x),
+        Polygon: lambda x, y: CollisionPrimitives.polygon_segment_collision_aabb(y, x),
+    },
+    Triangle: {
+        Point: CollisionPrimitives.triangle_point_collision,
+        Segment: CollisionPrimitives.triangle_segment_collision,
+    },
+    Circle: {
+        Point: CollisionPrimitives.circle_point_collision,
+        Segment: CollisionPrimitives.circle_segment_collision,
+    },
+    Polygon: {
+        Point: CollisionPrimitives.triangle_point_collision,
+        Segment: CollisionPrimitives.polygon_segment_collision_aabb,
+    },
+}
+
+
+def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
+    """
+    Checks collision between 2 geometric primitives
+    Note that this function only uses the funtions that you implemented in CollisionPrimitives class.
+        Parameters:
+                p_1 (GeoPrimitive): Geometric Primitive
+                p_w (GeoPrimitive): Geometric Primitive
+    """
+    assert type(p_1) in COLLISION_PRIMITIVES, "Collision primitive does not exist."
+    assert (
+        type(p_2) in COLLISION_PRIMITIVES[type(p_1)]
+    ), "Collision primitive does not exist."
+
+    collision_func = COLLISION_PRIMITIVES[type(p_1)][type(p_2)]
+
+    return collision_func(p_1, p_2)
+
+
+##############################################################################################
 
 
 class CollisionChecker:
