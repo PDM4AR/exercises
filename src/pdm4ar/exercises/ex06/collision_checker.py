@@ -1,4 +1,5 @@
 from pdm4ar.exercises_def.ex06.structures import GeoPrimitive, Pose2D, Path
+from pdm4ar.exercises_def.ex06.ex06 import check_collision
 from typing import List
 
 
