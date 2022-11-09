@@ -35,7 +35,7 @@ COLLISION_PRIMITIVES = {
         Segment: CollisionPrimitives.circle_segment_collision,
     },
     Polygon: {
-        Point: CollisionPrimitives.triangle_point_collision,
+        Point: CollisionPrimitives.polygon_point_collision,
         Segment: CollisionPrimitives.polygon_segment_collision_aabb,
     },
 }

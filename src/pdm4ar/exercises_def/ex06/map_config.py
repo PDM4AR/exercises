@@ -1,4 +1,5 @@
 from pdm4ar.exercises_def.ex06.structures import Point
+from copy import deepcopy
 
 ################################################################
 ###################### Default Map Config ######################
@@ -300,7 +301,7 @@ DEFAULT_MAP_CONFIG = [
 
 # Shorter Maps But More Obstacles
 
-R_TREE_MAP_CONFIG = DEFAULT_MAP_CONFIG.copy()
+R_TREE_MAP_CONFIG = deepcopy(DEFAULT_MAP_CONFIG)
 
 ################################################################
 
@@ -497,7 +498,7 @@ R_TREE_MAP_CONFIG[4]["obstacles"].append(
 
 # Longer Paths but Less Obstacles
 
-SAFETY_CERTIFICATES_MAP_CONFIG = DEFAULT_MAP_CONFIG.copy()
+SAFETY_CERTIFICATES_MAP_CONFIG = deepcopy(DEFAULT_MAP_CONFIG)
 
 ################################################################
 SAFETY_CERTIFICATES_MAP_CONFIG[0]["path"] = [
