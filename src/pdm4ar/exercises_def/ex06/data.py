@@ -16,298 +16,10 @@ from .structures import (
     Segment,
     Triangle,
 )
+from .map_config import EXERCISE_MAP_CONFIGS
 
 
 class DataGenerator:
-    MAP_INFO = [
-        {
-            "obstacles": [
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(150, 150),
-                        "avg_radius": 15,
-                        "irregularity": 0,
-                        "spikiness": 0,
-                        "num_vertices": 4,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(50, 100),
-                        "avg_radius": 15,
-                        "irregularity": 0,
-                        "spikiness": 0,
-                        "num_vertices": 5,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(45, 45),
-                        "avg_radius": 15,
-                        "irregularity": 0,
-                        "spikiness": 0,
-                        "num_vertices": 4,
-                    },
-                },
-            ],
-            "path": [
-                (0, 0),
-                (30, 45),
-                (60, 60),
-                (90, 75),
-                (120, 110),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(150, 150),
-                        "avg_radius": 15,
-                        "irregularity": 0.2,
-                        "spikiness": 0,
-                        "num_vertices": 4,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(50, 100),
-                        "avg_radius": 15,
-                        "irregularity": 0.2,
-                        "spikiness": 0,
-                        "num_vertices": 5,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(45, 45),
-                        "avg_radius": 15,
-                        "irregularity": 0.2,
-                        "spikiness": 0,
-                        "num_vertices": 4,
-                    },
-                },
-            ],
-            "path": [
-                (0, 0),
-                (30, 45),
-                (60, 60),
-                (90, 75),
-                (120, 110),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(125, 125),
-                        "avg_radius": 15,
-                        "irregularity": 0.2,
-                        "spikiness": 0,
-                        "num_vertices": 6,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(25, 35),
-                        "avg_radius": 15,
-                        "irregularity": 0.2,
-                        "spikiness": 0,
-                        "num_vertices": 7,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(80, 45),
-                        "avg_radius": 15,
-                        "irregularity": 0.2,
-                        "spikiness": 0,
-                        "num_vertices": 6,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(0, 100),
-                        "avg_radius": 15,
-                        "irregularity": 0.2,
-                        "spikiness": 0,
-                        "num_vertices": 6,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(100, 0),
-                        "avg_radius": 15,
-                        "irregularity": 0.2,
-                        "spikiness": 0,
-                        "num_vertices": 6,
-                    },
-                },
-            ],
-            "path": [
-                (0, 0),
-                (10, 15),
-                (35, 45),
-                (60, 55),
-                (80, 80),
-                (100, 95),
-                (120, 115),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(125, 125),
-                        "avg_radius": 15,
-                        "irregularity": 0.6,
-                        "spikiness": 0,
-                        "num_vertices": 8,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(25, 35),
-                        "avg_radius": 15,
-                        "irregularity": 0.6,
-                        "spikiness": 0,
-                        "num_vertices": 7,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(80, 45),
-                        "avg_radius": 15,
-                        "irregularity": 0.6,
-                        "spikiness": 0,
-                        "num_vertices": 6,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(0, 100),
-                        "avg_radius": 15,
-                        "irregularity": 0.6,
-                        "spikiness": 0,
-                        "num_vertices": 6,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(100, 0),
-                        "avg_radius": 15,
-                        "irregularity": 0.6,
-                        "spikiness": 0,
-                        "num_vertices": 6,
-                    },
-                },
-            ],
-            "path": [
-                (0, 0),
-                (10, 15),
-                (35, 45),
-                (60, 55),
-                (80, 80),
-                (100, 95),
-                (120, 115),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(125, 125),
-                        "avg_radius": 15,
-                        "irregularity": 0.8,
-                        "spikiness": 0,
-                        "num_vertices": 8,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(25, 35),
-                        "avg_radius": 15,
-                        "irregularity": 0.8,
-                        "spikiness": 0,
-                        "num_vertices": 7,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(80, 45),
-                        "avg_radius": 15,
-                        "irregularity": 0.8,
-                        "spikiness": 0,
-                        "num_vertices": 6,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(0, 100),
-                        "avg_radius": 15,
-                        "irregularity": 0.8,
-                        "spikiness": 0,
-                        "num_vertices": 9,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(100, 0),
-                        "avg_radius": 15,
-                        "irregularity": 0.8,
-                        "spikiness": 0,
-                        "num_vertices": 7,
-                    },
-                },
-                {
-                    "type": "polygon",
-                    "params": {
-                        "center": Point(100, 80),
-                        "avg_radius": 15,
-                        "irregularity": 0.8,
-                        "spikiness": 0,
-                        "num_vertices": 8,
-                    },
-                },
-            ],
-            "path": [
-                (0, 0),
-                (10, 15),
-                (35, 45),
-                (60, 55),
-                (80, 80),
-                (100, 95),
-                (120, 115),
-                (130, 155),
-            ],
-        },
-    ]
-
     @staticmethod
     def generate_random_point(
         min_dist: float, max_dist: float, center: Point = Point(0, 0)
@@ -622,26 +334,21 @@ class DataGenerator:
 
     @staticmethod
     def generate_random_robot_map_and_path(
+        exercise_id: int,
         index: int,
     ) -> Tuple[Path, float, List[GeoPrimitive], List[int]]:
 
+        map_config = EXERCISE_MAP_CONFIGS[exercise_id]
         # Generate Random Robot Radius
         r = float(np.random.randint(3, 7))
 
         # Generate Path
         path = Path(
-            [
-                Point(x, y)
-                for (x, y) in DataGenerator.MAP_INFO[
-                    index % len(DataGenerator.MAP_INFO)
-                ]["path"]
-            ]
+            [Point(x, y) for (x, y) in map_config[index % len(map_config)]["path"]]
         )
         # Generate Obstacles
         obstacles = []
-        for obs in DataGenerator.MAP_INFO[index % len(DataGenerator.MAP_INFO)][
-            "obstacles"
-        ]:
+        for obs in map_config[index % len(map_config)]["obstacles"]:
             obs_generation_func = getattr(
                 DataGenerator, f"generate_random_{obs['type']}"
             )
@@ -697,7 +404,7 @@ class DataGenerator:
             r,
             obstacles,
             ground_truth,
-        ) = DataGenerator.generate_random_robot_map_and_path(index)
+        ) = DataGenerator.generate_random_robot_map_and_path(11, index)
         # Calculate Robot Poses
         # In every waypoint robot will turn into its next position
         poses = []
@@ -710,9 +417,29 @@ class DataGenerator:
         poses.append(Pose2D(path.waypoints[-1], theta))
         # Calculate Observed Obstacles
         observation_radius = 50
-        shapely_obstacles = [
-            geometry.Polygon([[p.x, p.y] for p in poly.vertices]) for poly in obstacles
-        ]
+        # Convert obstacles to Shapely Shapes
+        shapely_obstacles = []
+        for obs in obstacles:
+            if isinstance(obs, Polygon):
+                shapely_obstacles.append(
+                    geometry.Polygon([[p.x, p.y] for p in obs.vertices])
+                )
+            elif isinstance(obs, Triangle):
+                shapely_obstacles.append(
+                    geometry.Polygon(
+                        [
+                            [obs.v1.x, obs.v1.y],
+                            [obs.v2.x, obs.v2.y],
+                            [obs.v3.x, obs.v3.y],
+                        ]
+                    )
+                )
+            elif isinstance(obs, Circle):
+                shapely_obstacles.append(
+                    geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius)
+                )
+            else:
+                raise Exception("Obstacle must be Polygon, Triangle, or Circle")
         observations = []
         for pose in poses:
             observations.append([])
