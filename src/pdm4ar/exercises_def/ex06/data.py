@@ -23,58 +23,34 @@ class DataGenerator:
         {
             "obstacles": [
                 {
-                    "center": (150, 150),
-                    "avg_radius": 15,
-                    "irregularity": 0,
-                    "spikiness": 0,
-                    "num_vertices": 4,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(150, 150),
+                        "avg_radius": 15,
+                        "irregularity": 0,
+                        "spikiness": 0,
+                        "num_vertices": 4,
+                    },
                 },
                 {
-                    "center": (50, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0,
-                    "spikiness": 0,
-                    "num_vertices": 5,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(50, 100),
+                        "avg_radius": 15,
+                        "irregularity": 0,
+                        "spikiness": 0,
+                        "num_vertices": 5,
+                    },
                 },
                 {
-                    "center": (45, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0,
-                    "spikiness": 0,
-                    "num_vertices": 4,
-                },
-            ],
-            "path": [
-                (0, 0),
-                (30, 45),
-                (60, 60),
-                (90, 75),
-                (120, 110),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "center": (150, 150),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 4,
-                },
-                {
-                    "center": (50, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 5,
-                },
-                {
-                    "center": (45, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 4,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(45, 45),
+                        "avg_radius": 15,
+                        "irregularity": 0,
+                        "spikiness": 0,
+                        "num_vertices": 4,
+                    },
                 },
             ],
             "path": [
@@ -89,39 +65,96 @@ class DataGenerator:
         {
             "obstacles": [
                 {
-                    "center": (125, 125),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 6,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(150, 150),
+                        "avg_radius": 15,
+                        "irregularity": 0.2,
+                        "spikiness": 0,
+                        "num_vertices": 4,
+                    },
                 },
                 {
-                    "center": (25, 35),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 7,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(50, 100),
+                        "avg_radius": 15,
+                        "irregularity": 0.2,
+                        "spikiness": 0,
+                        "num_vertices": 5,
+                    },
                 },
                 {
-                    "center": (80, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 6,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(45, 45),
+                        "avg_radius": 15,
+                        "irregularity": 0.2,
+                        "spikiness": 0,
+                        "num_vertices": 4,
+                    },
+                },
+            ],
+            "path": [
+                (0, 0),
+                (30, 45),
+                (60, 60),
+                (90, 75),
+                (120, 110),
+                (130, 155),
+            ],
+        },
+        {
+            "obstacles": [
+                {
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(125, 125),
+                        "avg_radius": 15,
+                        "irregularity": 0.2,
+                        "spikiness": 0,
+                        "num_vertices": 6,
+                    },
                 },
                 {
-                    "center": (0, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 6,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(25, 35),
+                        "avg_radius": 15,
+                        "irregularity": 0.2,
+                        "spikiness": 0,
+                        "num_vertices": 7,
+                    },
                 },
                 {
-                    "center": (100, 0),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 6,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(80, 45),
+                        "avg_radius": 15,
+                        "irregularity": 0.2,
+                        "spikiness": 0,
+                        "num_vertices": 6,
+                    },
+                },
+                {
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(0, 100),
+                        "avg_radius": 15,
+                        "irregularity": 0.2,
+                        "spikiness": 0,
+                        "num_vertices": 6,
+                    },
+                },
+                {
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(100, 0),
+                        "avg_radius": 15,
+                        "irregularity": 0.2,
+                        "spikiness": 0,
+                        "num_vertices": 6,
+                    },
                 },
             ],
             "path": [
@@ -138,39 +171,54 @@ class DataGenerator:
         {
             "obstacles": [
                 {
-                    "center": (125, 125),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 8,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(125, 125),
+                        "avg_radius": 15,
+                        "irregularity": 0.6,
+                        "spikiness": 0,
+                        "num_vertices": 8,
+                    },
                 },
                 {
-                    "center": (25, 35),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 7,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(25, 35),
+                        "avg_radius": 15,
+                        "irregularity": 0.6,
+                        "spikiness": 0,
+                        "num_vertices": 7,
+                    },
                 },
                 {
-                    "center": (80, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 6,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(80, 45),
+                        "avg_radius": 15,
+                        "irregularity": 0.6,
+                        "spikiness": 0,
+                        "num_vertices": 6,
+                    },
                 },
                 {
-                    "center": (0, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 6,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(0, 100),
+                        "avg_radius": 15,
+                        "irregularity": 0.6,
+                        "spikiness": 0,
+                        "num_vertices": 6,
+                    },
                 },
                 {
-                    "center": (100, 0),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 6,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(100, 0),
+                        "avg_radius": 15,
+                        "irregularity": 0.6,
+                        "spikiness": 0,
+                        "num_vertices": 6,
+                    },
                 },
             ],
             "path": [
@@ -187,46 +235,64 @@ class DataGenerator:
         {
             "obstacles": [
                 {
-                    "center": (125, 125),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 8,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(125, 125),
+                        "avg_radius": 15,
+                        "irregularity": 0.8,
+                        "spikiness": 0,
+                        "num_vertices": 8,
+                    },
                 },
                 {
-                    "center": (25, 35),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 7,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(25, 35),
+                        "avg_radius": 15,
+                        "irregularity": 0.8,
+                        "spikiness": 0,
+                        "num_vertices": 7,
+                    },
                 },
                 {
-                    "center": (80, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 6,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(80, 45),
+                        "avg_radius": 15,
+                        "irregularity": 0.8,
+                        "spikiness": 0,
+                        "num_vertices": 6,
+                    },
                 },
                 {
-                    "center": (0, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 9,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(0, 100),
+                        "avg_radius": 15,
+                        "irregularity": 0.8,
+                        "spikiness": 0,
+                        "num_vertices": 9,
+                    },
                 },
                 {
-                    "center": (100, 0),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 7,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(100, 0),
+                        "avg_radius": 15,
+                        "irregularity": 0.8,
+                        "spikiness": 0,
+                        "num_vertices": 7,
+                    },
                 },
                 {
-                    "center": (100, 80),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 8,
+                    "type": "polygon",
+                    "params": {
+                        "center": Point(100, 80),
+                        "avg_radius": 15,
+                        "irregularity": 0.8,
+                        "spikiness": 0,
+                        "num_vertices": 8,
+                    },
                 },
             ],
             "path": [
@@ -257,22 +323,40 @@ class DataGenerator:
         )
 
     @staticmethod
-    def generate_random_circle() -> Circle:
+    def generate_random_circle(
+        center: Point = Point(0, 0),
+        max_dist: float = 20,
+        min_radius: float = 3,
+        max_radius: float = 10,
+    ) -> Circle:
         # Generate Center of the Circle
-        center = DataGenerator.generate_random_point(0, 20)
+        center = DataGenerator.generate_random_point(0, max_dist, center)
         # Generate Random Radius
-        radius = np.random.uniform(3, 10)
+        radius = np.random.uniform(min_radius, max_radius)
 
         return Circle(center, radius)
 
     @staticmethod
-    def generate_random_triangle() -> Triangle:
+    def generate_random_triangle(
+        center: Point = Point(0, 0),
+        avg_radius: float = 5,
+        irregularity: float = 0.5,
+        spikiness: float = 0.5,
+    ) -> Triangle:
         # Generate 3 Points Randomly
-        p1 = DataGenerator.generate_random_point(0, 20)
-        p2 = DataGenerator.generate_random_point(0, 20)
-        p3 = DataGenerator.generate_random_point(0, 20)
+        triangle_vertices = DataGenerator.generate_polygon(
+            (center.x, center.y),
+            avg_radius,
+            irregularity,
+            spikiness,
+            3,
+        )
 
-        return Triangle(p1, p2, p3)
+        return Triangle(
+            Point(*triangle_vertices[0]),
+            Point(*triangle_vertices[1]),
+            Point(*triangle_vertices[2]),
+        )
 
     @staticmethod
     def generate_polygon(
@@ -554,25 +638,41 @@ class DataGenerator:
             ]
         )
         # Generate Obstacles
-        obstacles = [
-            DataGenerator.generate_random_polygon(
-                Point(poly["center"][0], poly["center"][1]),
-                poly["avg_radius"],
-                poly["irregularity"],
-                poly["spikiness"],
-                poly["num_vertices"],
+        obstacles = []
+        for obs in DataGenerator.MAP_INFO[index % len(DataGenerator.MAP_INFO)][
+            "obstacles"
+        ]:
+            obs_generation_func = getattr(
+                DataGenerator, f"generate_random_{obs['type']}"
             )
-            for poly in DataGenerator.MAP_INFO[index % len(DataGenerator.MAP_INFO)][
-                "obstacles"
-            ]
-        ]
+            obstacles.append(obs_generation_func(**obs["params"]))
 
         # Check collision for ground truth
         ground_truth = []
         # Convert obstacles to Shapely Shapes
-        shapely_obstacles = [
-            geometry.Polygon([[p.x, p.y] for p in poly.vertices]) for poly in obstacles
-        ]
+        shapely_obstacles = []
+        for obs in obstacles:
+            if isinstance(obs, Polygon):
+                shapely_obstacles.append(
+                    geometry.Polygon([[p.x, p.y] for p in obs.vertices])
+                )
+            elif isinstance(obs, Triangle):
+                shapely_obstacles.append(
+                    geometry.Polygon(
+                        [
+                            [obs.v1.x, obs.v1.y],
+                            [obs.v2.x, obs.v2.y],
+                            [obs.v3.x, obs.v3.y],
+                        ]
+                    )
+                )
+            elif isinstance(obs, Circle):
+                shapely_obstacles.append(
+                    geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius)
+                )
+            else:
+                raise Exception("Obstacle must be Polygon, Triangle, or Circle")
+
         # Check distance between each line segment with each polygon
         for i, (p1, p2) in enumerate(zip(path.waypoints[:-1], path.waypoints[1:])):
             ls_shapely = geometry.LineString(
