@@ -45,7 +45,7 @@ class TestCollisionCheck(ExIn):
     visualizer: Callable
     ex_function: Callable
     eval_function: Callable
-    eval_weight: float
+    eval_weights: Tuple[float, float]
 
     def str_id(self) -> str:
         return f"step-{self.step_id}-"
@@ -54,6 +54,7 @@ class TestCollisionCheck(ExIn):
 @dataclass(frozen=True)
 class CollisionCheckWeightedAccuracy(PerformanceResults):
     accuracy: float
+    solve_time: float
 
     def __post_init__(self):
         assert 0 <= self.accuracy <= 1
@@ -62,7 +63,8 @@ class CollisionCheckWeightedAccuracy(PerformanceResults):
 @dataclass(frozen=True)
 class CollisionCheckPerformance(PerformanceResults):
     accuracy: float
-    weight: float
+    solve_time: float
+    weights: Tuple[float, float]
     """Percentage of correct comparisons"""
 
     def __post_init__(self):
@@ -70,15 +72,22 @@ class CollisionCheckPerformance(PerformanceResults):
 
     @staticmethod
     def perf_aggregator(
-        eval_list: Sequence["CollisionCheckPerformance"], total_weight: float
+        eval_list: Sequence["CollisionCheckPerformance"],
+        total_weights: Tuple[float, float],
     ) -> "CollisionCheckWeightedAccuracy":
 
         if len(eval_list) == 0:
-            return CollisionCheckWeightedAccuracy(0.0)
+            return CollisionCheckWeightedAccuracy(0.0, np.inf)
 
-        total_acccuracy = np.sum([eval.accuracy * eval.weight for eval in eval_list])
-
-        return CollisionCheckWeightedAccuracy(total_acccuracy / total_weight)
+        total_acccuracy = np.sum(
+            [eval.accuracy * eval.weights[0] for eval in eval_list]
+        )
+        total_solve_time = np.sum(
+            [eval.solve_time * eval.weights[1] for eval in eval_list]
+        )
+        return CollisionCheckWeightedAccuracy(
+            total_acccuracy / total_weights[0], total_solve_time / total_weights[1]
+        )
 
 
 def _collision_check_rep(
@@ -87,7 +96,8 @@ def _collision_check_rep(
 
     r = Report(algo_in.name)
 
-    eval_list = []
+    accuracy_list = []
+    solve_times = []
 
     for ex_num in range(algo_in.number_of_test_cases):
         data = algo_in.sample_generator(ex_num)
@@ -95,7 +105,8 @@ def _collision_check_rep(
         start = timeit.default_timer()
         estimate = algo_in.ex_function(*data[:-1])
         stop = timeit.default_timer()
-        eval_list.append(algo_in.eval_function(data, estimate))
+        accuracy_list.append(algo_in.eval_function(data, estimate))
+        solve_times.append(stop - start)
         r.text(
             f"{algo_in.str_id()}-{ex_num}",
             f"Ground Truth = {data[-1]} | Estimation = {estimate} | Execution Time = {round(stop - start, 5)}",
@@ -106,13 +117,19 @@ def _collision_check_rep(
         "\n".join(
             [
                 f"Accuracy #{ex_num}: {ex_perf}"
-                for ex_num, ex_perf in enumerate(eval_list)
+                for ex_num, ex_perf in enumerate(accuracy_list)
             ]
-            + [f"Total Accuracy = {np.mean(eval_list)}"]
+            + [f"Total Accuracy = {np.mean(accuracy_list)}"]
+            + [f"Average Solving Time = {np.mean(solve_times)}"]
         ),
     )
 
-    return CollisionCheckPerformance(np.mean(eval_list), algo_in.eval_weight), r
+    return (
+        CollisionCheckPerformance(
+            np.mean(accuracy_list), np.mean(solve_times), algo_in.eval_weights
+        ),
+        r,
+    )
 
 
 def algo_placeholder(ex_in):
@@ -165,7 +182,7 @@ def get_exercise6() -> Exercise:
             visualize_circle_point,
             CollisionPrimitives.circle_point_collision,
             float_eval_function,
-            5,
+            (5, 0),
         ),  # Step 1
         TestCollisionCheck(
             10,
@@ -175,7 +192,7 @@ def get_exercise6() -> Exercise:
             visualize_triangle_point,
             CollisionPrimitives.triangle_point_collision,
             float_eval_function,
-            10,
+            (10, 0),
         ),  # Step 2
         TestCollisionCheck(
             10,
@@ -185,7 +202,7 @@ def get_exercise6() -> Exercise:
             visualize_polygon_point,
             CollisionPrimitives.polygon_point_collision,
             float_eval_function,
-            10,
+            (10, 0),
         ),  # Step 3
         TestCollisionCheck(
             10,
@@ -195,7 +212,7 @@ def get_exercise6() -> Exercise:
             visualize_circle_line,
             CollisionPrimitives.circle_segment_collision,
             float_eval_function,
-            10,
+            (10, 0),
         ),  # Step 4
         TestCollisionCheck(
             10,
@@ -205,7 +222,7 @@ def get_exercise6() -> Exercise:
             visualize_triangle_line,
             CollisionPrimitives.triangle_segment_collision,
             float_eval_function,
-            10,
+            (10, 0),
         ),  # Step 5
         TestCollisionCheck(
             10,
@@ -215,7 +232,7 @@ def get_exercise6() -> Exercise:
             visualize_polygon_line,
             CollisionPrimitives.polygon_segment_collision,
             float_eval_function,
-            5,
+            (5, 0),
         ),  # Step 6
         TestCollisionCheck(
             10,
@@ -225,7 +242,7 @@ def get_exercise6() -> Exercise:
             visualize_polygon_line,
             CollisionPrimitives.polygon_segment_collision_aabb,
             float_eval_function,
-            5,
+            (5, 0),
         ),  # Step 7
         TestCollisionCheck(
             5,
@@ -235,7 +252,7 @@ def get_exercise6() -> Exercise:
             visualize_map_path,
             CollisionChecker().path_collision_check,
             idx_list_eval_function,
-            20,
+            (20, 20),
         ),  # Step 8
         TestCollisionCheck(
             5,
@@ -245,7 +262,7 @@ def get_exercise6() -> Exercise:
             visualize_map_path,
             CollisionChecker().path_collision_check_occupancy_grid,
             idx_list_eval_function,
-            20,
+            (20, 20),
         ),  # Step 9
         TestCollisionCheck(
             5,
@@ -255,7 +272,7 @@ def get_exercise6() -> Exercise:
             visualize_map_path,
             CollisionChecker().path_collision_check_r_tree,
             idx_list_eval_function,
-            30,
+            (30, 30),
         ),  # Step 10
         TestCollisionCheck(
             5,
@@ -265,7 +282,7 @@ def get_exercise6() -> Exercise:
             visualize_robot_frame_map,
             collision_check_robot_frame_loop,
             idx_list_eval_function,
-            20,
+            (20, 20),
         ),  # Step 11
         TestCollisionCheck(
             5,
@@ -275,17 +292,20 @@ def get_exercise6() -> Exercise:
             visualize_map_path,
             CollisionChecker().path_collision_check_safety_certificate,
             idx_list_eval_function,
-            30,
+            (30, 30),
         ),  # Step 12
     ]
 
-    total_weight = np.sum([t.eval_weight for t in test_values])
+    total_weights = (
+        np.sum([t.eval_weights[0] for t in test_values]),
+        np.sum([t.eval_weights[1] for t in test_values]),
+    )
 
     return Exercise[TestCollisionCheck, Any](
         desc="This exercise is about the collision checking methods.",
         evaluation_fun=_collision_check_rep,
         perf_aggregator=lambda x: CollisionCheckPerformance.perf_aggregator(
-            x, total_weight
+            x, total_weights
         ),
         test_values=test_values,
         expected_results=None,
