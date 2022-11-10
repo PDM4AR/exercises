@@ -1,4 +1,5 @@
 from pdm4ar.exercises_def.ex06.data import *
+from numpy.linalg import inv
 from matplotlib import pyplot as plt
 from reprep import Report, MIME_PDF
 
@@ -251,14 +252,14 @@ def visualize_robot_frame_map(
             ax = plt.gca()
             ax.grid()
             # express next goal in current pose frame
-            new_goal = path[(i + 1) % len(path)].as_SE2() @ pose.as_SE2().inverse()
+            new_goal = SE2Transform.from_SE2(path[(i + 1) % len(path)].as_SE2() @ inv(pose.as_SE2()))
 
             for obs in observation:
                 # Draw Polygon
                 obs.visualize(ax)
 
             # Draw Point
-            segment = Segment(Point(0, 0), new_goal.p)
+            segment = Segment(Point(0, 0), Point(*new_goal.p))
             segment.visualize(ax)
             ax.set_aspect(1)
 
