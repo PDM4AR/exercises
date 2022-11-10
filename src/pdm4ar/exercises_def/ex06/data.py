@@ -4,6 +4,7 @@ from typing import List, Tuple
 
 import numpy as np
 from geometry.poses import SE2_from_translation_angle
+from numpy.linalg import inv
 from shapely import geometry
 from dg_commons import SE2Transform
 
@@ -408,14 +409,15 @@ class DataGenerator:
         # Calculate Robot Poses
         # In every waypoint robot will turn into its next position
         poses = []
+        theta = 0
         for wp_1, wp_2 in zip(path.waypoints[:-1], path.waypoints[1:]):
             wp_temp = Point(wp_2.x - wp_1.x, wp_2.y - wp_1.y)
             theta = np.arctan2(wp_temp.y, wp_temp.x)
 
             poses.append(SE2Transform((wp_1.x, wp_1.y), theta))
-        # Append Last Pose with the Latest Theta
+        # Append Last Pose with default last theta
         last_point = path.waypoints[-1]
-        poses.append(SE2Transform((last_point.x, last_point.y), 0))
+        poses.append(SE2Transform((last_point.x, last_point.y), theta))
         # Calculate Observed Obstacles
         observation_radius = 50
         # Convert obstacles to Shapely Shapes
@@ -450,15 +452,7 @@ class DataGenerator:
                 if shapely_point.distance(shapely_obs) < observation_radius + r:
                     # Calculate position of the obstacle in robot frame
                     robot_frame_poly = obs.apply_SE2transform(
-                        SE2_from_translation_angle(
-                            -np.array([pose.p[0], pose.p[1]]),
-                            0,
-                        )
-                    ).apply_SE2transform(
-                        SE2_from_translation_angle(
-                            np.array([0, 0]),
-                            -pose.theta,
-                        )
+                            inv(pose.as_SE2())
                     )
                     observations[-1].append(robot_frame_poly)
 
