@@ -8,21 +8,23 @@
 
 ## Collision check
 
-In this exercise, we implement collision checking routines. 
-The goal is to obtain a module that can perform collision checks between basic geometric primitives.
+Collision checking is a crucial capability of any planning system. 
+In this exercise, you will implement a basic collision checking module for a circular shape differential drive robot. 
+The goal is to obtain a module that can perform collision checks between basic geometric primitives. 
 This can then be used for a given robot to check whether its candidate (sub-)paths are collision-free.
-
 
 ### Collision check primitives
 
-We start off by implementing some collision check primitives for basic geometric shapes. These will come handy later on. 
+We start off by implementing some collision check primitives for basic geometric shapes. 
+These will come handy later on. 
 The first step is to implement the functions inside the `CollisionPrimitives` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
+
 In this section, we suggest to use linear algebra modules like `numpy`. 
 But you are not allowed to use modules that implements collision check directly such as `shapely`.
 
 #### Step 1: Point-Circle Collision Checking Procedure
 
-The aim of this step is to implement a function that checks whether a point is inside the given circle or not.
+In this step, you will implement a function that checks whether a point is inside the given circle or not.
 To represent a point and circle, the following data structures (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
@@ -31,25 +33,20 @@ class Point(GeoPrimitive):
     x: float
     y: float
 
-    def apply_SE2transform(self, t: SE2value) -> "Point":
-        p = t @ np.array([self.x, self.y, 1])
-        return Point(p[0], p[1])
-
 @dataclass(frozen=True)
 class Circle(GeoPrimitive):
     center: Point
     radius: float
-
-    def apply_SE2transform(self, t: SE2value) -> "Circle":
-        c1 = self.center.apply_SE2transform(t)
-        return replace(self, center=c1)
 ```
 
-In this part, you will implement the `circle_point_collision` function of `CollisionPrimitives` class.
+In this part, you will implement the `circle_point_collision` function of `CollisionPrimitives` class. 
+This function takes a `Circle` *c*, and  a `Point` *p* as arguments. It return *True* if given `Point` is inside the `Circle`.
 
 #### Step 2: Point-Triangle Collision Checking Procedure
 
-The aim of this step is to implement a function that checks whether a point is inside the given triangle or not. The algorithm which will be implemented is explained [here](http://www.jeffreythompson.org/collision-detection/tri-point.php#:~:text=To%20test%20if%20a%20point,the%20corners%20of%20the%20triangle.). 
+In this step, you will implement a function that checks whether a point is inside the given triangle or not. 
+You could find an explanation of this procedure [here](http://www.jeffreythompson.org/collision-detection/tri-point.php#:~:text=To%20test%20if%20a%20point,the%20corners%20of%20the%20triangle.). 
+Please note that, you could use the procedure described [here](http://www.jeffreythompson.org/collision-detection/tri-point.php#:~:text=To%20test%20if%20a%20point,the%20corners%20of%20the%20triangle.), but you are free to use any algorithm. 
 To represent the triangle, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
@@ -60,15 +57,17 @@ class Triangle(GeoPrimitive):
     v3: Point
 ```
 
-In this part, you will implement the `triangle_point_collision` function of `CollisionPrimitives` class.
+In this part, you will implement the `triangle_point_collision` function of `CollisionPrimitives` class. 
+This function takes a `Triangle` *t*, and  a `Point` *p* as arguments. 
+It returns *True* if given `Point` is inside the `Triangle`.
 
 #### Step 3: Point-Polygon Collision Checking Procedure
 
-The aim of this step is to implement a function that checks whether a point is inside the given polygon or not. 
-Initially a polygon will be decomposed into triangles via the `triangulate` function of the [triangle module](https://github.com/drufat/triangle). 
-The documentation of this module could also be found [here](https://rufat.be/triangle/).
-Finally, using the `triangle_point_collision` collision between a polygon and point will be detected. 
-To represent the polygon, the following data structure (`src/pdm4ar/exercises_def/ex_collision_check/data.py`) will be used:
+In this step, you will implement a function that checks whether a point is inside the given polygon or not. 
+In this step, you could use triangulation to decompose a `Polygon` into a set of `Triangle`. 
+For triangulation, `triangulate` function of the [triangle module](https://github.com/drufat/triangle) could be used. 
+The documentation of this module is [here](https://rufat.be/triangle/). using the `triangle_point_collision` collision between a polygon and point will be detected. 
+To represent the polygon, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
 @dataclass(frozen=True)
@@ -76,11 +75,16 @@ class Polygon(GeoPrimitive):
     vertices: List[Point]
 ```
 
-In this part, you will implement the `polygon_point_collision` function of `CollisionPrimitives` class.
+In this part, you will implement the `polygon_point_collision` function of `CollisionPrimitives` class. 
+This function takes a `Polygon` *poly*, and  a `Point` *p* as arguments. 
+It returns *True* if given `Point` is inside the `Polygon`.
 
 #### Step 4: Segment-Circle Collision Checking Procedure
 
-The aim is to implement a function that checks whether a line collides with a circle or not. The algorithm which will be implemented is explained [here](https://www.jeffreythompson.org/collision-detection/line-circle.php). To represent the line, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+In this step, you will implement a function that checks whether a segment collides with a circle or not. 
+There is an explanation of the procedure [here](https://www.jeffreythompson.org/collision-detection/line-circle.php). 
+Please note that, you could use the procedure described [here](http://www.jeffreythompson.org/collision-detection/tri-point.php#:~:text=To%20test%20if%20a%20point,the%20corners%20of%20the%20triangle.), but you are free to use any algorithm. 
+To represent the segment, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
 @dataclass(frozen=True)
@@ -89,108 +93,163 @@ class Segment:
     p2: Point
 ```
 
-In this part, you will implement the `circle_line_collision` function of `CollisionPrimitives` class.
+In this part, you will implement the `circle_segment_collision` function of `CollisionPrimitives` class. 
+This function takes a `Cricle` *c*, and  a `Segment` *s* as arguments. 
+It returns *True* if given `Segment` collides with `Circle`.
 
 #### Step 5: Segment-Triangle Collision Checking Procedure
 
-The aim is to implement a function that checks whether a Segment collides with a triangle or not. The idea is to sample points on the line and check whether they collide or not via the function implemented on `Step 2`.
+In this step, you will implement a function that checks whether a segment collides with a triangle or not. 
+The idea is to sample points on the segment and check whether they collide or not via the `triangle_point_collision` function.
 
-In this part, you will implement the `triangle_segment_collision` function of `CollisionPrimitives` class.
+In this part, you will implement the `triangle_segment_collision` function of `CollisionPrimitives` class. 
+This function takes a `Triangle` *t*, and  a `Segment` *s* as arguments. 
+It returns *True* if given `Segment` collides with `Triangle`.
 
 #### Step 6: Segment-Polygon Collision Checking Procedure
 
-The aim is to implement a function that checks whether a line collides with a polygon or not. The idea is to sample points on the line and check whether they collide or not via the function implemented on `Step 3`.
+In this step, you will implement a function that checks whether a segment collides with a polygon or not. 
+The idea is to sample points on the segment and check whether they collide or not via the `polygon_point_collision` function.
 
-In this part, you will implement the `polygon_line_collision` function of `CollisionPrimitives` class.
+In this part, you will implement the `polygon_segment_collision` function of `CollisionPrimitives` class. 
+This function takes a `Polygon` *poly*, and  a `Segment` *s* as arguments. 
+It returns *True* if given `Segment` collides with `Polygon`.
 
 #### Step 7: Optimization via Axis-Aligned Bounding Boxes
 
-The performance of the collision checker are quite important for running planning algorithm in reasonable time.
-In this step, the aim is to remove unnecessary collision check operations via axis-aligned bounding boxes. 
+The execution time performance of the collision checker is quite important for an efficient planning module. 
+In this step, the aim is to improve the execution time perfromance of the `polygon_segment_collision` primitive. 
+We can achieve the same result by simply checking the points within the AABB. In this way, we can get rid of unnecessary collision checks. 
 As a result, we aim to see the execution time difference between pure collision checking and collision checking with the optimization.
 
-First, implement `_poly_to_aabb` that calculates the axis-aligned bounding box that approximates a given polygon. 
-Then, use it within the `polygon_line_collision_aabb` function of `CollisionPrimitives` class.
+In this part, you will implement `polygon_line_collision_aabb` function of `CollisionPrimitives` class. 
+This function takes a `Polygon` *poly*, and  a `Segment` *s* as arguments. 
+It returns *True* if given `Segment` collides with `Polygon`. 
+You are free to use or not to use `_poly_to_aabb` function to calculate `AABB`.
 
 ### Collision check module
 
 In the second part of this exercise, we leverage the collision primitives just implemented to perform collision checking for our robot. 
-The task is to implement the functions in the `CollisionChecker` class in `src/pdm4ar/exercises/ex06/collision_checker.py`.
+Please note that, for the remaining part of this exercise, we will use a circular shaped differential drive robot. 
+For this part of the exercise, you can assume that our robot will move inside a 2D world that contains fixed obstacles on a predefined path. 
+The obstacles inside the world must be polygon-shaped, circular-shaped or triangular-shaped. 
+For each of the following steps, you will implement different methods to check collisions for the possible path of our robot.
 
-#### Step 8: Collision Checking Procedure for Circle-shaped Robot
-
-In this step, the aim is to find the collisions inside a 2D world that contains fixed polygon-shaped obstacles. The input will be a set of points that represents the path of the robot. Because, robot is a circle-shaped collision check can be done by extending the sizes of obstacles by the radius of the robot, and checking line-obstacle collisions. 
-To represent the path of robot, the following data structure (`src/pdm4ar/exercises_def/ex06/data.py`) will be used:
+To represent the path of robot, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
 @dataclass(frozen=True)
 class Path:
     waypoints: List[Point]
 ```
-In this step, two functions will be implemented. Initially, a function (`extend_obstacle`) that takes a polygon and a radius as input and returns the extended version of that polygon. And the second function (`path_collision_check`) will firstly extend all obstacles inside the environment, and check the collision via functions that were implemented before. 
-As a result, `path_collision_check` function returns the list of line segment indices where there exists a collision.
 
 Please note that the definition of `Path` and `Polygons` are similar. 
 `Polygon` class connects the first and last vertices by default. 
 However, there is not any connection between first and last waypoints in `Path` objects. 
+For the remaining part of the exeercise, you are free to use or modify `check_collision` function. 
+This functions takes two `GeoPrimitives` and check the collision between them by using the primitives implemented in the first part of this exercise.
+
+The task is to implement the functions in the `CollisionChecker` class in `src/pdm4ar/exercises/ex06/collision_checker.py`.
+
+#### Step 8: Collision Checking Procedure for Circle-shaped Robot
+
+In this step, you will implement a baseline version for collision checking by using the primitives implemented before. 
+The aim of this pat is basically to find the segments of the path in which our circular robot will collide. 
+Please note that it is not enough to check the collisions between the obstacles and given path. 
+The robot also occupies a circular area inside the 2D world.
+
+You will implement `path_collision_check` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
+This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
+It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
 
 #### Step 9: Collision Checking via Occupancy Grid
 
-In this step, the aim is same as `Step 7`. 
+The aim and all of the assumptions are same as `Step 8`. 
 However, in this step, you will use different approach for collision checking. 
-Initially, you will extend all obstacles inside the environment. 
-Then, you will create an occupancy grid of the map. 
-Lastly, you will return the list of line segment indices where there exists a collision. 
-In this step, you will implement `path_collision_check_occupancy_grid` function.
+You are asked to implement collision checking via occupancy grids. 
+You will initially create an occupancy grid of the given environment. 
+Then using the occupancy grid, you will find the segments of the path in which our robot will collide.
+
+In this step, you will implement `path_collision_check_occupancy_grid` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
+This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
+It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
 
 #### Step 10: Collision Checking on Robot Frame
 
-In this step, the function (`collision_check_robot_frame`) which will be implemented will be called sequentially. 
-At each step, current pose of the robot, and currently observed obstacles in the robot frame will be given as input. 
-At each step, observed obstacles will be converted into the fixed frame and stored. 
-Then, at each step, the function will return whether there exists a collision of not between current position and next position of the robot with the function implemented at the first part of the exercise. 
+In real world robots, sensor data is mostly given in sensor frame. 
+In this step, you will receive the current pose of the robot, the next pose of the robot, and the obstacles that the robot observes as input. 
+The obstacles will be given in robot frame at each step of the execution. 
+At each step, robot will observe the obstacles which are closer than 50 units in our 2D world. 
+You will firstly transform the robot frame obstacles into the global fixed frame. 
+Then, the funciton will check if there is a collision during the movement of the robot until its next pose. 
+To represent the pose of robot, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+
+```python
+@dataclass(frozen=True)
+class Pose2D:
+    position: Point
+    theta: float
+```
+
+In this step, you will implement `collision_check_robot_frame` function which returns the *True* if robot will collide with any of the fixed obstacles during its movement until its next pose. 
+This function takes radius of the robot *r*, current pose `Pose2D`, next pose `Pose2D`, and list of observed obstacles in robot frame as arguments. 
 
 #### Step 11: Collision Checking via R-Tree
 
-The aim of the last step is to improve the execution time performance of the collision checking module via r-tree. 
-Initially, the r-tree will be constructed with the given map. 
-Then, collision check will be applied using constructed r-tree. 
-`path_collision_check_r_tree` is the name of the function that will be implemented.
+The aim and all of the assumptions are same as `Step 8`. 
+Like previous steps, the aim is to find the segments of the path in which our circular robot will collide. 
+However, in this step you will use R-Tree to increase the execution time performance of your collision check module. 
+R-Tree is an important optimization approach that is used in collision checking. 
+For environments with high number of obstacles, it provides us an execution time decrease via its bounding box volume hierarchy structure. 
+In this method, you will build an R-Tree of the given obstacles. 
+You are free to implement your own R-Tree or you could use `STRTree` of `shapely` module.
+
+In this step, you will implement `path_collision_check_r_tree` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
+This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
+It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
 
 #### Step 12: Collision Checking via Safety Certificates
 
-In this section, the aim is to implement a more efficient collision check procedure by using safety certificates via `path_collision_check_safety_certificate` function. 
+The aim and all of the assumptions are same as `Step 8`. 
+Like previous steps, the aim is to find the segments of the path in which our circular robot will collide. 
+However, in this step you will use a different optimization method called Safety Certificates. 
+For environments with small number of obstacles but high number of points to be checked, it provides us an execution time decrease via the approach it uses on collision check. 
 To obtain detailed information about the algorithm, you can check the part that is related to the safety certificates from the [given paper](https://journals.sagepub.com/doi/full/10.1177/0278364915625345) (`Algorithm 1`). 
 To calculate the distance between a point and an obstacle, you are allowed to use `shapely` module. 
-Please note that you are only allowed to use `shapely` to calculate the distance between a Point and a Polygon.
+Please note that you are only allowed to calcualte distance between two geometric primitives via `shapely`.
+
+In this step, you will implement `path_collision_check_safety_certificate` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
+This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
+It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
 
 ### Evaluation
 
-For this exercise our performance metric is accuracy. 
+For this exercise our performance metric is accuracy and execution time.
 As test data, for each step random inputs are generated with the algorithm provided in `src/pdm4ar/exercises_def/ex06/data.py`. 
-For each step, there are multiple test cases for each step. 
+For each step, there are multiple test cases. 
 The accuracies of steps 1-6 are calculated by the ratio of the correct answers. 
-For the steps 6-11, List of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path. 
+For the steps 6-11, List of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path.
 The accuracies of steps 6-11 are calculated by the average of the accuracy of test cases. 
-Lastly, accuracies of each step are aggregated as weighted average. 
-Weights and number of test cases of evaluation are as follows:
+Execution time of each step is calculated as an average of its test cases.
+Lastly, accuracies ane execution times of each step are aggregated as weighted average. 
 
-
-| Step **ID** | **Number of Test Cases** | Evaluation Weight |
-|-------------|--------------------------|-------------------|
-| 01          | 15                       | 5                 |
-| 02          | 15                       | 10                |
-| 03          | 15                       | 10                |
-| 04          | 15                       | 10                |
-| 05          | 15                       | 5                 |
-| 06          | 15                       | 5                 |
-| 07          | 10                       | 20                |
-| 08          | 10                       | 20                |
-| 09          | 10                       | 30                |
-| 10          | 10                       | 20                |
-| 11          | 10                       | 30                |
+| Step **ID** | **Number of Test Cases** | *Accuracy Weight* | *Evaluation Weight* |
+|-------------|--------------------------|-------------------|---------------------|
+| 01          | 15                       | 5                 | 0                   |
+| 02          | 15                       | 10                | 0                   |
+| 03          | 15                       | 10                | 0                   |
+| 04          | 15                       | 10                | 0                   |
+| 05          | 15                       | 10                | 0                   |
+| 06          | 15                       | 5                 | 0                   |
+| 07          | 15                       | 5                 | 0                   |
+| 08          | 10                       | 20                | 20                  |
+| 09          | 10                       | 20                | 20                  |
+| 10          | 10                       | 30                | 30                  |
+| 11          | 10                       | 20                | 20                  |
+| 12          | 10                       | 30                | 30                  |
 
 ##### How to run
 
-Make sure to update your repo before running the exercise. Please refer to [Hello World](01-helloworld.md) for instructions. 
+Make sure to update your repo before running the exercise. 
+Please refer to [Hello World](01-helloworld.md) for instructions. 
 Additionally, to use `triangle` module, please trigger the following VSCode command: `Remote-Containers: Rebuild Container`.
