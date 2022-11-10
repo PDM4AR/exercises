@@ -14,3 +14,5 @@ dg-commons==0.0.24
 
 tqdm>=4.64.1
 pre-commit
+
+triangle

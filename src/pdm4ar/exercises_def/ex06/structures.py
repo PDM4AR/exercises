@@ -1,20 +1,20 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
-from typing import List, Sequence
+from typing import List, Tuple, Any, Sequence
 
 import numpy as np
 from geometry import SE2value
+import matplotlib.pyplot as plt
 
 __all__ = [
     "Point",
-    "Line",
+    "Segment",
     "Circle",
     "Triangle",
     "AABB",
     "Polygon",
     "Path",
-    "Pose2D",
 ]
 
 
@@ -24,6 +24,14 @@ class GeoPrimitive(ABC):
     def apply_SE2transform(self, t: SE2value) -> "GeoPrimitive":
         pass
 
+    @abstractmethod
+    def visualize(self, ax: Any):
+        pass
+
+    @abstractmethod
+    def get_boundaries(self) -> Tuple["Point", "Point"]:
+        pass
+
 
 @dataclass(frozen=True)
 class Point(GeoPrimitive):
@@ -31,20 +39,36 @@ class Point(GeoPrimitive):
     y: float
 
     def apply_SE2transform(self, t: SE2value) -> "Point":
-        # todo (maybe remove this method)
         p = t @ np.array([self.x, self.y, 1])
         return Point(p[0], p[1])
 
+    def visualize(self, ax: Any):
+        # Draw Point
+        ax.plot(self.x, self.y, marker="x", markersize=10)
+
+    def get_boundaries(self) -> Tuple["Point", "Point"]:
+        return self, self
+
 
 @dataclass(frozen=True)
-class Line(GeoPrimitive):
+class Segment(GeoPrimitive):
     p1: Point
     p2: Point
 
-    def apply_SE2transform(self, t: SE2value) -> "Line":
+    def apply_SE2transform(self, t: SE2value) -> "Segment":
         p1 = self.p1.apply_SE2transform(t)
         p2 = self.p2.apply_SE2transform(t)
         return replace(self, p1=p1, p2=p2)
+
+    def visualize(self, ax: Any):
+        ax.plot(
+            [self.p1.x, self.p2.x], [self.p1.y, self.p2.y], marker="x", markersize=10
+        )
+
+    def get_boundaries(self) -> Tuple["Point", "Point"]:
+        p_min = Point(min(self.p1.x, self.p2.x), min(self.p1.y, self.p2.y))
+        p_max = Point(max(self.p1.x, self.p2.x), max(self.p1.y, self.p2.y))
+        return p_min, p_max
 
 
 @dataclass(frozen=True)
@@ -55,6 +79,23 @@ class Circle(GeoPrimitive):
     def apply_SE2transform(self, t: SE2value) -> "Circle":
         c1 = self.center.apply_SE2transform(t)
         return replace(self, center=c1)
+
+    def visualize(self, ax: Any):
+        draw_circle = plt.Circle(
+            (self.center.x, self.center.y),
+            self.radius,
+            color="r",
+            fill=False,
+            linewidth=5,
+        )
+        ax.set_aspect(1)
+        ax.add_artist(draw_circle)
+
+    def get_boundaries(self) -> Tuple["Point", "Point"]:
+        return (
+            Point(self.center.x - self.radius, self.center.y - self.radius),
+            Point(self.center.x + self.radius, self.center.y + self.radius),
+        )
 
 
 @dataclass(frozen=True)
@@ -73,6 +114,27 @@ class Triangle(GeoPrimitive):
             (self.v1.y + self.v2.y + self.v3.y) / 3,
         )
 
+    def visualize(self, ax: Any):
+        draw_triangle = plt.Polygon(
+            [[self.v1.x, self.v1.y], [self.v2.x, self.v2.y], [self.v3.x, self.v3.y]],
+            color="r",
+            fill=False,
+            linewidth=5,
+        )
+        ax.set_aspect(1)
+        ax.add_artist(draw_triangle)
+
+    def get_boundaries(self) -> Tuple["Point", "Point"]:
+        p_min = Point(
+            min([self.v1.x, self.v2.x, self.v3.x]),
+            min([self.v1.y, self.v2.y, self.v3.y]),
+        )
+        p_max = Point(
+            max([self.v1.x, self.v2.x, self.v3.x]),
+            max([self.v1.y, self.v2.y, self.v3.y]),
+        )
+        return p_min, p_max
+
 
 @dataclass(frozen=True)
 class AABB(GeoPrimitive):
@@ -82,6 +144,12 @@ class AABB(GeoPrimitive):
     def apply_SE2transform(self, t: SE2value) -> "AABB":
         points = _transform_points(t, [self.p_min, self.p_max])
         return AABB(*points)
+
+    def visualize(self, ax: Any):
+        raise NotImplementedError()
+
+    def get_boundaries(self) -> Tuple["Point", "Point"]:
+        raise NotImplementedError()
 
 
 @dataclass(frozen=True)
@@ -99,6 +167,27 @@ class Polygon(GeoPrimitive):
             sum([v.y for v in self.vertices]) / number_of_vertices,
         )
 
+    def visualize(self, ax: Any):
+        draw_poly = plt.Polygon(
+            [[p.x, p.y] for p in self.vertices],
+            color="r",
+            fill=False,
+            linewidth=5,
+        )
+        ax.set_aspect(1)
+        ax.add_artist(draw_poly)
+
+    def get_boundaries(self) -> Tuple["Point", "Point"]:
+        p_min = Point(
+            min([v.x for v in self.vertices]),
+            min([v.y for v in self.vertices]),
+        )
+        p_max = Point(
+            max([v.x for v in self.vertices]),
+            max([v.y for v in self.vertices]),
+        )
+        return p_min, p_max
+
 
 @dataclass(frozen=True)
 class Path(GeoPrimitive):
@@ -111,13 +200,25 @@ class Path(GeoPrimitive):
     def __len__(self):
         return len(self.waypoints)
 
+    def visualize(self, ax: Any):
+        ax.plot(
+            [w.x for w in self.waypoints],
+            [w.y for w in self.waypoints],
+            "gx--",
+            markersize=15,
+        )
 
-@dataclass(frozen=True)
-class Pose2D:
-    position: Point
-    theta: float
+    def get_boundaries(self) -> Tuple["Point", "Point"]:
+        p_min = Point(
+            min([v.x for v in self.waypoints]),
+            min([v.y for v in self.waypoints]),
+        )
+        p_max = Point(
+            max([v.x for v in self.waypoints]),
+            max([v.y for v in self.waypoints]),
+        )
+        return p_min, p_max
 
-def _transform_points(
-    t: SE2value, points: Sequence[Point]
-) -> Sequence[Point]:
+
+def _transform_points(t: SE2value, points: Sequence[Point]) -> Sequence[Point]:
     return [p.apply_SE2transform(t) for p in points]
