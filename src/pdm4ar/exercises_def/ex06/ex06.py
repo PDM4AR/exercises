@@ -3,6 +3,8 @@ import numpy as np
 import random
 from typing import Any, Callable, Sequence, Tuple, List
 from dataclasses import dataclass
+
+from dg_commons import SE2Transform
 from reprep import Report
 
 from pdm4ar.exercises.ex06.collision_checker import (
@@ -11,10 +13,7 @@ from pdm4ar.exercises.ex06.collision_checker import (
 from pdm4ar.exercises.ex06.collision_primitives import (
     CollisionPrimitives,
 )
-from pdm4ar.exercises_def.ex06.structures import (
-    Pose2D,
-    Polygon,
-)
+from pdm4ar.exercises_def.ex06.structures import Polygon
 from pdm4ar.exercises_def.ex06.visualization import (
     visualize_circle_point,
     visualize_triangle_point,
@@ -149,7 +148,7 @@ def idx_list_eval_function(data, estimation):
 
 
 def collision_check_robot_frame_loop(
-    poses: List[Pose2D],
+    poses: List[SE2Transform],
     r: float,
     observed_obstacles_list: List[List[Polygon]],
     map: List[Polygon],

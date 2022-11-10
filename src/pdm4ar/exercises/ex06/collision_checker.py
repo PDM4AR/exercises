@@ -1,7 +1,7 @@
 from typing import List
+from dg_commons import SE2Transform
 from pdm4ar.exercises.ex06.collision_primitives import CollisionPrimitives
 from pdm4ar.exercises_def.ex06.structures import (
-    Pose2D,
     Polygon,
     GeoPrimitive,
     Point,
@@ -44,7 +44,7 @@ COLLISION_PRIMITIVES = {
 def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
     """
     Checks collision between 2 geometric primitives
-    Note that this function only uses the funtions that you implemented in CollisionPrimitives class.
+    Note that this function only uses the functions that you implemented in CollisionPrimitives class.
         Parameters:
                 p_1 (GeoPrimitive): Geometric Primitive
                 p_w (GeoPrimitive): Geometric Primitive
@@ -67,7 +67,7 @@ class CollisionChecker:
     This class implements the collision check ability of a simple planner for a circular differential drive robot.
 
     Note that check_collision could be used to check collision between given GeoPrimitives
-    check_collision function uses the functions that you implemted in CollisionPrimitives class.
+    check_collision function uses the functions that you implemented in CollisionPrimitives class.
     """
 
     def __init__(self):
@@ -127,17 +127,17 @@ class CollisionChecker:
     def collision_check_robot_frame(
         self,
         r: float,
-        current_pose: Pose2D,
-        next_pose: Pose2D,
+        current_pose: SE2Transform,
+        next_pose: SE2Transform,
         observed_obstacles: List[GeoPrimitive],
     ) -> bool:
         """
-        Returns there exists a collision or not during the movement of a circular differential dirve robot until its next pose.
+        Returns there exists a collision or not during the movement of a circular differential drive robot until its next pose.
 
             Parameters:
                     r (float): Radius of circular differential drive robot
-                    current_pose (Pose2D): Current pose of the circular differential drive robot
-                    next_pose (Pose2D): Next pose of the circular differential drive robot
+                    current_pose (SE2Transform): Current pose of the circular differential drive robot
+                    next_pose (SE2Transform): Next pose of the circular differential drive robot
                     observed_obstacles (List[GeoPrimitive]): List of obstacles as GeoPrimitives in robot frame
                     Please note that only Triangle, Circle and Polygon exist in this list
         """
@@ -152,8 +152,8 @@ class CollisionChecker:
 
         In this method, you will implement the safety certificates procedure for collision checking.
         You are free to use shapely to calculate distance between a point anf GoePrimitive.
-        For detailed information regarding to algorithm,
-        Pplease check the Algorithm 1 inside the following paper https://journals.sagepub.com/doi/full/10.1177/0278364915625345.
+        For more information, please check Algorithm 1 inside the following paper:
+        https://journals.sagepub.com/doi/full/10.1177/0278364915625345.
 
             Parameters:
                     t (Path): Path of circular differential drive robot

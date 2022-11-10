@@ -199,7 +199,7 @@ def visualize_robot_frame_map(
     r: Report,
     ex_num: str,
     data: Tuple[
-        List[Pose2D], float, List[List[GeoPrimitive]], List[GeoPrimitive], List[int]
+        List[SE2Transform], float, List[List[GeoPrimitive]], List[GeoPrimitive], List[int]
     ],
 ):
     path, _, observations, obstacles, _ = data
@@ -214,8 +214,8 @@ def visualize_robot_frame_map(
         ax = plt.gca()
         ax.grid()
 
-        x_values = [p.position.x for p in path]
-        y_values = [p.position.y for p in path]
+        x_values = [p.p[0] for p in path]
+        y_values = [p.p[1] for p in path]
 
         # Draw Segment
         ax.plot(x_values, y_values, "gx--", markersize=15)
@@ -250,29 +250,15 @@ def visualize_robot_frame_map(
         ) as _:
             ax = plt.gca()
             ax.grid()
-
-            new_goal = (
-                path[(i + 1) % len(path)]
-                .position.apply_SE2transform(
-                    SE2_from_translation_angle(
-                        -np.array([pose.position.x, pose.position.y]),
-                        0,
-                    )
-                )
-                .apply_SE2transform(
-                    SE2_from_translation_angle(
-                        np.array([0, 0]),
-                        -pose.theta,
-                    )
-                )
-            )
+            # express next goal in current pose frame
+            new_goal = path[(i + 1) % len(path)].as_SE2() @ pose.as_SE2().inverse()
 
             for obs in observation:
                 # Draw Polygon
                 obs.visualize(ax)
 
             # Draw Point
-            segment = Segment(Point(0, 0), new_goal)
+            segment = Segment(Point(0, 0), new_goal.p)
             segment.visualize(ax)
             ax.set_aspect(1)
 

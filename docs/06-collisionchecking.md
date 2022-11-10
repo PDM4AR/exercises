@@ -154,17 +154,15 @@ The task is to implement the functions in the `CollisionChecker` class in `src/p
 #### Step 8: Collision Checking Procedure for Circle-shaped Robot
 
 In this step, you will implement a baseline version for collision checking by using the primitives implemented before. 
-The aim of this pat is basically to find the segments of the path in which our circular robot will collide. 
-Please note that it is not enough to check the collisions between the obstacles and given path. 
-The robot also occupies a circular area inside the 2D world.
+The aim of this part is to check if a candidate path for our circular robot is collision-free. 
 
-You will implement `path_collision_check` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
-This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
-It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
+You will implement `path_collision_check` function which returns the `Segment` indices of the given `Path` which are in collision with the given obstacles. 
+This function takes a `Path` *t*, the radius of the robot's occupancy *r*, and a list of obstacles as arguments. 
+It returns the list of indices which represents the `Segment`s of the `Path` which are in collision with any of the obstacles.
 
 #### Step 9: Collision Checking via Occupancy Grid
 
-The aim and all of the assumptions are same as `Step 8`. 
+The aim and all the assumptions are same as `Step 8`. 
 However, in this step, you will use different approach for collision checking. 
 You are asked to implement collision checking via occupancy grids. 
 You will initially create an occupancy grid of the given environment. 
@@ -174,27 +172,17 @@ In this step, you will implement `path_collision_check_occupancy_grid` function 
 This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
 It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
 
-#### Step 10: Collision Checking on Robot Frame
+#### Step 10: Collision Checking in Robot Frame
 
-In real world robots, sensor data is mostly given in sensor frame. 
-In this step, you will receive the current pose of the robot, the next pose of the robot, and the obstacles that the robot observes as input. 
-The obstacles will be given in robot frame at each step of the execution. 
-At each step, robot will observe the obstacles which are closer than 50 units in our 2D world. 
-You will firstly transform the robot frame obstacles into the global fixed frame. 
-Then, the funciton will check if there is a collision during the movement of the robot until its next pose. 
-To represent the pose of robot, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
-
-```python
-@dataclass(frozen=True)
-class Pose2D:
-    position: Point
-    theta: float
-```
+Raw sensor data are often given in the sensor frame of the robot. 
+In this step, you receive the current pose of the robot and the next pose of the robot in global frame (planning done wrt to global frame), but the observed obstacles are given in the robot's frame. 
+At each step, robot will observe the obstacles which are closer than 50 units in our 2D world.
+The function needs to check if there is a collision during the movement of the robot until its next pose.
 
 In this step, you will implement `collision_check_robot_frame` function which returns the *True* if robot will collide with any of the fixed obstacles during its movement until its next pose. 
-This function takes radius of the robot *r*, current pose `Pose2D`, next pose `Pose2D`, and list of observed obstacles in robot frame as arguments. 
+This function takes radius of the robot *r*, current pose `SE2transform`, next pose `SE2transform`, and list of observed obstacles in robot frame as arguments. 
 
-#### Step 11: Collision Checking via R-Tree
+#### Step 11: Collision Checking using R-Trees
 
 The aim and all of the assumptions are same as `Step 8`. 
 Like previous steps, the aim is to find the segments of the path in which our circular robot will collide. 

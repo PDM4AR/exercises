@@ -5,13 +5,13 @@ from typing import List, Tuple
 import numpy as np
 from geometry.poses import SE2_from_translation_angle
 from shapely import geometry
+from dg_commons import SE2Transform
 
 from .structures import (
     GeoPrimitive,
     Point,
     Path,
     Polygon,
-    Pose2D,
     Circle,
     Segment,
     Triangle,
@@ -237,7 +237,7 @@ class DataGenerator:
         poly_shapely = geometry.Polygon([[p.x, p.y] for p in poly.vertices])
         point_shapely = geometry.Point(point.x, point.y)
 
-        return (poly, point, poly_shapely.distance(point_shapely) < 1e-5)
+        return poly, point, poly_shapely.distance(point_shapely) < 1e-5
 
     @staticmethod
     def generate_circle_segment_collision_data(
@@ -390,13 +390,13 @@ class DataGenerator:
                     ground_truth.append(i)
                     break
 
-        return (path, r, obstacles, ground_truth)
+        return path, r, obstacles, ground_truth
 
     @staticmethod
     def generate_robot_frame_data(
         index: int,
     ) -> Tuple[
-        List[Pose2D], float, List[List[GeoPrimitive]], List[GeoPrimitive], List[int]
+        List[SE2Transform], float, List[List[GeoPrimitive]], List[GeoPrimitive], List[int]
     ]:
         # Initialize Random Map
         (
@@ -412,9 +412,10 @@ class DataGenerator:
             wp_temp = Point(wp_2.x - wp_1.x, wp_2.y - wp_1.y)
             theta = np.arctan2(wp_temp.y, wp_temp.x)
 
-            poses.append(Pose2D(wp_1, theta))
+            poses.append(SE2Transform((wp_1.x, wp_1.y), theta))
         # Append Last Pose with the Latest Theta
-        poses.append(Pose2D(path.waypoints[-1], theta))
+        last_point = path.waypoints[-1]
+        poses.append(SE2Transform((last_point.x, last_point.y), 0))
         # Calculate Observed Obstacles
         observation_radius = 50
         # Convert obstacles to Shapely Shapes
@@ -444,13 +445,13 @@ class DataGenerator:
         for pose in poses:
             observations.append([])
             # Check distance to obstacles
-            shapely_point = geometry.Point(pose.position.x, pose.position.y)
+            shapely_point = geometry.Point(pose.p[0], pose.p[1])
             for shapely_obs, obs in zip(shapely_obstacles, obstacles):
                 if shapely_point.distance(shapely_obs) < observation_radius + r:
                     # Calculate position of the obstacle in robot frame
                     robot_frame_poly = obs.apply_SE2transform(
                         SE2_from_translation_angle(
-                            -np.array([pose.position.x, pose.position.y]),
+                            -np.array([pose.p[0], pose.p[1]]),
                             0,
                         )
                     ).apply_SE2transform(
@@ -461,4 +462,4 @@ class DataGenerator:
                     )
                     observations[-1].append(robot_frame_poly)
 
-        return (poses, r, observations, obstacles, ground_truth)
+        return poses, r, observations, obstacles, ground_truth

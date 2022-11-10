@@ -15,7 +15,6 @@ __all__ = [
     "AABB",
     "Polygon",
     "Path",
-    "Pose2D",
 ]
 
 
@@ -48,7 +47,7 @@ class Point(GeoPrimitive):
         ax.plot(self.x, self.y, marker="x", markersize=10)
 
     def get_boundaries(self) -> Tuple["Point", "Point"]:
-        return (self, self)
+        return self, self
 
 
 @dataclass(frozen=True)
@@ -69,7 +68,7 @@ class Segment(GeoPrimitive):
     def get_boundaries(self) -> Tuple["Point", "Point"]:
         p_min = Point(min(self.p1.x, self.p2.x), min(self.p1.y, self.p2.y))
         p_max = Point(max(self.p1.x, self.p2.x), max(self.p1.y, self.p2.y))
-        return (p_min, p_max)
+        return p_min, p_max
 
 
 @dataclass(frozen=True)
@@ -134,7 +133,7 @@ class Triangle(GeoPrimitive):
             max([self.v1.x, self.v2.x, self.v3.x]),
             max([self.v1.y, self.v2.y, self.v3.y]),
         )
-        return (p_min, p_max)
+        return p_min, p_max
 
 
 @dataclass(frozen=True)
@@ -187,7 +186,7 @@ class Polygon(GeoPrimitive):
             max([v.x for v in self.vertices]),
             max([v.y for v in self.vertices]),
         )
-        return (p_min, p_max)
+        return p_min, p_max
 
 
 @dataclass(frozen=True)
@@ -218,13 +217,7 @@ class Path(GeoPrimitive):
             max([v.x for v in self.waypoints]),
             max([v.y for v in self.waypoints]),
         )
-        return (p_min, p_max)
-
-
-@dataclass(frozen=True)
-class Pose2D:
-    position: Point
-    theta: float
+        return p_min, p_max
 
 
 def _transform_points(t: SE2value, points: Sequence[Point]) -> Sequence[Point]:
