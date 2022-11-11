@@ -89,7 +89,7 @@ def visualize_circle_line(r: Report, ex_num: str, data: Tuple[Circle, Segment, b
     c, l, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
-        nid=f"line-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
+        nid=f"segment-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
     ) as _:
         ax = plt.gca()
         ax.grid()
@@ -116,7 +116,7 @@ def visualize_triangle_line(
     t, l, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
-        nid=f"line-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
+        nid=f"segment-triangle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
     ) as _:
         ax = plt.gca()
         ax.grid()
@@ -141,7 +141,7 @@ def visualize_polygon_line(r: Report, ex_num: str, data: Tuple[Polygon, Segment,
     poly, l, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
-        nid=f"line-polygon-primitive-{ex_num}", mime=MIME_PDF, figsize=None
+        nid=f"segment-polygon-primitive-{ex_num}", mime=MIME_PDF, figsize=None
     ) as _:
         ax = plt.gca()
         ax.grid()
@@ -200,7 +200,11 @@ def visualize_robot_frame_map(
     r: Report,
     ex_num: str,
     data: Tuple[
-        List[SE2Transform], float, List[List[GeoPrimitive]], List[GeoPrimitive], List[int]
+        List[SE2Transform],
+        float,
+        List[List[GeoPrimitive]],
+        List[GeoPrimitive],
+        List[int],
     ],
 ):
     path, _, observations, obstacles, _ = data
@@ -252,7 +256,9 @@ def visualize_robot_frame_map(
             ax = plt.gca()
             ax.grid()
             # express next goal in current pose frame
-            new_goal = SE2Transform.from_SE2(path[(i + 1) % len(path)].as_SE2() @ inv(pose.as_SE2()))
+            new_goal = SE2Transform.from_SE2(
+                path[(i + 1) % len(path)].as_SE2() @ inv(pose.as_SE2())
+            )
 
             for obs in observation:
                 # Draw Polygon
