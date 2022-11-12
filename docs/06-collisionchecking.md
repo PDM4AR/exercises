@@ -172,17 +172,7 @@ In this step, you will implement `path_collision_check_occupancy_grid` function 
 This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
 It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
 
-#### Step 10: Collision Checking in Robot Frame
-
-Raw sensor data are often given in the sensor frame of the robot. 
-In this step, you receive the current pose of the robot and the next pose of the robot in global frame (planning done wrt to global frame), but the observed obstacles are given in the robot's frame. 
-At each step, robot will observe the obstacles which are closer than 50 units in our 2D world.
-The function needs to check if there is a collision during the movement of the robot until its next pose.
-
-In this step, you will implement `collision_check_robot_frame` function which returns the *True* if robot will collide with any of the fixed obstacles during its movement until its next pose. 
-This function takes radius of the robot *r*, current pose `SE2transform`, next pose `SE2transform`, and list of observed obstacles in robot frame as arguments. 
-
-#### Step 11: Collision Checking using R-Trees
+#### Step 10: Collision Checking using R-Trees
 
 The aim and all of the assumptions are same as `Step 8`. 
 Like previous steps, the aim is to find the segments of the path in which our circular robot will collide. 
@@ -195,6 +185,16 @@ You are free to implement your own R-Tree or you could use `STRTree` of `shapely
 In this step, you will implement `path_collision_check_r_tree` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
 This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
 It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
+
+#### Step 11: Collision Checking in Robot Frame
+
+Raw sensor data are often given in the sensor frame of the robot. 
+In this step, you receive the current pose of the robot and the next pose of the robot in global frame (planning done wrt to global frame), but the observed obstacles are given in the robot's frame. 
+At each step, robot will observe the obstacles which are closer than 50 units in our 2D world.
+The function needs to check if there is a collision during the movement of the robot until its next pose.
+
+In this step, you will implement `collision_check_robot_frame` function which returns the *True* if robot will collide with any of the fixed obstacles during its movement until its next pose. 
+This function takes radius of the robot *r*, current pose `SE2transform`, next pose `SE2transform`, and list of observed obstacles in robot frame as arguments. 
 
 #### Step 12: Collision Checking via Safety Certificates
 

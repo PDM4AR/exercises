@@ -151,7 +151,7 @@ class CollisionChecker:
         Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1
 
         In this method, you will implement the safety certificates procedure for collision checking.
-        You are free to use shapely to calculate distance between a point anf GoePrimitive.
+        You are free to use shapely to calculate distance between a point and a GoePrimitive.
         For more information, please check Algorithm 1 inside the following paper:
         https://journals.sagepub.com/doi/full/10.1177/0278364915625345.
 
