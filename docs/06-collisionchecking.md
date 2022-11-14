@@ -1,4 +1,4 @@
-# Collision check :computer:
+# Collision Checking :computer:
 
 <table>
   <tr>
@@ -6,7 +6,7 @@
   </tr>
 </table>
 
-## Collision check
+## Exercise
 
 Collision checking is a crucial capability of any planning system. 
 In this exercise, you will implement a basic collision checking module for a circular shape differential drive robot. 
