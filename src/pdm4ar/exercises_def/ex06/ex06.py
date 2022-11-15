@@ -51,10 +51,10 @@ class TestCollisionCheck(ExIn):
 
 
 @dataclass(frozen=True)
-class CollisionCheckWeightedPerfromance(PerformanceResults):
+class CollisionCheckWeightedPerformance(PerformanceResults):
     accuracy: float
     solve_time: float
-    perfromances: Dict[int, Dict[str, float]]
+    performances: Dict[int, Dict[str, float]]
 
     def __post_init__(self):
         assert 0 <= self.accuracy <= 1
@@ -76,10 +76,10 @@ class CollisionCheckPerformance(PerformanceResults):
     def perf_aggregator(
         eval_list: Sequence["CollisionCheckPerformance"],
         total_weights: Tuple[float, float],
-    ) -> "CollisionCheckWeightedPerfromance":
+    ) -> "CollisionCheckWeightedPerformance":
 
         if len(eval_list) == 0:
-            return CollisionCheckWeightedPerfromance(0.0, np.inf, {})
+            return CollisionCheckWeightedPerformance(0.0, np.inf, {})
 
         total_acccuracy = np.sum(
             [eval.accuracy * eval.weights[0] for eval in eval_list]
@@ -92,7 +92,7 @@ class CollisionCheckPerformance(PerformanceResults):
             for eval in eval_list
         }
 
-        return CollisionCheckWeightedPerfromance(
+        return CollisionCheckWeightedPerformance(
             total_acccuracy / total_weights[0],
             total_solve_time / total_weights[1],
             performances,
@@ -102,6 +102,9 @@ class CollisionCheckPerformance(PerformanceResults):
 def _collision_check_rep(
     algo_in: TestCollisionCheck, alg_out: Any
 ) -> Tuple[CollisionCheckPerformance, Report]:
+
+    # Set Random Seed
+    set_random_seed(RANDOM_SEED)
 
     r = Report(algo_in.name)
 
@@ -181,8 +184,6 @@ def collision_check_robot_frame_loop(
 
 
 def get_exercise6() -> Exercise:
-    # Set Random Seed
-    set_random_seed(RANDOM_SEED)
 
     # Generate Test Data
     test_values = [

@@ -221,7 +221,7 @@ class DataGenerator:
         return (
             triangle,
             point,
-            triangle_shapely.distance(point_shapely) < 1e-5,
+            triangle_shapely.distance(point_shapely) == 0.0,
         )
 
     @staticmethod
@@ -238,7 +238,7 @@ class DataGenerator:
         poly_shapely = geometry.Polygon([[p.x, p.y] for p in poly.vertices])
         point_shapely = geometry.Point(point.x, point.y)
 
-        return poly, point, poly_shapely.distance(point_shapely) < 1e-5
+        return poly, point, poly_shapely.distance(point_shapely) == 0.0
 
     @staticmethod
     def generate_circle_segment_collision_data(
@@ -260,7 +260,7 @@ class DataGenerator:
         return (
             circle,
             Segment(p1, p2),
-            circle_shapely.distance(segment_shapely) < 1e-5,
+            circle_shapely.distance(segment_shapely) == 0.0,
         )
 
     @staticmethod
@@ -300,7 +300,7 @@ class DataGenerator:
         return (
             triangle,
             Segment(p1, p2),
-            poly_shapely.distance(segment_shapely) < 1e-5,
+            poly_shapely.distance(segment_shapely) == 0.0,
         )
 
     @staticmethod
@@ -330,7 +330,7 @@ class DataGenerator:
         return (
             poly,
             Segment(p1, p2),
-            poly_shapely.distance(segment_shapely) < 1e-5,
+            poly_shapely.distance(segment_shapely) == 0.0,
         )
 
     @staticmethod
@@ -397,7 +397,11 @@ class DataGenerator:
     def generate_robot_frame_data(
         index: int,
     ) -> Tuple[
-        List[SE2Transform], float, List[List[GeoPrimitive]], List[GeoPrimitive], List[int]
+        List[SE2Transform],
+        float,
+        List[List[GeoPrimitive]],
+        List[GeoPrimitive],
+        List[int],
     ]:
         # Initialize Random Map
         (
@@ -451,9 +455,7 @@ class DataGenerator:
             for shapely_obs, obs in zip(shapely_obstacles, obstacles):
                 if shapely_point.distance(shapely_obs) < observation_radius + r:
                     # Calculate position of the obstacle in robot frame
-                    robot_frame_poly = obs.apply_SE2transform(
-                            inv(pose.as_SE2())
-                    )
+                    robot_frame_poly = obs.apply_SE2transform(inv(pose.as_SE2()))
                     observations[-1].append(robot_frame_poly)
 
         return poses, r, observations, obstacles, ground_truth
