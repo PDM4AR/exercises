@@ -103,6 +103,9 @@ def _collision_check_rep(
     algo_in: TestCollisionCheck, alg_out: Any
 ) -> Tuple[CollisionCheckPerformance, Report]:
 
+    # Set Random Seed
+    set_random_seed(RANDOM_SEED)
+
     r = Report(algo_in.name)
 
     accuracy_list = []
@@ -181,8 +184,6 @@ def collision_check_robot_frame_loop(
 
 
 def get_exercise6() -> Exercise:
-    # Set Random Seed
-    set_random_seed(RANDOM_SEED)
 
     # Generate Test Data
     test_values = [
