@@ -221,20 +221,20 @@ The accuracies of steps 6-11 are calculated by the average of the accuracy of te
 Execution time of each step is calculated as an average of its test cases.
 Lastly, accuracies ane execution times of each step are aggregated as weighted average. 
 
-| Step **ID** | **Number of Test Cases** | *Accuracy Weight* | *Evaluation Weight* |
-|-------------|--------------------------|-------------------|---------------------|
-| 01          | 15                       | 5                 | 0                   |
-| 02          | 15                       | 10                | 0                   |
-| 03          | 15                       | 10                | 0                   |
-| 04          | 15                       | 10                | 0                   |
-| 05          | 15                       | 10                | 0                   |
-| 06          | 15                       | 5                 | 0                   |
-| 07          | 15                       | 5                 | 0                   |
-| 08          | 10                       | 20                | 20                  |
-| 09          | 10                       | 20                | 20                  |
-| 10          | 10                       | 30                | 30                  |
-| 11          | 10                       | 20                | 20                  |
-| 12          | 10                       | 30                | 30                  |
+| Step **ID** | **Number of Test Cases** | *Accuracy Weight* | *Solving Time Weight* |
+|-------------|--------------------------|-------------------|-----------------------|
+| 01          | 15                       | 5                 | 0                     |
+| 02          | 15                       | 10                | 0                     |
+| 03          | 15                       | 10                | 0                     |
+| 04          | 15                       | 10                | 0                     |
+| 05          | 15                       | 10                | 0                     |
+| 06          | 15                       | 5                 | 0                     |
+| 07          | 15                       | 5                 | 0                     |
+| 08          | 10                       | 20                | 20                    |
+| 09          | 10                       | 20                | 20                    |
+| 10          | 10                       | 30                | 30                    |
+| 11          | 10                       | 20                | 20                    |
+| 12          | 10                       | 30                | 30                    |
 
 ##### How to run
 

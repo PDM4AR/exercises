@@ -1,7 +1,7 @@
 import timeit
 import numpy as np
 import random
-from typing import Any, Callable, Sequence, Tuple, List
+from typing import Any, Callable, Sequence, Tuple, List, Dict
 from dataclasses import dataclass
 
 from dg_commons import SE2Transform
@@ -51,12 +51,14 @@ class TestCollisionCheck(ExIn):
 
 
 @dataclass(frozen=True)
-class CollisionCheckWeightedAccuracy(PerformanceResults):
+class CollisionCheckWeightedPerfromance(PerformanceResults):
     accuracy: float
     solve_time: float
+    perfromances: Dict[int, Dict[str, float]]
 
     def __post_init__(self):
         assert 0 <= self.accuracy <= 1
+        assert 0 < self.solve_time
 
 
 @dataclass(frozen=True)
@@ -64,6 +66,7 @@ class CollisionCheckPerformance(PerformanceResults):
     accuracy: float
     solve_time: float
     weights: Tuple[float, float]
+    step_id: int
     """Percentage of correct comparisons"""
 
     def __post_init__(self):
@@ -73,10 +76,10 @@ class CollisionCheckPerformance(PerformanceResults):
     def perf_aggregator(
         eval_list: Sequence["CollisionCheckPerformance"],
         total_weights: Tuple[float, float],
-    ) -> "CollisionCheckWeightedAccuracy":
+    ) -> "CollisionCheckWeightedPerfromance":
 
         if len(eval_list) == 0:
-            return CollisionCheckWeightedAccuracy(0.0, np.inf)
+            return CollisionCheckWeightedPerfromance(0.0, np.inf, {})
 
         total_acccuracy = np.sum(
             [eval.accuracy * eval.weights[0] for eval in eval_list]
@@ -84,8 +87,15 @@ class CollisionCheckPerformance(PerformanceResults):
         total_solve_time = np.sum(
             [eval.solve_time * eval.weights[1] for eval in eval_list]
         )
-        return CollisionCheckWeightedAccuracy(
-            total_acccuracy / total_weights[0], total_solve_time / total_weights[1]
+        performances = {
+            eval.step_id: {"accuracy": eval.accuracy, "solve_time": eval.solve_time}
+            for eval in eval_list
+        }
+
+        return CollisionCheckWeightedPerfromance(
+            total_acccuracy / total_weights[0],
+            total_solve_time / total_weights[1],
+            performances,
         )
 
 
@@ -125,7 +135,10 @@ def _collision_check_rep(
 
     return (
         CollisionCheckPerformance(
-            np.mean(accuracy_list), np.mean(solve_times), algo_in.eval_weights
+            np.mean(accuracy_list),
+            np.mean(solve_times),
+            algo_in.eval_weights,
+            algo_in.step_id,
         ),
         r,
     )
