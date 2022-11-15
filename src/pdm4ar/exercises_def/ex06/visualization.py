@@ -242,7 +242,7 @@ def visualize_robot_frame_map(
         )
 
     # Visualize Inputs Step by Step
-    for i, (pose, observation) in enumerate(zip(path, observations)):
+    for i, (pose, observation) in enumerate(zip(path[:-1], observations[:-1])):
         # If there is not any observation ignore the step
         if len(observation) == 0:
             continue
@@ -256,9 +256,7 @@ def visualize_robot_frame_map(
             ax = plt.gca()
             ax.grid()
             # express next goal in current pose frame
-            new_goal = SE2Transform.from_SE2(
-                path[(i + 1) % len(path)].as_SE2() @ inv(pose.as_SE2())
-            )
+            new_goal = SE2Transform.from_SE2(inv(pose.as_SE2()) @ path[i + 1].as_SE2())
 
             for obs in observation:
                 # Draw Polygon
