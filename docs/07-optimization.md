@@ -327,6 +327,6 @@ After running the exercise, a report will be generated in the folder `out/ex07` 
 
 
 ## Hints
-- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html#linear-programming-milp), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/lp), and [cvxpy](https://www.cvxpy.org/examples/basic/linear_program.html) (we tested *scipy.optimize* and *PuLP*). You might want to model the problem as a Mixed Integer Linear Programming.
+- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html#linear-programming-milp), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/lp), and [cvxpy](https://www.cvxpy.org/examples/basic/linear_program.html) (we tested *scipy.optimize* and *PuLP*). You might want to model the problem as a Mixed Integer Linear Program.
 - Since the islands stored in the `islands` tuple of `ProblemVoyage` are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
 - When working with distances among islands, consider the islands as dimensionless points.
