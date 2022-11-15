@@ -19,9 +19,9 @@
 In this exercise you will learn how to solve an optimization problem translating concepts from the textual to the mathematical and programming realm.
 
 The environment of the problem is a 2D map composed of islands each with its own features. The islands are divided into *N* different groups, which will be called archipelagos henceforth, identified with a number from *0* to *N-1*. Archipelagos n. *0* (first archipelago) and n. *N-1* (last archipelago) are composed of one island each. All of the other archipelagos (from n. *1* to n. *N-2*) are composed of the same amount *k* of islands.
-Hence, the total number of islands is 1+(*N-2*)\**k* +1 = (*N-2*)\**k* +2. The islands are identified by a unique id, ranging from *0* to (*N-2*)*k*+1. They also have another tag to discern to which archipelagos they belong. Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption, just take it as it is.
+Hence, the total number of islands is 1+(*N-2*)\**k* +1 = (*N-2*)\**k* +2. The islands are identified by a unique id, ranging from *0* to (*N-2*)\**k*+1. They also have another tag to discern to which archipelagos they belong. Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption, just take it as it is.
 
-Your task is to compute a voyage plan (an ordered list of islands to be visited) that starts from the first archipelago and ends at the last archipelago, optimized for a specific cost while satifying some constraints.
+Your task is to compute a voyage plan (an ordered list of islands to be visited) optimized for a specific cost while satifying some constraints, starting from the first archipelago and ending at the last archipelago, visiting one and only one island of the other archipelagos following the order of the archipelago's identification number.
 
 Here you can see two examples of correct planned voyages:
 
@@ -82,7 +82,7 @@ The input of your function is a `ProblemVoyage` structure, in which you can find
 
 > The *Short Route* presents a weird and dangerous magnetic field. Travelling through it is not possible using a normal compass, but special compasses are needed. These special compases show the direction of the islands of the next archipelago: when you are at a specific island of an archipelago, they will tune with the magnetic field of the next archipelago, and so on, until you reach the last archipelago where the treasure is located. Trying to directly reach the last archipelago or moving to an archipelago that is not the next in order is impossible and you will get lost in the ocean.
 
-This constraint is always active. Your voyage plan must start from the first archipelago and end at the last archipelago, visiting one and only one island of the other archipelagos in between, following the order of the archipelago's identification number. This means that your ordered voyage plan must contain *N* islands and that these islands must belong to archipelagos with increasing identification numbers. Since the constraint is active in every test case, it is not listed within the `constraints` attribute of the `ProblemVoyage` input, to avoid reduntant information.
+This constraint is always active. Your voyage plan must start from the first archipelago and end at the last archipelago, visiting one and only one island of the other archipelagos, following the order of the archipelago's identification number. This means that your ordered voyage plan must contain *N* islands and that these islands must belong to archipelagos with increasing identification numbers. Since the constraint is active in every test case, it is not listed within the `constraints` attribute of the `ProblemVoyage` input, to avoid reduntant information.
 
 #### **Minimum nights** (`min_nights_individual_island`)
 
@@ -312,16 +312,21 @@ Remember that the images shown in the pdf report are "compressed" (*rasterized*)
 Feel free to make your own modifications to the visualization to match your debugging needs.
 
 ## Run the exercise
+If needed, update your repository with `make update`, and/or install the *pdm4ar* module with `pip3 install -e [path/to/exercises_repo]`.
 
+Run the exercise with:
 ```shell
-pip3 install -e [path/to/exercises_repo]
 python3 [path/to/]src/pdm4ar/main.py --exercise 07
+```
+or:
+```shell
+python3 [path/to/]src/pdm4ar/main.py -e 07
 ```
 
 After running the exercise, a report will be generated in the folder `out/ex07` that shows your results (if you enabled the report generation).
 
-- 
+
 ## Hints
-- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [pulp](https://coin-or.github.io/pulp/). You might want to model the problem as a Mixed Integer Linear Programming.
+- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html#linear-programming-milp), [PuLP](https://coin-or.github.io/pulp/), and [Google OR-Tools](https://developers.google.com/optimization/lp) (we tested *scipy.optimize* and *PuLP*). You might want to model the problem as a Mixed Integer Linear Programming.
 - Since the islands stored in the `islands` tuple of `ProblemVoyage` are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
 - When working with distances among islands, consider the islands as dimensionless points.
