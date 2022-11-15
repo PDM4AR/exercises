@@ -284,7 +284,7 @@ Remember that the images shown in the pdf report are "compressed" (*rasterized*)
 Feel free to make your own modifications to the visualization to match your debugging needs.
 
 ## Run the exercise
-If needed, update your repository with `make update`, and/or install the *pdm4ar* module with `pip3 install -e [path/to/exercises_repo]`
+If needed, update your repository with `make update`, and/or install the *pdm4ar* module with `pip3 install -e [path/to/exercises_repo]`.
 
 Run the exercise with:
 ```shell
