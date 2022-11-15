@@ -18,3 +18,4 @@ pre-commit
 # ex07
 pulp>=2.7.0
 ortools>=9.4.1874
+cvxpy>=1.2.0
