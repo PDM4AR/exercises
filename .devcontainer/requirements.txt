@@ -14,3 +14,7 @@ dg-commons==0.0.24
 
 tqdm>=4.64.1
 pre-commit
+
+# ex07
+pulp>=2.7.0
+ortools>=9.4.1874
