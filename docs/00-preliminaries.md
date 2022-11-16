@@ -49,7 +49,7 @@ Make sure to extensively test your code locally, consider this as a learning exp
 | 02              | Graph Search          | Oct. 8th             | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 03              | Informed Graph Search | Oct. 13th            | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 04              | Dynamic Programming   | Oct. 19th            | Nov. 4th  (23:59 CET) | CONFIRMED (EXTENDED)|
-| 05              | Steering (Dubins)     | Nov. 1st             | Nov. 15th (23:59 CET) | CONFIRMED           |
+| 05              | Steering (Dubins)     | Nov. 1st             | Nov. 20th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 06              | Collision Checking    | Nov. 14th            | Nov. 28th (23:59 CET) | CONFIRMED           |
 | 07              | Optimization          | TBD                  | TBD (23:59 CET)       | TBD                 |
 
