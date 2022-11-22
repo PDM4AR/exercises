@@ -6,6 +6,8 @@ from reprep import Report
 import numpy as np
 import timeit
 
+from pdm4ar.exercises import __ex_version__, evaluation_comment
+
 from .data import *
 from .structures import *
 from .visualization import Viz
@@ -32,8 +34,9 @@ class TestVoyage(ExIn):
 
 def ex07_performance_aggregator(
     performances: List[OptimizationPerformance], 
-    voyage_type: CaseVoyage = CaseVoyage.test_gt
-) -> Ex07FinalPerformance:
+    voyage_type: CaseVoyage = CaseVoyage.test_gt,
+    ex_version: str = __ex_version__
+) -> Union[Ex07FinalPerformance, Ex07FinalPerformanceWithComment]:
 
     overall_feasibility = 0.0
     overall_constraints = {key: 0.0 for key in Violations.__annotations__.keys()}
@@ -111,9 +114,15 @@ def ex07_performance_aggregator(
         for cost_name in CostsPerformance.__annotations__.keys():
             object.__setattr__(costs_performance, cost_name, overall_costs[cost_name])
 
-    return Ex07FinalPerformance(
-        feasibility_performance, constraints_performance, costs_performance
-    )
+    if ex_version == __ex_version__:
+        return Ex07FinalPerformance(
+            feasibility_performance, constraints_performance, costs_performance
+        )
+    else:
+        return Ex07FinalPerformanceWithComment(
+            feasibility_performance, constraints_performance, costs_performance,
+            evaluation_comment
+        )
 
 
 def compute_violations(

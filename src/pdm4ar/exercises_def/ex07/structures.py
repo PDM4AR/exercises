@@ -249,6 +249,10 @@ class Ex07FinalPerformance(PerformanceResults):
 
 
 @dataclass(frozen=True)
+class Ex07FinalPerformanceWithComment(Ex07FinalPerformance):
+    comment: str
+
+@dataclass(frozen=True)
 class Tolerance:
     tol: float
 
