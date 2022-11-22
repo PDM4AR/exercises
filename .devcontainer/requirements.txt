@@ -15,7 +15,14 @@ dg-commons==0.0.24
 tqdm>=4.64.1
 pre-commit
 
+
+# Rebuild the container to install the following modules
+
+# ex06
+triangle
+
 # ex07
 pulp>=2.7.0
 ortools>=9.4.1874
 cvxpy>=1.2.0
+

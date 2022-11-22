@@ -4,235 +4,23 @@ from typing import List, Tuple
 
 import numpy as np
 from geometry.poses import SE2_from_translation_angle
+from numpy.linalg import inv
 from shapely import geometry
+from dg_commons import SE2Transform
 
-from .structures import *
+from .structures import (
+    GeoPrimitive,
+    Point,
+    Path,
+    Polygon,
+    Circle,
+    Segment,
+    Triangle,
+)
+from .map_config import EXERCISE_MAP_CONFIGS
 
 
 class DataGenerator:
-    MAP_INFO = [
-        {
-            "obstacles": [
-                {
-                    "center": (150, 150),
-                    "avg_radius": 15,
-                    "irregularity": 0,
-                    "spikiness": 0,
-                    "num_vertices": 4,
-                },
-                {
-                    "center": (50, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0,
-                    "spikiness": 0,
-                    "num_vertices": 5,
-                },
-                {
-                    "center": (45, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0,
-                    "spikiness": 0,
-                    "num_vertices": 4,
-                },
-            ],
-            "path": [
-                (0, 0),
-                (30, 45),
-                (60, 60),
-                (90, 75),
-                (120, 110),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "center": (150, 150),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 4,
-                },
-                {
-                    "center": (50, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 5,
-                },
-                {
-                    "center": (45, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 4,
-                },
-            ],
-            "path": [
-                (0, 0),
-                (30, 45),
-                (60, 60),
-                (90, 75),
-                (120, 110),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "center": (125, 125),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 6,
-                },
-                {
-                    "center": (25, 35),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 7,
-                },
-                {
-                    "center": (80, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 6,
-                },
-                {
-                    "center": (0, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 6,
-                },
-                {
-                    "center": (100, 0),
-                    "avg_radius": 15,
-                    "irregularity": 0.2,
-                    "spikiness": 0,
-                    "num_vertices": 6,
-                },
-            ],
-            "path": [
-                (0, 0),
-                (10, 15),
-                (35, 45),
-                (60, 55),
-                (80, 80),
-                (100, 95),
-                (120, 115),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "center": (125, 125),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 8,
-                },
-                {
-                    "center": (25, 35),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 7,
-                },
-                {
-                    "center": (80, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 6,
-                },
-                {
-                    "center": (0, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 6,
-                },
-                {
-                    "center": (100, 0),
-                    "avg_radius": 15,
-                    "irregularity": 0.6,
-                    "spikiness": 0,
-                    "num_vertices": 6,
-                },
-            ],
-            "path": [
-                (0, 0),
-                (10, 15),
-                (35, 45),
-                (60, 55),
-                (80, 80),
-                (100, 95),
-                (120, 115),
-                (130, 155),
-            ],
-        },
-        {
-            "obstacles": [
-                {
-                    "center": (125, 125),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 8,
-                },
-                {
-                    "center": (25, 35),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 7,
-                },
-                {
-                    "center": (80, 45),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 6,
-                },
-                {
-                    "center": (0, 100),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 9,
-                },
-                {
-                    "center": (100, 0),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 7,
-                },
-                {
-                    "center": (100, 80),
-                    "avg_radius": 15,
-                    "irregularity": 0.8,
-                    "spikiness": 0,
-                    "num_vertices": 8,
-                },
-            ],
-            "path": [
-                (0, 0),
-                (10, 15),
-                (35, 45),
-                (60, 55),
-                (80, 80),
-                (100, 95),
-                (120, 115),
-                (130, 155),
-            ],
-        },
-    ]
-
     @staticmethod
     def generate_random_point(
         min_dist: float, max_dist: float, center: Point = Point(0, 0)
@@ -248,22 +36,40 @@ class DataGenerator:
         )
 
     @staticmethod
-    def generate_random_circle() -> Circle:
+    def generate_random_circle(
+        center: Point = Point(0, 0),
+        max_dist: float = 20,
+        min_radius: float = 3,
+        max_radius: float = 10,
+    ) -> Circle:
         # Generate Center of the Circle
-        center = DataGenerator.generate_random_point(0, 20)
+        center = DataGenerator.generate_random_point(0, max_dist, center)
         # Generate Random Radius
-        radius = np.random.uniform(3, 10)
+        radius = np.random.uniform(min_radius, max_radius)
 
         return Circle(center, radius)
 
     @staticmethod
-    def generate_random_triangle() -> Triangle:
+    def generate_random_triangle(
+        center: Point = Point(0, 0),
+        avg_radius: float = 5,
+        irregularity: float = 0.5,
+        spikiness: float = 0.5,
+    ) -> Triangle:
         # Generate 3 Points Randomly
-        p1 = DataGenerator.generate_random_point(0, 20)
-        p2 = DataGenerator.generate_random_point(0, 20)
-        p3 = DataGenerator.generate_random_point(0, 20)
+        triangle_vertices = DataGenerator.generate_polygon(
+            (center.x, center.y),
+            avg_radius,
+            irregularity,
+            spikiness,
+            3,
+        )
 
-        return Triangle(p1, p2, p3)
+        return Triangle(
+            Point(*triangle_vertices[0]),
+            Point(*triangle_vertices[1]),
+            Point(*triangle_vertices[2]),
+        )
 
     @staticmethod
     def generate_polygon(
@@ -308,17 +114,13 @@ class DataGenerator:
 
         irregularity *= 2 * math.pi / num_vertices
         spikiness *= avg_radius
-        angle_steps = DataGenerator.random_angle_steps(
-            num_vertices, irregularity
-        )
+        angle_steps = DataGenerator.random_angle_steps(num_vertices, irregularity)
 
         # now generate the points
         points = []
         angle = random.uniform(0, 2 * math.pi)
         for i in range(num_vertices):
-            radius = np.clip(
-                random.gauss(avg_radius, spikiness), 0, 2 * avg_radius
-            )
+            radius = np.clip(random.gauss(avg_radius, spikiness), 0, 2 * avg_radius)
             point = (
                 center[0] + radius * math.cos(angle),
                 center[1] + radius * math.sin(angle),
@@ -388,9 +190,7 @@ class DataGenerator:
         circle = DataGenerator.generate_random_circle()
         # Generate Point
         if np.random.uniform() < 0.5:
-            point = DataGenerator.generate_random_point(
-                0, circle.radius, circle.center
-            )
+            point = DataGenerator.generate_random_point(0, circle.radius, circle.center)
             return (circle, point, True)
         else:
             point = DataGenerator.generate_random_point(
@@ -421,7 +221,7 @@ class DataGenerator:
         return (
             triangle,
             point,
-            triangle_shapely.distance(point_shapely) < 1e-5,
+            triangle_shapely.distance(point_shapely) == 0.0,
         )
 
     @staticmethod
@@ -435,44 +235,78 @@ class DataGenerator:
         # Generate Query Point
         point = DataGenerator.generate_random_point(1, 5, center)
         # Check Collision via Shapely
-        poly_shapely = geometry.Polygon(
-            [[p.x, p.y] for p in poly.vertices]
-        )
+        poly_shapely = geometry.Polygon([[p.x, p.y] for p in poly.vertices])
         point_shapely = geometry.Point(point.x, point.y)
 
-        return (poly, point, poly_shapely.distance(point_shapely) < 1e-5)
+        return poly, point, poly_shapely.distance(point_shapely) == 0.0
 
     @staticmethod
-    def generate_circle_line_collision_data(
+    def generate_circle_segment_collision_data(
         index: int,
-    ) -> Tuple[Circle, Line, bool]:
+    ) -> Tuple[Circle, Segment, bool]:
         # Generate Random Circle
         circle = DataGenerator.generate_random_circle()
         # Generate Points
-        p1 = DataGenerator.generate_random_point(
-            0, 2 * circle.radius, circle.center
-        )
-        p2 = DataGenerator.generate_random_point(
-            0, 2 * circle.radius, circle.center
-        )
+        p1 = DataGenerator.generate_random_point(0, 2 * circle.radius, circle.center)
+        p2 = DataGenerator.generate_random_point(0, 2 * circle.radius, circle.center)
         # Check Collision via Shapely
-        circle_shapely = geometry.Point(
-            circle.center.x, circle.center.y
-        ).buffer(circle.radius)
-        line_shapely = geometry.LineString(
+        circle_shapely = geometry.Point(circle.center.x, circle.center.y).buffer(
+            circle.radius
+        )
+        segment_shapely = geometry.LineString(
             [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
         )
 
         return (
             circle,
-            Line(p1, p2),
-            circle_shapely.distance(line_shapely) < 1e-5,
+            Segment(p1, p2),
+            circle_shapely.distance(segment_shapely) == 0.0,
         )
 
     @staticmethod
-    def generate_polygon_line_collision_data(
+    def generate_tringle_segment_collision_data(
         index: int,
-    ) -> Tuple[Polygon, Line, bool]:
+    ) -> Tuple[Triangle, Segment, bool]:
+        # Generate Random Polygon
+        triangle = DataGenerator.generate_random_triangle()
+        # Calculate Center of the Corners
+        center = triangle.center()
+        # Calculate Max Distance to Corners
+        max_dist = max(
+            [
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
+                ** 0.5,
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
+                ** 0.5,
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
+                ** 0.5,
+            ]
+        )
+        # Generate Points
+        p1 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
+        p2 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
+        # Check Collisions via Shapely
+        poly_shapely = geometry.Polygon(
+            [
+                [triangle.v1.x, triangle.v1.y],
+                [triangle.v2.x, triangle.v2.y],
+                [triangle.v3.x, triangle.v3.y],
+            ]
+        )
+        segment_shapely = geometry.LineString(
+            [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
+        )
+
+        return (
+            triangle,
+            Segment(p1, p2),
+            poly_shapely.distance(segment_shapely) == 0.0,
+        )
+
+    @staticmethod
+    def generate_polygon_segment_collision_data(
+        index: int,
+    ) -> Tuple[Polygon, Segment, bool]:
         # Generate Random Polygon
         poly = DataGenerator.generate_random_polygon()
         # Calculate Center of the Corners
@@ -488,61 +322,67 @@ class DataGenerator:
         p1 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
         p2 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
         # Check Collisions via Shapely
-        poly_shapely = geometry.Polygon(
-            [[v.x, v.y] for v in poly.vertices]
-        )
-        line_shapely = geometry.LineString(
+        poly_shapely = geometry.Polygon([[v.x, v.y] for v in poly.vertices])
+        segment_shapely = geometry.LineString(
             [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
         )
 
         return (
             poly,
-            Line(p1, p2),
-            poly_shapely.distance(line_shapely) < 1e-5,
+            Segment(p1, p2),
+            poly_shapely.distance(segment_shapely) == 0.0,
         )
 
     @staticmethod
     def generate_random_robot_map_and_path(
+        exercise_id: int,
         index: int,
-    ) -> Tuple[Path, float, List[Polygon], List[int]]:
+    ) -> Tuple[Path, float, List[GeoPrimitive], List[int]]:
 
+        map_config = EXERCISE_MAP_CONFIGS[exercise_id]
         # Generate Random Robot Radius
         r = float(np.random.randint(3, 7))
 
         # Generate Path
         path = Path(
-            [
-                Point(x, y)
-                for (x, y) in DataGenerator.MAP_INFO[
-                    index % len(DataGenerator.MAP_INFO)
-                ]["path"]
-            ]
+            [Point(x, y) for (x, y) in map_config[index % len(map_config)]["path"]]
         )
         # Generate Obstacles
-        obstacles = [
-            DataGenerator.generate_random_polygon(
-                Point(poly["center"][0], poly["center"][1]),
-                poly["avg_radius"],
-                poly["irregularity"],
-                poly["spikiness"],
-                poly["num_vertices"],
+        obstacles = []
+        for obs in map_config[index % len(map_config)]["obstacles"]:
+            obs_generation_func = getattr(
+                DataGenerator, f"generate_random_{obs['type']}"
             )
-            for poly in DataGenerator.MAP_INFO[
-                index % len(DataGenerator.MAP_INFO)
-            ]["obstacles"]
-        ]
+            obstacles.append(obs_generation_func(**obs["params"]))
 
         # Check collision for ground truth
         ground_truth = []
         # Convert obstacles to Shapely Shapes
-        shapely_obstacles = [
-            geometry.Polygon([[p.x, p.y] for p in poly.vertices])
-            for poly in obstacles
-        ]
+        shapely_obstacles = []
+        for obs in obstacles:
+            if isinstance(obs, Polygon):
+                shapely_obstacles.append(
+                    geometry.Polygon([[p.x, p.y] for p in obs.vertices])
+                )
+            elif isinstance(obs, Triangle):
+                shapely_obstacles.append(
+                    geometry.Polygon(
+                        [
+                            [obs.v1.x, obs.v1.y],
+                            [obs.v2.x, obs.v2.y],
+                            [obs.v3.x, obs.v3.y],
+                        ]
+                    )
+                )
+            elif isinstance(obs, Circle):
+                shapely_obstacles.append(
+                    geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius)
+                )
+            else:
+                raise Exception("Obstacle must be Polygon, Triangle, or Circle")
+
         # Check distance between each line segment with each polygon
-        for i, (p1, p2) in enumerate(
-            zip(path.waypoints[:-1], path.waypoints[1:])
-        ):
+        for i, (p1, p2) in enumerate(zip(path.waypoints[:-1], path.waypoints[1:])):
             ls_shapely = geometry.LineString(
                 [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
             )
@@ -551,13 +391,17 @@ class DataGenerator:
                     ground_truth.append(i)
                     break
 
-        return (path, r, obstacles, ground_truth)
+        return path, r, obstacles, ground_truth
 
     @staticmethod
     def generate_robot_frame_data(
         index: int,
     ) -> Tuple[
-        List[Pose2D], float, List[List[Polygon]], List[Polygon], List[int]
+        List[SE2Transform],
+        float,
+        List[List[GeoPrimitive]],
+        List[GeoPrimitive],
+        List[int],
     ]:
         # Initialize Random Map
         (
@@ -565,47 +409,53 @@ class DataGenerator:
             r,
             obstacles,
             ground_truth,
-        ) = DataGenerator.generate_random_robot_map_and_path(index)
+        ) = DataGenerator.generate_random_robot_map_and_path(11, index)
         # Calculate Robot Poses
         # In every waypoint robot will turn into its next position
         poses = []
+        theta = 0
         for wp_1, wp_2 in zip(path.waypoints[:-1], path.waypoints[1:]):
             wp_temp = Point(wp_2.x - wp_1.x, wp_2.y - wp_1.y)
             theta = np.arctan2(wp_temp.y, wp_temp.x)
 
-            poses.append(Pose2D(wp_1, theta))
-        # Append Last Pose with the Latest Theta
-        poses.append(Pose2D(path.waypoints[-1], theta))
+            poses.append(SE2Transform((wp_1.x, wp_1.y), theta))
+        # Append Last Pose with default last theta
+        last_point = path.waypoints[-1]
+        poses.append(SE2Transform((last_point.x, last_point.y), theta))
         # Calculate Observed Obstacles
         observation_radius = 50
-        shapely_obstacles = [
-            geometry.Polygon([[p.x, p.y] for p in poly.vertices])
-            for poly in obstacles
-        ]
+        # Convert obstacles to Shapely Shapes
+        shapely_obstacles = []
+        for obs in obstacles:
+            if isinstance(obs, Polygon):
+                shapely_obstacles.append(
+                    geometry.Polygon([[p.x, p.y] for p in obs.vertices])
+                )
+            elif isinstance(obs, Triangle):
+                shapely_obstacles.append(
+                    geometry.Polygon(
+                        [
+                            [obs.v1.x, obs.v1.y],
+                            [obs.v2.x, obs.v2.y],
+                            [obs.v3.x, obs.v3.y],
+                        ]
+                    )
+                )
+            elif isinstance(obs, Circle):
+                shapely_obstacles.append(
+                    geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius)
+                )
+            else:
+                raise Exception("Obstacle must be Polygon, Triangle, or Circle")
         observations = []
         for pose in poses:
             observations.append([])
             # Check distance to obstacles
-            shapely_point = geometry.Point(
-                pose.position.x, pose.position.y
-            )
+            shapely_point = geometry.Point(pose.p[0], pose.p[1])
             for shapely_obs, obs in zip(shapely_obstacles, obstacles):
-                if (
-                    shapely_point.distance(shapely_obs)
-                    < observation_radius + r
-                ):
+                if shapely_point.distance(shapely_obs) < observation_radius + r:
                     # Calculate position of the obstacle in robot frame
-                    robot_frame_poly = obs.apply_SE2transform(
-                        SE2_from_translation_angle(
-                            -np.array([pose.position.x, pose.position.y]),
-                            0,
-                        )
-                    ).apply_SE2transform(
-                        SE2_from_translation_angle(
-                            np.array([0, 0]),
-                            -pose.theta,
-                        )
-                    )
+                    robot_frame_poly = obs.apply_SE2transform(inv(pose.as_SE2()))
                     observations[-1].append(robot_frame_poly)
 
-        return (poses, r, observations, obstacles, ground_truth)
+        return poses, r, observations, obstacles, ground_truth

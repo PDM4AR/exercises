@@ -12,3 +12,4 @@ Welcome to PDM4AR programming exercises for autonomous robots :airplane: :helico
 * [Informed graph search](03-informedgraphsearch.md)
 * [Dynamic Programming](04-dynamicprogramming.md)
 * [Steering (Dubins Paths)](05-dubinspath.md)
+* [Collision Checking](06-collisionchecking.md)

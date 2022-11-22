@@ -39,7 +39,7 @@ You will submit your solutions via your private repository on Github (detail ins
 * You will get a score 0-100 for each exercise. A missing submission (or failing to meet the deadline) will count as 0. The score will be based on some performance metrics (how correct is your solution, how fast it is, how much memory
 it uses, etc.). Performance criteria will be declared in the exercise description.
 * Only the best _N-1_ submissions will account for the 30% of your final grade, where _N_ is the number of exercises.
-* Only the last submission within the exercise time window will account for your exercise grade. 
+* Only the last **valid** (i.e., processed by the server irrespectively of the outcome) submission within the exercise time window will account for your exercise grade. 
 * We limit the number of submissions per day to *1* per person per exercise.
 Make sure to extensively test your code locally, consider this as a learning experience for robotics, field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
@@ -49,8 +49,8 @@ Make sure to extensively test your code locally, consider this as a learning exp
 | 02              | Graph Search          | Oct. 8th             | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 03              | Informed Graph Search | Oct. 13th            | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 04              | Dynamic Programming   | Oct. 19th            | Nov. 4th  (23:59 CET) | CONFIRMED (EXTENDED)|
-| 05              | Steering (Dubins)     | Nov. 1st             | Nov. 15th (23:59 CET) | CONFIRMED           |
-| 06              | Collision Checking    | TBD                  | TBD (23:59 CET)       | TBD                 |
+| 05              | Steering (Dubins)     | Nov. 1st             | Nov. 20th (23:59 CET) | CONFIRMED (EXTENDED)|
+| 06              | Collision Checking    | Nov. 14th            | Nov. 28th (23:59 CET) | CONFIRMED           |
 | 07              | Optimization          | TBD                  | TBD (23:59 CET)       | TBD                 |
 
 * Most of these exercises are already accessible before the evaluation opens. 
@@ -62,8 +62,8 @@ Same modality as the weekly exercises, but they will be a bit more involved.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes** |
 |-----------------|-----------|----------------------|-----------------------|
-| TBD             | Surprise  | Nov. 7th (TBC)       | Nov. 31st (TBC)       |
-| TBD             | Surprise  | Dec. 15th            | Jan. 15th (23:59 CET) |
+| TBD             | Surprise  | Dec. 1st (TBC)       | Dec. 15th (TBC)       |
+| TBD             | Surprise  | Dec. 15th (TBC)      | Jan. 15th (23:59 CET) |
 
 
 ## Plagiarism and dishonest conduct
