@@ -300,7 +300,7 @@ The visualization of the exercise is handled within [src/pdm4ar/exercises_def/ex
     - `ReportType.report_viz_extra`: print evaluation information on the terminal and in a visual report, with text and figures and data of each island.
 
 - You can choose your preferred terminal/report output setting the ***`REPORT_TYPE`*** global variable.
-Note that depending on the number of islands, `report_viz` starts to be slower by a non-negligible amount of time, while `report_viz_extra` will be even slower.
+Note that depending on the number of islands, `report_viz` can be really slow, while `report_viz_extra` will be even slower.
 
 - The speed of the report generation is also greatly influenced by the size of the images generated with `report_viz` and `report_viz_extra`. The image size (due to the map size) unfortunately affects also the non-overlapping of the figures, and in case you selected `report_viz_extra`, the readability of the extra text.
     You can choose your preferred size setting the ***`FIGURE_WIDTH`*** global variable (note that this specifies the size in *points*, not *pixels*. Think of it as if you are choosing the [DPI](https://en.wikipedia.org/wiki/Dots_per_inch), while the actual pixel size depends on the map size). Bigger the value, the slower the images generation but the better the readability.
