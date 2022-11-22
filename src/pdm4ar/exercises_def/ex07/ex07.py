@@ -6,7 +6,7 @@ from reprep import Report
 import numpy as np
 import timeit
 
-from pdm4ar.exercises import __ex_version__, evaluation_comment
+from pdm4ar.exercises import __ex_version__, __evaluation_comment__
 
 from .data import *
 from .structures import *
@@ -121,7 +121,7 @@ def ex07_performance_aggregator(
     else:
         return Ex07FinalPerformanceWithComment(
             feasibility_performance, constraints_performance, costs_performance,
-            evaluation_comment
+            __evaluation_comment__
         )
 
 
