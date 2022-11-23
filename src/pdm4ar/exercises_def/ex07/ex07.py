@@ -5,6 +5,7 @@ from typing import Any, Optional
 from reprep import Report
 import numpy as np
 import timeit
+import copy
 
 
 
@@ -482,7 +483,7 @@ def ex07_evaluation(
         raise ValueError(algo_in_type)
 
     start = timeit.default_timer()
-    est_solution = solve_optimization(problem)
+    est_solution = solve_optimization(copy.deepcopy(problem))
     stop = timeit.default_timer()
     timing = stop - start
 
