@@ -6,14 +6,16 @@ from reprep import Report
 import numpy as np
 import timeit
 
-from pdm4ar.exercises import __ex_version__, __evaluation_comment__
+
 
 from .data import *
 from .structures import *
 from .visualization import Viz
+from pdm4ar.exercises.ex07 import __ex_version__
 from pdm4ar.exercises.ex07.ex07 import solve_optimization
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.structures_time import TestCaseTimeoutException
+from pdm4ar import __ex_version_comment_evaluation__
 
 class TestCaseSanityCheckException(Exception):
     pass
@@ -121,7 +123,7 @@ def ex07_performance_aggregator(
     else:
         return Ex07FinalPerformanceWithComment(
             feasibility_performance, constraints_performance, costs_performance,
-            __evaluation_comment__
+            __ex_version_comment_evaluation__
         )
 
 
