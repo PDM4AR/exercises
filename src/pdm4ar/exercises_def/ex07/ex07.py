@@ -29,7 +29,7 @@ class TestVoyage(ExIn):
     test_id: int
     problem: Optional[ProblemVoyage]
     seed: Optional[int]
-    timeout: int
+    timeout: int # Timing not including report generation
 
     def str_id(self) -> str:
         return f"{self.optimization_cost.name} - test {self.test_id}"
@@ -555,7 +555,7 @@ def get_exercise7() -> Exercise:
     elif test_type == CaseVoyage.random:
         seed = 0
         n_tests = 3  # n. tests for each cost
-        timeout = 20
+        timeout = 20 # Timing not including report generation
 
         for test_cost in OptimizationCost.get_costs():
             # some calculus on the seed to generate a new
@@ -582,5 +582,5 @@ def get_exercise7() -> Exercise:
         perf_aggregator=lambda x: ex07_performance_aggregator(x, test_type),
         test_values=test_values,
         expected_results=expected_results,
-        test_case_timeout=40,
+        test_case_timeout=40, # Timing including report generation
     )
