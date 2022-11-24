@@ -77,8 +77,8 @@ class Constraints:
     """Structure storing the constraints data. A constraint with a value of `None` is not active.\n
     From the doc:\n
     - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
-    - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
+    - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each island-to-island jounrey can last. Treat it as a normal float value.
     - The `max_L1_distance_individual_journey` float attribute is a constraint specifing the maximum L1-norm distance length of each island-to-island journey.
     """
@@ -101,8 +101,8 @@ class ProblemVoyage:
     - The `islands` attribute is a tuple containing a sequence of `Island`. The islands are ordered based on their `id` attribute.
     - The `constraints` attribute contains the following:
         - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
-        - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
         - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
+        - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
         - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each island-to-island jounrey can last. Treat it as a normal float value.
         - The `max_L1_distance_individual_journey` float attribute is a constraint specifing the maximum L1-norm distance length of each island-to-island journey.
     """

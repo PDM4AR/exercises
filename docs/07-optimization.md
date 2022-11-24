@@ -18,6 +18,8 @@
 
 In this exercise you will learn how to solve an optimization problem translating concepts from the textual to the mathematical and programming realm.
 
+An optimization problem consists of finding an optimal solution (if it exists) that minimizes a specific **cost** while respecting equality and/or inequality **constraints** (which characterise the feasible set).
+
 The environment of the problem is a 2D map composed of islands each with its own features. The islands are divided into *N* different groups, which will be called archipelagos henceforth, identified with a number from *0* to *N-1*. Archipelagos n. *0* (first archipelago) and n. *N-1* (last archipelago) are composed of one island each. All of the other archipelagos (from n. *1* to n. *N-2*) are composed of the same amount *k* of islands.
 Hence, the total number of islands is 1+(*N-2*)\**k* +1 = (*N-2*)\**k* +2. The islands are identified by a unique id, ranging from *0* to (*N-2*)\**k*+1. They also have another tag to discern to which archipelagos they belong. Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption, just take it as it is.
 
@@ -69,7 +71,9 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     return SolutionVoyage(feasibility, voyage_plan)
 ```
 
----
+## Modeling
+
+To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). The final goal is to find an optimal solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit.
 
 ### **Constraints**
 
@@ -203,8 +207,8 @@ Structure storing the data of an optimization problem. Input of the function `so
 - The `islands` attribute is a tuple containing a sequence of `Island`. The islands are ordered based on their `id` attribute.
 - The `constraints` attribute contains the following:
     - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
-    - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
+    - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each island-to-island jounrey can last. Treat it as a normal float value.
     - The `max_L1_distance_individual_journey` float attribute is a constraint specifing the maximum L1-norm distance length of each island-to-island journey.
 
@@ -315,6 +319,8 @@ Feel free to make your own modifications to the visualization to match your debu
 ## Run the exercise
 Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
 
+To be able to import and use *PuLP*, *Google OR-Tools* or *cvxpy*, please rebuild the container running the VS Code command (click Ctrl+Shift+P) `Remote-Containers: Rebuild Container` or `Remote-Containers: Rebuild and Reopen in Container`, and then reinstall the *pdm4ar* module running `pip3 install -e [path/to/exercises_repo]` in the VS Code terminal.
+
 Run the exercise with:
 ```shell
 python3 [path/to/]src/pdm4ar/main.py --exercise 07
@@ -332,4 +338,3 @@ After running the exercise, a report will be generated in the folder `out/ex07` 
 - When working with distances among islands, consider the islands as dimensionless points.
 - You might want to model the problem as a Mixed Integer Linear Program.
 - You might want to add additional optimization variables to model some constraints and/or costs. Some ideas are shown in *Lesson 4: Steering*.
-- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). To be able to use *PuLP*, *Google OR-Tools* or *cvxpy*, please rebuild the container running the VS Code command (click Ctrl+Shift+P) `Remote-Containers: Rebuild Container` or `Remote-Containers: Rebuild and Reopen in Container`, and then reinstall the *pdm4ar* module running `pip3 install -e [path/to/exercises_repo]` in the VS Code terminal.
