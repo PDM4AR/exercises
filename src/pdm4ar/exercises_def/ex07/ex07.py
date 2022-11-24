@@ -87,14 +87,21 @@ def ex07_performance_aggregator(
 
     if overall_n_test_feasibility > 0:
         overall_feasibility /= overall_n_test_feasibility
+    else:
+        overall_feasibility = np.nan
     for cost_name in OptimizationCost.__members__.keys():
         if overall_n_test_costs[cost_name] > 0:
             overall_costs[cost_name] /= overall_n_test_costs[cost_name]
+        else:
+            overall_costs[cost_name] = np.nan
     for constraint_name in Violations.__annotations__.keys():
         if overall_n_test_constraints[constraint_name] > 0:
             overall_constraints[constraint_name] /= overall_n_test_constraints[
                 constraint_name
             ]
+        else:
+            overall_constraints[constraint_name] = np.nan
+
 
     feasibility_performance = (
         overall_feasibility if voyage_type == CaseVoyage.test_gt else np.nan
