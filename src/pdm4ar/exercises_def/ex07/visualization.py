@@ -56,7 +56,6 @@ class Viz:
         est_cost: Cost,
         gt_cost: Cost,
         cost_score: CostScore,
-        timing: float,
         violations: Violations,
     ) -> None:
 
@@ -66,9 +65,6 @@ class Viz:
             tick, cross = "",""
         else:
             good, bad, green, red, reset, tick, cross = "", "", "", "", "", "\u2714", "\u2716"
-
-        if timing is not None:
-            print(red + "Time exceeded: " + reset + f"{1000*timing:.3f} ms")
 
         # print(f"\nStart crew: {problem.start_crew}")
 
@@ -176,7 +172,6 @@ class Viz:
         est_cost: Cost,
         gt_cost: Cost,
         cost_score: CostScore,
-        timing: float,
         violations: Violations,
     ) -> None:
 
@@ -196,9 +191,6 @@ class Viz:
                         else f"{constraint}\n"
                     )
         r_viz.text("Problem:", text_problem)
-
-        if timing is not None:
-            r_viz.text("Time exceeded: ", f"{1000*timing:.3f} ms")
 
         text_feasibility = f"Est.: {est_cost.feasibility.name}"
         if gt_cost is not None:
@@ -287,7 +279,6 @@ class Viz:
         voyage_plan: Optional[List[int]],
         est_cost: Optional[Cost],
         violations: Optional[Violations] = None,
-        timing: Optional[float] = None,
     ) -> None:
 
         if self.report_type == ReportType.none:
@@ -301,7 +292,6 @@ class Viz:
                 est_cost,
                 gt_cost,
                 cost_score,
-                timing,
                 violations,
             )
 
@@ -484,6 +474,5 @@ class Viz:
                     est_cost,
                     gt_cost,
                     cost_score,
-                    timing,
                     violations,
                 )

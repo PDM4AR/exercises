@@ -243,6 +243,7 @@ class CostsPerformance:
 
 @dataclass(frozen=True)
 class Ex07FinalPerformance(PerformanceResults):
+    total_performance: float
     feasibility_performance: float
     constraints_performance: ConstraintsPerformance
     costs_performance: CostsPerformance

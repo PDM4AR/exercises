@@ -124,13 +124,21 @@ def ex07_performance_aggregator(
         for cost_name in CostsPerformance.__annotations__.keys():
             object.__setattr__(costs_performance, cost_name, overall_costs[cost_name])
 
+    list_scores = [overall_feasibility] + \
+                    [score for score in overall_constraints.values()] + \
+                    [score for score in overall_costs.values()]
+    list_scores = [score if not np.isnan(score) else 0 for score in list_scores ]
+    total_performance = np.mean(list_scores)
+
     if ex_version == __ex_version__:
         return Ex07FinalPerformance(
-            feasibility_performance, constraints_performance, costs_performance
+            total_performance, feasibility_performance, 
+            constraints_performance, costs_performance
         )
     else:
         return Ex07FinalPerformanceWithComment(
-            feasibility_performance, constraints_performance, costs_performance,
+            total_performance, feasibility_performance,
+            constraints_performance, costs_performance,
             __ex_version_comment_evaluation__
         )
 
@@ -514,7 +522,6 @@ def ex07_evaluation(
             f"Exceeded test case timeout: {1000*timing:.0f} ms > {1000*algo_in_timeout:.0f} ms."
         )
     else:
-        timing = None
         performance = OptimizationPerformance(feasibility_score, violations, cost_score)
 
     visualizer.visualize(
@@ -526,7 +533,6 @@ def ex07_evaluation(
         est_solution.voyage_plan,
         est_cost,
         violations,
-        timing,
     )
 
     return performance, r
