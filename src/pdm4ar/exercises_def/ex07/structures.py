@@ -53,13 +53,12 @@ VoyagePlan = List[int]
 class Island:
     """From the doc:\n
     Structure storing the individual features of an island.
-    - The `id` integer attribute identifies uniquely the island. The island of the first archipelago has always `id` = 0 while the island of the last archipelago has always `id` = number of islands - 1. If the archipelagos in between have 5 islands each, then the `id` of the islands of the second archipelago ranges from 1 to 5, the ones of the third archipelagos from 6 to 10, the ones of the fourth archipelago from 11 to 15, and so on. When you submit your optimized voyage plan, you are submitting an ordered list of the `id` of the islands you plan to visit.
-    - The `arch` integer attribute tells you to which of the N archipelagos the island belongs (0, ..., N-1).
-    - The `x` and `y` float attributes specify the x and y position of the island in a cartesian reference system. The 2D map is a flat plane.
-    - The `departure` and `arrival` float attributes are a timetable of the exact time you have to depart from or to arrive to the island, to exploit its specific weather to being able to set sail or to dock. Note that to keep things simple the decimal places are not representing the minutes in mod 60. A value of 8.43 doesn't mean 43 minutes past 8, but that it's 43% of an hour past 8. Treat it as a normal float value.
-    To keep things simple, the arrival times of all the islands are later than the departure times of all the islands. This means in every possible journey between two island you depart and arrive later on the same day, always.
-    - The `nights` integer attribute specifies how many nights you have to spend on the island before you can depart to the next archipelago. If `nights` is 1, it means you arrive in the island and you depart the next day, irrelevant of the arrival/departure timetable.
-    - The `delta_crew` integer attribute specifies how many people will leave the crew (negative value) or how many join the crew (positive value) if you visit the island.
+    - The `id` integer attribute identifies uniquely the island. The island of the first archipelago has always `id` = *0* while the island of the last archipelago has always `id` = *number of islands - 1*. If the archipelagos in between have 5 islands each, then the `id` of the islands of the second archipelago ranges from *1* to *5*, the ones of the third archipelagos from *6* to *10*, the ones of the fourth archipelago from *11* to *15*, and so on. When you submit your optimized voyage plan, you are submitting an ordered list of the `id` of the islands you plan to visit.
+    - The `arch` integer attribute tells you to which of the *N* archipelagos the island belongs (*0*, ..., *N-1*).
+    - The `x` and `y` float attributes specify the *x* and *y* position of the island in a cartesian reference system. The 2D map is a flat plane.
+    - The `departure` and `arrival` float attributes are a timetable of the exact time you have to depart from or to arrive to the island, to exploit its specific weather to being able to set sail or to dock. Note that to keep things simple the decimal places are not representing the minutes in *mod* 60. A value of 8.43 doesn't mean 43 minutes past 8, but that it's 43% of an hour past 8. Treat it as a normal float value. To keep things simple, the arrival times of all the islands are later than the departure times of all the islands. This means in every possible journey between two island you depart and arrive later on the same day, always.
+    - The `nights` integer attribute specifies the exact amount of nights you have to spend on the island before you can depart to the next island. If `nights` is 1, it means you arrive in the island and you depart the next day, irrelevant of the arrival/departure timetable. The islands of the first and last archipelagos have `nights` = 0.
+    - The `delta_crew` integer attribute specifies how many people will leave the crew (negative value) or how many join the crew (positive value) if you visit the island. The islands of thefirst and last archipelago have `delta_crew` = 0.
     """
 
     id: int
@@ -76,7 +75,7 @@ class Island:
 class Constraints:
     """Structure storing the constraints data. A constraint with a value of `None` is not active.\n
     From the doc:\n
-    - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
+    - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of `nights` an island should have to be able to visit it.
     - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
     - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each island-to-island jounrey can last. Treat it as a normal float value.

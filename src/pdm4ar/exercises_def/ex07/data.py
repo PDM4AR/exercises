@@ -9,7 +9,7 @@ from .structures import *
 def island_generator(
     id: int,
     arch: int,
-    time_compass_range: Tuple[int, int],
+    nights_range: Tuple[int, int],
     crew_range: Tuple[int, int],
     departure_range: Tuple[int, int],
     arrival_range: Tuple[int, int],
@@ -25,7 +25,7 @@ def island_generator(
     arrival = (
         arrival_range[1] - arrival_range[0]
     ) * np.random.random_sample() + arrival_range[0]
-    nights = np.random.randint(time_compass_range[0], time_compass_range[1] + 1)
+    nights = np.random.randint(nights_range[0], nights_range[1] + 1)
     crew = np.random.randint(crew_range[0], crew_range[1] + 1)
 
     return Island(id, arch, x, y, departure, arrival, nights, crew)
@@ -90,7 +90,7 @@ def problem_generator(
     y_range = (np.random.randint(10, 30), np.random.randint(110, 150))
     departure_range = (np.random.randint(5, 8), np.random.randint(9, 13))
     arrival_range = (np.random.randint(15, 18), np.random.randint(19, 21))
-    time_compass_range = (np.random.randint(1, 5), np.random.randint(6, 9))
+    nights_range = (np.random.randint(1, 5), np.random.randint(6, 9))
     crew_range = (np.random.randint(-19, 0), np.random.randint(3, 20))
     x_offset_levels = np.random.randint(
         x_range[1] - x_range[0] + 0, x_range[1] - x_range[0] + 10
@@ -107,9 +107,9 @@ def problem_generator(
     max_duration_individual_sail = min_theoretical_sail + 0.7 * (
         max_theoretical_sail - min_theoretical_sail
     )
-    min_fix_ship_individual_island = round(
-        0.5 * time_compass_range[0]
-        + np.random.random() * (time_compass_range[1] - time_compass_range[0])
+    min_nights_individual_island = round(
+        0.5 * nights_range[0]
+        + np.random.random() * (nights_range[1] - nights_range[0])
     )
     mean_crew_change = (crew_range[1] + crew_range[0]) / 2
     if mean_crew_change > 0:
@@ -132,7 +132,7 @@ def problem_generator(
         x_range = [i + x_offset_levels for i in x_range]
         y_offset = np.random.randint(y_offset_levels[0], y_offset_levels[1] + 1)
         y_range = [i + y_offset for i in y_range]
-        time_compass_range_tmp = [0, 0] if k in (0, n_arch - 1) else time_compass_range
+        nights_range_tmp = [0, 0] if k in (0, n_arch - 1) else nights_range
         crew_range_tmp = [0, 0] if k in (0, n_arch - 1) else crew_range
         n_islands_arch_tmp = 1 if k in (0, n_arch - 1) else n_islands_arch
         for _ in range(n_islands_arch_tmp):
@@ -147,7 +147,7 @@ def problem_generator(
                 generated_island = island_generator(
                     island_id,
                     k,
-                    time_compass_range_tmp,
+                    nights_range_tmp,
                     crew_range_tmp,
                     departure_range,
                     arrival_range,
@@ -163,7 +163,7 @@ def problem_generator(
     islands = tuple(islands)
 
     constraints = Constraints(
-        min_fix_ship_individual_island,
+        min_nights_individual_island,
         min_total_crew,
         max_total_crew,
         max_duration_individual_sail,

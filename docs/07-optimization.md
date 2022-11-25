@@ -92,7 +92,7 @@ This constraint is always active. Your voyage plan must start from the first arc
 
 > Everytime you arrive in a new island, the special compasses should start to tune to the new magnetic fields pointing to the islands of the next archipelagos. The number of nights to tune the special compasses varies depending on the island. Unfortunately, the fastest the tuning time of a magnetic field, the more technologically complex a special compass should be to be able to tune it. Hence, you are only able to visit islands where the magnetic field pointing to the next archipelago is tunable by your special compass version. You cannot visit islands where the magnetic field requires less nights to tune than the minimum amount of nights specified by your compass. You cannot simply wait more time: if your compass is able to tune to magnetic field that requires 4 nights of waiting, you cannot visit an island with a 1, 2, or 3 nights magnetic field tunining and just wait for the remaining nights. The compass is simply not working with these faster tuning magnetic field.
 
-When this constraint is active, you can only visit island whose number of waiting nights is at least `min_nights_individual_island`. When you arrive in an island you have to wait a specific amount of nights before departing towards the next island. Each island has its specific value of how many night you should stay in it before departing. Only the starting island an the ending island have a value of 0.
+When this constraint is active, you can only visit islands whose number of waiting *nights* is at least `min_nights_individual_island`. This constraint is not applied to the islands of the first and last archipelago.
 
 #### **Minimum crew size** (`min_total_crew`)
 
@@ -110,7 +110,7 @@ When this constraint is active, the crew size cannot be greater than `max_total_
 
 > Your pirate ship presents structural limitations: it is able to sail the sea only only up to a certain amount of hours during the same island-to-island journey. The weather and the strenght of the currents that rule the *Short Route* make the autonomy span of the ships very limited. When you sail from an island you can reach only islands that are within this journey duration, or the ship will definetely sink. 
 
-When this constraint is active, every island-to-island journey to move among two islands must last at maximum `max_duration_individual_journey` hours. The time needed to go from one island to the next one can be inferred from the respective departure and arrival timetable.
+When this constraint is active, every island-to-island journey to move among two islands must last at maximum `max_duration_individual_journey` hours. The time needed to go from one island to the next one can be inferred from the respective *departure* and *arrival* timetable.
 
 #### **Maximum L1-norm distance individual journey** (`max_L1_distance_individual_journey`)
 
@@ -175,8 +175,8 @@ Structure storing the individual features of an island.
 - The `x` and `y` float attributes specify the *x* and *y* position of the island in a cartesian reference system. The 2D map is a flat plane.
 - The `departure` and `arrival` float attributes are a timetable of the exact time you have to depart from or to arrive to the island, to exploit its specific weather to being able to set sail or to dock. Note that to keep things simple the decimal places are not representing the minutes in *mod* 60. A value of 8.43 doesn't mean 43 minutes past 8, but that it's 43% of an hour past 8. Treat it as a normal float value.
 To keep things simple, the arrival times of all the islands are later than the departure times of all the islands. This means in every possible journey between two island you depart and arrive later on the same day, always.
-- The `nights` integer attribute specifies how many nights you have to spend on the island before you can depart to the next archipelago. If `nights` is 1, it means you arrive in the island and you depart the next day, irrelevant of the arrival/departure timetable.
-- The `delta_crew` integer attribute specifies how many people will leave the crew (negative value) or how many join the crew (positive value) if you visit the island.
+- The `nights` integer attribute specifies the exact amount of nights you have to spend on the island before you can depart to the next island. If `nights` is 1, it means you arrive in the island and you depart the next day, irrelevant of the arrival/departure timetable. The islands of the first and last archipelagos have `nights` = 0.
+- The `delta_crew` integer attribute specifies how many people will leave the crew (negative value) or how many join the crew (positive value) if you visit the island. The islands of the first and last archipelago have `delta_crew` = 0.
 
 </details>
 
@@ -206,7 +206,7 @@ Structure storing the data of an optimization problem. Input of the function `so
 - The `start_crew` integer attribute specifies how many people are in the crew (including the captain) at the beginning of the voyage.
 - The `islands` attribute is a tuple containing a sequence of `Island`. The islands are ordered based on their `id` attribute.
 - The `constraints` attribute contains the following:
-    - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
+    - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of `nights` an island should have to be able to visit it.
     - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
     - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each island-to-island jounrey can last. Treat it as a normal float value.

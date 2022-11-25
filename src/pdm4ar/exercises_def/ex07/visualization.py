@@ -416,7 +416,7 @@ class Viz:
                             ax.text(
                                 island.x,
                                 island.y - 0.4 * island_radius_viz,
-                                f"t compass: {island.nights}",
+                                f"nights: {island.nights}",
                                 fontsize=text_size,
                                 ha="center",
                                 va="center",
