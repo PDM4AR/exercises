@@ -73,7 +73,7 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
 
 ## Modeling
 
-To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). The final goal is to find an optimal solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit.
+To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). The final goal is to find an optimal feasible solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit, among those in the container.
 
 ### **Constraints**
 
@@ -281,16 +281,20 @@ Therefore, the test server will also test your code on a number of problems with
 
 #### **Feasibility performance**
 
-For the feasibility performance, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct}}{N_{total}}$. A test case is *correctly* computed if you match the ground truth feasibility status of the problem. If by any chance the ground truth status is *unfeasible* but you state it is *feasible* while your solution is not violating any constraints, the test case is considered *correctly* computed.
+For the feasibility performance, we use an (*1* ) **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct}}{N_{total}}$. A test case is *correctly* computed if you match the ground truth feasibility status of the problem. If by any chance the ground truth status is *unfeasible* but you state it is *feasible* while your solution is not violating any constraints, the test case is considered *correctly* computed.
 
-#### **Constraints performance**
+#### **Constraint performances**
 
-For the constraints performance, we use multiple **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{total,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints.
+For the constraint performances, we use multiple (*6* ) **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{total,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints.
 
-#### **Costs performance**
+#### **Cost performances**
 
-For the costs scores, we use multiple **accuracy** metrics, one for each cost, which we compute by calculating the average from the individual cost scores of the *feasible* test cases where that cost should be optimized: $\frac{\sum score_{i}}{N_{total,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance the cost of your solution is more optimal than our ground truth optimal cost, given that your solution is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
+For the cost performances, we use multiple (*5* ) **accuracy** metrics, one for each cost, which we compute by calculating the average from the individual cost scores of the *feasible* test cases where that cost should be optimized: $\frac{\sum score_{i}}{N_{total,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance the cost of your solution is more optimal than our ground truth optimal cost, given that your solution is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
 Note that we are checking the cost of your feasible voyage plan (and not the voyage plan itself) since there is only one optimal cost, but that can be generated by different optimal solutions/voyage plans.
+
+#### **Total performance**
+
+Finally, the total performance of the exercise is a simple average of the previous 12 accuracy metric performances.
 
 
 ## Report
