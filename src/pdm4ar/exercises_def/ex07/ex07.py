@@ -511,7 +511,7 @@ def ex07_evaluation(
 
     if timing > algo_in_timeout:
         raise TestCaseTimeoutException(
-            f"Exceeded test case timeout: {algo_in_timeout} seconds."
+            f"Exceeded test case timeout: {1000*timing:.0f} ms > {1000*algo_in_timeout:.0f} ms."
         )
     else:
         timing = None

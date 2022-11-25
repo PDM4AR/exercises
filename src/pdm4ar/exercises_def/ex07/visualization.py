@@ -70,6 +70,8 @@ class Viz:
         if timing is not None:
             print(red + "Time exceeded: " + reset + f"{1000*timing:.3f} ms")
 
+        # print(f"\nStart crew: {problem.start_crew}")
+
         text_feasibility = f"\nFeasibility: \n\tEst.: {est_cost.feasibility.name}"
         if gt_cost is not None:
             text_feasibility += f"\n\tGT: {gt_cost.feasibility.name}"
