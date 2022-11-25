@@ -5,15 +5,18 @@ from typing import Any, Optional
 from reprep import Report
 import numpy as np
 import timeit
+import copy
 
-from pdm4ar.exercises import __ex_version__, __evaluation_comment__
+
 
 from .data import *
 from .structures import *
 from .visualization import Viz
+from pdm4ar.exercises.ex07 import __ex_version__
 from pdm4ar.exercises.ex07.ex07 import solve_optimization
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.structures_time import TestCaseTimeoutException
+from pdm4ar import __ex_version_comment_evaluation__
 
 class TestCaseSanityCheckException(Exception):
     pass
@@ -26,7 +29,7 @@ class TestVoyage(ExIn):
     test_id: int
     problem: Optional[ProblemVoyage]
     seed: Optional[int]
-    timeout: int
+    timeout: int # Timing not including report generation
 
     def str_id(self) -> str:
         return f"{self.optimization_cost.name} - test {self.test_id}"
@@ -84,14 +87,21 @@ def ex07_performance_aggregator(
 
     if overall_n_test_feasibility > 0:
         overall_feasibility /= overall_n_test_feasibility
+    else:
+        overall_feasibility = np.nan
     for cost_name in OptimizationCost.__members__.keys():
         if overall_n_test_costs[cost_name] > 0:
             overall_costs[cost_name] /= overall_n_test_costs[cost_name]
+        else:
+            overall_costs[cost_name] = np.nan
     for constraint_name in Violations.__annotations__.keys():
         if overall_n_test_constraints[constraint_name] > 0:
             overall_constraints[constraint_name] /= overall_n_test_constraints[
                 constraint_name
             ]
+        else:
+            overall_constraints[constraint_name] = np.nan
+
 
     feasibility_performance = (
         overall_feasibility if voyage_type == CaseVoyage.test_gt else np.nan
@@ -121,7 +131,7 @@ def ex07_performance_aggregator(
     else:
         return Ex07FinalPerformanceWithComment(
             feasibility_performance, constraints_performance, costs_performance,
-            __evaluation_comment__
+            __ex_version_comment_evaluation__
         )
 
 
@@ -480,7 +490,7 @@ def ex07_evaluation(
         raise ValueError(algo_in_type)
 
     start = timeit.default_timer()
-    est_solution = solve_optimization(problem)
+    est_solution = solve_optimization(copy.deepcopy(problem))
     stop = timeit.default_timer()
     timing = stop - start
 
@@ -501,7 +511,7 @@ def ex07_evaluation(
 
     if timing > algo_in_timeout:
         raise TestCaseTimeoutException(
-            f"Exceeded test case timeout: {algo_in_timeout} seconds."
+            f"Exceeded test case timeout: {1000*timing:.0f} ms > {1000*algo_in_timeout:.0f} ms."
         )
     else:
         timing = None
@@ -545,7 +555,7 @@ def get_exercise7() -> Exercise:
     elif test_type == CaseVoyage.random:
         seed = 0
         n_tests = 3  # n. tests for each cost
-        timeout = 20
+        timeout = 20 # Timing not including report generation
 
         for test_cost in OptimizationCost.get_costs():
             # some calculus on the seed to generate a new
@@ -572,5 +582,5 @@ def get_exercise7() -> Exercise:
         perf_aggregator=lambda x: ex07_performance_aggregator(x, test_type),
         test_values=test_values,
         expected_results=expected_results,
-        test_case_timeout=40,
+        test_case_timeout=40, # Timing including report generation
     )

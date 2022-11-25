@@ -9,12 +9,12 @@ from .structures import *
 def island_generator(
     id: int,
     arch: int,
-    x_range: Tuple[int, int],
-    y_range: Tuple[int, int],
-    departure_range: Tuple[int, int],
-    arrival_range: Tuple[int, int],
     time_compass_range: Tuple[int, int],
     crew_range: Tuple[int, int],
+    departure_range: Tuple[int, int],
+    arrival_range: Tuple[int, int],
+    x_range: Tuple[int, int],
+    y_range: Tuple[int, int]
 ) -> Island:
 
     x = (x_range[1] - x_range[0]) * np.random.random_sample() + x_range[0]
@@ -57,8 +57,6 @@ def randomize_reset_constraints(
 
     output_constraints = []
     for name_constraint in Constraints.__annotations__.keys():
-        if p_constraints is None:
-            p_constraints = 1
         p_constraint = max(min(getattr(p_constraints, name_constraint), 1), 0)
         x = np.random.choice(
             [
@@ -113,15 +111,15 @@ def problem_generator(
         0.5 * time_compass_range[0]
         + np.random.random() * (time_compass_range[1] - time_compass_range[0])
     )
-    mean_crew_change = (crew_range[1] - crew_range[0]) / 2
+    mean_crew_change = (crew_range[1] + crew_range[0]) / 2
     if mean_crew_change > 0:
-        max_total_crew = start_crew + int(1.8 * n_arch * (mean_crew_change))
+        max_total_crew = start_crew + int(1.3 * (n_arch-2) * (mean_crew_change))
         min_total_crew = max(round(0.8 * start_crew), 1)
     elif mean_crew_change < 0:
         max_total_crew = round(1.2 * start_crew)
-        min_total_crew = max(start_crew - int(1.8 * n_arch * (mean_crew_change)), 1)
+        min_total_crew = max(start_crew + int(1.3 * (n_arch-2) * (mean_crew_change)), 1)
     else:
-        max_total_crew = round(1.8 * start_crew)
+        max_total_crew = round(1.3 * start_crew)
         min_total_crew = max(round(0.6 * start_crew), 1)
 
     islands = []
@@ -149,12 +147,12 @@ def problem_generator(
                 generated_island = island_generator(
                     island_id,
                     k,
-                    x_range,
-                    y_range,
-                    departure_range,
-                    arrival_range,
                     time_compass_range_tmp,
                     crew_range_tmp,
+                    departure_range,
+                    arrival_range,
+                    x_range,
+                    y_range
                 )
                 pos_ok = not island_is_overlapping(
                     generated_island, islands, island_radius_viz

@@ -16,6 +16,8 @@
 
 In this exercise you will learn how to solve an optimization problem translating concepts from the textual to the mathematical and programming realm.
 
+An optimization problem consists of finding an optimal solution (if it exists) that minimizes a specific **cost** while respecting equality and/or inequality **constraints** (which characterise the feasible set).
+
 The environment of the problem is a 2D map composed of islands each with its own features. The islands are divided into *N* different groups, which will be called archipelagos henceforth, identified with a number from *0* to *N-1*. Archipelagos n. *0* (first archipelago) and n. *N-1* (last archipelago) are composed of one island each. All of the other archipelagos (from n. *1* to n. *N-2*) are composed of the same amount *k* of islands.
 Hence, the total number of islands is 1+(*N-2*)\**k* +1 = (*N-2*)\**k* +2. The islands are identified by a unique id, ranging from *0* to (*N-2*)\**k*+1. They also have another tag to discern to which archipelagos they belong. Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption, just take it as it is.
 
@@ -67,7 +69,9 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     return SolutionVoyage(feasibility, voyage_plan)
 ```
 
----
+## Modeling
+
+To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). The final goal is to find an optimal solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit.
 
 ### **Constraints**
 
@@ -115,7 +119,7 @@ Plan a voyage such that the final crew size is maximized.
 
 #### **Minimize total sailing time** (`min_total_sailing_time`)
 
-Plan a voyage such that the total sailing time, i.e. the total number of hours spent in the sea during the multiple island-tosialnd journeys, is minimized.
+Plan a voyage such that the total sailing time, i.e. the total number of hours spent in the sea during the multiple island-to-island journeys, is minimized.
 
 #### **Minimize total L1-norm travelled distance** (`min_total_travelled_L1_distance`)
 
@@ -175,8 +179,8 @@ Structure storing the data of an optimization problem. Input of the function `so
 - The `islands` attribute is a tuple containing a sequence of `Island`. The islands are ordered based on their `id` attribute.
 - The `constraints` attribute contains the following:
     - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
-    - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
+    - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each island-to-island jounrey can last. Treat it as a normal float value.
     - The `max_L1_distance_individual_journey` float attribute is a constraint specifing the maximum L1-norm distance length of each island-to-island journey.
 
@@ -243,21 +247,22 @@ VoyagePlan = List[int]
 We provide some example test cases with ground truth to test the feasibility, the constraint violations and the cost optimizations of your solution. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g., by modifying the random test case generation in [src/pdm4ar/exercises_def/ex07/data.py](../src/pdm4ar/exercises_def/ex07/data.py), and then setting `test_type = CaseVoyage.random` within the function `get_exercise7` in [src/pdm4ar/exercises_def/ex07/ex07.py](../src/pdm4ar/exercises_def/ex07/ex07.py) to load your test cases and not the provided ones. 
 
 Note that the constraints have different difficulties, but if you do not implement or violate one constraint, this will not affect the performance score of the other constraints (except if you violate `voyage_order` or if you mistakenly state that the problem is *unfeasible*). However, not implementing/violating a constraint can degrade the performance score of the feasibility and of the optimization costs.
-Therefore, the test server will also test your code on a number of problems with the minimum number of active constraints at the same time, so as not to penalize the other performances score too much if you have not implemented all constraints correctly.
+Therefore, the test server will also test your code on a number of problems with the minimum number of active constraints at the same time, so as not to penalize too much the other performance scores if you have not implemented all the constraints correctly.
 
 ---
 
 #### **Feasibility performance**
 
-For the feasibility performance, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct,i}}{N_{task,i}}$. A test case is *correctly* computed if you match the ground truth feasibility status of the problem. If by any chance the ground truth status is *unfeasible* but your status is *feasible* and your solution is not violating any constraints, the test case is considered *correctly* computed.
+For the feasibility performance, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct}}{N_{total}}$. A test case is *correctly* computed if you match the ground truth feasibility status of the problem. If by any chance the ground truth status is *unfeasible* but you state it is *feasible* while your solution is not violating any constraints, the test case is considered *correctly* computed.
 
 #### **Constraints performance**
 
-For the constraints performance, we use multiple **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{task,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints.
+For the constraints performance, we use multiple **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{total,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints.
 
 #### **Costs performance**
 
-For the costs scores, we use multiple **accuracy** metrics, one for each cost, which we compute by summing the scores of the test cases where the specific cost was *correctly* optimized divided by the total number of feasible test cases where that cost should have been optimized: $\frac{\sum score_{i}}{N_{task,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance your solution is more optimal than our ground truth, given that it is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
+For the costs scores, we use multiple **accuracy** metrics, one for each cost, which we compute by calculating the average from the individual cost scores of the *feasible* test cases where that cost should be optimized: $\frac{\sum score_{i}}{N_{total,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance the cost of your solution is more optimal than our ground truth optimal cost, given that your solution is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
+Note that we are checking the cost of your feasible voyage plan (and not the voyage plan itself) since there is only one optimal cost, but that can be generated by different optimal solutions/voyage plans.
 
 
 ## Report
@@ -284,7 +289,9 @@ Remember that the images shown in the pdf report are "compressed" (*rasterized*)
 Feel free to make your own modifications to the visualization to match your debugging needs.
 
 ## Run the exercise
-If needed, update your repository with `make update`, and/or install the *pdm4ar* module with `pip3 install -e [path/to/exercises_repo]`.
+Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
+
+To be able to import and use *PuLP*, *Google OR-Tools* or *cvxpy*, please rebuild the container running the VS Code command (click Ctrl+Shift+P) `Remote-Containers: Rebuild Container` or `Remote-Containers: Rebuild and Reopen in Container`, and then reinstall the *pdm4ar* module running `pip3 install -e [path/to/exercises_repo]` in the VS Code terminal.
 
 Run the exercise with:
 ```shell
@@ -302,4 +309,5 @@ After running the exercise, a report will be generated in the folder `out/ex07` 
 - Since the islands stored in the `islands` tuple of `ProblemVoyage` are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
 - When working with distances among islands, consider the islands as dimensionless points.
 - You might want to model the problem as a Mixed Integer Linear Program.
-- To model the problem notice that in the environment there are already powerful libraries to solve optimization problems. For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). To be able to use *PuLP*, *Google OR-Tools* or *cvxpy*, please rebuild the container, running the VS Code command (click Ctrl+Shift+P) `Remote-Containers: Rebuild Container` or `Remote-Containers: Rebuild and Reopen in Container`.
+- You might want to add additional optimization variables to model some constraints and/or costs. Some ideas are shown in *Lesson 4: Steering*.
+

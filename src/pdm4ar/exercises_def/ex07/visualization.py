@@ -63,12 +63,14 @@ class Viz:
         if self.activate_colors:
             good, bad = "  \U0001F603", "  \U0001F641"
             green, red, reset = "\033[38;2;0;255;0m", "\033[38;2;255;0;0m", "\033[0m"
-            arrow = ""
+            tick, cross = "",""
         else:
-            good, bad, green, red, reset, arrow = "", "", "", "", "", " <--"
+            good, bad, green, red, reset, tick, cross = "", "", "", "", "", "\u2714", "\u2716"
 
         if timing is not None:
             print(red + "Time exceeded: " + reset + f"{1000*timing:.3f} ms")
+
+        # print(f"\nStart crew: {problem.start_crew}")
 
         text_feasibility = f"\nFeasibility: \n\tEst.: {est_cost.feasibility.name}"
         if gt_cost is not None:
@@ -89,24 +91,38 @@ class Viz:
                 violation = getattr(violations, violation_name)
                 if violation is not None:
                     text_violation += (
-                        f"\n\t{red if violation else green}{violation_name}"
+                        f"\n\t{red+cross if violation else green+tick} {violation_name}"
                         + f"{': ' if violation_name != 'voyage_order' else ''}"
                         + (
                             f"{constraint:.2f}"
                             if isinstance(constraint, float)
                             else f"{constraint}"
                         )
-                        + f"{arrow}{reset}"
+                        + reset
                     )
                     n_violations += 1 if violation else 0
+                elif feasibility_score not in (0,1):
+                    text_violation += (
+                        f"\n\t? {violation_name}"
+                        + f"{': ' if violation_name != 'voyage_order' else ''}"
+                        + (
+                            f"{constraint:.2f}"
+                            if isinstance(constraint, float)
+                            else f"{constraint}"
+                        )
+                    )
 
-        fraction_violations = f"{n_violations}/{n_constraints}"
+
+        if feasibility_score in (0,1) or est_cost.feasibility == Feasibility.feasible:
+            fraction_enforced = f"{n_constraints-n_violations}/{n_constraints}"
+        else:
+            fraction_enforced = f"?/{n_constraints}"
         # text_violation = f"\nConstraints {red if n_violations > 0 else green}" + \
-        #                  f"{fraction_violations} violation{'s' if n_violations != 1 else ''}" + \
+        #                  f"{fraction_enforced} enforced" + \
         #                  f":{reset}{text_violation}"
         if not self.activate_colors:
             text_violation = (
-                f"\n\t{fraction_violations} violation{'s' if n_violations != 1 else ''}"
+                f"\n\t{fraction_enforced} enforced:"
                 + text_violation
             )
         text_violation = "\nConstraints: " + text_violation
@@ -207,10 +223,17 @@ class Viz:
                         "\u2716" if violation else "\u2714"
                     ) + f" {violation_name}\n"
                     n_violations += 1 if violation else 0
+                elif feasibility_score not in (0,1):
+                    text_violation += (
+                        f"? {violation_name}\n"
+                    )
 
-        fraction_violations = f"{n_violations}/{n_constraints}"
+        if feasibility_score in (0,1) or est_cost.feasibility == Feasibility.feasible:
+            fraction_enforced = f"{n_constraints-n_violations}/{n_constraints}"
+        else:
+            fraction_enforced = f"?/{n_constraints}"
         text_violation = (
-            f"{fraction_violations} violation{'s' if n_violations != 1 else ''}:\n"
+            f"{fraction_enforced} enforced:\n"
             + text_violation
         )
         r_viz.text("Constraints: ", text_violation)
