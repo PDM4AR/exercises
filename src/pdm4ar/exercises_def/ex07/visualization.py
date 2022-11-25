@@ -68,6 +68,8 @@ class Viz:
 
         # print(f"\nStart crew: {problem.start_crew}")
 
+        # print(f"\nStart crew: {problem.start_crew}")
+
         text_feasibility = f"\nFeasibility: \n\tEst.: {est_cost.feasibility.name}"
         if gt_cost is not None:
             text_feasibility += f"\n\tGT: {gt_cost.feasibility.name}"
