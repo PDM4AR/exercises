@@ -286,11 +286,13 @@ Note that depending on the number of islands, `report_viz` can be really slow, w
 - The speed of the report generation is also greatly influenced by the size of the images generated with `report_viz` and `report_viz_extra`. The image size (due to the map size) unfortunately affects also the non-overlapping of the figures, and in case you selected `report_viz_extra`, the readability of the extra text.
     You can choose your preferred size setting the ***`FIGURE_WIDTH`*** global variable (note that this specifies the size in *points*, not *pixels*. Think of it as if you are choosing the [DPI](https://en.wikipedia.org/wiki/Dots_per_inch), while the actual pixel size depends on the map size). Bigger the value, the slower the images generation but the better the readability.
 
+- If your report's settings (combined with the performance of your PC) produces a slow report generation, you will probably incur in a *Timeout Exception*: to avoid this, increase the `test_case_timeout` variable at the end of [src/pdm4ar/exercises_def/ex07/ex07.py](../src/pdm4ar/exercises_def/ex07/ex07.py) during your debugging - but remember that the official timeout is the original one. Server-side, the speed of the report generation was already taken into account when the timeout value was chosen.
+
 - If your terminal is not correctly printing the colors (very improbable), or if you want/need better contrastive readability in both the terminal and the report, set the ***`ACTIVATE_COLORS`*** global variable to `False`.
 
 Remember that the images shown in the pdf report are "compressed" (*rasterized*): to see the "uncompressed" (*vector graphic*) version click the **main** link below each image.
 
-Feel free to make your own modifications to the visualization to match your debugging needs.
+Feel free to change the provided report's settings and to make your own modifications to the visualization to match your debugging needs.
 
 ## Run the exercise
 Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
@@ -313,5 +315,5 @@ After running the exercise, a report will be generated in the folder `out/ex07` 
 - Since the islands stored in the `islands` tuple of `ProblemVoyage` are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
 - When working with distances among islands, consider the islands as dimensionless points.
 - You might want to model the problem as a Mixed Integer Linear Program.
-- You might want to add additional optimization variables to model some constraints and/or costs. Some ideas are shown in *Lesson 4: Steering*.
+- You might want to add additional optimization variables to model some constraints and/or costs.
 
