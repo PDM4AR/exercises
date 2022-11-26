@@ -71,7 +71,7 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
 
 ## Modeling
 
-To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). The final goal is to find an optimal solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit.
+To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). The final goal is to find an optimal feasible solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit, among those in the container.
 
 ### **Constraints**
 
@@ -84,7 +84,7 @@ This constraint is always active. Your voyage plan must start from the first arc
 
 #### **Minimum nights** (`min_nights_individual_island`)
 
-When this constraint is active, you can only visit island whose number of waiting nights is at least `min_nights_individual_island`. When you arrive in an island you have to wait a specific amount of nights before departing towards the next island. Each island has its specific value of how many night you should stay in it before departing. Only the starting island an the ending island have a value of 0.
+When this constraint is active, you can only visit islands whose number of waiting *nights* is at least `min_nights_individual_island`. This constraint is not applied to the islands of the first and last archipelago.
 
 #### **Minimum crew size** (`min_total_crew`)
 
@@ -96,7 +96,7 @@ When this constraint is active, the crew size cannot be greater than `max_total_
 
 #### **Maximum duration individual journey** (`max_duration_individual_journey`)
 
-When this constraint is active, every island-to-island journey to move among two islands must last at maximum `max_duration_individual_journey` hours. The time needed to go from one island to the next one can be inferred from the respective departure and arrival timetable.
+When this constraint is active, every island-to-island journey to move among two islands must last at maximum `max_duration_individual_journey` hours. The time needed to go from one island to the next one can be inferred from the respective *departure* and *arrival* timetable.
 
 #### **Maximum L1-norm distance individual journey** (`max_L1_distance_individual_journey`)
 
@@ -147,8 +147,8 @@ Structure storing the individual features of an island.
 - The `x` and `y` float attributes specify the *x* and *y* position of the island in a cartesian reference system. The 2D map is a flat plane.
 - The `departure` and `arrival` float attributes are a timetable of the exact time you have to depart from or to arrive to the island, to exploit its specific weather to being able to set sail or to dock. Note that to keep things simple the decimal places are not representing the minutes in *mod* 60. A value of 8.43 doesn't mean 43 minutes past 8, but that it's 43% of an hour past 8. Treat it as a normal float value.
 To keep things simple, the arrival times of all the islands are later than the departure times of all the islands. This means in every possible journey between two island you depart and arrive later on the same day, always.
-- The `nights` integer attribute specifies how many nights you have to spend on the island before you can depart to the next archipelago. If `nights` is 1, it means you arrive in the island and you depart the next day, irrelevant of the arrival/departure timetable.
-- The `delta_crew` integer attribute specifies how many people will leave the crew (negative value) or how many join the crew (positive value) if you visit the island.
+- The `nights` integer attribute specifies the exact amount of nights you have to spend on the island before you can depart to the next island. If `nights` is 1, it means you arrive in the island and you depart the next day, irrelevant of the arrival/departure timetable. The islands of the first and last archipelagos have `nights` = 0.
+- The `delta_crew` integer attribute specifies how many people will leave the crew (negative value) or how many join the crew (positive value) if you visit the island. The islands of the first and last archipelago have `delta_crew` = 0.
 
 </details>
 
@@ -178,7 +178,7 @@ Structure storing the data of an optimization problem. Input of the function `so
 - The `start_crew` integer attribute specifies how many people are in the crew (including the captain) at the beginning of the voyage.
 - The `islands` attribute is a tuple containing a sequence of `Island`. The islands are ordered based on their `id` attribute.
 - The `constraints` attribute contains the following:
-    - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of nights you have to spend in every island to get the ship fixed before departing again to a new island. The ocean currents are badly damaging the ship every time you set sail.
+    - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of `nights` an island should have to be able to visit it.
     - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
     - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
     - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each island-to-island jounrey can last. Treat it as a normal float value.
@@ -253,16 +253,20 @@ Therefore, the test server will also test your code on a number of problems with
 
 #### **Feasibility performance**
 
-For the feasibility performance, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct}}{N_{total}}$. A test case is *correctly* computed if you match the ground truth feasibility status of the problem. If by any chance the ground truth status is *unfeasible* but you state it is *feasible* while your solution is not violating any constraints, the test case is considered *correctly* computed.
+For the feasibility performance, we use an (*1* ) **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct}}{N_{total}}$. A test case is *correctly* computed if you match the ground truth feasibility status of the problem. If by any chance the ground truth status is *unfeasible* but you state it is *feasible* while your solution is not violating any constraints, the test case is considered *correctly* computed.
 
-#### **Constraints performance**
+#### **Constraint performances**
 
-For the constraints performance, we use multiple **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{total,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints.
+For the constraint performances, we use multiple (*6* ) **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was active: $\frac{N_{correct,i}}{N_{total,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all of the other active constraints.
 
-#### **Costs performance**
+#### **Cost performances**
 
-For the costs scores, we use multiple **accuracy** metrics, one for each cost, which we compute by calculating the average from the individual cost scores of the *feasible* test cases where that cost should be optimized: $\frac{\sum score_{i}}{N_{total,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance the cost of your solution is more optimal than our ground truth optimal cost, given that your solution is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
+For the cost performances, we use multiple (*5* ) **accuracy** metrics, one for each cost, which we compute by calculating the average from the individual cost scores of the *feasible* test cases where that cost should be optimized: $\frac{\sum score_{i}}{N_{total,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance the cost of your solution is more optimal than our ground truth optimal cost, given that your solution is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
 Note that we are checking the cost of your feasible voyage plan (and not the voyage plan itself) since there is only one optimal cost, but that can be generated by different optimal solutions/voyage plans.
+
+#### **Total performance**
+
+Finally, the total performance of the exercise is a simple average of the previous 12 accuracy metric performances.
 
 
 ## Report
@@ -282,11 +286,13 @@ Note that depending on the number of islands, `report_viz` can be really slow, w
 - The speed of the report generation is also greatly influenced by the size of the images generated with `report_viz` and `report_viz_extra`. The image size (due to the map size) unfortunately affects also the non-overlapping of the figures, and in case you selected `report_viz_extra`, the readability of the extra text.
     You can choose your preferred size setting the ***`FIGURE_WIDTH`*** global variable (note that this specifies the size in *points*, not *pixels*. Think of it as if you are choosing the [DPI](https://en.wikipedia.org/wiki/Dots_per_inch), while the actual pixel size depends on the map size). Bigger the value, the slower the images generation but the better the readability.
 
+- If your report's settings (combined with the performance of your PC) produces a slow report generation, you will probably incur in a *Timeout Exception*: to avoid this, increase the `test_case_timeout` variable at the end of [src/pdm4ar/exercises_def/ex07/ex07.py](../src/pdm4ar/exercises_def/ex07/ex07.py) during your debugging - but remember that the official timeout is the original one. Server-side, the speed of the report generation was already taken into account when the timeout value was chosen.
+
 - If your terminal is not correctly printing the colors (very improbable), or if you want/need better contrastive readability in both the terminal and the report, set the ***`ACTIVATE_COLORS`*** global variable to `False`.
 
 Remember that the images shown in the pdf report are "compressed" (*rasterized*): to see the "uncompressed" (*vector graphic*) version click the **main** link below each image.
 
-Feel free to make your own modifications to the visualization to match your debugging needs.
+Feel free to change the provided report's settings and to make your own modifications to the visualization to match your debugging needs.
 
 ## Run the exercise
 Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
@@ -309,5 +315,5 @@ After running the exercise, a report will be generated in the folder `out/ex07` 
 - Since the islands stored in the `islands` tuple of `ProblemVoyage` are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
 - When working with distances among islands, consider the islands as dimensionless points.
 - You might want to model the problem as a Mixed Integer Linear Program.
-- You might want to add additional optimization variables to model some constraints and/or costs. Some ideas are shown in *Lesson 4: Steering*.
+- You might want to add additional optimization variables to model some constraints and/or costs.
 

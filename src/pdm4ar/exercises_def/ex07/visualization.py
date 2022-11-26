@@ -14,7 +14,7 @@ REPORT_TYPE = ReportType.report_viz
 # Choose width of the image: small value for fast rendering,
 # trading off in large maps non-overlapping of figures, and most importantly
 # readability of the extra text if "report_viz_extra" is selected.
-FIGURE_WIDTH = 800
+FIGURE_WIDTH = 400
 #
 # Set to False to remove colors from terminal and enhance contrast in the report.
 ACTIVATE_COLORS = True
@@ -43,10 +43,11 @@ class Viz:
         print(f"\n{pre}{report_type_text}{post}\n")
 
     def print_title(self, title: str) -> None:
-        pre, post = (
-            ("\033[55;45m  ", "  \033[0m") if self.activate_colors else ("# ", "")
-        )
-        print(f"\n\n{pre}{title}{post}")
+        if self.report_type >= ReportType.terminal:
+            pre, post = (
+                ("\033[55;45m  ", "  \033[0m") if self.activate_colors else ("# ", "")
+            )
+            print(f"\n\n{pre}{title}{post}")
 
     def display_text_terminal(
         self,
@@ -56,7 +57,6 @@ class Viz:
         est_cost: Cost,
         gt_cost: Cost,
         cost_score: CostScore,
-        timing: float,
         violations: Violations,
     ) -> None:
 
@@ -67,8 +67,7 @@ class Viz:
         else:
             good, bad, green, red, reset, tick, cross = "", "", "", "", "", "\u2714", "\u2716"
 
-        if timing is not None:
-            print(red + "Time exceeded: " + reset + f"{1000*timing:.3f} ms")
+        # print(f"\nStart crew: {problem.start_crew}")
 
         # print(f"\nStart crew: {problem.start_crew}")
 
@@ -176,7 +175,6 @@ class Viz:
         est_cost: Cost,
         gt_cost: Cost,
         cost_score: CostScore,
-        timing: float,
         violations: Violations,
     ) -> None:
 
@@ -197,12 +195,11 @@ class Viz:
                     )
         r_viz.text("Problem:", text_problem)
 
-        if timing is not None:
-            r_viz.text("Time exceeded: ", f"{1000*timing:.3f} ms")
-
         text_feasibility = f"Est.: {est_cost.feasibility.name}"
         if gt_cost is not None:
             text_feasibility += f"\nGT: {gt_cost.feasibility.name}"
+            text_feasibility += f"\nScore: {feasibility_score}"
+        else:
             text_feasibility += f"\nScore: {feasibility_score}"
         r_viz.text("Feasibility:", text_feasibility)
 
@@ -287,7 +284,6 @@ class Viz:
         voyage_plan: Optional[List[int]],
         est_cost: Optional[Cost],
         violations: Optional[Violations] = None,
-        timing: Optional[float] = None,
     ) -> None:
 
         if self.report_type == ReportType.none:
@@ -301,7 +297,6 @@ class Viz:
                 est_cost,
                 gt_cost,
                 cost_score,
-                timing,
                 violations,
             )
 
@@ -424,7 +419,7 @@ class Viz:
                             ax.text(
                                 island.x,
                                 island.y - 0.4 * island_radius_viz,
-                                f"t compass: {island.nights}",
+                                f"nights: {island.nights}",
                                 fontsize=text_size,
                                 ha="center",
                                 va="center",
@@ -484,6 +479,5 @@ class Viz:
                     est_cost,
                     gt_cost,
                     cost_score,
-                    timing,
                     violations,
                 )
