@@ -14,7 +14,7 @@ REPORT_TYPE = ReportType.report_viz
 # Choose width of the image: small value for fast rendering,
 # trading off in large maps non-overlapping of figures, and most importantly
 # readability of the extra text if "report_viz_extra" is selected.
-FIGURE_WIDTH = 800
+FIGURE_WIDTH = 400
 #
 # Set to False to remove colors from terminal and enhance contrast in the report.
 ACTIVATE_COLORS = True
@@ -43,10 +43,11 @@ class Viz:
         print(f"\n{pre}{report_type_text}{post}\n")
 
     def print_title(self, title: str) -> None:
-        pre, post = (
-            ("\033[55;45m  ", "  \033[0m") if self.activate_colors else ("# ", "")
-        )
-        print(f"\n\n{pre}{title}{post}")
+        if self.report_type >= ReportType.terminal:
+            pre, post = (
+                ("\033[55;45m  ", "  \033[0m") if self.activate_colors else ("# ", "")
+            )
+            print(f"\n\n{pre}{title}{post}")
 
     def display_text_terminal(
         self,
@@ -197,6 +198,8 @@ class Viz:
         text_feasibility = f"Est.: {est_cost.feasibility.name}"
         if gt_cost is not None:
             text_feasibility += f"\nGT: {gt_cost.feasibility.name}"
+            text_feasibility += f"\nScore: {feasibility_score}"
+        else:
             text_feasibility += f"\nScore: {feasibility_score}"
         r_viz.text("Feasibility:", text_feasibility)
 

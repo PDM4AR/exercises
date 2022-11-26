@@ -341,4 +341,4 @@ After running the exercise, a report will be generated in the folder `out/ex07` 
 - Since the islands stored in the `islands` tuple of `ProblemVoyage` are ordered based on their `id` and since each archipelago has the same amount of islands (apart from the first and the last one), you can use a smart indexing to access islands of the same archipelago.
 - When working with distances among islands, consider the islands as dimensionless points.
 - You might want to model the problem as a Mixed Integer Linear Program.
-- You might want to add additional optimization variables to model some constraints and/or costs. Some ideas are shown in *Lesson 4: Steering*.
+- You might want to add additional optimization variables to model some constraints and/or costs.

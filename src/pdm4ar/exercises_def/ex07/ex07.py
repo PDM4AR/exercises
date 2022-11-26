@@ -15,7 +15,6 @@ from .visualization import Viz
 from pdm4ar.exercises.ex07 import __ex_version__
 from pdm4ar.exercises.ex07.ex07 import solve_optimization
 from pdm4ar.exercises_def import Exercise, ExIn
-from pdm4ar.exercises_def.structures_time import TestCaseTimeoutException
 from pdm4ar import __ex_version_comment_evaluation__
 
 class TestCaseSanityCheckException(Exception):
@@ -29,7 +28,7 @@ class TestVoyage(ExIn):
     test_id: int
     problem: Optional[ProblemVoyage]
     seed: Optional[int]
-    timeout: int # Timing not including report generation
+    timeout: int # Not used anymore
 
     def str_id(self) -> str:
         return f"{self.optimization_cost.name} - test {self.test_id}"
@@ -480,7 +479,6 @@ def ex07_evaluation(
     algo_in_optimization_cost = algo_in.optimization_cost
     algo_in_probem = algo_in.problem
     algo_in_seed = algo_in.seed
-    algo_in_timeout = algo_in.timeout
 
     title = algo_in.str_id()
     r = Report(title)
@@ -517,12 +515,7 @@ def ex07_evaluation(
         violations,
     )
 
-    if timing > algo_in_timeout:
-        raise TestCaseTimeoutException(
-            f"Exceeded test case timeout: {1000*timing:.0f} ms > {1000*algo_in_timeout:.0f} ms."
-        )
-    else:
-        performance = OptimizationPerformance(feasibility_score, violations, cost_score)
+    performance = OptimizationPerformance(feasibility_score, violations, cost_score)
 
     visualizer.visualize(
         r,
@@ -561,7 +554,6 @@ def get_exercise7() -> Exercise:
     elif test_type == CaseVoyage.random:
         seed = 0
         n_tests = 3  # n. tests for each cost
-        timeout = 20 # Timing not including report generation
 
         for test_cost in OptimizationCost.get_costs():
             # some calculus on the seed to generate a new
@@ -575,7 +567,7 @@ def get_exercise7() -> Exercise:
                 # deterministic seed for each test
                 test_seed = min(seed * (1 + (test_id * 2)), 2**31)
                 test_values.append(
-                    TestVoyage(test_type, test_cost, test_id, None, test_seed, timeout)
+                    TestVoyage(test_type, test_cost, test_id, None, test_seed, None)
                 )
                 expected_results.append(None)
 
@@ -588,5 +580,5 @@ def get_exercise7() -> Exercise:
         perf_aggregator=lambda x: ex07_performance_aggregator(x, test_type),
         test_values=test_values,
         expected_results=expected_results,
-        test_case_timeout=40, # Timing including report generation
+        test_case_timeout=10, # For debugging, increase value if your report generation is slow!
     )
