@@ -91,10 +91,8 @@ class Constraints:
 
 @dataclass(frozen=True)
 class ProblemVoyage:
-    """Used to specify the preferred report type.\n
-    ---
+    """Structure storing the data of an optimization problem. Input of the function `solve_optimization`.\n
     From the doc:\n
-    Structure storing the data of an optimization problem. Input of the function `solve_optimization`.
     - The `optimization_cost` CostType attribute declares the cost you have to optimize.
     - The `start_crew` integer attribute specifies how many people are in the crew (including the captain) at the beginning of the voyage.
     - The `islands` attribute is a tuple containing a sequence of `Island`. The islands are ordered based on their `id` attribute.

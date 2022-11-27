@@ -31,15 +31,17 @@ Common to all the plans is that they start from the first archipelago and end at
 
 Here you can see two examples of such planned voyages:
 
-<!--- | ![Example1](https://user-images.githubusercontent.com/79461707/199726616-4b6eff71-90a0-4416-83de-e5c98260db46.png) | -->
-| ![Example1](https://user-images.githubusercontent.com/79461707/199729360-26647058-7399-46fc-a4aa-aa2353171643.jpeg) |
-|:--:|
-| <b>voyage plan: 0 -> 1 -> 8 -> 12 -> 13</b>|
+<p align="center">
+  <img alt="img-name" src="https://user-images.githubusercontent.com/79461707/199729360-26647058-7399-46fc-a4aa-aa2353171643.jpeg">
+  <br>
+    <em>voyage plan: 0 -> 1 -> 8 -> 12 -> 13</em>
+</p>
 
-<!--- | ![Example2](https://user-images.githubusercontent.com/79461707/199726634-d0222b71-c160-42de-b7cb-c877febf7b40.png) | -->
-| ![Example2](https://user-images.githubusercontent.com/79461707/199729335-40cfaca9-2256-498f-bd4e-163cb8429dba.jpeg) |
-|:--:|
-| <b>voyage plan: 0 -> 15 -> 21 -> 38 -> 67 -> 88 -> 91 -> 117 -> 130 -> 151 -> 165 -> 196 -> 203 -> 224 -> 235</b>|
+<p align="center">
+  <img alt="img-name" src="https://user-images.githubusercontent.com/79461707/199729335-40cfaca9-2256-498f-bd4e-163cb8429dba.jpeg">
+  <br>
+    <em>voyage plan: 0 -> 15 -> 21 -> 38 -> 67 -> 88 -> 91 -> 117 -> 130 -> 151 -> 165 -> 196 -> 203 -> 224 -> 235</em>
+</p>
 
 ---
 
