@@ -14,18 +14,22 @@
 
 ## Problem overview
 
-> You are the captain of a pirate ship and you desire to travel through the *Short Route*, a misleading name for a dangerous area of the oceans filled with islands, to attempt to reach the *Two Slices*, the legendary pirate treasure which lies on the last island of the *Short Route*.
+> You are the captain of a pirate ship, and you desire to travel through the *Short Route*, a misleading name for a dangerous area of the oceans filled with islands, to attempt to reach the *Two Slices*, the legendary pirate treasure which lies on the last island of the *Short Route*.
 
-In this exercise you will learn how to solve an optimization problem translating concepts from the textual to the mathematical and programming realm.
+You plan your voyage on a 2D map where all the islands and the corresponding features are annotated. 
+The islands are divided into *N* different archipelagos identified with a number from *0* to *N-1*.
+The first archipelago (# *0*) and the last one (# *N-1*) are each formed by a single island. 
+All the other archipelagos (from *1* to *N-2*) are instead composed by *k* islands each.
+Hence, the total number of islands is $$(N-2)*k + 2$$.
+The islands are identified by a unique id, ranging from $$0$$ to $$(N-2)*k + 1$$. 
+Moreover, they another tag indicates to which archipelagos they belong. 
+Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption.
 
-An optimization problem consists of finding an optimal solution (if it exists) that minimizes a specific **cost** while respecting equality and/or inequality **constraints** (which characterise the feasible set).
+Your task is to compute a voyage plan as an ordered list of islands to be visited. 
+The plan shall optimize a given cost while satisfying different constraints (described below).
+Common to all the plans is that they start from the first archipelago and end at the last archipelago, visiting one and only one island of the other archipelagos following the order of the archipelago's identification number.
 
-The environment of the problem is a 2D map composed of islands each with its own features. The islands are divided into *N* different groups, which will be called archipelagos henceforth, identified with a number from *0* to *N-1*. Archipelagos n. *0* (first archipelago) and n. *N-1* (last archipelago) are composed of one island each. All of the other archipelagos (from n. *1* to n. *N-2*) are composed of the same amount *k* of islands.
-Hence, the total number of islands is 1+(*N-2*)\**k* +1 = (*N-2*)\**k* +2. The islands are identified by a unique id, ranging from *0* to (*N-2*)\**k*+1. They also have another tag to discern to which archipelagos they belong. Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption, just take it as it is.
-
-Your task is to compute a voyage plan (an ordered list of islands to be visited) optimized for a specific cost while satifying some constraints, starting from the first archipelago and ending at the last archipelago, visiting one and only one island of the other archipelagos following the order of the archipelago's identification number.
-
-Here you can see two examples of correct planned voyages:
+Here you can see two examples of such planned voyages:
 
 <!--- | ![Example1](https://user-images.githubusercontent.com/79461707/199726616-4b6eff71-90a0-4416-83de-e5c98260db46.png) | -->
 | ![Example1](https://user-images.githubusercontent.com/79461707/199729360-26647058-7399-46fc-a4aa-aa2353171643.jpeg) |
@@ -39,7 +43,9 @@ Here you can see two examples of correct planned voyages:
 
 ---
 
-You have to implement the optimization inside the function `solve_optimization` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py). The input you receive is a `ProblemVoyage` structure, and you have to output back a `SolutionVoyage` structure. Through the `ProblemVoyage` input you have access to the different active constraints and the specific cost your voyage plan must satisfy and optimize.
+Your task is to implement the function `solve_optimization` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py). 
+As input, you receive a `ProblemVoyage`, and you need to return a `SolutionVoyage`. 
+Through the `ProblemVoyage` structure you have access to the different active constraints and the specific cost that your voyage plan must optimize.
 
 ```python
 def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
@@ -73,7 +79,9 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
 
 ## Modeling
 
-To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). The final goal is to find an optimal feasible solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit, among those in the container.
+To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). 
+For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). 
+The final goal is to find an optimal feasible solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit, among those in the container.
 
 ### **Constraints**
 
@@ -90,7 +98,7 @@ This constraint is always active. Your voyage plan must start from the first arc
 
 #### **Minimum nights** (`min_nights_individual_island`)
 
-> Everytime you arrive in a new island, the special compasses should start to tune to the new magnetic fields pointing to the islands of the next archipelagos. The number of nights to tune the special compasses varies depending on the island. Unfortunately, the fastest the tuning time of a magnetic field, the more technologically complex a special compass should be to be able to tune it. Hence, you are only able to visit islands where the magnetic field pointing to the next archipelago is tunable by your special compass version. You cannot visit islands where the magnetic field requires less nights to tune than the minimum amount of nights specified by your compass. You cannot simply wait more time: if your compass is able to tune to magnetic field that requires 4 nights of waiting, you cannot visit an island with a 1, 2, or 3 nights magnetic field tunining and just wait for the remaining nights. The compass is simply not working with these faster tuning magnetic field.
+> Everytime you land on a new island, the special compasses should start to tune to the new magnetic fields pointing to the islands of the next archipelagos. The number of nights to tune the special compasses varies depending on the island. Unfortunately, the fastest the tuning time of a magnetic field, the more technologically complex a special compass should be to be able to tune it. Hence, you are only able to visit islands where the magnetic field pointing to the next archipelago is tunable by your special compass version. You cannot visit islands where the magnetic field requires less nights to tune than the minimum amount of nights specified by your compass. You cannot simply wait more time: if your compass is able to tune to magnetic field that requires 4 nights of waiting, you cannot visit an island with a 1, 2, or 3 nights magnetic field tunining and just wait for the remaining nights. The compass is simply not working with these faster tuning magnetic field.
 
 When this constraint is active, you can only visit islands whose number of waiting *nights* is at least `min_nights_individual_island`. This constraint is not applied to the islands of the first and last archipelago.
 
