@@ -5,11 +5,9 @@
     <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-hello-world.html" target="_top">Hello-world</a></td>
   </tr>
 </table>
-<table>
-  <tr>
-    <th><i>No storytelling version:</i></th><td><a href="./07-optimization-clean.html" target="_top">here</a></td>
-  </tr>
-</table>
+
+
+In the following instructions, the narrative texts in [blockquotes](https://www.markdownguide.org/basic-syntax/#blockquotes-1) are irrelevant to the actual development of the task. They are only there to create an atmosphere, but should not be regarded as additional technical instructions. In fact, you can skip them.
 
 
 ## Problem overview
