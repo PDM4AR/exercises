@@ -77,17 +77,54 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     return SolutionVoyage(feasibility, voyage_plan)
 ```
 
-## Modeling
+## Plan Optimization
 
-To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). 
-For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). 
-The final goal is to find an optimal feasible solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit, among those in the container.
+### **Cost functions**
+
+> You want to conquer the *Two Slices*, the legendary pirate treasure that lies on the last island of the *Short Route*. It is a complicated voyage in itself, but that's not all! This is a gold age for piracy, and many other pirate ships are looking for the treasure. You don't only have to plan a voyage that will not sink your ship or get you lost (taking care of the magnetic fields, the crew, the weather...) but that is also optimized for your personal needs and priorities.
+
+In the `ProblemVoyage` structure you can find information about which cost you should optimize. Note that *only one cost for each test* will be given.
+The possible costs to optimize for will be:
+
+#### **Minimum nights to complete the voyage** (`min_total_nights`)
+
+> The easiest way to seize the treasure: reach it as soon as possible, before every other pirate ship. Show to the other pirates the meaning of *haste*.
+
+Plan a voyage such that the total number of nights spent is minimized.
+
+#### **Maximum final crew size** (`max_final_crew`)
+
+> You believe in the power of muscles and gunpowder: better reach the treasure with a large crew, to attack and win over other pirates who could reach the tresure before you and to defend it afterwards.
+
+Plan a voyage such that the final crew size is maximized.
+
+#### **Minimize total sailing time** (`min_total_sailing_time`)
+
+> You, a captain of a pirate ship? Puah! Since you are a seasick wimp, you want to spend as little time as possible on a ship in the middle of the sea under the effect of waves and currents.
+
+Plan a voyage such that the total sailing time, i.e. the total number of hours spent in the sea during the multiple island-to-island journeys, is minimized.
+
+#### **Minimize total L1-norm travelled distance** (`min_total_travelled_L1_distance`)
+
+> Your cousin's friend says that the best way to reach the tresure before everyone else is to travel the shortest total distance possible.
+
+Plan a voyage such that the total L1-norm travelled distance, i.e. the sum of the L1-norm distances of the multiple island-to-island journeys, is minimized.
+
+#### **Minimize the maximum individual sailing time** (`min_max_sailing_time`)
+
+> In these dangerous waters, caution is never too much. Better not to sail the ship for too many hours in a row, close to its limit, to avoid unnecessary wearing.
+
+Plan a voyage such that the maximum individual sailing time of the voyage, i.e. the maximum number of hours spent in a single island-to-island journey, is minimized.
+
+---
 
 ### **Constraints**
 
 > Due to the rare magnetic fields, the size of the ship, the distances, and the weather, you will experience different combinations of constraints during your adventure. You should plan your voyage accordingly, because the *Shourt Route* does not forgive incautios pirates.
 
-The input of your function is a `ProblemVoyage` structure, in which you can find information about which constraints you should enforce. When a costraint has a **None** value, it means you don't have to take care of it. Multiple constraints can be active at the same time.
+In the `ProblemVoyage` structure you will also find information about the constraints that you should enforce.
+Note that multiple constraints can be requested for a single test case.
+When a constraint has a **None** value, it means you can disregard it for that test case.
 
 
 #### **Voyage order** (`voyage_order`)
@@ -125,45 +162,6 @@ When this constraint is active, every island-to-island journey to move among two
 > Your pirate ship presents structural limitations: it is able to sail the sea only only up to a certain distance during the same island-to-island journey. The weather and the strenght of the currents that rule the *Short Route* make the autonomy span of the ships very limited. When you sail from an island you can reach only islands that are within this journey distance, or the ship will definetely sink. 
 
 When this constraint is active, the L1-norm length of every island-to-island journey to move among two islands (so the L1-norm distance between the two islands) must be at maximum `max_L1_distance_individual_journey`. The L1-norm distance to go from one island to the next one can be inferred from the their *x* and *y* positions.
-
----
-
-### **Cost functions**
-
-> You want to conquer the *Two Slices*, the legendary pirate treasure that lies on the last island of the *Short Route*. It is a complicated voyage in itself, but that's not all! This is a gold age for piracy, and many other pirate ships are looking for the treasure. You don't only have to plan a voyage that will not sink your ship or get you lost (taking care of the magnetic fields, the crew, the weather...) but that is also optimized for your personal needs and priorities.
-
-The input of your function is a `ProblemVoyage` structure, in which you can find information about which cost (one cost only for each test) you should optimize (while enforcing the active constraints).
-
-
-#### **Minimum nights to complete the voyage** (`min_total_nights`)
-
-> The easiest way to seize the treasure: reach it as soon as possible, before every other pirate ship. Show to the other pirates the meaning of *haste*.
-
-Plan a voyage such that the total number of nights spent is minimized.
-
-#### **Maximum final crew size** (`max_final_crew`)
-
-> You believe in the power of muscles and gunpowder: better reach the treasure with a large crew, to attack and win over other pirates who could reach the tresure before you and to defend it afterwards.
-
-Plan a voyage such that the final crew size is maximized.
-
-#### **Minimize total sailing time** (`min_total_sailing_time`)
-
-> You, a captain of a pirate ship? Puah! Since you are a seasick wimp, you want to spend as little time as possible on a ship in the middle of the sea under the effect of waves and currents.
-
-Plan a voyage such that the total sailing time, i.e. the total number of hours spent in the sea during the multiple island-to-island journeys, is minimized.
-
-#### **Minimize total L1-norm travelled distance** (`min_total_travelled_L1_distance`)
-
-> Your cousin's friend says that the best way to reach the tresure before everyone else is to travel the shortest total distance possible.
-
-Plan a voyage such that the total L1-norm travelled distance, i.e. the sum of the L1-norm distances of the multiple island-to-island journeys, is minimized.
-
-#### **Minimize the maximum individual sailing time** (`min_max_sailing_time`)
-
-> In these dangerous waters, caution is never too much. Better not to sail the ship for too many hours in a row, close to its limit, to avoid unnecessary wearing.
-
-Plan a voyage such that the maximum individual sailing time of the voyage, i.e. the maximum number of hours spent in a single island-to-island journey, is minimized.
 
 ---
 
@@ -275,6 +273,11 @@ FeasibilityType = Literal[Feasibility.feasible, Feasibility.unfeasible]
 
 VoyagePlan = List[int]
 ```
+
+## Available Optimization Tools 
+To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). 
+For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). 
+The final goal is to find an optimal feasible solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit, among those in the container.
 
 ## Test cases and performance criteria
 

@@ -73,7 +73,7 @@ class Island:
 
 @dataclass(frozen=True)
 class Constraints:
-    """Structure storing the constraints data. A constraint with a value of `None` is not active.\n
+    """Structure storing the constraints' data. A constraint with a value of `None` is not active.\n
     From the doc:\n
     - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of `nights` an island should have to be able to visit it.
     - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
