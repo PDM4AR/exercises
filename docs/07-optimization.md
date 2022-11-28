@@ -285,7 +285,7 @@ The final goal is to find an optimal feasible solution, but you are free to choo
 
 #### **Test cases**
 
-We provide some example test cases with ground truth to test the feasibility, the constraint violations and the cost optimizations of your solution. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g., by modifying the random test case generation in [src/pdm4ar/exercises_def/ex07/data.py](../src/pdm4ar/exercises_def/ex07/data.py), and then setting `test_type = CaseVoyage.random` within the function `get_exercise7` in [src/pdm4ar/exercises_def/ex07/ex07.py](../src/pdm4ar/exercises_def/ex07/ex07.py) to load your test cases and not the provided ones. 
+We provide some example test cases with a solution to test the feasibility, the constraint violations and the cost optimizations of your solution. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g., by modifying the random test case generation in [src/pdm4ar/exercises_def/ex07/data.py](../src/pdm4ar/exercises_def/ex07/data.py), and then setting `test_type = CaseVoyage.random` within the function `get_exercise7` in [src/pdm4ar/exercises_def/ex07/ex07.py](../src/pdm4ar/exercises_def/ex07/ex07.py) to load your test cases and not the provided ones. 
 
 Note that the constraints have different difficulties, but if you do not implement or violate one constraint, this will not affect the performance score of the other constraints (except if you violate `voyage_order` or if you mistakenly state that the problem is *unfeasible*). However, not implementing/violating a constraint can degrade the performance score of the feasibility and of the optimization costs.
 Therefore, the test server will also test your code on a number of problems with the minimum number of present constraints at the same time, so as not to penalize too much the other performance scores if you have not implemented all the constraints correctly.
@@ -294,22 +294,27 @@ Therefore, the test server will also test your code on a number of problems with
 
 #### **Feasibility performance**
 
-For the feasibility performance, we use an (*1* ) **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct}}{N_{total}}$. A test case is *correctly* computed if you match the ground truth feasibility status of the problem. If by any chance the ground truth status is *unfeasible*, but you state it is *feasible* while your solution is not violating any constraints, the test case is considered *correctly* computed.
+For the feasibility performance, we use an (*1* ) **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases: $\frac{N_{correct}}{N_{total}}$. 
+A test case is *correctly* computed if you match our solution feasibility status of the problem. 
+If the solution status is *unfeasible*, but you state it is *feasible* while your solution is not violating any constraints, the test case is considered *correctly* computed (congrats, you found a solution better than ours!).
 
 #### **Constraint performances**
 
-For the constraint performances, we use multiple (*6* ) **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was present: $\frac{N_{correct,i}}{N_{total,i}}$. A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of a ground truth *unfeasible* problem. Violating the `voyage_order` constraint counts as a violation also for all the other present constraints.
+For the constraint performances, we use multiple (*6* ) **accuracy** metrics, one for each constraint, which we compute by counting the number of test cases where the specific constraint was *correctly* enforced divided by the total number of test cases where that constraint was present: $\frac{N_{correct,i}}{N_{total,i}}$. 
+A constraint is *correctly* enforced if it is not violated up to some numerical tolerance, or if you correctly state the status of an *unfeasible* problem. 
+Violating the `voyage_order` constraint counts as a violation also for all the other present constraints.
 
 #### **Cost performances**
 
 For the cost performances, we use multiple (*5* ) **accuracy** metrics, one for each cost, which we compute by calculating the average from the individual cost scores of the *feasible* test cases where that cost should be optimized: $\frac{\sum score_{i}}{N_{total,i}}$.
-The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly interpolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance the cost of your solution is more optimal than our ground truth optimal cost, given that your solution is not violating any present constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
+The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is much worse than our solution's cost, namely by more than **tol** = *max(5% of our solution's cost, min_abs_tol)*, linearly interpolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. 
+The score is also 1 if the cost of your solution is even better than our optimal cost, given that your solution is not violating any present constraint. 
+Mistaking a *feasible* problem as *unfeasible* is scored with a 0.
 Note that we are checking the cost of your feasible voyage plan (and not the voyage plan itself) since there is only one optimal cost, but that can be generated by different optimal solutions/voyage plans.
 
 #### **Total performance**
 
 Finally, the total performance of the exercise is a simple average of the previous 12 accuracy metric performances.
-
 
 ## Report
 
