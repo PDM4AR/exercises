@@ -19,8 +19,8 @@ You plan your voyage on a 2D map where all the islands and the corresponding fea
 The islands are divided into *N* different archipelagos identified with a number from *0* to *N-1*.
 The first archipelago (#*0*) and the last one (#*N-1*) are each formed by a single island. 
 All the other archipelagos (from #*1* to #*N-2*) are instead composed by *k* islands each.
-Hence, the total number of islands is $(N-2)*k + 2$.
-The islands are identified by a unique id, ranging from 0 to $(N-2)*k + 1$. 
+Hence, the total number of islands is $(N-2)k + 2$.
+The islands are identified by a unique id, ranging from 0 to $(N-2)k + 1$. 
 Moreover, they another tag indicates to which archipelagos they belong. 
 Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption.
 
