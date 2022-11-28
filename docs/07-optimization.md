@@ -142,13 +142,13 @@ When this constraint is active, you can only visit islands whose number of waiti
 
 #### **Minimum crew size** (`min_total_crew`)
 
-> Pirate ships can be as small as life rafts or as big as vessels: since you are the captain, its dimensions depends on your wealth and ostentatious. Based on its size, the ship will always require a crew with a specific minimum amount of people (you included) to steer it and take care of it. 
+> Pirate ships can be as small as life rafts or as big as vessels: since you are the captain, its dimensions depends on your wealth and ostentatiousness. Based on its size, the ship will always require a crew with a specific minimum amount of people (you included) to steer it and take care of it. 
 
 When this constraint is active, the crew size cannot be smaller than `min_total_crew`, whichever island you are in during any moment of your voyage.
 
 #### **Maximum crew size** (`max_total_crew`)
 
-> Pirate ships can be as small as life rafts or as big as vessels: since you are the captain, its dimensions depends on your wealth and ostentatious. Based on its size, the ship will always allow a crew with a specific maximum amount of people (you included), since there is no room for everyone.
+> Pirate ships can be as small as life rafts or as big as vessels: since you are the captain, its dimensions depends on your wealth and ostentatiousness. Based on its size, the ship will always allow a crew with a specific maximum amount of people (you included), since there is no room for everyone.
 
 When this constraint is active, the crew size cannot be greater than `max_total_crew`, whichever island you are in during any moment of your voyage.
 
