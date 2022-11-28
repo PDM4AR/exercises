@@ -44,7 +44,7 @@ Here you can see two examples of such planned voyages:
 
 ---
 
-Your task is to implement the function `solve_optimization` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py). 
+Your task is to implement the function `solve_optimization` in [src/pdm4ar/exercises/ex07/ex07.py](../src/pdm4ar/exercises/ex07/ex07.py) (please remember that your modifications done outside the *src/pdm4ar/exercises/ex??*  folders are discarded during the server evaluation). 
 As input, you receive a `ProblemVoyage`, and you need to return a `SolutionVoyage`. 
 Through the `ProblemVoyage` structure you have access to the different active constraints and the specific cost that your voyage plan must optimize.
 
@@ -334,7 +334,7 @@ Note that depending on the number of islands, `report_viz` can be really slow, w
 
 Remember that the images shown in the pdf report are "compressed" (*rasterized*): to see the "uncompressed" (*vector graphic*) version click the **main** link below each image.
 
-Feel free to change the provided report's settings and to make your own modifications to the visualization to match your debugging needs.
+Feel free to change the provided report's settings and to make your own modifications to the visualization to match your debugging needs. But please remember that your modifications done outside the *src/pdm4ar/exercises/ex??*  folders are discarded during the server evaluation: your code within [src/pdm4ar/exercises/ex07](../src/pdm4ar/exercises/ex07) should be compatible with the provided [src/pdm4ar/exercises_def/ex07/visualization.py](../src/pdm4ar/exercises_def/ex07/visualization.py) file. 
 
 ## Run the exercise
 Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
