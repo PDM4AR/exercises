@@ -9,6 +9,8 @@ from pdm4ar.exercises_def.ex07.structures import (
     SolutionVoyage,
 )
 
+import time
+
 
 def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     """
@@ -36,5 +38,7 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     else:
         feasibility = Feasibility.unfeasible
         voyage_plan = None
+
+    # time.sleep(1000)
 
     return SolutionVoyage(feasibility, voyage_plan)
