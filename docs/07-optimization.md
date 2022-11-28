@@ -17,10 +17,10 @@ Feel free to skip them.
 
 You plan your voyage on a 2D map where all the islands and the corresponding features are annotated. 
 The islands are divided into *N* different archipelagos identified with a number from *0* to *N-1*.
-The first archipelago (*0*) and the last one (*N-1*) are each formed by a single island. 
-All the other archipelagos (from *1* to *N-2*) are instead composed by *k* islands each.
-Hence, the total number of islands is $$(N-2)*k + 2$$.
-The islands are identified by a unique id, ranging from $$0$$ to $$(N-2)*k + 1$$. 
+The first archipelago (#*0*) and the last one (#*N-1*) are each formed by a single island. 
+All the other archipelagos (from #*1* to #*N-2*) are instead composed by *k* islands each.
+Hence, the total number of islands is $(N-2)*k + 2$.
+The islands are identified by a unique id, ranging from 0 to $(N-2)*k + 1$. 
 Moreover, they another tag indicates to which archipelagos they belong. 
 Note that the belonging of an island in a specific group, called archipelago, is not determined by position, topographic reasons, similarity, etc.: don't make any assumption.
 
@@ -136,7 +136,7 @@ This constraint is always active. Your voyage plan must start from the first arc
 
 #### **Minimum nights** (`min_nights_individual_island`)
 
-> Everytime you land on a new island, the special compasses should start to tune to the new magnetic fields pointing to the islands of the next archipelagos. The number of nights to tune the special compasses varies depending on the island. Unfortunately, the fastest the tuning time of a magnetic field, the more technologically complex a special compass should be to be able to tune it. Hence, you are only able to visit islands where the magnetic field pointing to the next archipelago is tunable by your special compass version. You cannot visit islands where the magnetic field requires fewer nights to tune than the minimum amount of nights specified by your compass. You cannot simply wait more time: if your compass is able to tune to magnetic field that requires 4 nights of waiting, you cannot visit an island with a 1, 2, or 3 nights magnetic field turning and just wait for the remaining nights. The compass is simply not working with these faster tuning magnetic field.
+> Everytime you land on a new island, the special compasses should start to tune to the new magnetic fields pointing to the islands of the next archipelagos. The number of nights to tune the special compasses varies depending on the island. Unfortunately, the faster the tuning time of a magnetic field, the more technologically complex a special compass should be to be able to tune it. Hence, you are only able to visit islands where the magnetic field pointing to the next archipelago is tunable by your special compass version. You cannot visit islands where the magnetic field requires fewer nights to tune than the minimum amount of nights specified by your compass. You cannot simply wait more time: if your compass is able to tune to magnetic field that requires 4 nights of waiting, you cannot visit an island with a 1, 2, or 3 nights magnetic field tuning and just wait for the remaining nights. The compass is simply not working with these faster tuning magnetic field.
 
 When this constraint is active, you can only visit islands whose number of waiting *nights* is at least `min_nights_individual_island`. This constraint is not applied to the islands of the first and last archipelago.
 
