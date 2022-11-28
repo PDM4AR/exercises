@@ -43,14 +43,14 @@ def run_with_timer(func, max_execution_time) -> Union[Any, Exception]:
         p.start()
         if recv_end.poll(max_execution_time):
             result = recv_end.recv()
-            p.join(max_execution_time)
-            if p.is_alive():
-                p.terminate()
-                p.join()
-                result = TestCaseTimeoutException("Exceeded test case timeout.")
         else:
             result = TestCaseTimeoutException("Exceeded test case timeout.")
-        
+        p.join(0.05)
+        if p.is_alive():
+            p.terminate()
+            p.join()
+            result = TestCaseTimeoutException("Exceeded test case timeout.")
+
         return result
 
     return wrapper
