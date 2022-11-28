@@ -149,7 +149,7 @@ def compute_violations(
     feasibility = solution.feasibility
     voyage_plan = solution.voyage_plan
 
-    tolerance = Tolerance(1e-3)
+    tolerance = Tolerance(1e-10)
 
     # solution is feasible
     if feasibility == Feasibility.feasible:

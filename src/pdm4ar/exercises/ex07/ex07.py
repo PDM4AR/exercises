@@ -12,13 +12,13 @@ from pdm4ar.exercises_def.ex07.structures import (
 
 def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
     """
-    Solve the optimization problem enforcing the active constraints.
+    Solve the optimization problem enforcing the requested constraints.
 
     Parameters
     ---
     problem : ProblemVoyage
         Contains the problem data: cost to optimize, starting crew, tuple of islands,
-        and information about active constraint (the constraints not set to `None` +
+        and information about the requested constraint (the constraints not set to `None` +
         the `voyage_order` constraint)
 
     Returns
