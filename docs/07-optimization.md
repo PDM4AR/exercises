@@ -1,4 +1,4 @@
-# Optimization (preview) :computer:
+# Optimization :computer:
 
 <table>
   <tr>
