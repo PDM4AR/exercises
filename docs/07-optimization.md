@@ -107,7 +107,7 @@ Plan a voyage such that the total sailing time, i.e. the total number of hours s
 
 #### **Minimize total L1-norm travelled distance** (`min_total_travelled_L1_distance`)
 
-> Your cousin's friend says that the best way to reach the tresure before everyone else is to travel the shortest total distance possible.
+> Your cousin's friend says that the best way to reach the treasure before everyone else is to travel the shortest total distance possible.
 
 Plan a voyage such that the total L1-norm travelled distance, i.e. the sum of the L1-norm distances of the multiple island-to-island journeys, is minimized.
 
@@ -121,7 +121,7 @@ Plan a voyage such that the maximum individual sailing time of the voyage, i.e. 
 
 ### **Constraints**
 
-> Due to the rare magnetic fields, the size of the ship, the distances, and the weather, you will experience different combinations of constraints during your adventure. You should plan your voyage accordingly, because the *Shourt Route* does not forgive incautios pirates.
+> Due to the rare magnetic fields, the size of the ship, the distances, and the weather, you will experience different combinations of constraints during your adventure. You should plan your voyage accordingly, because the *Short Route* does not forgive incautious pirates.
 
 In the `ProblemVoyage` structure you will also find information about the constraints that you should enforce.
 Note that multiple constraints can be requested for a single test case.
@@ -132,11 +132,11 @@ When a constraint has a **None** value, it means you can disregard it for that t
 
 > The *Short Route* presents a weird and dangerous magnetic field. Travelling through it is not possible using a normal compass, but special compasses are needed. These special compases show the direction of the islands of the next archipelago: when you are at a specific island of an archipelago, they will tune with the magnetic field of the next archipelago, and so on, until you reach the last archipelago where the treasure is located. Trying to directly reach the last archipelago or moving to an archipelago that is not the next in order is impossible and you will get lost in the ocean.
 
-This constraint is always active. Your voyage plan must start from the first archipelago and end at the last archipelago, visiting one and only one island of the other archipelagos, following the order of the archipelago's identification number. This means that your ordered voyage plan must contain *N* islands and that these islands must belong to archipelagos with increasing identification numbers. Since the constraint is active in every test case, it is not listed within the `constraints` attribute of the `ProblemVoyage` input, to avoid reduntant information.
+This constraint is always active. Your voyage plan must start from the first archipelago and end at the last archipelago, visiting one and only one island of the other archipelagos, following the order of the archipelago's identification number. This means that your ordered voyage plan must contain *N* islands and that these islands must belong to archipelagos with increasing identification numbers. Since the constraint is active in every test case, it is not listed within the `constraints` attribute of the `ProblemVoyage` input, to avoid redundant information.
 
 #### **Minimum nights** (`min_nights_individual_island`)
 
-> Everytime you land on a new island, the special compasses should start to tune to the new magnetic fields pointing to the islands of the next archipelagos. The number of nights to tune the special compasses varies depending on the island. Unfortunately, the fastest the tuning time of a magnetic field, the more technologically complex a special compass should be to be able to tune it. Hence, you are only able to visit islands where the magnetic field pointing to the next archipelago is tunable by your special compass version. You cannot visit islands where the magnetic field requires less nights to tune than the minimum amount of nights specified by your compass. You cannot simply wait more time: if your compass is able to tune to magnetic field that requires 4 nights of waiting, you cannot visit an island with a 1, 2, or 3 nights magnetic field tunining and just wait for the remaining nights. The compass is simply not working with these faster tuning magnetic field.
+> Everytime you land on a new island, the special compasses should start to tune to the new magnetic fields pointing to the islands of the next archipelagos. The number of nights to tune the special compasses varies depending on the island. Unfortunately, the fastest the tuning time of a magnetic field, the more technologically complex a special compass should be to be able to tune it. Hence, you are only able to visit islands where the magnetic field pointing to the next archipelago is tunable by your special compass version. You cannot visit islands where the magnetic field requires less nights to tune than the minimum amount of nights specified by your compass. You cannot simply wait more time: if your compass is able to tune to magnetic field that requires 4 nights of waiting, you cannot visit an island with a 1, 2, or 3 nights magnetic field turning and just wait for the remaining nights. The compass is simply not working with these faster tuning magnetic field.
 
 When this constraint is active, you can only visit islands whose number of waiting *nights* is at least `min_nights_individual_island`. This constraint is not applied to the islands of the first and last archipelago.
 
@@ -154,15 +154,16 @@ When this constraint is active, the crew size cannot be greater than `max_total_
 
 #### **Maximum duration individual journey** (`max_duration_individual_journey`)
 
-> Your pirate ship presents structural limitations: it is able to sail the sea only only up to a certain amount of hours during the same island-to-island journey. The weather and the strenght of the currents that rule the *Short Route* make the autonomy span of the ships very limited. When you sail from an island you can reach only islands that are within this journey duration, or the ship will definetely sink. 
+> Your pirate ship presents structural limitations: it is able to sail the sea only up to a certain amount of hours during the same island-to-island journey. The weather and the strength of the currents that rule the *Short Route* make the autonomy span of the ships very limited. When you sail from an island you can reach only islands that are within this journey duration, or the ship will definitely sink. 
 
 When this constraint is active, every island-to-island journey to move among two islands must last at maximum `max_duration_individual_journey` hours. The time needed to go from one island to the next one can be inferred from the respective *departure* and *arrival* timetable.
 
 #### **Maximum L1-norm distance individual journey** (`max_L1_distance_individual_journey`)
 
-> Your pirate ship presents structural limitations: it is able to sail the sea only only up to a certain distance during the same island-to-island journey. The weather and the strenght of the currents that rule the *Short Route* make the autonomy span of the ships very limited. When you sail from an island you can reach only islands that are within this journey distance, or the ship will definetely sink. 
+> Your pirate ship presents structural limitations: it is able to sail the sea only up to a certain distance during the same island-to-island journey. The weather and the strength of the currents that rule the *Short Route* make the autonomy span of the ships very limited. When you sail from an island you can reach only islands that are within this journey distance, or the ship will definitely sink. 
 
-When this constraint is active, the L1-norm length of every island-to-island journey to move among two islands (so the L1-norm distance between the two islands) must be at maximum `max_L1_distance_individual_journey`. The L1-norm distance to go from one island to the next one can be inferred from the their *x* and *y* positions.
+When this constraint is active, the L1-norm length of every island-to-island journey to move among two islands (so the L1-norm distance between the two islands) must be at maximum `max_L1_distance_individual_journey`. 
+The L1-norm distance to go from one island to the next one can be inferred from the *x* and *y* positions.
 
 ---
 
@@ -213,11 +214,11 @@ Structure storing the data of an optimization problem. Input of the function `so
 - The `start_crew` integer attribute specifies how many people are in the crew (including the captain) at the beginning of the voyage.
 - The `islands` attribute is a tuple containing a sequence of `Island`. The islands are ordered based on their `id` attribute.
 - The `constraints` attribute contains the following:
-    - The `min_nights_individual_island` integer attribute is a constraint specifing the minimum amount of `nights` an island should have to be able to visit it.
+    - The `min_nights_individual_island` integer attribute is a constraint specifying the minimum amount of `nights` an island should have to be able to visit it.
     - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
     - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
-    - The `max_duration_individual_journey` float attribute is a constraint specifing the maximum amount of hours each island-to-island jounrey can last. Treat it as a normal float value.
-    - The `max_L1_distance_individual_journey` float attribute is a constraint specifing the maximum L1-norm distance length of each island-to-island journey.
+    - The `max_duration_individual_journey` float attribute is a constraint specifying the maximum amount of hours each island-to-island journey can last. Treat it as a normal float value.
+    - The `max_L1_distance_individual_journey` float attribute is a constraint specifying the maximum L1-norm distance length of each island-to-island journey.
 
 </details>
 
@@ -301,7 +302,8 @@ For the constraint performances, we use multiple (*6* ) **accuracy** metrics, on
 
 #### **Cost performances**
 
-For the cost performances, we use multiple (*5* ) **accuracy** metrics, one for each cost, which we compute by calculating the average from the individual cost scores of the *feasible* test cases where that cost should be optimized: $\frac{\sum score_{i}}{N_{total,i}}$. The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly intepolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance the cost of your solution is more optimal than our ground truth optimal cost, given that your solution is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
+For the cost performances, we use multiple (*5* ) **accuracy** metrics, one for each cost, which we compute by calculating the average from the individual cost scores of the *feasible* test cases where that cost should be optimized: $\frac{\sum score_{i}}{N_{total,i}}$.
+The score is 0 if you violate any constraint. If you don't violate any constraint, the score is 0 if the cost of your solution is worse than the ground truth optimal cost by more than **tol** = *max(5% of the ground truth optimal cost, min_abs_tol)*, linearly interpolated from 0 to 1 if it is within **tol**, and 1 if it matches it up to some numerical tolerance. The score is also 1 if by any chance the cost of your solution is more optimal than our ground truth optimal cost, given that your solution is not violating any active constraint. Mistaking a ground truth *feasible* problem as *unfeasible* is scored with a 0.
 Note that we are checking the cost of your feasible voyage plan (and not the voyage plan itself) since there is only one optimal cost, but that can be generated by different optimal solutions/voyage plans.
 
 #### **Total performance**
@@ -314,7 +316,7 @@ Finally, the total performance of the exercise is a simple average of the previo
 The visualization of the exercise is handled within [src/pdm4ar/exercises_def/ex07/visualization.py](../src/pdm4ar/exercises_def/ex07/visualization.py).
 
 - We provide five different levels of report types (solely for your own debugging): 
-    - `ReportType.none`: no evalutation information at all, no report is generated.
+    - `ReportType.none`: no evaluation information at all, no report is generated.
     - `ReportType.terminal`: print evaluation information on the terminal, no report is generated.
     - `ReportType.report_txt`: print evaluation information on the terminal and in a textual report.
     - `ReportType.report_viz`: print evaluation information on the terminal and in a visual report, with text and figures.
