@@ -50,8 +50,8 @@ Make sure to extensively test your code locally, consider this as a learning exp
 | 03              | Informed Graph Search | Oct. 13th            | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
 | 04              | Dynamic Programming   | Oct. 19th            | Nov. 4th  (23:59 CET) | CONFIRMED (EXTENDED)|
 | 05              | Steering (Dubins)     | Nov. 1st             | Nov. 20th (23:59 CET) | CONFIRMED (EXTENDED)|
-| 06              | Collision Checking    | Nov. 14th            | Nov. 28th (23:59 CET) | CONFIRMED           |
-| 07              | Optimization          | TBD                  | TBD (23:59 CET)       | TBD                 |
+| 06              | Collision Checking    | Nov. 14th            | Dec. 2nd  (23:59 CET) | CONFIRMED (EXTENDED)|
+
 
 * Most of these exercises are already accessible before the evaluation opens. 
 You are free to read them but be aware that we might still decide to change them until the evaluation opens.
@@ -62,7 +62,7 @@ Same modality as the weekly exercises, but they will be a bit more involved.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes** |
 |-----------------|-----------|----------------------|-----------------------|
-| TBD             | Surprise  | Dec. 1st (TBC)       | Dec. 15th (TBC)       |
+| 07              | Optimization  | Nov. 29th       | Dec. 15th (23:59 CET)  |
 | TBD             | Surprise  | Dec. 15th (TBC)      | Jan. 15th (23:59 CET) |
 
 
