@@ -131,6 +131,9 @@ class SolutionVoyage:
 # Following structures are not that important for the student's exercise implementation,
 # but changes can be made to match one's own debugging needs for local testing.
 
+# Please remember that your modifications done outside the 'src/pdm4ar/exercises/ex??'
+# folders are discarded during the server evaluation
+
 
 @dataclass(frozen=True)
 class CaseVoyage(IntEnum):
