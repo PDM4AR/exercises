@@ -7,7 +7,8 @@
 </table>
 
 
-In the following instructions, the narrative texts in [blockquotes](https://www.markdownguide.org/basic-syntax/#blockquotes-1) are irrelevant to the actual development of the task. They are only there to create an atmosphere, but should not be regarded as additional technical instructions. In fact, you can skip them.
+In the following instructions, the narrative text in [blockquotes](https://www.markdownguide.org/basic-syntax/#blockquotes-1) is irrelevant to the actual task.
+Feel free to skip them.
 
 
 ## Problem overview
@@ -16,7 +17,7 @@ In the following instructions, the narrative texts in [blockquotes](https://www.
 
 You plan your voyage on a 2D map where all the islands and the corresponding features are annotated. 
 The islands are divided into *N* different archipelagos identified with a number from *0* to *N-1*.
-The first archipelago (# *0*) and the last one (# *N-1*) are each formed by a single island. 
+The first archipelago (*0*) and the last one (*N-1*) are each formed by a single island. 
 All the other archipelagos (from *1* to *N-2*) are instead composed by *k* islands each.
 Hence, the total number of islands is $$(N-2)*k + 2$$.
 The islands are identified by a unique id, ranging from $$0$$ to $$(N-2)*k + 1$$. 
@@ -81,7 +82,7 @@ def solve_optimization(problem: ProblemVoyage) -> SolutionVoyage:
 
 ### **Cost functions**
 
-> You want to conquer the *Two Slices*, the legendary pirate treasure that lies on the last island of the *Short Route*. It is a complicated voyage in itself, but that's not all! This is a gold age for piracy, and many other pirate ships are looking for the treasure. You don't only have to plan a voyage that will not sink your ship or get you lost (taking care of the magnetic fields, the crew, the weather...) but that is also optimized for your personal needs and priorities.
+> You want to conquer the *Two Slices*, the legendary pirate treasure that lies on the last island of the *Short Route*. It is a complicated voyage in itself, but that's not all! This is a gold age for piracy, and many other pirate ships are looking for the treasure. You don't only have to plan a voyage that will not sink your ship or get you lost (taking care of the magnetic fields, the crew, the weather...) but that it is also optimized for your personal needs and priorities.
 
 In the `ProblemVoyage` structure you can find information about which cost you should optimize. Note that *only one cost for each test* will be given.
 The possible costs to optimize for will be:
@@ -94,7 +95,7 @@ Plan a voyage such that the total number of nights spent is minimized.
 
 #### **Maximum final crew size** (`max_final_crew`)
 
-> You believe in the power of muscles and gunpowder: better reach the treasure with a large crew, to attack and win over other pirates who could reach the tresure before you and to defend it afterwards.
+> You believe in the power of muscles and gunpowder: better reach the treasure with a large crew, to attack and win over other pirates who could reach the treasure before you and to defend it afterwards.
 
 Plan a voyage such that the final crew size is maximized.
 
