@@ -2,13 +2,15 @@
 
 <table>
   <tr>
-    <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-hello-world.html" target="_top">Hello-world</a></td>
+    <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-helloworld.html" target="_top">Hello-world</a></td>
   </tr>
 </table>
 
 
 In the following instructions, the narrative text in [blockquotes](https://www.markdownguide.org/basic-syntax/#blockquotes-1) is irrelevant to the actual task.
 Feel free to skip them.
+
+It is recommended to read the instructions directly from the `docs/07-optimization.md` file on your github repo or VS Code (click Ctrl+Shift+V), since *github.io* is not correctly loading the "Detailed description" dropdown.
 
 
 ## Problem overview
