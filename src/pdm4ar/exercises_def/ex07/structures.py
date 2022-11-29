@@ -97,11 +97,11 @@ class ProblemVoyage:
     - The `start_crew` integer attribute specifies how many people are in the crew (including the captain) at the beginning of the voyage.
     - The `islands` attribute is a tuple containing a sequence of `Island`. The islands are ordered based on their `id` attribute.
     - The `constraints` attribute contains the following:
-    - The `min_nights_individual_island` integer attribute is a constraint specifying the minimum amount of `nights` an island should have to be able to visit it.
-    - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
-    - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
-    - The `max_duration_individual_journey` float attribute is a constraint specifying the maximum amount of hours each island-to-island journey can last. Treat it as a normal float value.
-    - The `max_L1_distance_individual_journey` float attribute is a constraint specifying the maximum L1-norm distance length of each island-to-island journey.
+        - The `min_nights_individual_island` integer attribute is a constraint specifying the minimum amount of `nights` an island should have to be able to visit it.
+        - The `min_total_crew` integer attributes specify the maximum amount of people who can be in the crew at the same time.
+        - The `max_total_crew` integer attributes specify the minimum amount of people who can be in the crew at the same time.
+        - The `max_duration_individual_journey` float attribute is a constraint specifying the maximum amount of hours each island-to-island journey can last. Treat it as a normal float value.
+        - The `max_L1_distance_individual_journey` float attribute is a constraint specifying the maximum L1-norm distance length of each island-to-island journey.
     """
 
     optimization_cost: CostType
