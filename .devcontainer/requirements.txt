@@ -25,4 +25,5 @@ triangle
 pulp>=2.7.0
 ortools>=9.4.1874
 cvxpy>=1.2.0
-
+cvxopt>=1.3.0
+cylp>=0.91.5
