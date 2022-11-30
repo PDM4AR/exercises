@@ -280,7 +280,8 @@ VoyagePlan = List[int]
 
 ## Available Optimization Tools 
 To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). 
-For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [Google OR-Tools](https://developers.google.com/optimization/introduction/overview), and [cvxpy](https://www.cvxpy.org/) (we tested *scipy.optimize* and *PuLP*). 
+For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [cvxpy](https://www.cvxpy.org/), and [Google OR-Tools](https://developers.google.com/optimization/introduction/overview). We tested *scipy.optimize* and *PuLP* (and *cvxpy*). While *scipy.optimize* and *PuLP* will work without any additional extra steps, *cvxpy* requires you to set the **CBC** solver when calling [solve()](https://www.cvxpy.org/api_reference/cvxpy.problems.html#cvxpy.Problem.solve):  `prob.solve(solver="CBC")`.
+
 The final goal is to find an optimal feasible solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit, among those in the container.
 
 ## Test cases and performance criteria
@@ -346,7 +347,7 @@ Feel free to change the provided report's settings and to make your own modifica
 ## Run the exercise
 Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
 
-To be able to import and use *PuLP*, *Google OR-Tools* or *cvxpy*, please rebuild the container running the VS Code command (click Ctrl+Shift+P) `Remote-Containers: Rebuild Container` or `Remote-Containers: Rebuild and Reopen in Container`, and then reinstall the *pdm4ar* module running `pip3 install -e [path/to/exercises_repo]` in the VS Code terminal.
+To be able to import and use *PuLP*, *cvxpy*, or *Google OR-Tools*, please rebuild the container running the VS Code command (click Ctrl+Shift+P) `Remote-Containers: Rebuild Container` or `Remote-Containers: Rebuild and Reopen in Container`, and then reinstall the *pdm4ar* module running `pip3 install -e [path/to/exercises_repo]` in the VS Code terminal.
 
 Run the exercise with:
 ```shell

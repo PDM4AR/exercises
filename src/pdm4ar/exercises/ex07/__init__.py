@@ -4,7 +4,7 @@ __ex_version__ = "7.2.0"
 
 # LOG
 
-# 7.2.0: add cvxopt and cylp libraries required to use cvxpy correctly
+# 7.2.0: add cvxopt and cylp libraries required to use cvxpy correctly - doc updated
 
 # 7.1.0: revert timeout of p.join() to solve wrong Exception info
 
