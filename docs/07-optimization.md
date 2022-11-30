@@ -280,7 +280,7 @@ VoyagePlan = List[int]
 
 ## Available Optimization Tools 
 To model the problem, note that we have added powerful libraries in the container to solve optimization problems ([rebuild the container to use them](#run-the-exercise)). 
-For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [cvxpy](https://www.cvxpy.org/), and [Google OR-Tools](https://developers.google.com/optimization/introduction/overview). We tested *scipy.optimize* and *PuLP* (and *cvxpy*). While *scipy.optimize* and *PuLP* will work without any additional extra steps, *cvxpy* requires you to set the **CBC** solver when calling [solve()](https://www.cvxpy.org/api_reference/cvxpy.problems.html#cvxpy.Problem.solve):  `prob.solve(solver="CBC")`.
+For instance, [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html), [PuLP](https://coin-or.github.io/pulp/), [cvxpy](https://www.cvxpy.org/), and [Google OR-Tools](https://developers.google.com/optimization/introduction/overview). We tested *scipy.optimize* and *PuLP* (and *cvxpy*). While *scipy.optimize* and *PuLP* will work without any additional extra steps, *cvxpy* requires you to set the **CBC** solver when calling [solve()](https://www.cvxpy.org/api_reference/cvxpy.problems.html#cvxpy.Problem.solve):  `prob.solve(solver="CBC")`. If you want to use *Google OR-Tools*, please consider that we have not tested it.
 
 The final goal is to find an optimal feasible solution, but you are free to choose how to solve the problem, how to model it (i.e. modeling constraints and costs) and which library to exploit, among those in the container.
 
