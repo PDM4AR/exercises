@@ -1,8 +1,10 @@
 # Please do not modify. Needed by the server to inform you if you should run "make update".
-__ex_version__ = "7.3.0"
+__ex_version__ = "7.3.1"
 
 
-# LOG
+# CHANGE LOG
+
+# 7.3.1: update doc with lexicographic order grade information
 
 # 7.3.0: force cvxpy version 1.2.2
 
