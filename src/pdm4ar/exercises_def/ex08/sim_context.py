@@ -1,16 +1,19 @@
+from collections import defaultdict
 from copy import deepcopy
 from decimal import Decimal as D
-from typing import Optional
+from typing import Optional, Dict
 
 from dg_commons import PlayerName, DgSampledSequence
 from dg_commons.maps.shapes_generator import create_random_starshaped_polygon
+from dg_commons.perception.sensor import VisRangeSensor
 from dg_commons.planning import PlanningGoal
-from dg_commons.sim import SimParameters
+from dg_commons.sim import SimParameters, SimModel
 from dg_commons.sim.agents import NPAgent
 from dg_commons.sim.models.obstacles import ObstacleGeometry, DynObstacleParameters
 from dg_commons.sim.models.obstacles_dyn import DynObstacleModel, DynObstacleState, DynObstacleCommands
 from dg_commons.sim.models.vehicle import VehicleModel, VehicleState
 from dg_commons.sim.scenarios.structures import DgScenario
+from dg_commons.sim.sim_perception import ObsFilter, IdObsFilter, FovObsFilter
 from dg_commons.sim.simulator import SimContext
 from numpy import deg2rad
 from shapely.geometry import Polygon
@@ -25,24 +28,30 @@ PDM4AR = PlayerName("PDM4AR")
 
 def _get_sim_context_static(scenario: DgScenario, goal: PlanningGoal, x0: VehicleState) -> SimContext:
     model = VehicleModel.default_car(x0)
-    models = {PDM4AR: model}
+    models: Dict[PlayerName, VehicleModel] = {PDM4AR: model}
     missions = {PDM4AR: goal}
     players = {PDM4AR: Pdm4arAgent(
             goal=goal,
             static_obstacles=deepcopy(list(scenario.static_obstacles.values())),
-            sg=deepcopy(model.get_geometry()),
-            sp=deepcopy(model.sp))
+            sg=deepcopy(model.model_geometry),
+            sp=deepcopy(model.model_params))
     }
-
+    # sensing
+    lidar2d = VisRangeSensor(range=40)
+    sensors: Dict[PlayerName, ObsFilter] = defaultdict(lambda: IdObsFilter())
+    sensors[PDM4AR] = FovObsFilter(lidar2d)
+    # sim parameters
     sim_params = SimParameters(dt=D("0.01"),
                                dt_commands=D("0.1"),
                                sim_time_after_collision=D(1),
                                max_sim_time=D(50))
+
     return SimContext(
             dg_scenario=scenario,
             models=models,
             players=players,
             missions=missions,
+            sensors=sensors,
             param=sim_params)
 
 
