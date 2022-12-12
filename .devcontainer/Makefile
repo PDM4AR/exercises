@@ -15,4 +15,3 @@ build-no-cache:
 push-on-dockerhub:
 	docker login
 	docker push $(tag)
-
