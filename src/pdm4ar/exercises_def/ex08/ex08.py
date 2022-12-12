@@ -23,6 +23,7 @@ def ex08_evaluation(sim_context:SimContext, ex_out=None) -> Tuple[Ex08Metrics, R
 
 
 def ex08_performance_aggregator(ex_out:List[Ex08Metrics]) -> Ex08Metrics:
+    # todo 
     pass
 
 
@@ -40,11 +41,11 @@ def _ex08_vis(sim_context: SimContext) -> Report:
 
 
 def get_exercise8():
-    seed = 0
+    seed = 98
     test_values:List[SimContext] = [
         get_sim_context_static(seed),
-                   get_sim_context_dynamic(seed),
-                   ]
+        get_sim_context_dynamic(seed)
+        ]
 
     return Exercise[SimContext, None](
             desc="Final '22 planning course exercise.",

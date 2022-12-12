@@ -4,7 +4,7 @@ from typing import Sequence
 
 from commonroad.scenario.lanelet import LaneletNetwork
 from dg_commons import PlayerName
-from dg_commons.planning import PlanningGoal
+from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim import SimObservations, InitSimObservations
 from dg_commons.sim.agents import Agent
 from dg_commons.sim.models.obstacles import StaticObstacle
@@ -40,7 +40,7 @@ class Pdm4arAgent(Agent):
         self.name = init_obs.my_name
         self.goal = init_obs.goal
         self.lanelet_network = init_obs.dg_scenario.lanelet_network
-        self.static_obstacles = list(init_obs.dg_scenario.scenario.static_obstacles.values())
+        self.static_obstacles = list(init_obs.dg_scenario.static_obstacles.values())
 
     def get_commands(self, sim_obs: SimObservations) -> VehicleCommands:
         """ This method is called by the simulator at each time step.

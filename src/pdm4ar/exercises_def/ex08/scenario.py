@@ -5,7 +5,7 @@ from dg_commons import apply_SE2_to_shapely_geo, X, PlayerName, fd
 from dg_commons.maps.road_bounds import build_road_boundary_obstacle
 from dg_commons.maps.shapely_viz import ShapelyViz
 from dg_commons.maps.shapes_generator import create_random_starshaped_polygon
-from dg_commons.planning import PolygonGoal, PlanningGoal
+from dg_commons.sim.goals import PolygonGoal, PlanningGoal
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.models.vehicle import VehicleState
 from dg_commons.sim.scenarios import load_commonroad_scenario
@@ -15,8 +15,6 @@ from geometry import SE2_from_xytheta
 from matplotlib import pyplot as plt
 from numpy import deg2rad
 from shapely.geometry import Polygon
-
-#__all__ = ["get_dgscenario"]
 
 PDM4AR_1 = PlayerName("PDM4AR_1")
 PDM4AR_2 = PlayerName("PDM4AR_2")
