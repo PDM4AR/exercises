@@ -1,4 +1,6 @@
 from typing import Tuple, List
+
+import numpy as np
 from zuper_commons.text import remove_escapes
 from zuper_typing import debug_print
 from dg_commons.sim.simulator import Simulator, SimContext
@@ -6,25 +8,31 @@ from dg_commons.sim.simulator_animation import create_animation
 from reprep import MIME_MP4, Report
 
 from pdm4ar.exercises_def import Exercise
-from pdm4ar.exercises_def.ex08.perf_metrics import ex08_metrics, Ex08Metrics
+from pdm4ar.exercises_def.ex08.perf_metrics import ex08_metrics
 from pdm4ar.exercises_def.ex08.sim_context import get_sim_context_dynamic, get_sim_context_static
 
 
-def ex08_evaluation(sim_context:SimContext, ex_out=None) -> Tuple[Ex08Metrics, Report]:
+def ex08_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
     r = Report("Final22-" + sim_context.description)
-
+    # run simulation
     sim = Simulator()
     sim.run(sim_context)
+    # visualisation
     report = _ex08_vis(sim_context=sim_context)
-    episode_eval = ex08_metrics(sim_context)
-    r.text("EpisodeEvaluation", remove_escapes(debug_print(episode_eval)))
+    # compute metrics
+    avg_player_metrics, players_metrics = ex08_metrics(sim_context)
+    # report evaluation
+    score: float = avg_player_metrics.reduce_to_score()
+    score_str = f"{score:.2f}\n" + remove_escapes(debug_print(avg_player_metrics))
+    r.text("OverallScore: ", score_str)
+    for pm in players_metrics:
+        r.text(f"EpisodeEvaluation-{pm.player_name}", remove_escapes(debug_print(pm)))
     r.add_child(report)
-    return episode_eval, r
+    return score, r
 
 
-def ex08_performance_aggregator(ex_out:List[Ex08Metrics]) -> Ex08Metrics:
-    # todo 
-    pass
+def ex08_performance_aggregator(ex_out: List[float]) -> float:
+    return np.average(ex_out)
 
 
 def _ex08_vis(sim_context: SimContext) -> Report:
@@ -42,16 +50,16 @@ def _ex08_vis(sim_context: SimContext) -> Report:
 
 def get_exercise8():
     seed = 98
-    test_values:List[SimContext] = [
+    test_values: List[SimContext] = [
         get_sim_context_static(seed),
         get_sim_context_dynamic(seed)
-        ]
+    ]
 
     return Exercise[SimContext, None](
             desc="Final '22 planning course exercise.",
             evaluation_fun=ex08_evaluation,
             perf_aggregator=lambda x: ex08_performance_aggregator(x),
             test_values=test_values,
-            expected_results=[None, ]*len(test_values),
-            test_case_timeout=60 * 20,  # For debugging, increase value if your report generation is slow!
+            expected_results=[None, ] * len(test_values),
+            test_case_timeout=60 * 10,  # For debugging, increase value if your report generation is slow!
     )

@@ -15,7 +15,7 @@ from dg_commons.sim.models.vehicle_utils import VehicleParameters
 
 @dataclass(frozen=True)
 class Pdm4arAgentParams:
-    param1: float = 0
+    param1: float = 0.1
 
 
 class Pdm4arAgent(Agent):
