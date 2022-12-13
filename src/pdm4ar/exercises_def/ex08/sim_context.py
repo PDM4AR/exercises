@@ -1,7 +1,8 @@
 from collections import defaultdict
 from copy import deepcopy
 from decimal import Decimal as D
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Optional
 
 from dg_commons import PlayerName
 from dg_commons.maps.road_bounds import build_road_boundary_obstacle
@@ -12,13 +13,14 @@ from dg_commons.sim.goals import PolygonGoal, PlanningGoal
 from dg_commons.sim.models.vehicle import VehicleModel, VehicleState
 from dg_commons.sim.models.vehicle_structures import VehicleGeometry
 from dg_commons.sim.models.vehicle_utils import VehicleParameters
+from dg_commons.sim.scenarios import DgScenario
 from dg_commons.sim.sim_perception import ObsFilter, FovObsFilter
 from dg_commons.sim.simulator import SimContext
 from dg_commons.sim.simulator_visualisation import ZOrders
 from matplotlib import pyplot as plt
 
 from pdm4ar.exercises.ex08.agent import Pdm4arAgent
-from pdm4ar.exercises_def.ex08.scenario import *
+from pdm4ar.exercises_def.ex08.scenario import get_dgscenario
 
 __all__ = ["get_sim_context"]
 
@@ -81,7 +83,7 @@ if __name__ == '__main__':
     # matplotlib.use('TkAgg')
     from ex08 import load_config_ex08
 
-    config_dict = load_config_ex08("config_4.yaml")
+    config_dict = load_config_ex08(Path("config_4.yaml"))
     sim_context = get_sim_context(config_dict, seed=98)
     ax = plt.gca()
     shapely_viz = ShapelyViz(ax)
