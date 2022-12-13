@@ -1,0 +1,9 @@
+PDM4AR_1:
+  state:
+    x: -20
+    y: -40
+    psi: 1
+    vx: 2
+    delta: 0.02
+  goal: 16
+  color: 'red'

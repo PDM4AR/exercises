@@ -30,28 +30,16 @@ The simulation terminates upon one of the following cases:
 The vehicle model has a left and right thruster at the back that can be activated to push the spacecraft forward or backward.
 Note that applying differential thrust will also cause the spacecraft to rotate.
 
-
 State, commands, vehicle geometry, and parameters of the vehicle are implemented according to the [dg-commons](https://github.com/idsc-frazzoli/dg-commons) library.
-We suggest to get familiar with the basic structures by navigating the code. 
+We suggest to get familiar with the required basic structures by navigating the code. 
 
 Note that the simulator will enforce the following constraints:
-- **Actuation limits**: The acceleration of each thruster is saturated in the interval [-10, 10] m/s^2
-- **State constraints**: Linear velocities cannot exceed the interval [-50, 50] km/h
-- **State constraints**: Angular velocities cannot exceed the interval [-2pi, 2pi] rad/s
+- **Actuation limits**: The acceleration limits can be found in the `VehicleParameters` object.
+- **State constraints**: The speed and steering limits of the vehicle can be found in the `VehicleParameters` object.
 
+If the actuation limits are violated, the simulator will clip the actuation to the limits.
 If state constraints are violated, the simulator will set the commands to zero (unless they help to return within the physical constraints).
 
-
-**Early development**: 
-Note that running your agent paired in closed loop might be not the best way to build early prototypes.
-Adding custom visualisation might be tedious and creating the animation might take a few seconds every time.
-We suggest developing and test first your agent on a specific snapshot of the environment.
-This, for example, allows you to add custom visualisations to debug your algorithm.
-A simple example is provided in `test_agent.py`.
-
-**Test on different instances**:
-To avoid hard-coded solutions we will test your submissions on different instances of the environment.
-You can make sure that your solution can deal with different instances of the world by changing the parameters that create the space/obstacles/goal region and different initial conditions in the file `exercises_def/final21/scenario.py`.
 
 ### Test cases and performance criteria
 Your solution will be benchmarked against xxx scenarios. 
@@ -77,5 +65,23 @@ python3 [path/to/]src/pdm4ar/main.py -e 08
 ```
 
 
-## Hints
-- one
+### Suggestions
+
+**Planning vs Control rate**
+The simulator performs steps at 10Hz. 
+While the agent is expected to provide commands every $0.1s$, the (re-)planning rate can probably be lower.
+Consider decoupling the planning and control rate for better performance overall.
+
+**Early development**: 
+Note that running your agent in closed loop might be not the best way to build early prototypes.
+Adding custom visualisation might be tedious and creating the animation might take a few seconds every time.
+We suggest developing and test first your agent on a specific snapshot of the environment.
+This, for example, allows you to add custom visualisations to debug your algorithm.
+A simple example is provided in `test_agent.py`.
+
+**Test on different instances**:
+To avoid hard-coded solutions we will test your submissions on different instances of the environment.
+You can make sure that your solution can deal with different instances of the world by changing the parameters that create the space/obstacles/goal region and different initial conditions in the file `exercises_def/final21/scenario.py`.
+
+**Test faster**:
+To speed up the testing you can reduce the animation resolution by modifying the `dt` and the `dpi` parameters in `exercise_def/08/08.py`.

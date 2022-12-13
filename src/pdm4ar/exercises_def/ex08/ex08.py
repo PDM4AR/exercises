@@ -1,6 +1,8 @@
+from pathlib import Path
 from typing import Tuple, List
 
 import numpy as np
+import yaml
 from dg_commons.sim.simulator import Simulator, SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from reprep import MIME_MP4, Report
@@ -42,17 +44,28 @@ def _ex08_vis(sim_context: SimContext) -> Report:
         create_animation(file_path=fn,
                          sim_context=sim_context,
                          figsize=(16, 16),
-                         dt=50, dpi=120,
+                         dt=50,
+                         dpi=120,
                          plot_limits=None)
 
     return r
 
 
+def _load_config(name: str):
+    config_file = Path(__file__).parent / name
+    with open(config_file) as f:
+        config_dict = yaml.safe_load(f)
+    return config_dict
+
+
 def get_exercise8():
     seed = 98
+    name_1, name_2 = "config_1.yaml", "config_2.yaml"
+    config_dict_1 = _load_config(name_1)
+    config_dict_4 = _load_config(name_2)
     test_values: List[SimContext] = [
-        get_sim_context(seed, number_of_clones=0),
-        get_sim_context(seed, number_of_clones=2)
+        get_sim_context(config_dict_1, seed, config_name=name_1),
+        get_sim_context(config_dict_4, seed, config_name=name_2)
     ]
 
     return Exercise[SimContext, None](
