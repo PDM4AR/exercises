@@ -1,15 +1,15 @@
 from typing import Tuple, List
 
 import numpy as np
-from zuper_commons.text import remove_escapes
-from zuper_typing import debug_print
 from dg_commons.sim.simulator import Simulator, SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from reprep import MIME_MP4, Report
+from zuper_commons.text import remove_escapes
+from zuper_typing import debug_print
 
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex08.perf_metrics import ex08_metrics
-from pdm4ar.exercises_def.ex08.sim_context import get_sim_context_dynamic, get_sim_context_static
+from pdm4ar.exercises_def.ex08.sim_context import get_sim_context
 
 
 def ex08_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
@@ -51,8 +51,8 @@ def _ex08_vis(sim_context: SimContext) -> Report:
 def get_exercise8():
     seed = 98
     test_values: List[SimContext] = [
-        get_sim_context_static(seed),
-        get_sim_context_dynamic(seed)
+        get_sim_context(seed, number_of_clones=0),
+        get_sim_context(seed, number_of_clones=2)
     ]
 
     return Exercise[SimContext, None](

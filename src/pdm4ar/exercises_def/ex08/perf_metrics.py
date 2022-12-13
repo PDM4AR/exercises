@@ -114,7 +114,7 @@ def ex08_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
                 dg_lanelet = DgLanelet.from_commonroad_lanelet(lanelet)
                 pose = extract_pose_from_state(state)
                 dg_pose: DgLanePose = dg_lanelet.lane_pose_from_SE2_generic(pose)
-                avg_heading += dg_pose.relative_heading
+                avg_heading += abs(dg_pose.relative_heading)
         avg_heading /= len(agent_log.states)
 
         # computation time
