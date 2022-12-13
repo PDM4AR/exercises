@@ -1,0 +1,39 @@
+PDM4AR_1:
+  state:
+    x: -20
+    y: -40
+    psi: 1
+    vx: 2
+    delta: 0.02
+  goal: 16
+  color: 'red'
+
+PDM4AR_2:
+  state:
+    x: 40
+    y: 0
+    psi: 2.6
+    vx: 2
+    delta: 0.02
+  goal: 16
+  color: 'royalblue'
+
+PDM4AR_3:
+  state:
+    x: -40
+    y: 30
+    psi: -0.52
+    vx: 2
+    delta: 0.02
+  goal: 12
+  color: 'saddlebrown'
+
+PDM4AR_4:
+  state:
+    x: 20
+    y: 65
+    psi: -2.1
+    vx: 4
+    delta: 0
+  goal: 15
+  color: 'green'
