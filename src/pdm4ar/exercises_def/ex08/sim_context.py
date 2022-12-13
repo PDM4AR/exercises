@@ -3,11 +3,12 @@ from copy import deepcopy
 from decimal import Decimal as D
 from typing import Dict
 
+from dg_commons import PlayerName
 from dg_commons.maps.road_bounds import build_road_boundary_obstacle
 from dg_commons.maps.shapely_viz import ShapelyViz
 from dg_commons.perception.sensor import VisRangeSensor
 from dg_commons.sim import SimParameters
-from dg_commons.sim.goals import PolygonGoal
+from dg_commons.sim.goals import PolygonGoal, PlanningGoal
 from dg_commons.sim.models.vehicle import VehicleModel, VehicleState
 from dg_commons.sim.models.vehicle_structures import VehicleGeometry
 from dg_commons.sim.models.vehicle_utils import VehicleParameters
@@ -88,7 +89,8 @@ if __name__ == '__main__':
     for s_obstacle in sim_context.dg_scenario.static_obstacles.values():
         shapely_viz.add_shape(s_obstacle.shape, color=s_obstacle.geometry.color, zorder=ZOrders.ENV_OBSTACLE)
     for pn, goal in sim_context.missions.items():
-        shapely_viz.add_shape(goal.get_plottable_geometry(), color=config_dict[pn]["color"], zorder=ZOrders.GOAL, alpha=0.5)
+        shapely_viz.add_shape(goal.get_plottable_geometry(), color=config_dict[pn]["color"], zorder=ZOrders.GOAL,
+                              alpha=0.5)
     for pn, model in sim_context.models.items():
         footprint = model.get_footprint()
         shapely_viz.add_shape(footprint, color=config_dict[pn]["color"], zorder=ZOrders.GOAL, alpha=0.5)

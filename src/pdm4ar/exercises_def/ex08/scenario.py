@@ -1,22 +1,14 @@
 import random
-from typing import Optional, Mapping
+from typing import Optional
 
-from dg_commons import apply_SE2_to_shapely_geo, PlayerName
+from dg_commons import apply_SE2_to_shapely_geo
 from dg_commons.maps.shapes_generator import create_random_starshaped_polygon
-from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.scenarios import load_commonroad_scenario
 from dg_commons.sim.scenarios.structures import DgScenario
 from geometry import SE2_from_xytheta
 from numpy import deg2rad
 from shapely.geometry import Polygon
-
-PDM4AR_1 = PlayerName("PDM4AR_1")
-PDM4AR_2 = PlayerName("PDM4AR_2")
-PDM4AR_3 = PlayerName("PDM4AR_3")
-PDM4AR_4 = PlayerName("PDM4AR_4")
-
-Goals = Mapping[PlayerName, PlanningGoal]
 
 
 def get_dgscenario(seed: Optional[int] = None) -> DgScenario:
