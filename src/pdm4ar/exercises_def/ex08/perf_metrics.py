@@ -10,12 +10,11 @@ from dg_commons.sim.simulator import SimContext
 from math import sqrt, pi
 
 from pdm4ar.exercises_def import PerformanceResults
-from pdm4ar.exercises_def.ex08.scenario import PDM4AR_1
 
 
 @dataclass(frozen=True)
 class PlayerMetrics(PerformanceResults):
-    player_name:PlayerName
+    player_name: PlayerName
     "Player's name"
     goal_reached: bool
     """Has the player reached the goal?"""
@@ -67,8 +66,6 @@ class AvgPlayerMetrics(PerformanceResults):
 
 
 def ex08_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[PlayerMetrics]]:
-    assert PDM4AR_1 in sim_context.log, "Cannot find player name in sim_log"
-
     agents_perf: List[PlayerMetrics] = []
     collided_players: Set[PlayerName] = set()
     for cr in sim_context.collision_reports:
@@ -82,7 +79,7 @@ def ex08_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
 
         # if the last state of the sim is inside the goal
         last_state = states.values[-1]
-        has_reached_the_goal: bool = sim_context.missions[PDM4AR_1].is_fulfilled(last_state)
+        has_reached_the_goal: bool = sim_context.missions[player_name].is_fulfilled(last_state)
 
         # collision
         has_collided = True if player_name in collided_players else False
@@ -105,7 +102,7 @@ def ex08_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         network = sim_context.dg_scenario.lanelet_network
         avg_heading = 0
         for state in agent_log.states.values:
-            lanelet_ids = network.find_lanelet_by_position([[state.x, state.y],])[0]
+            lanelet_ids = network.find_lanelet_by_position([[state.x, state.y], ])[0]
             if len(lanelet_ids) == 0:
                 # penalized for being outside the lanelet network as driving against the traffic
                 avg_heading += pi
