@@ -57,3 +57,4 @@ if __name__ == "__main__":
     contracts.disable_all()
     args = _setup_args()
     run_exercise(exercise=args.exercise, evaluation_mode=args.evaluate)
+

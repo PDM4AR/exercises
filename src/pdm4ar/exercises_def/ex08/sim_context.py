@@ -78,9 +78,9 @@ def _add_player(simcontext: SimContext, x0: VehicleState, new_name: PlayerName, 
 
 if __name__ == '__main__':
     # matplotlib.use('TkAgg')
-    from ex08 import _load_config
+    from ex08 import load_config_ex08
 
-    config_dict = _load_config("config_4.yaml")
+    config_dict = load_config_ex08("config_4.yaml")
     sim_context = get_sim_context(config_dict, seed=98)
     ax = plt.gca()
     shapely_viz = ShapelyViz(ax)
