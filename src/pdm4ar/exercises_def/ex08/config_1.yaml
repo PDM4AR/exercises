@@ -17,7 +17,10 @@ static_obstacles:
     - [-22, 0]
     - [10, 60]
     - [20, 45]
+    - [7, 15]
   avg_radius: 2
   irregularity: 0.3
   spikiness: 0.5
   n_vertices: 10
+
+seed: 98
