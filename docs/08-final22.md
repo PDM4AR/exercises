@@ -99,7 +99,8 @@ A simple example is provided in `test_agent.py`.
 
 **Test on different instances**:
 To avoid hard-coded solutions we will test your submissions on different instances of the environment.
-You can make sure that your solution can deal with different instances of the world by changing the parameters that create the space/obstacles/goal region and different initial conditions in the file `exercises_def/final21/scenario.py`.
+You can make sure that your solution can deal with different instances of the world by changing the parameters in the config files or by creating new ones in the folder `exercises_def/ex08/*`.
+If you create new configs, make sure to add them to the `exercises_def/ex08/ex08.py` file in the `get_exercise8` method.
 
 **Test faster**:
 To speed up the testing you can reduce the animation resolution by modifying the `dt` and the `dpi` parameters in `exercise_def/ex08/ex08.py`.
