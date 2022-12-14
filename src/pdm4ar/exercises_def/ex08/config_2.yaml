@@ -10,12 +10,12 @@ agents:
     color: 'red'
   PDM4AR_2:
     state:
-      x: 40
-      y: 0
+      x: 35
+      y: 3
       psi: 2.6
       vx: 2
       delta: 0.02
-    goal: 16
+    goal: 5
     color: 'royalblue'
   PDM4AR_3:
     state:
@@ -44,10 +44,10 @@ static_obstacles:
     - [-22, 0]
     - [10, 60]
     - [20, 45]
-    - [ 7, 15 ]
+    - [ 6, 17 ]
   avg_radius: 2
   irregularity: 0.3
   spikiness: 0.5
   n_vertices: 10
 
-seed: 98
+seed: 23

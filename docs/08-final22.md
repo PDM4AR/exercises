@@ -1,4 +1,4 @@
-# Final '22
+# Driving Games [Final '22]
 
 This exercise is the final graded exercise issued for the Fall semester of 2022.
 
@@ -30,14 +30,13 @@ Another vehicle in the gray area would not be visible to the agent:
 
 ![image](https://user-images.githubusercontent.com/18750753/207558372-afd91da4-4e0d-47a0-ae54-eb6dc7e013f4.png)
 
-
 The *simulation terminates* upon one of the following cases:
 - All the agents reach their goals (you manage to bring the vehicle CoG inside the goal area);
 - An agent crashes into an obstacle;
 - The maximum simulation time is reached.
 
 ### Vehicle model
-The vehicle is a car-like robot modeled via a kinematic bicycle model.
+The vehicle is a car-like robot modeled via a kinematic bicycle model (see [here](https://github.com/idsc-frazzoli/dg-commons/blob/master/src/dg_commons/sim/models/vehicle.py#L197) the dynamics equation).
 
 The specific `VehicleState`, `VehicleCommands`, `VehicleGeometry`, and `VehicleParameters` of the vehicle are implemented according to the [dg-commons](https://github.com/idsc-frazzoli/dg-commons) library.
 We suggest to get familiar with the required basic structures by navigating the code. 
@@ -60,7 +59,7 @@ Performance criteria involve:
 - **Safety**: The vehicle should not crash into any obstacle;
 - **Completeness**: The vehicle should reach the goal set;
 - **Efficiency**: The vehicle should reach the goal set in the shortest time possible driving the shortest possible path;
-- **Compliance**: The vehicle should drive as much as possible aligned with traffic lanes;
+- **Compliance**: The vehicle should drive as much as possible aligned with traffic lanes, have a look at the [CommonRoad API](https://commonroad-io.readthedocs.io/en/latest/api/scenario/#module-commonroad.scenario.lanelet) definition of lanelet and the related network;
 - **Smoothness**: The vehicle should drive smoothly, i.e., without sudden accelerations or steering angles;
 - **Computation**: The vehicle should on average take as little as possible to compute new commands.
 
@@ -71,7 +70,7 @@ In particular the `reduce_to_score` method defines how the performance metrics a
 ## Run the exercise
 Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
 
-Make sure to rebuild the container running the VS Code command (click Ctrl+Shift+P) `Remote-Containers: Rebuild Container` or `Remote-Containers: Rebuild and Reopen in Container`, and then reinstall the *pdm4ar* module running `pip3 install -e [path/to/exercises_repo]` in the VS Code terminal.
+Make sure to **rebuild the container** running the VS Code command (click Ctrl+Shift+P) `Remote-Containers: Rebuild Container` or `Remote-Containers: Rebuild and Reopen in Container`, and then reinstall the *pdm4ar* module running `pip3 install -e [path/to/exercises_repo]` in the VS Code terminal.
 
 Run the exercise with:
 ```shell
