@@ -6,7 +6,6 @@ from typing import Dict, Optional, Mapping
 
 from dg_commons import PlayerName
 from dg_commons.maps.road_bounds import build_road_boundary_obstacle
-from dg_commons.maps.shapely_viz import ShapelyViz
 from dg_commons.perception.sensor import VisRangeSensor
 from dg_commons.sim import SimParameters
 from dg_commons.sim.goals import PolygonGoal, PlanningGoal
