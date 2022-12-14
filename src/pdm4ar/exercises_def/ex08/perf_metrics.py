@@ -60,8 +60,9 @@ class AvgPlayerMetrics(PerformanceResults):
     def reduce_to_score(self) -> float:
         """Higher is better"""
         score = (self.goal_success_rate - self.collision_rate) * 1e3
-        score -= (self.avg_distance_travelled + self.avg_episode_duration + self.avg_relative_heading) * 1e2
-        score -= (self.avg_computation_time + self.avg_actuation_effort) * 1e1
+        score -= self.avg_relative_heading * 1e2
+        score -= (self.avg_distance_travelled + self.avg_episode_duration + self.avg_computation_time +
+                  self.avg_actuation_effort) * 1e1
         return score
 
 

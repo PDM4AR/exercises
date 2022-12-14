@@ -3,9 +3,15 @@
 This exercise is the final graded exercise issued for the Fall semester of 2022.
 
 ## Problem description
+Your task is to implement a planning (and control) stack for a car-like vehicle.
+The planning stack needs to safely bring the vehicle inside the goal set (a polygon). 
+Unfortunately, just before a truck has lost some of its heavy load on the road, and additional debris are present on the road.  
+
+![image](https://user-images.githubusercontent.com/18750753/207476501-2330675d-d18e-4897-a29f-4ad8ac30d4f0.png)
 
 To test your agent, you are provided with a simulator able to perform closed loop simulations.
 The simulator at each time step provides observations to the agent, and it expects commands in return.
+See below an image of the environment. In purple the obstacles, in yellow the goal set, in red the vehicle:
 
 ![sim2agent](https://user-images.githubusercontent.com/18750753/144580159-d4d29506-03b2-49b9-b4b8-3cde701cc7d4.png)
 
@@ -19,18 +25,21 @@ The simulation then enters a loop, where at each time step the simulator calls t
 The method `get_commands` receives the latest "sensed" observations by the agent and is expected to return control commands.
 
 The observations are computed assuming a 2D Lidar sensor with 360 fields of view. 
-This means that they contain information only about the non-occluded players, see the image below for clarification:
+This means that they contain information only about the non-occluded players, see the image below for clarification.
+Another vehicle in the gray area would not be visible to the agent:
 
-The simulation terminates upon one of the following cases:
-- The agent reaches the goal (you manage to bring the Spacecraft CoG inside the goal area)
-- The agent crashes into an obstacle
-- The maximum simulation time is reached
+![image](https://user-images.githubusercontent.com/18750753/207558372-afd91da4-4e0d-47a0-ae54-eb6dc7e013f4.png)
+
+
+The *simulation terminates* upon one of the following cases:
+- All the agents reach their goals (you manage to bring the vehicle CoG inside the goal area);
+- An agent crashes into an obstacle;
+- The maximum simulation time is reached.
 
 ### Vehicle model
-The vehicle model has a left and right thruster at the back that can be activated to push the spacecraft forward or backward.
-Note that applying differential thrust will also cause the spacecraft to rotate.
+The vehicle is a car-like robot modeled via a kinematic bicycle model.
 
-State, commands, vehicle geometry, and parameters of the vehicle are implemented according to the [dg-commons](https://github.com/idsc-frazzoli/dg-commons) library.
+The specific `VehicleState`, `VehicleCommands`, `VehicleGeometry`, and `VehicleParameters` of the vehicle are implemented according to the [dg-commons](https://github.com/idsc-frazzoli/dg-commons) library.
 We suggest to get familiar with the required basic structures by navigating the code. 
 
 Note that the simulator will enforce the following constraints:
@@ -40,14 +49,23 @@ Note that the simulator will enforce the following constraints:
 If the actuation limits are violated, the simulator will clip the actuation to the limits.
 If state constraints are violated, the simulator will set the commands to zero (unless they help to return within the physical constraints).
 
-
 ### Test cases and performance criteria
-Your solution will be benchmarked against xxx scenarios. 
-One containing only static obstacles (asteroids), one containing also dynamic obstacles (asteroids).
-![image](https://user-images.githubusercontent.com/18750753/144765049-ffed6186-8269-4380-b382-a8e049ca7d39.png)
-Once you run a simulation a report containing the visualisation of the episode and a few performance metrics is generated.
-We will generate a ranking based on the performance criteria.
+Your task is to implement the agent in the `exercises/ex08/agent.py` file.
 
+Your solution will then be embodied in one or multiple agents at once. 
+Each will receive their own goals, observations, and parameters.
+
+Once you run a simulation a report containing the performance metrics and a visualisation of the episode (make sure to click on the _data_nodes_ tab) is generated.
+Performance criteria involve:
+- **Safety**: The vehicle should not crash into any obstacle;
+- **Completeness**: The vehicle should reach the goal set;
+- **Efficiency**: The vehicle should reach the goal set in the shortest time possible driving the shortest possible path;
+- **Compliance**: The vehicle should drive as much as possible aligned with traffic lanes;
+- **Smoothness**: The vehicle should drive smoothly, i.e., without sudden accelerations or steering angles;
+- **Computation**: The vehicle should on average take as little as possible to compute new commands.
+
+You can find a precise definition of the performance criteria in `exercises_def/ex08/perf_metrics.py`.
+In particular the `reduce_to_score` method defines how the performance metrics are reduced to a single score.
 
 
 ## Run the exercise
@@ -68,8 +86,8 @@ python3 [path/to/]src/pdm4ar/main.py -e 08
 ### Suggestions
 
 **Planning vs Control rate**
-The simulator performs steps at 10Hz. 
-While the agent is expected to provide commands every $0.1s$, the (re-)planning rate can probably be lower.
+The simulator performs steps at 10 _Hz_. 
+While the agent is expected to provide commands every 0.1 _s_, the (re-)planning rate can probably be lower.
 Consider decoupling the planning and control rate for better performance overall.
 
 **Early development**: 
@@ -84,4 +102,4 @@ To avoid hard-coded solutions we will test your submissions on different instanc
 You can make sure that your solution can deal with different instances of the world by changing the parameters that create the space/obstacles/goal region and different initial conditions in the file `exercises_def/final21/scenario.py`.
 
 **Test faster**:
-To speed up the testing you can reduce the animation resolution by modifying the `dt` and the `dpi` parameters in `exercise_def/08/08.py`.
+To speed up the testing you can reduce the animation resolution by modifying the `dt` and the `dpi` parameters in `exercise_def/ex08/ex08.py`.
