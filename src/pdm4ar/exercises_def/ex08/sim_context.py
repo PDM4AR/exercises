@@ -16,7 +16,7 @@ from dg_commons.sim.models.vehicle_utils import VehicleParameters
 from dg_commons.sim.scenarios import DgScenario
 from dg_commons.sim.sim_perception import ObsFilter, FovObsFilter
 from dg_commons.sim.simulator import SimContext
-from dg_commons.sim.simulator_visualisation import ZOrders
+from dg_commons.sim.simulator_visualisation import ZOrders, SimRenderer
 from matplotlib import pyplot as plt
 
 from pdm4ar.exercises.ex08.agent import Pdm4arAgent
@@ -48,7 +48,6 @@ def get_sim_context(config_dict: Mapping, seed: Optional[int] = None, config_nam
     simcontext = _get_empty_sim_context(dgscenario)
     simcontext.description = f"Environment-{config_name}"
 
-    #
     _, gates = build_road_boundary_obstacle(simcontext.dg_scenario.scenario)
 
     # add embodied clones of the nominal agent
@@ -84,19 +83,21 @@ if __name__ == '__main__':
     # matplotlib.use('TkAgg')
     from ex08 import load_config_ex08
 
-    config_dict = load_config_ex08(Path("config_4.yaml"))
+    config_dict = load_config_ex08(Path("config_2.yaml"))
     sim_context = get_sim_context(config_dict, seed=98)
-    ax = plt.gca()
-    shapely_viz = ShapelyViz(ax)
+    sim_renderer = SimRenderer(sim_context)
+    shapely_viz = sim_renderer.shapely_viz
+    ax = sim_renderer.commonroad_renderer.ax
 
-    for s_obstacle in sim_context.dg_scenario.static_obstacles.values():
-        shapely_viz.add_shape(s_obstacle.shape, color=s_obstacle.geometry.color, zorder=ZOrders.ENV_OBSTACLE)
-    for pn, goal in sim_context.missions.items():
-        shapely_viz.add_shape(goal.get_plottable_geometry(), color=config_dict[pn]["color"], zorder=ZOrders.GOAL,
-                              alpha=0.5)
-    for pn, model in sim_context.models.items():
-        footprint = model.get_footprint()
-        shapely_viz.add_shape(footprint, color=config_dict[pn]["color"], zorder=ZOrders.GOAL, alpha=0.5)
+    with sim_renderer.plot_arena(ax):
+        for s_obstacle in sim_context.dg_scenario.static_obstacles.values():
+            shapely_viz.add_shape(s_obstacle.shape, color=s_obstacle.geometry.color, zorder=ZOrders.ENV_OBSTACLE)
+        for pn, goal in sim_context.missions.items():
+            shapely_viz.add_shape(goal.get_plottable_geometry(), color=config_dict["agents"][pn]["color"],
+                                  zorder=ZOrders.GOAL, alpha=0.5)
+        for pn, model in sim_context.models.items():
+            footprint = model.get_footprint()
+            shapely_viz.add_shape(footprint, color=config_dict["agents"][pn]["color"], zorder=ZOrders.MODEL, alpha=0.5)
 
     ax = shapely_viz.ax
     ax.autoscale()

@@ -92,10 +92,10 @@ Consider decoupling the planning and control rate for better performance overall
 
 **Early development**: 
 Note that running your agent in closed loop might be not the best way to build early prototypes.
-Adding custom visualisation might be tedious and creating the animation might take a few seconds every time.
-We suggest developing and test first your agent on a specific snapshot of the environment.
-This, for example, allows you to add custom visualisations to debug your algorithm.
-A simple example is provided in `test_agent.py`.
+Adding custom visualisation might be tedious and creating the animation might take some seconds every time.
+We suggest developing and test first your agent's planning on a specific snapshot of the environment.
+
+An example of how to visualise the initial configuration is provided in `exercise_def/ex08/sim_context.py`.
 
 **Test on different instances**:
 To avoid hard-coded solutions we will test your submissions on different instances of the environment.
