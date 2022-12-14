@@ -1,41 +1,37 @@
 import random
-from typing import Optional, Tuple
+from pathlib import Path
+from typing import Optional, Mapping
 
-from dg_commons import apply_SE2_to_shapely_geo, X
+from dg_commons import apply_SE2_to_shapely_geo
 from dg_commons.maps.shapes_generator import create_random_starshaped_polygon
-from dg_commons.planning import PlanningGoal, PolygonGoal
 from dg_commons.sim.models.obstacles import StaticObstacle
-from dg_commons.sim.models.vehicle import VehicleState
+from dg_commons.sim.scenarios import load_commonroad_scenario
 from dg_commons.sim.scenarios.structures import DgScenario
 from geometry import SE2_from_xytheta
 from numpy import deg2rad
-from shapely.geometry import Polygon, LinearRing
-
-__all__ = ["get_dgscenario"]
+from shapely.geometry import Polygon
 
 
-def get_dgscenario(seed: Optional[int] = None) -> Tuple[DgScenario, PlanningGoal, X]:
-    max_size = 100
-    shapes = []
-    bounds = LinearRing([(0, 0), (0, max_size), (max_size, max_size), (max_size, 0), (0, 0)])
-    poly1 = Polygon([[0, 0], [3, 0], [3, 3], [0, 3], [0, 0]])
-    poly2 = apply_SE2_to_shapely_geo(poly1, SE2_from_xytheta((7, 15, deg2rad(30))))
-    shapes += [bounds, poly2]
+def get_dgscenario(config_dict: Mapping, seed: Optional[int] = None) -> DgScenario:
+    scenario_name = "USA_Lanker-1_1_T-1"
+    scenarios_dir = Path(__file__).parent
+    cm_scenario, _ = load_commonroad_scenario(scenario_name, scenarios_dir=str(scenarios_dir))
+
     if seed is not None:
         random.seed(seed)
 
-    positions = [(50, 50), (50, 10), (10, 50), (10, 85), (75, 80), (80, 30), ]
-    for pos in positions:
-        poly = Polygon(create_random_starshaped_polygon(*pos, 10, 0.5, 0.5, 10))
+    shapes = []
+    avg_radius: float = config_dict["static_obstacles"]["avg_radius"]
+    irregularity: float = config_dict["static_obstacles"]["irregularity"]
+    spikiness: float = config_dict["static_obstacles"]["spikiness"]
+    n_vertices: float = config_dict["static_obstacles"]["n_vertices"]
+    for pos in config_dict["static_obstacles"]["centers"]:
+        poly = Polygon(create_random_starshaped_polygon(*pos, avg_radius, irregularity, spikiness, n_vertices))
         shapes.append(poly)
 
     obstacles = list(map(StaticObstacle, shapes))
     static_obstacles = dict(zip(range(len(obstacles)), obstacles))
 
-    x0 = VehicleState(x=7, y=4, psi=deg2rad(60), vx=5, delta=-0.02)
-    goal_poly = Polygon(((max_size, max_size), (max_size - 10, max_size),
-                         (max_size - 10, max_size - 10), (max_size, max_size - 10)))
-    goal = PolygonGoal(goal_poly)
-    dg_scenario = DgScenario(static_obstacles=static_obstacles)
+    dg_scenario = DgScenario(scenario=cm_scenario, use_road_boundaries=True, static_obstacles=static_obstacles)
 
-    return dg_scenario, goal, x0
+    return dg_scenario

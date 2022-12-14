@@ -10,7 +10,7 @@ PyGeometry-z6
 quickapp-z6>=6.0.5,<7
 reprep-z6>=6.0.3,<7
 
-dg-commons==0.0.24
+dg-commons==0.0.25
 
 tqdm>=4.64.1
 pre-commit

@@ -1,43 +1,58 @@
+import random
+from dataclasses import dataclass
 from typing import Sequence
 
-from dg_commons.planning import PolygonGoal
+from commonroad.scenario.lanelet import LaneletNetwork
+from dg_commons import PlayerName
+from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim import SimObservations, InitSimObservations
 from dg_commons.sim.agents import Agent
 from dg_commons.sim.models.obstacles import StaticObstacle
-from dg_commons.sim.models.spacecraft import SpacecraftCommands
-from dg_commons.sim.models.spacecraft_structures import SpacecraftGeometry, SpacecraftParameters
+from dg_commons.sim.models.vehicle import VehicleCommands
+from dg_commons.sim.models.vehicle_structures import VehicleGeometry
+from dg_commons.sim.models.vehicle_utils import VehicleParameters
+
+
+@dataclass(frozen=True)
+class Pdm4arAgentParams:
+    param1: float = 0.1
 
 
 class Pdm4arAgent(Agent):
     """This is the PDM4AR agent.
-    Do NOT modify the naming of the existing methods and the input/output types.
+    Do *NOT* modify the naming of the existing methods and the input/output types.
     Feel free to add additional methods, objects and functions that help you to solve the task"""
 
     def __init__(self,
-                 goal: PolygonGoal,
-                 static_obstacles: Sequence[StaticObstacle],
-                 sg: SpacecraftGeometry,
-                 sp: SpacecraftParameters):
-        self.goal = goal
-        self.static_obstacles = static_obstacles
+                 sg: VehicleGeometry,
+                 sp: VehicleParameters,
+                 params: Pdm4arAgentParams = Pdm4arAgentParams()):
         self.sg = sg
         self.sp = sp
-        self.name = None
+        self.params = params
+        self.name: PlayerName = None
+        self.goal: PlanningGoal = None
+        self.lanelet_network: LaneletNetwork = None
+        self.static_obstacles: Sequence[StaticObstacle] = None
 
     def on_episode_init(self, init_obs: InitSimObservations):
         """This method is called by the simulator at the beginning of each episode."""
         self.name = init_obs.my_name
-        # todo add mission to initial observations?!
+        self.goal = init_obs.goal
+        self.lanelet_network = init_obs.dg_scenario.lanelet_network
+        self.static_obstacles = list(init_obs.dg_scenario.static_obstacles.values())
 
-    def get_commands(self, sim_obs: SimObservations) -> SpacecraftCommands:
+    def get_commands(self, sim_obs: SimObservations) -> VehicleCommands:
         """ This method is called by the simulator at each time step.
-        This is how you can get your current state from the observations:
-        my_current_state: SpacecraftState = sim_obs.players[self.name].state
+        For instance, this is how you can get your current state from the observations:
+        my_current_state: VehicleState = sim_obs.players[self.name].state
 
         :param sim_obs:
         :return:
         """
 
-        # todo implement here
+        # todo implement here some better planning
+        rnd_acc = random.random() * self.params.param1
+        rnd_ddelta = random.random() * self.params.param1
 
-        return SpacecraftCommands(acc_left=1, acc_right=1)
+        return VehicleCommands(acc=rnd_acc, ddelta=rnd_ddelta)
