@@ -62,8 +62,8 @@ Same modality as the weekly exercises, but they will be a bit more involved.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes** |
 |-----------------|-----------|----------------------|-----------------------|
-| 07              | Optimization  | Nov. 29th       | Dec. 15th (23:59 CET)  |
-| TBD             | Surprise  | Dec. 15th (TBC)      | Jan. 15th (23:59 CET) |
+| 07              | Optimization  | Nov. 29th       | Dec. 18th (23:59 CET) (EXTENDED) |
+| 08             | Driving Games  | Dec. 15th        | Jan. 15th (23:59 CET) |
 
 
 ## Plagiarism and dishonest conduct
