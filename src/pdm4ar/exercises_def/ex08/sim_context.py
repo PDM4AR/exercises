@@ -6,7 +6,6 @@ from typing import Dict, Optional, Mapping
 
 from dg_commons import PlayerName
 from dg_commons.maps.road_bounds import build_road_boundary_obstacle
-from dg_commons.maps.shapely_viz import ShapelyViz
 from dg_commons.perception.sensor import VisRangeSensor
 from dg_commons.sim import SimParameters
 from dg_commons.sim.goals import PolygonGoal, PlanningGoal
@@ -82,9 +81,9 @@ def _add_player(simcontext: SimContext, x0: VehicleState, new_name: PlayerName, 
 if __name__ == '__main__':
     # matplotlib.use('TkAgg')
     from ex08 import load_config_ex08
-
-    config_dict = load_config_ex08(Path("config_2.yaml"))
-    sim_context = get_sim_context(config_dict, seed=98)
+    config_path = Path(__file__).parent / "config_2.yaml" 
+    config_dict = load_config_ex08(config_path)
+    sim_context = get_sim_context(config_dict, seed=config_dict["seed"])
     sim_renderer = SimRenderer(sim_context)
     shapely_viz = sim_renderer.shapely_viz
     ax = sim_renderer.commonroad_renderer.ax

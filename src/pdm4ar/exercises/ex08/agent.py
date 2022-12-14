@@ -15,7 +15,7 @@ from dg_commons.sim.models.vehicle_utils import VehicleParameters
 
 @dataclass(frozen=True)
 class Pdm4arAgentParams:
-    param1: float = 0.1
+    param1: float = 0.2
 
 
 class Pdm4arAgent(Agent):
@@ -25,15 +25,16 @@ class Pdm4arAgent(Agent):
 
     def __init__(self,
                  sg: VehicleGeometry,
-                 sp: VehicleParameters,
-                 params: Pdm4arAgentParams = Pdm4arAgentParams()):
+                 sp: VehicleParameters
+                 ):
         self.sg = sg
         self.sp = sp
-        self.params = params
         self.name: PlayerName = None
         self.goal: PlanningGoal = None
         self.lanelet_network: LaneletNetwork = None
         self.static_obstacles: Sequence[StaticObstacle] = None
+        # feel free to remove/modify  the following
+        self.params = Pdm4arAgentParams()
 
     def on_episode_init(self, init_obs: InitSimObservations):
         """This method is called by the simulator at the beginning of each episode."""
@@ -53,6 +54,6 @@ class Pdm4arAgent(Agent):
 
         # todo implement here some better planning
         rnd_acc = random.random() * self.params.param1
-        rnd_ddelta = random.random() * self.params.param1
+        rnd_ddelta = (random.random()-.5) * self.params.param1
 
         return VehicleCommands(acc=rnd_acc, ddelta=rnd_ddelta)

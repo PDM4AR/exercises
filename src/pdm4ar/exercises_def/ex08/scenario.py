@@ -2,13 +2,10 @@ import random
 from pathlib import Path
 from typing import Optional, Mapping
 
-from dg_commons import apply_SE2_to_shapely_geo
 from dg_commons.maps.shapes_generator import create_random_starshaped_polygon
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.scenarios import load_commonroad_scenario
 from dg_commons.sim.scenarios.structures import DgScenario
-from geometry import SE2_from_xytheta
-from numpy import deg2rad
 from shapely.geometry import Polygon
 
 

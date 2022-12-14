@@ -62,10 +62,10 @@ def get_exercise8():
     config_dir = Path(__file__).parent
     name_1, name_2 = "config_1.yaml", "config_2.yaml"
     config_dict_1 = load_config_ex08(config_dir / name_1)
-    config_dict_4 = load_config_ex08(config_dir / name_2)
+    config_dict_2 = load_config_ex08(config_dir / name_2)
     test_values: List[SimContext] = [
         get_sim_context(config_dict_1, config_dict_1["seed"], config_name=name_1),
-        get_sim_context(config_dict_4, config_dict_4["seed"], config_name=name_2)
+        get_sim_context(config_dict_2, config_dict_2["seed"], config_name=name_2)
     ]
 
     return Exercise[SimContext, None](

@@ -14,3 +14,4 @@ Welcome to PDM4AR programming exercises for autonomous robots :airplane: :helico
 * [Steering (Dubins Paths)](05-dubinspath.md)
 * [Collision Checking](06-collisionchecking.md)
 * [Optimization](07-optimization.md)
+* [Driving Games](08-driving_games.md)
