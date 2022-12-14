@@ -1,5 +1,5 @@
 import random
-from typing import Optional
+from typing import Optional, Mapping
 
 from dg_commons import apply_SE2_to_shapely_geo
 from dg_commons.maps.shapes_generator import create_random_starshaped_polygon
@@ -11,7 +11,7 @@ from numpy import deg2rad
 from shapely.geometry import Polygon
 
 
-def get_dgscenario(seed: Optional[int] = None) -> DgScenario:
+def get_dgscenario(config_dict: Mapping, seed: Optional[int] = None) -> DgScenario:
     scenario_name = "USA_Lanker-1_1_T-1"
     cm_scenario, _ = load_commonroad_scenario(scenario_name, scenarios_dir=".")
 
@@ -22,9 +22,13 @@ def get_dgscenario(seed: Optional[int] = None) -> DgScenario:
     if seed is not None:
         random.seed(seed)
 
-    positions = [(-5, 10), (-30, -20), (-10, -15), (-22, 0), (10, 60), (20, 45), ]
-    for pos in positions:
-        poly = Polygon(create_random_starshaped_polygon(*pos, 2, 0.3, 0.5, 10))
+    # positions = [(-5, 10), (-30, -20), (-10, -15), (-22, 0), (10, 60), (20, 45), ]
+    avg_radius: float = config_dict["static_obstacles"]["avg_radius"]
+    irregularity: float = config_dict["static_obstacles"]["irregularity"]
+    spikiness: float = config_dict["static_obstacles"]["spikiness"]
+    n_vertices: float = config_dict["static_obstacles"]["n_vertices"]
+    for pos in config_dict["static_obstacles"]["centers"]:
+        poly = Polygon(create_random_starshaped_polygon(*pos, avg_radius, irregularity, spikiness, n_vertices))
         shapes.append(poly)
 
     obstacles = list(map(StaticObstacle, shapes))

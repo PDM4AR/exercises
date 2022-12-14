@@ -1,8 +1,9 @@
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Mapping
 
 import numpy as np
 import yaml
+from dg_commons import fd
 from dg_commons.sim.simulator import Simulator, SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from reprep import MIME_MP4, Report
@@ -51,10 +52,10 @@ def _ex08_vis(sim_context: SimContext) -> Report:
     return r
 
 
-def load_config_ex08(file_path: Path):
+def load_config_ex08(file_path: Path)->Mapping:
     with open(str(file_path)) as f:
         config_dict = yaml.safe_load(f)
-    return config_dict
+    return fd(config_dict)
 
 
 def get_exercise8():

@@ -2,7 +2,7 @@ from collections import defaultdict
 from copy import deepcopy
 from decimal import Decimal as D
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Mapping
 
 from dg_commons import PlayerName
 from dg_commons.maps.road_bounds import build_road_boundary_obstacle
@@ -43,8 +43,8 @@ def _get_empty_sim_context(scenario: DgScenario) -> SimContext:
             param=sim_params)
 
 
-def get_sim_context(config_dict: Dict, seed: Optional[int] = None, config_name: str = "") -> SimContext:
-    dgscenario = get_dgscenario(seed)
+def get_sim_context(config_dict: Mapping, seed: Optional[int] = None, config_name: str = "") -> SimContext:
+    dgscenario = get_dgscenario(config_dict, seed)
     simcontext = _get_empty_sim_context(dgscenario)
     simcontext.description = f"Environment-{config_name}"
 
@@ -52,12 +52,13 @@ def get_sim_context(config_dict: Dict, seed: Optional[int] = None, config_name: 
     _, gates = build_road_boundary_obstacle(simcontext.dg_scenario.scenario)
 
     # add embodied clones of the nominal agent
-    for pn in config_dict.keys():
+    agents_dict = config_dict["agents"]
+    for pn in agents_dict.keys():
         player_name = PlayerName(pn)
-        x0 = VehicleState(**config_dict[pn]["state"])
-        goal_n = config_dict[pn]["goal"]
+        x0 = VehicleState(**agents_dict[pn]["state"])
+        goal_n = agents_dict[pn]["goal"]
         goal = PolygonGoal(gates[goal_n].buffer(1))
-        color = config_dict[pn]["color"]
+        color = agents_dict[pn]["color"]
         _add_player(simcontext, x0, player_name, goal=goal, color=color)
     return simcontext
 
