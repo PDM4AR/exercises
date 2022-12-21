@@ -31,7 +31,7 @@ Another vehicle in the gray area would not be visible to the agent:
 ![image](https://user-images.githubusercontent.com/18750753/207558372-afd91da4-4e0d-47a0-ae54-eb6dc7e013f4.png)
 
 The *simulation terminates* upon one of the following cases:
-- All the agents reach their goals (you manage to bring the vehicle CoG inside the goal area);
+- All the agents reach their goals (you manage to bring the vehicle CoG inside the goal area, other terms in the final state such as speed are irrelevant since the agent gets "deactivated" once it reaches the goal);
 - An agent crashes into an obstacle;
 - The maximum simulation time is reached.
 
@@ -66,6 +66,7 @@ Performance criteria involve:
 You can find a precise definition of the performance criteria in `exercises_def/ex08/perf_metrics.py`.
 In particular the `reduce_to_score` method defines how the performance metrics are reduced to a single score.
 
+The **test cases** on the server differ to the ones provided only by the config file. This implies, for instance, that the map topology is fixed. 
 
 ## Run the exercise
 Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
