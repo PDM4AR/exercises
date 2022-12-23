@@ -27,3 +27,6 @@ ortools>=9.4.1874
 cvxpy==1.2.2
 cvxopt>=1.3.0
 cylp>=0.91.5
+
+# ex08
+do-mpc==4.4.0
