@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Set, Tuple
 
 import numpy as np
+from shapely.geometry import Point, Polygon
 from dg_commons import iterate_with_dt, seq_integrate, DgSampledSequence, PlayerName
 from dg_commons.maps import DgLanelet, DgLanePose
 from dg_commons.sim import extract_pose_from_state
@@ -24,6 +25,8 @@ class PlayerMetrics(PerformanceResults):
     """The length of the trajectory travelled by the robot"""
     episode_duration: float
     """The time it took till the end the simulation."""
+    distance2goal: float
+    """The beeline distance to the goal, >=0"""
     avg_relative_heading: float
     """The average relative heading of the vehicle wrt the lane it is driving on"""
     actuation_effort: float
@@ -42,6 +45,8 @@ class AvgPlayerMetrics(PerformanceResults):
     """The length of the trajectory travelled by the robot"""
     avg_episode_duration: float
     """The time it took till the end the simulation."""
+    avg_distance2goal: float
+    """The beeline distance to the goal, >=0"""
     avg_relative_heading: float
     """The average relative heading of the vehicle wrt the lane it is driving on"""
     avg_actuation_effort: float
@@ -61,7 +66,7 @@ class AvgPlayerMetrics(PerformanceResults):
         """Higher is better"""
         score = (self.goal_success_rate - self.collision_rate) * 1e3
         score -= (self.avg_relative_heading + self.avg_computation_time)* 1e2
-        score -= (self.avg_distance_travelled/5 + self.avg_episode_duration/5 + self.avg_actuation_effort) * 1e1
+        score -= (self.avg_distance2goal/2 + self.avg_distance_travelled/5 + self.avg_episode_duration/5 + self.avg_actuation_effort) * 1e1
         return score
 
 
@@ -91,6 +96,11 @@ def ex08_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
 
         # time duration
         duration = float(states.get_end() - states.get_start())
+
+        # distance left to goal
+        last_point = Point(last_state.x,last_state.y)
+        goal_poly: Polygon = sim_context.missions[player_name].goal
+        distance2goal = goal_poly.distance(last_point)
 
         # actuation effort
         abs_acc = agent_log.commands.transform_values(lambda u: abs(u.acc))
@@ -124,6 +134,7 @@ def ex08_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
                 collided=has_collided,
                 travelled_distance=dist,
                 episode_duration=duration,
+                distance2goal=distance2goal,
                 avg_relative_heading=avg_heading,
                 actuation_effort=actuation_effort,
                 avg_computation_time=avg_comp_time
@@ -134,6 +145,7 @@ def ex08_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
     collision_rate = [p.collided for p in agents_perf].count(True) / len(agents_perf)
     avg_travelled_distance = np.average([p.travelled_distance for p in agents_perf])
     avg_duration = np.average([p.episode_duration for p in agents_perf])
+    avg_distance2goal = np.average([p.distance2goal for p in agents_perf])
     avg_relative_heading = np.average([p.avg_relative_heading for p in agents_perf])
     avg_actuation_effort = np.average([p.actuation_effort for p in agents_perf])
     avg_computation_time = np.average([p.avg_computation_time for p in agents_perf])
@@ -143,6 +155,7 @@ def ex08_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
             collision_rate=collision_rate,
             avg_distance_travelled=avg_travelled_distance,
             avg_episode_duration=avg_duration,
+            avg_distance2goal=avg_distance2goal,
             avg_relative_heading=avg_relative_heading,
             avg_actuation_effort=avg_actuation_effort,
             avg_computation_time=avg_computation_time

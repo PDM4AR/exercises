@@ -57,7 +57,7 @@ Each will receive their own goals, observations, and parameters.
 Once you run a simulation a report containing the performance metrics and a visualisation of the episode (make sure to click on the _data_nodes_ tab) is generated.
 Performance criteria involve:
 - **Safety**: The vehicle should not crash into any obstacle;
-- **Completeness**: The vehicle should reach the goal set;
+- **Completeness**: The vehicle should reach the goal set, if the simulation stops earlier, smaller beeline distance left to the goal is rewarded;
 - **Efficiency**: The vehicle should reach the goal set in the shortest time possible driving the shortest possible path;
 - **Compliance**: The vehicle should drive as much as possible aligned with traffic lanes, have a look at the [CommonRoad API](https://commonroad-io.readthedocs.io/en/latest/api/scenario/#module-commonroad.scenario.lanelet) definition of lanelet and the related network;
 - **Smoothness**: The vehicle should drive smoothly, i.e., without sudden accelerations or steering angles;
