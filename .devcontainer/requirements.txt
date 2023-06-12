@@ -7,7 +7,6 @@ osmnx>=1.1.1
 matplotlib>=3.4.0
 
 PyGeometry-z6
-quickapp-z6>=6.0.5,<7
 reprep-z6>=6.0.3,<7
 
 dg-commons==0.0.27
