@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from pdm4ar.exercises_def import logger
 from dataclasses import asdict, dataclass, field
 from typing import Callable, Generic, List, Optional, Sequence, Tuple, TypeVar
+import re
+import os
 
 from reprep import Report
 from zuper_commons.text import remove_escapes
@@ -118,3 +120,12 @@ class ExerciseEvaluator(ABC):
         for i, out_res in enumerate(eval_outputs):
             r.add_child(out_res[1])
         return overall_perf, r
+
+def out_dir(exercise: str) -> str:
+    repo_dir = __file__
+    src_folder = "src"
+    assert src_folder in repo_dir, repo_dir
+    repo_dir = re.split(src_folder, repo_dir)[0]
+    assert os.path.isdir(repo_dir)
+    out_main = os.path.join(repo_dir, "out", exercise)
+    return out_main
