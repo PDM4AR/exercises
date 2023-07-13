@@ -42,7 +42,7 @@ def search(self, graph: AdjacencyList, start: X, goal: X) -> Tuple[Path, OpenedN
     pass
 ```
 
-The `search` method has to be implemented for 3 different algorithms: Breadth First Search, Depth First Search and Iterative Deepening. The method should return the Path from start to end node (empty list `[]` if not found) and the opened nodes `OpenedNodes` during the search.
+The `search` method has to be implemented for 3 different algorithms: Breadth First Search, Depth First Search and Iterative Deepening. The method should return the Path from start to end node (empty list `[]` if not found) and the opened nodes `OpenedNodes` during the search. More specifically, `OpenedNodes` should contain nodes in the order that they are popped from the search queue. Note: for Iterative Deepening, as the search state is reset at each iteration, `OpenedNodes` should only contain the nodes opened during the last iteration.
 When solving the graph search problem, the following conventions should hold:
 * Nodes are represented by Integers.
 * When a node is expanded, its neighbours are added to the queue in increasing order (from smaller to larger Int). Only the neighbours shall be sorted when added and not the nodes already in the queue.
