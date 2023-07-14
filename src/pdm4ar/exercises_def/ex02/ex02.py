@@ -3,6 +3,7 @@ from time import process_time
 import os
 import pathlib
 import pickle
+import shutil
 from collections import OrderedDict
 
 from reprep import Report, MIME_PNG, DataNode
@@ -48,6 +49,13 @@ class GraphImageCache:
     We must include the node color and edge colors as attributes on the graphs.
     This is so that if two graphs have different node colors, they will have different
     encodings, and the GraphImageCache will know to redraw them.
+
+    It is possible that the cache enters an inconsistent state if the user interrupts the
+    program after adding/removing a file, but before the cache data has been updated.
+    We try to prevent this from happening by scheduling these writes as close together
+    as possible, and saving the cache state whenever we modify it. However, inconsistency
+    is still possible. Therefore, every time we load the cache, we check if it matches the
+    directory state, and if not, clear the cache and start over.
     """
 
     CACHE_SIZE = 100
@@ -55,18 +63,39 @@ class GraphImageCache:
     def __init__(self):
         cache_dir = pathlib.Path(out_dir("02")) / "cache"
         cache_file = cache_dir / "graph_data.pickle"
-        os.makedirs(cache_dir, exist_ok=True)
+        create_new_cache = False
 
         # If there is cache data present, use it to fill in our field values.
         if os.path.exists(cache_file):
             with open(cache_file, 'rb') as f:
                 self.__dict__ = pickle.load(f).__dict__
+
+            if not self.consistency_check():
+                shutil.rmtree(cache_dir)
+                create_new_cache = True
         else:
-            # No cache found on disk. Create a new one
+            create_new_cache = True
+
+        if create_new_cache:
+            os.makedirs(cache_dir, exist_ok=True)
             self.cache_dir = cache_dir
             self.cache_file = cache_file
             self.cache = OrderedDict()
             self.counter = 0
+
+    def consistency_check(self) -> bool:
+        """It is possible that the cache enters an inconsistent state if the program is interrupted
+        between the time that someone writes/deletes and image and saves the cache data. We try to
+        make this unlikely, by grouping these actions close together. However, if it does occur,
+        we just delete the cache and start over :(
+        """
+        image_file_names = sorted(os.listdir(self.cache_dir))[:-1]  # everything except the pickle file
+        if len(image_file_names) != len(self.cache):
+            return False
+        for image_id in self.cache.values():
+            if f"{image_id}.png" not in image_file_names:
+                return False
+        return True
 
     def create_graph_image_node(self, graph: nx.Graph, name: str, pos, figsize) -> DataNode:
         """
@@ -74,7 +103,9 @@ class GraphImageCache:
         the html report, a parent node can add this image node as a child.
         """
         key = GraphImageCache.graph_encoding(graph)
-        if key not in self.cache:
+        if key in self.cache:
+            self.cache.move_to_end(key, last=True)
+        else:
             # Make room in the cache, if necessary
             if len(self.cache) >= GraphImageCache.CACHE_SIZE:
                 self.remove_oldest_graph_from_cache()
@@ -98,12 +129,12 @@ class GraphImageCache:
     def remove_oldest_graph_from_cache(self):
         # pop the first item in the OrderedDict
         _, image_id = self.cache.popitem(last=False)
-        assert image_id == self.counter
 
         # Delete the corresponding file
         oldest_graph_file = self.image_file(image_id)
         assert os.path.exists(oldest_graph_file)
         os.remove(oldest_graph_file)
+        self.save()
 
     def add_graph_to_cache(self, graph: nx.Graph, graph_encoding: str, pos, figsize):
         # Draw the graph: recreate the node/edge color info based on the attributes
@@ -115,7 +146,8 @@ class GraphImageCache:
 
         # add the graph data to our cache lookup
         self.cache[graph_encoding] = self.counter
-        self.counter = (self.counter + 1) % GraphImageCache.CACHE_SIZE
+        self.counter += 1
+        self.save()
 
     def image_file(self, image_id):
         return self.cache_dir / f"{image_id}.png"
