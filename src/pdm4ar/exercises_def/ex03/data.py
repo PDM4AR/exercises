@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Set
+import pathlib
+import pickle
 
 import osmnx as ox
 from frozendict import frozendict
@@ -65,15 +67,37 @@ def networkx_2_weighted_graph(G: MultiDiGraph) -> WeightedGraph:
     wG = WeightedGraph(adj_list=adj, weights=frozendict(weights), _G=G)
     return wG
 
+def download_gsproblems():
+    # This is the function we used to download the city graphs for user tests.
+    # Feel free to modify the code and download more graphs
+
+    # Our tests were created using historical data from October 2022
+    ox.settings.overpass_settings = '[out:json][timeout:90][date:"2022-10-25T00:00:00Z"]'
+
+    maps = [
+        ("ny", "350 5th Ave, New York, New York"),
+        ("eth", "Rämistrasse 101, 8092 Zürich, Switzerland"),
+        ("milan", "P.za del Duomo, 20122 Milano MI, Italy"),
+    ]
+
+    data_dir = pathlib.Path(__file__).parent
+
+    for (graph_id, address) in maps:
+        G_map = ox.graph_from_address(address, network_type="drive")
+        with open(data_dir / f"{graph_id}.pickle", 'wb') as f:
+            pickle.dump(G_map, f)
 
 def get_test_informed_gsproblem(n_queries=1, n_seed=None, extra_test_graph_problems:List[InformedGraphSearchProblem] = []) -> List[InformedGraphSearchProblem]:
-    # get city graphs
+    data_dir = pathlib.Path(__file__).parent
+
     graph_ids = ['ny', 'eth', 'milan']
-    G_empire = ox.graph_from_address("350 5th Ave, New York, New York", network_type="drive")
-    G_eth = ox.graph_from_address("Rämistrasse 101, 8092 Zürich, Switzerland", network_type="drive")
-    G_milan = ox.graph_from_address("P.za del Duomo, 20122 Milano MI, Italy", network_type="drive")
+    test_graphs = []
+    for graph_id in graph_ids:
+        with open(data_dir / f"{graph_id}.pickle", 'rb') as f:
+            test_graphs.append(pickle.load(f))
+
     # add travel time as weight
-    test_graphs = map(add_travel_time_weight, [G_empire, G_eth, G_milan])
+    test_graphs = map(add_travel_time_weight, test_graphs)
     test_wgraphs = map(networkx_2_weighted_graph, test_graphs)
     # convert graph to InformedGraphSearchProblem
     data_in: List[InformedGraphSearchProblem] = []
