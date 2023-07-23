@@ -67,23 +67,25 @@ def networkx_2_weighted_graph(G: MultiDiGraph) -> WeightedGraph:
     wG = WeightedGraph(adj_list=adj, weights=frozendict(weights), _G=G)
     return wG
 
-def download_gsproblems():
+def download_gsproblems(test_maps=None, data_dir=None):
     # This is the function we used to download the city graphs for user tests.
     # Feel free to modify the code and download more graphs
 
     # Our tests were created using historical data from October 2022
     ox.settings.overpass_settings = '[out:json][timeout:90][date:"2022-10-25T00:00:00Z"]'
 
-    maps = [
-        ("ny", "350 5th Ave, New York, New York"),
-        ("eth", "Rämistrasse 101, 8092 Zürich, Switzerland"),
-        ("milan", "P.za del Duomo, 20122 Milano MI, Italy"),
-    ]
+    if not test_maps:
+        test_maps = [
+            ("ny", "350 5th Ave, New York, New York", {"network_type": "drive"}),
+            ("eth", "Rämistrasse 101, 8092 Zürich, Switzerland", {"network_type": "drive"}),
+            ("milan", "P.za del Duomo, 20122 Milano MI, Italy", {"network_type": "drive"}),
+        ]
 
-    data_dir = pathlib.Path(__file__).parent
+    if not data_dir:
+        data_dir = pathlib.Path(__file__).parent
 
-    for (graph_id, address) in maps:
-        G_map = ox.graph_from_address(address, network_type="drive")
+    for (graph_id, address, kwargs) in test_maps:
+        G_map = ox.graph_from_address(address, **kwargs)
         with open(data_dir / f"{graph_id}.pickle", 'wb') as f:
             pickle.dump(G_map, f)
 
