@@ -8,10 +8,10 @@ RUN apt install -y --no-install-recommends libgeos-dev python3-gdal libgdal-dev 
 RUN apt install -y --no-install-recommends build-essential cmake ffmpeg libeigen3-dev libboost-dev libboost-thread-dev libboost-test-dev libboost-filesystem-dev libomp-dev libcgal-dev git-lfs libssl-dev libffi-dev
 
 # Fix for commonroad-drivability-checker/fcl compatibility with M1
-RUN git clone --branch v2022.1 --recurse-submodules https://gitlab.lrz.de/tum-cps/commonroad-drivability-checker.git
-RUN cd /commonroad-drivability-checker/third_party/fcl && \
-   git checkout df2702ca5e703dec98ebd725782ce13862e87fc8 
-RUN cd /commonroad-drivability-checker && pip install . 
+# RUN git clone --branch v2022.1 --recurse-submodules https://gitlab.lrz.de/tum-cps/commonroad-drivability-checker.git
+# RUN cd /commonroad-drivability-checker/third_party/fcl && \
+#    git checkout df2702ca5e703dec98ebd725782ce13862e87fc8 
+# RUN cd /commonroad-drivability-checker && pip install . 
 
 
 LABEL maintainer="A. Zanardi (azanardi@ethz.ch)"

@@ -1,6 +1,6 @@
-python_version=3.9-bullseye
+python_version=3.11-bullseye
 registry=idscfrazz
-image_name=pdm4ar2022
+image_name=pdm4ar2023
 dockerfile=Dockerfile.base
 
 tag=$(registry)/$(image_name):$(python_version)
