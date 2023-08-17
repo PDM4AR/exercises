@@ -7,6 +7,11 @@ RUN apt update && apt upgrade -y
 RUN apt install -y --no-install-recommends libgeos-dev python3-gdal libgdal-dev libspatialindex-dev libspatialindex-c6
 RUN apt install -y --no-install-recommends build-essential cmake ffmpeg libeigen3-dev libboost-dev libboost-thread-dev libboost-test-dev libboost-filesystem-dev libomp-dev libcgal-dev git-lfs libssl-dev libffi-dev
 
+# Preinstall pip requirements so only they are already found locally
+COPY requirements.txt /tmp/pip-tmp/
+RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
+   && rm -rf /tmp/pip-tmp
+
 # Fix for commonroad-drivability-checker/fcl compatibility with M1
 # RUN git clone --branch v2022.1 --recurse-submodules https://gitlab.lrz.de/tum-cps/commonroad-drivability-checker.git
 # RUN cd /commonroad-drivability-checker/third_party/fcl && \

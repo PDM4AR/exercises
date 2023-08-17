@@ -3,6 +3,7 @@ registry=idscfrazz
 image_name=pdm4ar2023
 dockerfile=Dockerfile.base
 
+platforms=linux/arm64 #,linux/amd64
 tag=$(registry)/$(image_name):$(python_version)
 
 
