@@ -19,7 +19,7 @@ class GridMdp:
         # todo
         pass
 
-    def stage_reward(self, state: State, action: Action) -> float:
+    def stage_reward(self, state: State, action: Action, next_state: State) -> float:
         # todo
         pass
 

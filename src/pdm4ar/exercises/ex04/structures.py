@@ -12,6 +12,7 @@ class Action(IntEnum):
     SOUTH = 2
     EAST = 3
     STAY = 4
+    ABANDON = 5
 
 
 State = Tuple[int, int]
