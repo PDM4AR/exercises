@@ -1,14 +1,13 @@
 import argparse
 import os
-import re
+import logging
 
 import contracts
 from zuper_commons.types import ZValueError
 from zuper_commons.text import remove_escapes
-from zuper_typing import debug_print
 
 from pdm4ar.available_exercises import available_exercises
-from pdm4ar.exercises_def.structures import Exercise, ExerciseEvaluator
+from pdm4ar.exercises_def.structures import Exercise, ExerciseEvaluator, out_dir
 from pdm4ar.exercises_def import logger
 
 
@@ -23,17 +22,12 @@ def find_exercise(exercise: str, evaluation_mode=False) -> Exercise:
             raise ZValueError(f"Cannot find {exercise!r}", available=set(available_exercises))
         return available_exercises[exercise]()
 
-
 def run_exercise(exercise: str, evaluation_mode=False):
     ex: Exercise = find_exercise(exercise, evaluation_mode)
     evaluator = ExerciseEvaluator(exercise=ex)
 
-    repo_dir = __file__
-    src_folder = "src"
-    assert src_folder in repo_dir, repo_dir
-    repo_dir = re.split(src_folder, repo_dir)[0]
-    assert os.path.isdir(repo_dir)
-    out_main = os.path.join(repo_dir, "out", exercise)
+    out_main = out_dir(exercise)
+    logging.getLogger("reprep").setLevel(logging.WARNING)   # suppress annoying messages from reprep
 
     total = len(ex.test_values)
     # for i, alg_in in enumerate(tqdm(ex.test_values)):
@@ -42,7 +36,7 @@ def run_exercise(exercise: str, evaluation_mode=False):
 
     report_file = os.path.join(out_main, "index.html")
     report.to_html(report_file)
-    result_str = remove_escapes(debug_print(perf))
+    result_str = remove_escapes(str(perf))
     logger.info(f"\n<<<<<\n{result_str}\n>>>>>")
 
 

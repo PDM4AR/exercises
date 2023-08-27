@@ -27,7 +27,7 @@ class Cell(IntEnum):
     SWAMP = 3
 
 
-Policy = NDArray[np.int]
+Policy = NDArray[np.int_]
 """Type Alias for the policy"""
-ValueFunc = NDArray[np.float]
+ValueFunc = NDArray[np.float64]
 """Type Alias for the value function"""
