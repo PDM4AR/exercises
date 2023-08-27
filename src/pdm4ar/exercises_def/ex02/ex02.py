@@ -1,15 +1,21 @@
 from typing import Any, Sequence
+from time import process_time
+import os
+import pathlib
+import pickle
+import shutil
+from collections import OrderedDict
 
-from reprep import Report, MIME_PDF
+from reprep import Report, MIME_PNG, DataNode
 from zuper_commons.text import remove_escapes
 from matplotlib import pyplot as plt
 from toolz import sliding_window
-from time import process_time
 
 from pdm4ar.exercises.ex02 import graph_search_algo
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex02.data import *
 from pdm4ar.exercises_def.structures import PerformanceResults
+from pdm4ar.exercises_def.structures import out_dir
 
 
 @dataclass(frozen=True)
@@ -30,6 +36,130 @@ class TestValueEx2(ExIn, Tuple[GraphSearchProblem, str]):
     def str_id(self) -> str:
         return str(self[1])
 
+class GraphImageCache:
+    """
+    Generating images of graphs is extremely slow (over 90% of evaluation time).
+    Moreover, many of the generated images are the same, within a single run
+    and between multiple runs. This class manages images of graphs, so that identical
+    graphs are not redrawn.
+
+    The cache itself maps "graph encodings" to image ids. Then, there is a folder
+    which contains images of the graphs, whose file names correspond to the image ids.
+
+    We must include the node color and edge colors as attributes on the graphs.
+    This is so that if two graphs have different node colors, they will have different
+    encodings, and the GraphImageCache will know to redraw them.
+
+    It is possible that the cache enters an inconsistent state if the user interrupts the
+    program after adding/removing a file, but before the cache data has been updated.
+    We try to prevent this from happening by scheduling these writes as close together
+    as possible, and saving the cache state whenever we modify it. However, inconsistency
+    is still possible. Therefore, every time we load the cache, we check if it matches the
+    directory state, and if not, clear the cache and start over.
+    """
+
+    CACHE_SIZE = 100
+
+    def __init__(self):
+        cache_dir = pathlib.Path(out_dir("02")) / "cache"
+        cache_file = cache_dir / "graph_data.pickle"
+        create_new_cache = False
+
+        # If there is cache data present, use it to fill in our field values.
+        if os.path.exists(cache_file):
+            with open(cache_file, 'rb') as f:
+                self.__dict__ = pickle.load(f).__dict__
+
+            if not self.consistency_check():
+                shutil.rmtree(cache_dir)
+                create_new_cache = True
+        else:
+            create_new_cache = True
+
+        if create_new_cache:
+            os.makedirs(cache_dir, exist_ok=True)
+            self.cache_dir = cache_dir
+            self.cache_file = cache_file
+            self.cache = OrderedDict()
+            self.counter = 0
+
+    def consistency_check(self) -> bool:
+        """It is possible that the cache enters an inconsistent state if the program is interrupted
+        between the time that someone writes/deletes and image and saves the cache data. We try to
+        make this unlikely, by grouping these actions close together. However, if it does occur,
+        we just delete the cache and start over :(
+        """
+        image_file_names = sorted(os.listdir(self.cache_dir))[:-1]  # everything except the pickle file
+        if len(image_file_names) != len(self.cache):
+            return False
+        for image_id in self.cache.values():
+            if f"{image_id}.png" not in image_file_names:
+                return False
+        return True
+
+    def create_graph_image_node(self, graph: nx.Graph, name: str, pos, figsize) -> DataNode:
+        """
+        Create an image node, containing the image of the graph. When creating
+        the html report, a parent node can add this image node as a child.
+        """
+        key = GraphImageCache.graph_encoding(graph)
+        if key in self.cache:
+            self.cache.move_to_end(key, last=True)
+        else:
+            # Make room in the cache, if necessary
+            if len(self.cache) >= GraphImageCache.CACHE_SIZE:
+                self.remove_oldest_graph_from_cache()
+
+            self.add_graph_to_cache(graph, key, pos, figsize)
+
+        # Create the image node.
+        # In order to do this, we have to read in the graph image data
+        image_id = self.cache[key]
+        image_file = self.cache_dir / self.image_file(image_id)
+        with open(image_file, "rb") as f:
+            image_bytes = f.read()
+
+        image_node = DataNode(nid=name, data=image_bytes, mime=MIME_PNG)
+        return image_node
+
+    def save(self):
+        with open(self.cache_file, 'wb') as f:
+            pickle.dump(self, f)
+
+    def remove_oldest_graph_from_cache(self):
+        # pop the first item in the OrderedDict
+        _, image_id = self.cache.popitem(last=False)
+
+        # Delete the corresponding file
+        oldest_graph_file = self.image_file(image_id)
+        assert os.path.exists(oldest_graph_file)
+        os.remove(oldest_graph_file)
+        self.save()
+
+    def add_graph_to_cache(self, graph: nx.Graph, graph_encoding: str, pos, figsize):
+        # Draw the graph: recreate the node/edge color info based on the attributes
+        # stored on the graph components
+        node_colors = [graph.nodes[u]["node_color"] for u in graph.nodes]
+        edge_colors = [graph.edges[u, v]["edge_color"] for (u, v) in graph.edges]
+        nx.draw(graph, node_color=node_colors, edge_color=edge_colors, pos=pos, with_labels=True)
+        plt.savefig(self.image_file(self.counter), figsize=figsize)
+
+        # add the graph data to our cache lookup
+        self.cache[graph_encoding] = self.counter
+        self.counter += 1
+        self.save()
+
+    def image_file(self, image_id):
+        return self.cache_dir / f"{image_id}.png"
+
+    @staticmethod
+    def graph_encoding(graph: nx.Graph) -> str:
+        # We need a way to convert graphs to "keys", that we can use as lookups
+        # for the cache. These encodings should encorporate all the data that
+        # uniquely defines a graph, and keys should only be equal if their
+        # graphs are equal. It turns out, we can use python's pickle encoding
+        # for this purpose
+        return str(pickle.dumps(graph))
 
 @dataclass(frozen=True)
 class Ex02PerformanceResult(PerformanceResults):
@@ -53,6 +183,7 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceR
 
     # init rep with *unique* string id
     r = Report(f"Exercise2-{algo_name}-{graph_id}")
+    cache = GraphImageCache()
 
     G = nx.DiGraph()
     G.add_nodes_from(test_graph.keys())
@@ -72,8 +203,14 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceR
     if not pos:
         pos = nx.spring_layout(G, seed=1)
     rfig = r.figure(cols=1)
-    with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=figsize) as _:
-        nx.draw(G, pos=pos, with_labels=True, node_color=NodeColors.default)
+
+    default_node_colors = {n: NodeColors.default for n in G}
+    default_edge_colors = {(u, v): EdgeColors.default for (u, v) in G.edges()}
+    nx.set_node_attributes(G, values=default_node_colors, name="node_color")
+    nx.set_edge_attributes(G, values=default_edge_colors, name="edge_color")
+
+    graph_image = cache.create_graph_image_node(G, "Graph", pos, figsize)
+    rfig.add_child(graph_image)
 
     # run algo
     r.section(f"{algo_name}")
@@ -137,27 +274,27 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceR
 
         # Plot graphs
         if plotGraph:
-            with rfig.plot(nid=f"Path{i}", mime=MIME_PDF, figsize=figsize) as _:
-                node_colors = [
-                    NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default)
-                    for n in G
-                ]
-                ax = plt.gca()
-                nx.draw_networkx_nodes(G, ax=ax, pos=pos, node_color=node_colors)
-                nx.draw_networkx_edges(G, ax=ax, pos=pos, edge_color=EdgeColors.default)
-                nx.draw_networkx_edges(G, ax=ax, pos=pos, edgelist=path_edges, edge_color=EdgeColors.path)
-                nx.draw_networkx_labels(G, ax=ax, pos=pos)
+            node_colors = default_node_colors.copy()
+            node_colors[query[0]] = NodeColors.start
+            node_colors[query[1]] = NodeColors.goal
+            edge_colors = {
+                (u, v): EdgeColors.path if (u, v) in path_edges else EdgeColors.default \
+                    for (u, v) in G.edges()
+            }
+            nx.set_node_attributes(G, values=node_colors, name="node_color")
+            nx.set_edge_attributes(G, values=edge_colors, name="edge_color")
+            image_node = cache.create_graph_image_node(G, f"Path{i}", pos, figsize)
+            rfig.add_child(image_node)
 
-            with rfig.plot(nid=f"GroundTruth{i}", mime=MIME_PDF, figsize=figsize) as _:
-                node_colors = [
-                    NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default)
-                    for n in G
-                ]
-                ax = plt.gca()
-                nx.draw_networkx_nodes(G, ax=ax, pos=pos, node_color=node_colors)
-                nx.draw_networkx_edges(G, ax=ax, pos=pos, edge_color=EdgeColors.default)
-                nx.draw_networkx_edges(G, ax=ax, pos=pos, edgelist=gt_path_edges, edge_color=EdgeColors.path)
-                nx.draw_networkx_labels(G, ax=ax, pos=pos)
+            edge_colors = {
+                (u, v): EdgeColors.path if (u, v) in gt_path_edges else EdgeColors.default \
+                    for (u, v) in G.edges()
+            }
+            nx.set_edge_attributes(G, values=edge_colors, name="edge_color")
+            image_node = cache.create_graph_image_node(G, f"GroundTruth{i}", pos, figsize)
+            rfig.add_child(image_node)
+
+    cache.save()
 
     # aggregate performance of each query
     query_perf = list(map(Ex02PerformanceResult, accuracy, solve_times))

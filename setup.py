@@ -11,7 +11,7 @@ setup(
         name=package,
         package_dir={"": src},
         packages=[module],
-        version="0.0.0",
+        version="2023.0.0",
         zip_safe=False,
         entry_points={
             "console_scripts": [
@@ -19,5 +19,5 @@ setup(
             ]
         },
         install_requires=install_requires,
-        python_requires="==3.9.*",
+        python_requires="==3.11.*",
 )
