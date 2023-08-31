@@ -21,7 +21,7 @@ typing_extensions
 decorator
 
 # dg  
-dg-commons==0.0.31
+dg-commons==0.0.33
 
 
 # Rebuild the container to install the following modules
@@ -34,7 +34,7 @@ dg-commons==0.0.31
 # ortools>=9.4.1874
 cvxpy==1.3.2
 cvxopt==1.3.2
-cylp==0.91.6
+#cylp==0.91.6
 
 # ex08
 do-mpc==4.6.0
