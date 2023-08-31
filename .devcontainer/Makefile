@@ -3,15 +3,15 @@ registry=idscfrazz
 image_name=pdm4ar2023
 dockerfile=Dockerfile.base
 
-platforms=linux/arm64 #,linux/amd64
+platforms=linux/amd64,linux/arm64
 tag=$(registry)/$(image_name):$(python_version)
 
 
 build:
-	docker build -f $(dockerfile) -t $(tag) . --build-arg VARIANT=${python_version}
+	docker buildx build --platform $(platforms) -f $(dockerfile) -t $(tag) --build-arg VARIANT=${python_version} --push .
 
 build-no-cache:
-	docker build --no-cache -f $(dockerfile) -t $(tag) . --build-arg VARIANT=${python_version}
+	docker buildx build --platform $(platforms) -f $(dockerfile) -t $(tag) --build-arg VARIANT=${python_version} --push . --no-cache
 
 push-on-dockerhub:
 	docker login
