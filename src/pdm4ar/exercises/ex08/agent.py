@@ -41,7 +41,7 @@ class Pdm4arAgent(Agent):
         self.name = init_obs.my_name
         self.goal = init_obs.goal
         self.lanelet_network = init_obs.dg_scenario.lanelet_network
-        self.static_obstacles = list(init_obs.dg_scenario.static_obstacles.values())
+        self.static_obstacles = list(init_obs.dg_scenario.static_obstacles)
 
     def get_commands(self, sim_obs: SimObservations) -> VehicleCommands:
         """ This method is called by the simulator at each time step.
