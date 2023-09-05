@@ -21,7 +21,7 @@ typing_extensions
 decorator
 
 # dg
-dg-commons==0.0.33
+dg-commons==0.0.34
 
 # mpc
 do-mpc==4.6.0
