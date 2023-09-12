@@ -133,7 +133,7 @@ If you do not have already a GitHub account create a new one [here](https://gith
 
 #### _Resources_
 
-- [Git introduction](https://docs.duckietown.org/daffy/opmanual_duckiebot/out/preliminaries_git.html#sec:preliminaries-git)
+- [Git introduction](https://docs.duckietown.com/ente/devmanual-software/basics/development/git.html)
 - [Github tutorial](https://guides.github.com/activities/hello-world/)
 
 #### **Checklist**
@@ -151,17 +151,12 @@ development.
 Now let's install it on your computer:
 
 * (Mac, Linux) [installation instructions](https://docs.docker.com/engine/install/)
-* (Windows) the procedure is more complicated:
-    + Follow the manual installation steps for Windows Subsystem for
-      Linux [here](https://docs.microsoft.com/en-us/windows/wsl/install-win10). On step 1, follow the recommendation of
-      updating to WSL 2. On step 6 you can download Ubuntu 18.04 LTS. You do not necessarily need to install Windows
-      Terminal.
-    + Now go [here](https://docs.docker.com/desktop/windows/install/) and follow the _Install Docker Desktop on Windows_
-      instructions. You can then start Docker Desktop and follow the *quick start guide*.
+* (Windows) the procedure is slightly more complicated, we suggest to start from [here](https://docs.docker.com/desktop/install/windows-install/). 
+Make sure to install WSL 2 and Ubuntu 22.04 LTS as reccomended distro.
 
 #### _Resources_
 
-- [Docker intro](https://docs.duckietown.org/daffy/opmanual_duckiebot/out/preliminaries_docker_basics.html)
+- [Docker intro](https://docs.duckietown.com/ente/devmanual-software/basics/development/docker.html)
 
 #### **Checklist**
 
