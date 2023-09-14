@@ -19,64 +19,85 @@
 
 The programming exercises are a great way to understand and apply what you learn in class.
 
-There will be three types of exercises:
+There will be four types of exercises:
 
 - **Warm-up** exercises, not graded;
-- **Weekly** exercises, graded (will account for 30% of the final grade);
-- **Mid/Final term** exercises, graded (will account for 70% (30 + 40) of the final grade).
+- **Weekly** individual exercises, graded (will account for 30% of the final grade);
+- **Finals** group exercises, graded (will account for 70% (30 + 40) of the final grade).
+- **Extra** exercises from previous years, not graded.
 
-The *not-graded* ones will be a warm-up, making sure everything works as expected, gives time to catch up with python if
-you ar not familiar with it.
+#### **Warm-up** exercises, not graded.
 
-#### **Weekly** exercises, graded.
-The weekly exercises will be released almost on a weekly basis.
+Just ensuring everything is working as expected.
+
+#### **Weekly** individual exercises, graded.
+
+The weekly exercises must be solved *individually*.
 They will involve relative short programming task related to the topics covered in class.
-You will submit your solutions via your private repository on Github (detail instructions on the submission procedure can be found later on).
-
+You will submit your solutions via your private repository on Github
+(detailed instruction on the submission procedure can be found later on).
 
 **Important information**:
 
-* You will get a score 0-100 for each exercise. A missing submission (or failing to meet the deadline) will count as 0. The score will be based on some performance metrics (how correct is your solution, how fast it is, how much memory
-it uses, etc.). Performance criteria will be declared in the exercise description.
-* Only the best _N-1_ submissions will account for the 30% of your final grade, where _N_ is the number of exercises.
-* Only the last **valid** (i.e., processed by the server irrespectively of the outcome) submission within the exercise time window will account for your exercise grade. 
-* We limit the number of submissions per day to *1* per person per exercise.
-Make sure to extensively test your code locally, consider this as a learning experience for robotics, field tests are expensive.
+* Each exercise has a limited submission window, typically 2 weeks.
+* A missing submission (or failing to meet the deadline) will count as 0.
+  The score will be based on some performance metrics (how correct is your solution, how fast it is, how much memory
+  it uses, etc.) which will be declared in the exercise description.
+  Note that we will **not** provide in advance the mapping _score_ -> _grade_.
+* Only the last **valid** (i.e., processed by the server irrespectively of the outcome) submission within the exercise
+  time window will account for your exercise grade.
+* Only your best _N-1_ exercise results contribute to the 30% of your final grade.
+  Where _N_ is the total number of weekly exercises.
+* For each exercise you will have a limited number of possible submissions to the server. You will be able to test
+  locally as much as you want though.
+  Consider this as a learning experience for robotics, field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
 | Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** | **Deadline status** |
 |-----------------|-----------------------|----------------------|-----------------------|---------------------|
-| 02              | Graph Search          | Oct. 8th             | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
-| 03              | Informed Graph Search | Oct. 13th            | Oct. 26th (23:59 CET) | CONFIRMED (EXTENDED)|
-| 04              | Dynamic Programming   | Oct. 19th            | Nov. 4th  (23:59 CET) | CONFIRMED (EXTENDED)|
-| 05              | Steering (Dubins)     | Nov. 1st             | Nov. 20th (23:59 CET) | CONFIRMED (EXTENDED)|
-| 06              | Collision Checking    | Nov. 14th            | Dec. 2nd  (23:59 CET) | CONFIRMED (EXTENDED)|
+| 02              | Graph Search          | -                    | - (23:59 CET)         | TBD                 |
+| 03              | Informed Graph Search | -                    | - (23:59 CET)         | TBD                 |
+| 04              | Dynamic Programming   | -                    | - (23:59 CET)         | TBD                 |
+| 05              | Steering (Dubins)     | -                    | - (23:59 CET)         | TBD                 |
+| 06              | Collision Checking    | -                    | - (23:59 CET)         | TBD                 |
 
+* Most of these exercises are already accessible before the official evaluation opens.
+  You are free to engage with them but be aware that changes may occur until the official opening.
+  After the evaluation opens the exercise is "frozen" and you can solve it and submit it.
 
-* Most of these exercises are already accessible before the evaluation opens. 
-You are free to read them but be aware that we might still decide to change them until the evaluation opens.
-After the evaluation opens the exercise is "frozen" and you can solve it and submit it.
+#### **Finals** exercises, graded.
 
-#### **Mid/Final term** exercises, graded.
-Same modality as the weekly exercises, but they will be a bit more involved.
+These will be solved in small groups of 3-4 people but the modality is the same as the weekly exercises. 
+They will be a bit more involved content-wise.
+We will provide instructions on the group forming modality later on.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes** |
 |-----------------|-----------|----------------------|-----------------------|
-| 07              | Optimization  | Nov. 29th       | Dec. 18th (23:59 CET) (EXTENDED) |
-| 08             | Driving Games  | Dec. 15th        | Jan. 15th (23:59 CET) |
+| 09              | ???       | -                    | -                     |
+| 10              | ???       | -                    | -                     |
 
+### **Extra** exercises from previous years, not graded.
+
+You can have a look at the finals from last year and challenge yourself.
+
+| Exercise **ID** | **Topic**     | Evaluation **opens** | Evaluation **closes** |
+|-----------------|---------------|----------------------|-----------------------|
+| 07              | Optimization  | -                    | -                     |
+| 08              | Driving Games | -                    | -                     |
 
 ## Plagiarism and dishonest conduct
 
 We take plagiarism and dishonest conduct very seriously.
-The exercises are meant to be solved **individually**. 
-We will check for plagiarism with automated software and human help. 
-Violating the [ETH plagiarism etiquette](https://ethz.ch/content/dam/ethz/main/education/rechtliches-abschluesse/leistungskontrollen/plagiarism-citationetiquette.pdf)
+The exercises are meant to be solved **individually**.
+We will check for plagiarism with automated software and human help.
+Violating
+the [ETH plagiarism etiquette](https://ethz.ch/content/dam/ethz/main/education/rechtliches-abschluesse/leistungskontrollen/plagiarism-citationetiquette.pdf)
 will result in consequences according to the ETH regulations:
 
->"C. The consequences of plagiarism Pursuant to Art. 2 Para. b of the ETH Zurich Disciplinary Code (RSETHZ 361.1) plagiarism constitutes a disciplinary violation and will result in disciplinary procedures.
-> Detailed information regarding these procedures and their jurisdiction may be found in the ETH Zurich Disciplinary Code (RSETHZ 361.1 / www.rechtssammlung.ethz.ch)."
-
+> "C. The consequences of plagiarism Pursuant to Art. 2 Para. b of the ETH Zurich Disciplinary Code (RSETHZ 361.1)
+> plagiarism constitutes a disciplinary violation and will result in disciplinary procedures.
+> Detailed information regarding these procedures and their jurisdiction may be found in the ETH Zurich Disciplinary
+> Code (RSETHZ 361.1 / www.rechtssammlung.ethz.ch)."
 
 ## Getting started
 
@@ -86,17 +107,20 @@ We will use:
 - [Python](https://www.python.org/) as programming language;
 - [Docker](https://www.docker.com/) as environment containerization (but you won't see it);
 
-If they all sound completely new to you do not panic. 
-We will require a very basic use of most of them, but it is a good time to start learning these tools since they are all widely adopted in modern robotics.
-If you get stuck in the process try to pair up with some more experienced colleagues who can help you. 
-If this still does not solve the problem, try to reach out to the instructors on Piazza. 
-If you are using Mac or Linux-based OS the process should be straight forward. 
-Windows can give some more hiccups, but it is supported as well.
+If they all sound completely new to you **do not panic**.
+We will require a very basic use of most of them, but it is a good time to start learning these tools since they are all
+widely adopted in modern robotics.
+
+If you get stuck, try to pair with experienced colleagues for help.
+When this still does not solve the problem, try to reach out to the instructors on XXX or at the office hour.
+
+If you are using a Linux-based OS the process should be straight forward.
+Windows and Mac can give some more hiccups in the setup, but they are supported as well.
 
 ### Git
 
 Git is a version control software.
-Please find more explanation under the "Resources" paragraph if you have never heard of it before. 
+Please find more explanation under the "Resources" paragraph if you have never heard of it before.
 You will need Git on your computer and a GitHub account.
 
 #### Installing Git
@@ -109,7 +133,7 @@ If you do not have already a GitHub account create a new one [here](https://gith
 
 #### _Resources_
 
-- [Git introduction](https://docs.duckietown.org/daffy/opmanual_duckiebot/out/preliminaries_git.html#sec:preliminaries-git)
+- [Git introduction](https://docs.duckietown.com/ente/devmanual-software/basics/development/git.html)
 - [Github tutorial](https://guides.github.com/activities/hello-world/)
 
 #### **Checklist**
@@ -126,24 +150,18 @@ Read the "Resources" section to get a better understanding of it, containerizati
 development.
 Now let's install it on your computer:
 
-* (Mac, Linux) [installation instructions](https://docs.docker.com/get-docker/)
-* (Windows) the procedure is more complicated:
-    + Follow the manual installation steps for Windows Subsystem for
-      Linux [here](https://docs.microsoft.com/en-us/windows/wsl/install-win10). On step 1, follow the recommendation of
-      updating to WSL 2. On step 6 you can download Ubuntu 18.04 LTS. You do not necessarily need to install Windows
-      Terminal.
-    + Now go [here](https://docs.docker.com/desktop/windows/install/) and follow the _Install Docker Desktop on Windows_
-      instructions. You can then start Docker Desktop and follow the *quick start guide*.
+* (Mac, Linux) [installation instructions](https://docs.docker.com/engine/install/)
+* (Windows) the procedure is slightly more complicated, we suggest to start from [here](https://docs.docker.com/desktop/install/windows-install/). 
+Make sure to install WSL 2 and Ubuntu 22.04 LTS as reccomended distro.
 
 #### _Resources_
 
-- [Docker intro](https://docs.duckietown.org/daffy/opmanual_duckiebot/out/preliminaries_docker_basics.html)
+- [Docker intro](https://docs.duckietown.com/ente/devmanual-software/basics/development/docker.html)
 
 #### **Checklist**
 
 - [ ] I have installed Docker on my computer
 - [ ] I can run without errors the Docker hello-world (`docker run hello-world`)
-
 
 ### Python
 
@@ -166,7 +184,6 @@ Install [VS Code](https://code.visualstudio.com/)
 
 There are many other good IDEs for python (PyCharm, Atom, Spyder,...), they should work just fine if you know how to
 replicate exactly the development evironment in `.devcontainer/` but we won't support them officially.
-
 
 ## Support
 
