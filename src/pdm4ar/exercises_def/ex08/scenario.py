@@ -27,8 +27,7 @@ def get_dgscenario(config_dict: Mapping, seed: Optional[int] = None) -> DgScenar
         shapes.append(poly)
 
     obstacles = list(map(StaticObstacle, shapes))
-    static_obstacles = dict(zip(range(len(obstacles)), obstacles))
 
-    dg_scenario = DgScenario(scenario=cm_scenario, use_road_boundaries=True, static_obstacles=static_obstacles)
+    dg_scenario = DgScenario(scenario=cm_scenario, static_obstacles=obstacles, use_road_boundaries=True)
 
     return dg_scenario
