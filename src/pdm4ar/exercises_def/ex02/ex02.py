@@ -142,7 +142,7 @@ class GraphImageCache:
         node_colors = [graph.nodes[u]["node_color"] for u in graph.nodes]
         edge_colors = [graph.edges[u, v]["edge_color"] for (u, v) in graph.edges]
         nx.draw(graph, node_color=node_colors, edge_color=edge_colors, pos=pos, with_labels=True)
-        plt.savefig(self.image_file(self.counter), figsize=figsize)
+        plt.savefig(self.image_file(self.counter), pil_kwargs={"figsize":figsize})
 
         # add the graph data to our cache lookup
         self.cache[graph_encoding] = self.counter
