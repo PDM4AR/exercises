@@ -7,7 +7,7 @@ from pdm4ar.exercises.ex04.structures import Action, Policy, State, ValueFunc
 
 
 class GridMdp:
-    def __init__(self, grid: NDArray[np.int_], gamma: float = 0.9):
+    def __init__(self, grid: NDArray[np.int64], gamma: float = 0.9):
         assert len(grid.shape) == 2, "Map is invalid"
         self.grid = grid
         """The map"""
