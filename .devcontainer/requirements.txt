@@ -5,8 +5,9 @@ osmnx==1.6.0
 matplotlib>=3.7.2
 frozendict==2.3.4
 pre-commit
-jupyter==1.0.0
-
+#
+ipython==8.15.0
+ipykernel==6.25.2
 
 # zuper 
 zuper-commons-z7==7.2

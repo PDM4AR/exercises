@@ -41,6 +41,9 @@
 			"extensions": [
 				"ms-python.python",
 				"ms-python.vscode-pylance",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.jupyter-keymap",
+				"ms-toolsai.jupyter-renderers",
 				"rokoroku.vscode-theme-darcula",
 				"njqdev.vscode-python-typehint"
 			]
