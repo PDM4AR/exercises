@@ -1,31 +1,34 @@
-toolz
-frozendict==2.3.4
-
+# general 
 numpy>=1.21.0
-networkx
-osmnx>=1.1.1
-matplotlib>=3.4.0
-
-PyGeometry-z6
-reprep-z6>=6.0.3,<7
-
-dg-commons==0.0.27
-
-tqdm>=4.64.1
+networkx==3.1
+osmnx==1.6.0
+matplotlib>=3.7.2
+frozendict==2.3.4
 pre-commit
 
 
-# Rebuild the container to install the following modules
+# zuper 
+zuper-commons-z7==7.2
+PyGeometry-z7==7.2
+reprep-z7==7.2
+pycontracts3==7.2
+xtermcolor
+pytz
+aiofiles
+future
+webcolors
+typing_extensions
+decorator
 
-# ex06
-triangle
+# dg
+dg-commons==0.0.34
 
-# ex07
-pulp>=2.7.0
-ortools>=9.4.1874
-cvxpy==1.2.2
-cvxopt>=1.3.0
-cylp>=0.91.5
+# mpc
+do-mpc==4.6.0
 
-# ex08
-do-mpc==4.4.0
+# optimization
+# pulp>=2.7.0
+# ortools>=9.4.1874
+cvxpy==1.3.2
+# cvxopt==1.3.2
+#cylp==0.91.6

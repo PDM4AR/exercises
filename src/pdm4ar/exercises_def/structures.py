@@ -9,7 +9,6 @@ import os
 
 from reprep import Report
 from zuper_commons.text import remove_escapes
-from zuper_typing import debug_print
 
 from pdm4ar.exercises_def.structures_time import run_with_timer
 
@@ -114,7 +113,7 @@ class ExerciseEvaluator(ABC):
                 exceptions=exceptions,
                 perf_res=agg_perf)
         r.text("OverallPerformance",
-               text=f"{remove_escapes(debug_print(overall_perf))} ")
+               text=f"{remove_escapes(str(overall_perf))} ")
 
         # append all reports
         for i, out_res in enumerate(eval_outputs):

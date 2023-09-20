@@ -8,7 +8,6 @@ from dg_commons.sim.simulator import Simulator, SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from reprep import MIME_MP4, Report
 from zuper_commons.text import remove_escapes
-from zuper_typing import debug_print
 
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex08.perf_metrics import ex08_metrics
@@ -26,10 +25,10 @@ def ex08_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report
     avg_player_metrics, players_metrics = ex08_metrics(sim_context)
     # report evaluation
     score: float = avg_player_metrics.reduce_to_score()
-    score_str = f"{score:.2f}\n" + remove_escapes(debug_print(avg_player_metrics))
+    score_str = f"{score:.2f}\n" + str(avg_player_metrics)
     r.text("OverallScore: ", score_str)
     for pm in players_metrics:
-        r.text(f"EpisodeEvaluation-{pm.player_name}", remove_escapes(debug_print(pm)))
+        r.text(f"EpisodeEvaluation-{pm.player_name}", str(pm))
     r.add_child(report)
     return score, r
 
@@ -46,8 +45,8 @@ def _ex08_vis(sim_context: SimContext) -> Report:
                          sim_context=sim_context,
                          figsize=(16, 16),
                          dt=50,
-                         dpi=120,
-                         plot_limits=None)
+                         dpi=120
+                         )
 
     return r
 

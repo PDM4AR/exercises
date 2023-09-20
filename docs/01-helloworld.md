@@ -26,7 +26,7 @@ Once your repository is created, clone it on your local computer and open it in 
 
 - Select "Reopen in container". Now you should have the folder open while VS Code is in "container development mode".
 - Create a new terminal using Terminal -> New Terminal.
-- Now browse the Python files in `src/`. Verify that autocompletion works..
+- Now browse the Python files in `src/`. Verify that autocompletion works.
 
 
 #### Setting up the _git remote_ repository for updates
@@ -72,27 +72,21 @@ reads as follows:
 ### Evaluating locally your solution
 
 You are now ready to implement your solution and check it locally.
-You can run it using the preinstalled hooks in `.vscode` folder.
-First, install the pdm4ar as a python package running in the terminal: ``
-```bash
-pip3 install -e [path/to/exercises_repo]
-### e.g.:
-### pip3 install -e .
-```
-Then, click on the Run & Debug icon and select from the dropdown menu (*Run* mode ignores breakpoints and debug settings, while *Debug* mode stops at breakpoints):
+Make sure that you opened the project in the container without errors.
+
+You can run it using the preinstalled hooks in `.vscode` folder:
+Click on the Run & Debug icon and select from the dropdown menu (*Run* mode ignores breakpoints and debug settings, while *Debug* mode stops at breakpoints):
 
 ![image](https://user-images.githubusercontent.com/18750753/194089273-dc9f95e4-0553-45c4-a261-233727ef72ae.png)
 
 You can also run it from the VS Code terminal in a equivalent way:
 ```bash
-pip3 install -e [path/to/exercises_repo]
 python3 [path/to/]src/pdm4ar/main.py --exercise [exercise ID]
 ### # e.g. to run the first exercise (no debug)
-### pip3 install -e .
 ### python3 src/pdm4ar/main.py --exercise "01"
 ```
 
-You should the find in the `out/` folder a _html_ report that gets generated.
+You should then find in the `out/` folder a _html_ report that gets generated.
 You can open it from the filesystem in you favorite browser!
 Here is an example for the lexi comparison:
 ![image](https://user-images.githubusercontent.com/18750753/194091460-4e0896ea-26fa-4f43-a4b2-341991da0e5a.png)
