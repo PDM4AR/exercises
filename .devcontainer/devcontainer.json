@@ -45,7 +45,8 @@
 				"ms-toolsai.jupyter-keymap",
 				"ms-toolsai.jupyter-renderers",
 				"rokoroku.vscode-theme-darcula",
-				"njqdev.vscode-python-typehint"
+				"njqdev.vscode-python-typehint",
+				"ritwickdey.liveserver"
 			]
 		}
 	},

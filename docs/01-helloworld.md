@@ -87,7 +87,7 @@ python3 [path/to/]src/pdm4ar/main.py --exercise [exercise ID]
 ```
 
 You should then find in the `out/` folder a _html_ report that gets generated.
-You can open it from the filesystem in you favorite browser!
+You can open it from the filesystem in you favorite browser or simply right click on the html file and ``Open with Live Server''
 Here is an example for the lexi comparison:
 ![image](https://user-images.githubusercontent.com/18750753/194091460-4e0896ea-26fa-4f43-a4b2-341991da0e5a.png)
 
