@@ -70,26 +70,27 @@ class GraphImageCache:
             with open(cache_file, 'rb') as f:
                 self.__dict__ = pickle.load(f).__dict__
 
-            if not self.consistency_check():
+            if not self.consistency_check(cache_dir):
                 shutil.rmtree(cache_dir)
                 create_new_cache = True
         else:
             create_new_cache = True
 
+        self.cache_dir = cache_dir
+        self.cache_file = cache_file
+
         if create_new_cache:
             os.makedirs(cache_dir, exist_ok=True)
-            self.cache_dir = cache_dir
-            self.cache_file = cache_file
             self.cache = OrderedDict()
             self.counter = 0
 
-    def consistency_check(self) -> bool:
+    def consistency_check(self, cache_dir) -> bool:
         """It is possible that the cache enters an inconsistent state if the program is interrupted
         between the time that someone writes/deletes and image and saves the cache data. We try to
         make this unlikely, by grouping these actions close together. However, if it does occur,
         we just delete the cache and start over :(
         """
-        image_file_names = sorted(os.listdir(self.cache_dir))[:-1]  # everything except the pickle file
+        image_file_names = sorted(os.listdir(cache_dir))[:-1]  # everything except the pickle file
         if len(image_file_names) != len(self.cache):
             return False
         for image_id in self.cache.values():
@@ -142,7 +143,7 @@ class GraphImageCache:
         node_colors = [graph.nodes[u]["node_color"] for u in graph.nodes]
         edge_colors = [graph.edges[u, v]["edge_color"] for (u, v) in graph.edges]
         nx.draw(graph, node_color=node_colors, edge_color=edge_colors, pos=pos, with_labels=True)
-        plt.savefig(self.image_file(self.counter), figsize=figsize)
+        plt.savefig(self.image_file(self.counter), pil_kwargs={"figsize":figsize})
 
         # add the graph data to our cache lookup
         self.cache[graph_encoding] = self.counter
