@@ -90,7 +90,7 @@ There exist many distance metrics. Below is provided a visual representation of 
 ![image](https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
 [image reference](#https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
 
-As mentioend, the edge weight between 2 nodes is given as travel time. There's a finite number (4) of speed regimes that can be followed along an edge, as represented in the class below.
+As mentioned, the edge weight between 2 nodes is given as travel time. There's a finite number (4) of speed regimes that can be followed along an edge, as represented in the class below.
 You can access the speed value using the `.value` property of the struct, i.e. `HIGHWAY.value`.
 ```python
 @unique
@@ -100,6 +100,10 @@ class TravelSpeed(float, Enum):
     CITY = 50.0 / 3.6
     PEDESTRIAN = 5.0 / 3.6
 ```
+
+Your heuristic function should be invoked every time you add a new node to the priority queue. If you have a good (and admissible) heuristic, your algorithm will explore fewer nodes, and so your heuristic will be called less often. Therefore, the number of times your heuristic is called is a good proxy for the efficiency of your algorithm. For this reason, we have threaded the code to count the heuristic invocations. Every time your `path` function calls `heuristic`, the `heuristic_counter` is incremented, and at the end of each AStar call, the `heuristic_counter` is returned. For comparison, we provide the heuristic counter values using a trivial heuristic, which always returns 0. (Note that this is identical to UCS.) Hopefully, your heuristic function will outperform the trivial heuristic --- we refer to the ratio of these two values as the "heuristic efficiency".
+
+You should make sure to actually call the `heuristic` function every time you push a node onto the queue. If you instead (for example) calculate the heuristic inline in the `path` function, your test results will show a deceptively good heuristic efficiency. However, we will evaluate your implementation of the `heuristic` function by plugging it into a sample implementation of Astar. We suggest you call `heuristic` as stated above so that your local test results match the grader output.
 
 (HINT 1) The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. 
 Under which condition will the time metric be admissible?
@@ -113,9 +117,9 @@ You will be able to test your algorithms on some test cases with given solution,
 After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution.
 These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
 
-The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, time>:
+The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, efficiency>:
 * **Accuracy**: Both UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
-* **Solve time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required. How do you expect the heuristic in A* to affect its solve time?
+* **Efficiency**: Your efficiency score will incorporate both the solve time and the heuristic efficiency. The precise weighting of these metrics has not been determined. However, a simple heuristic should suffice. After all, choosing a computationally complex heuristic might affect the solve time.
 
 ### Update your repo and run exercise
 

@@ -30,8 +30,8 @@ class Astar(InformedGraphSearch):
     heuristic_counter: int = 0
 
     def heuristic(self, u: X, v: X) -> float:
-        # Increment this counter every time we call the heuristic, so we can
-        # judge the performance of the algorithm.
+        # Increment this counter every time the heuristic is called, to judge the performance
+        # of the algorithm
         self.heuristic_counter += 1
 
         # todo
