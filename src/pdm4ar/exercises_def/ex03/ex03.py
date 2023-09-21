@@ -13,6 +13,7 @@ from pdm4ar.exercises_def.structures import PerformanceResults
 from pdm4ar.exercises.ex03 import informed_graph_search_algo, compute_path_cost, \
     UniformCostSearch, Astar
 from pdm4ar.exercises_def.ex02 import str_from_path
+from pdm4ar.exercises.ex02.structures import X
 from pdm4ar.exercises_def.ex03.data import ex3_get_expected_results, get_test_informed_gsproblem, \
     InformedGraphSearchProblem
 
@@ -68,7 +69,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         start = process_time()
         path = search_algo.path(query[0], query[1])
         solve_time = process_time() - start
-        heuristic_count = heuristic_count_fn(search_algo)
+        heuristic_count = heuristic_count_fn(search_algo, query[0], query[1])
 
         if path:
             path_str = str_from_path(path)
@@ -154,11 +155,11 @@ def get_exercise3() -> Exercise:
     expected_results = ex3_get_expected_results()
     test_values = list()
 
-    def uniform_cost_heuristic_counter(_: UniformCostSearch) -> int:
+    def uniform_cost_heuristic_counter(search_algo: UniformCostSearch, start: X, goal: X) -> int:
         # There is no heuristic in UCS, so we just return 0
         return 0
 
-    def astar_heuristic_counter(search_algo: Astar) -> int:
+    def astar_heuristic_counter(search_algo: Astar, start: X, goal: X) -> int:
         return search_algo.heuristic_counter
 
     algos = [(UniformCostSearch.__name__, uniform_cost_heuristic_counter),
