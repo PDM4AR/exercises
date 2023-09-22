@@ -74,18 +74,20 @@ class UniformCostSearch(InformedGraphSearch):
 @dataclass
 class Astar(InformedGraphSearch):
 
-    def heuristic(self, u: X, v: X) -> float:
+    # ...provided code...
+
+    def _INTERNAL_heuristic(self, u: X, v: X) -> float:
         # todo
-        pass
+        return 0
         
     def path(self, start: X, goal: X) -> Path:
         # todo
-        pass
+        return []
 ```
 
 Unlike UCS, A* is an informed algorithm thus requires implementing a heuristic function. While worst time complexity is the same for UCS and A*, the use of an admissible heuristic often leads to a lower number of explored nodes to find the shortest path. If not path is found, your algorithms should return an empty list.
 
-You are free to implement the `heuristic()` function based on any metric of your choice (make sure it is admissible!). 
+You are free to implement the `_INTERNAL_heuristic` function based on any metric of your choice (make sure it is admissible!).
 There exist many distance metrics. Below is provided a visual representation of the most common.
 ![image](https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
 [image reference](#https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
@@ -101,14 +103,16 @@ class TravelSpeed(float, Enum):
     PEDESTRIAN = 5.0 / 3.6
 ```
 
-Your heuristic function should be invoked every time you add a new node to the priority queue. If you have a good (and admissible) heuristic, your algorithm will explore fewer nodes, and so your heuristic will be called less often. Therefore, the number of times your heuristic is called is a good proxy for the efficiency of your algorithm. For this reason, we have threaded the code to count the heuristic invocations. Every time your `path` function calls `heuristic`, the `heuristic_counter` is incremented, and at the end of each AStar call, the `heuristic_counter` is returned. For comparison, we provide the heuristic counter values using a trivial heuristic, which always returns 0. (Note that this is identical to UCS.) Hopefully, your heuristic function will outperform the trivial heuristic --- we refer to the ratio of these two values as the "heuristic efficiency".
+In addition to evaluating the correctness of your path, we will also evaluate your heuristic. If you choose a good heuristic, your algorithm will explore fewer nodes, and therefore your heuristic will be called less often. Therefore, the number of times your heuristic is called provides a good metric for your algorithm's efficiency. We will plug your heuristic function into our Astar solution and count how many times it is called. As a baseline, we will compare it with the "trivial" heuristic, which always returns 0 (this is algorithm is equivalent to UCS). We refer to the ratio of these values as the "heuristic efficiency". With a well chosen heuristic, your efficiency should be below 1.
 
-You should make sure to actually call the `heuristic` function every time you push a node onto the queue. If you instead (for example) calculate the heuristic inline in the `path` function, your test results will show a deceptively good heuristic efficiency. However, we will evaluate your implementation of the `heuristic` function by plugging it into a sample implementation of Astar. We suggest you call `heuristic` as stated above so that your local test results match the grader output.
+To get a sense of your heuristic efficiency, you can judge its performance on your own implementation of Astar. Every time you want to calculate the heuristic in `path`, make sure you call the `heuristic` function. Then, the evaluator will then run your Astar algorithm in two different modes. In the first run, the `heuristic` function will call the function that you implemented in `_INTERNAL_heuristic`. In the second mode, `heuristic` will simply return 0. The number of calls to the heuristic in each mode is printed in the tester output. Note that the heuristic efficiency calculation depends on the specific implementation of Astar. Therefore your local values might differ from the server's results. Nevertheless, this should tell you if you're on the right track.
 
 (HINT 1) The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. 
 Under which condition will the time metric be admissible?
 
 (HINT 2) To obtain the distance between 2 coordinates, you may find useful the function `osmnx.distance.great_circle_vec()`.
+
+(HINT 3) For UCS and Astar, you may find Python's `heapq` module useful.
 
 ### Test cases and performance criteria
 

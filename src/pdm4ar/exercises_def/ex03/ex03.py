@@ -85,7 +85,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
             path_cost = float("inf")
             path = []
         # ground truths
-        gt_path, naive_heuristic_count = ex_out[i]
+        gt_path, trivial_heuristic_count = ex_out[i]
         # compare to ground truth only for admissible heuristic
         if gt_path is not None:
             # Compute gt path cost
@@ -107,8 +107,18 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                 msg += "Student solution : WRONG\n"
             solve_times.append(solve_time)
 
-            if algo_name == Astar.__name__ and naive_heuristic_count > 0:
-                heuristic_performance.append(heuristic_count / naive_heuristic_count)
+            if algo_name == Astar.__name__:
+                if trivial_heuristic_count == 0:
+                    # We must calculate the trivial heuristic count.
+                    # Tell the student's algorithm to use the trivial heuristic rather than the one
+                    # the implemented.
+                    search_algo.heuristic_counter = 0
+                    search_algo.use_trivial_heuristic = True
+                    # Rerun Astar, counting how many times the heuristic was invoked
+                    search_algo.path(query[0], query[1])
+                    trivial_heuristic_count = heuristic_count_fn(search_algo, query[0], query[1])
+
+                heuristic_performance.append(heuristic_count / trivial_heuristic_count)
             else:
                 heuristic_performance.append(0.)
         else:
@@ -123,7 +133,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
 
         if algo_name == Astar.__name__:
             msg += f"Your heuristic call counter: {heuristic_count}\n"
-            msg += f"Naive heuristic call counter: {naive_heuristic_count}\n"
+            msg += f"Trivial heuristic call counter: {trivial_heuristic_count}\n"
 
         r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
 

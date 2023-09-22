@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Set
+from typing import List, Set, Tuple
 import pathlib
 import pickle
 
@@ -117,26 +117,26 @@ def get_test_informed_gsproblem(n_queries=1, n_seed=None, extra_test_graph_probl
 
     return data_in
 
-def ex3_get_expected_results() -> List[List[Path]]:
+def ex3_get_expected_results() -> List[List[Tuple[Path, int]]]:
 
-    expected_results = defaultdict(dict)
-    # Each entry is a pair of (node ids for shortest path, # times naive heuristic was called)
-    # The "naive" heuristic simply returns the same value, no matter the nodes
-    # For UCS, the heuristic is never called.
+    # The shortest path solutions for both UCS and Astar
+    ny_path = [42436582,42446925,42448693,4597668041,42445867,42436575,42445879,42429876,42445885,42445888,42436746,42445404,42445896,42445899,42445903,42445365,42434948,42445908,42445909,42445910,42445651,42445914,42432438,561042200]
+    eth_path = [131923881,131984636,1481512725,1481512717,1481512716,34466208,263683273,263683272]
+    milan_path = [27653945,1550365269,1550365202,1550365234,1550365238,1550365233,249167226,1828995193,1476588224,3832161562,1514352941,1942874551,1942874549,1942874545,1942874539,1942874538,1942874527,1942874524,21226083,2075241344,480913573,28848583,28848589]
 
-    # ucs ny
-    expected_results[0] = [([42436582,42446925,42448693,4597668041,42445867,42436575,42445879,42429876,42445885,42445888,42436746,42445404,42445896,42445899,42445903,42445365,42434948,42445908,42445909,42445910,42445651,42445914,42432438,561042200], 0)]
-    # astar ny
-    expected_results[1] = [([42436582,42446925,42448693,4597668041,42445867,42436575,42445879,42429876,42445885,42445888,42436746,42445404,42445896,42445899,42445903,42445365,42434948,42445908,42445909,42445910,42445651,42445914,42432438,561042200], 249)]
-
-    # ucs eth
-    expected_results[2] = [([131923881,131984636,1481512725,1481512717,1481512716,34466208,263683273,263683272], 0)]
-    # astar eth
-    expected_results[3] = [([131923881,131984636,1481512725,1481512717,1481512716,34466208,263683273,263683272], 58)]
-
-    # ucs milan
-    expected_results[4] = [([27653945,1550365269,1550365202,1550365234,1550365238,1550365233,249167226,1828995193,1476588224,3832161562,1514352941,1942874551,1942874549,1942874545,1942874539,1942874538,1942874527,1942874524,21226083,2075241344,480913573,28848583,28848589], 0)]
-    # astar milan
-    expected_results[5] = [([27653945,1550365269,1550365202,1550365234,1550365238,1550365233,249167226,1828995193,1476588224,3832161562,1514352941,1942874551,1942874549,1942874545,1942874539,1942874538,1942874527,1942874524,21226083,2075241344,480913573,28848583,28848589], 231)]
+    # Each "expected result" contains the ideal path and the "trivial heuristic" count. For UCS, there is no
+    # heuristic, so the evaluator will ignore this value. For Astar, the student's heuristic should be invoked
+    # less often than the trivial heuristic -- the evaluator uses the trivial heuristic as a comparitor.
+    # Passing the value 0 tells the evaluator to compute the trivial heuristic count using the student's Astar
+    # implementation. Passing a non-zero value tells the evaluator to use this as the trivial heuristic count
+    # (as is done in the evaluation server)
+    expected_results = [
+        [(ny_path, 0)],         # ucs ny
+        [(ny_path, 0)],         # astar ny
+        [(eth_path, 0)],        # ucs eth
+        [(eth_path, 0)],        # astar eth
+        [(milan_path, 0)],      # ucs milan
+        [(milan_path, 0)],      # astar milan
+    ]
 
     return expected_results
