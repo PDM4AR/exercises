@@ -48,7 +48,7 @@ def get_ex3_tangent_start_end_test_values() -> DubinsProblem:
     circle5 = Curve.create_circle(center=center1, radius=4, config_on_circle=SE2Transform([0, -4], 0.), curve_type=DubinsSegmentType.LEFT)
     circle6 = Curve.create_circle(center=center2, radius=4, config_on_circle=SE2Transform([4, 7], 0.), curve_type=DubinsSegmentType.RIGHT)
 
-    queries = [(circle1, circle2)]#[(circle1, circle2), (circle3, circle4), (circle5, circle6)]
+    queries = [(circle1, circle2), (circle3, circle4), (circle5, circle6)]
     return DubinsProblem(queries=queries, id_num=3, id_str="Tangent Construction Test", algo_fun=algo.calculate_tangent_btw_circles, eval_fun=ex3_tangent_construct_eval, eval_weight=EX_3_TANGENT_WEIGHT, plot_fun=ex3_tangent_plot_fun)
 
 def get_ex4_start_end_test_values() -> DubinsProblem:
