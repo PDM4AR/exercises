@@ -79,24 +79,3 @@ def get_example_test_values() -> List[DubinsProblem]:
     test_values = [get_ex1_radius_test_values(), get_ex2_turning_circles_test_values(), get_ex3_tangent_start_end_test_values(),
                    get_ex4_start_end_test_values(), get_ex5_start_end_test_values()]
     return test_values
-
-def ex5_get_expected_results():
-    expected_results = []
-    expected_results[0] = DubinsParam(min_radius=4)
-    expected_results[1] = TurningCircle(left=Curve.create_circle(center=SE2Transform([1.0, 5.5], 0), config_on_circle=SE2Transform.identity(), radius=3, curve_type=DubinsSegmentType.LEFT),right=Curve.create_circle(center=SE2Transform([1.0, -0.5], 0), config_on_circle=SE2Transform.identity(), radius=3, curve_type=DubinsSegmentType.RIGHT))
-    expected_results[2] = [[Line(SE2Transform([2.0, 0], math.pi/2), SE2Transform([2.0, 3.0], math.pi/2), Gear.FORWARD)],
-                           [Line(SE2Transform([-1.2, 1.6], 0.6435011087932844), SE2Transform([2.8, 4.6], 0.6435011087932844), Gear.FORWARD)],
-                            []]
-    expected_results[3] = [[Curve(SE2Transform([1.0, 2.5], -0.7853981633974483), SE2Transform([4.42379809, 1.60596552], 0.2745577143223241), SE2Transform([3.47487373, 4.97487373], 0), 3.5, DubinsSegmentType.LEFT, 1.059955877719772),
-                            Line(SE2Transform([4.42379809, 1.60596552], 0.2745577143223241), SE2Transform([8.01998673, 2.61890822], 0.2745577143223241)),
-                            Curve(SE2Transform([8.01998673, 2.61890822], 0.2745577143223241), SE2Transform([12.0, 1.0], -1.0471975511965976), SE2Transform([8.96891109, -0.75], 0), 3.5, DubinsSegmentType.RIGHT, 1.3217552655189215)],
-                           [Curve(SE2Transform([0, 0], -0.5235987755982988), SE2Transform([2.73397724, -0.3277485], 0.2849780173805057), SE2Transform([1.75, 3.03108891], 0), 3.5, DubinsSegmentType.LEFT, 0.8085767929788048),
-                            Line(SE2Transform([2.73397724, -0.3277485], 0.2849780173805057), SE2Transform([12.01506616, 2.39116258], 0.2849780173805057)),
-                            Curve(SE2Transform([12.01506616, 2.39116258], 0.2849780173805057), SE2Transform([8.0, 4.0], -1.0471975511965976), SE2Transform([11.03108891, 5.75], 0), 3.5, DubinsSegmentType.LEFT, 4.951009738602483)]]
-    expected_results[4] = [[Curve(SE2Transform([1.0, 2.5], 0), SE2Transform([1.0, 2.5], 0), SE2Transform([1.0, -1.0], 0), 3.5, DubinsSegmentType.RIGHT, 0, Gear.REVERSE),
-                            Line(SE2Transform([1.0, 2.5], 0), SE2Transform([-8, 2.5], 0), Gear.REVERSE),
-                            Curve(SE2Transform([-8, 2.5], 0), SE2Transform([-8, 2.5], 0), SE2Transform([-8, -1], 0), 3.5, DubinsSegmentType.RIGHT, 0, Gear.REVERSE)],
-                           [Curve(SE2Transform([0, 0], 0.5235987755982988), SE2Transform([1.48198942, 4.37431056], 1.964680031035629), SE2Transform([-1.75, 3.03108891], 0), 3.5, DubinsSegmentType.LEFT, 1.44108125543733),
-                            Curve(SE2Transform([1.48198942, 4.37431056], 1.964680031035629), SE2Transform([8.10698942, 4.8587661], -1.8186891508705159), SE2Transform([4.71397884, 5.7175322], 0), 3.5, DubinsSegmentType.RIGHT, 3.783369181906145),
-                            Curve(SE2Transform([8.10698942, 4.8587661], -1.8186891508705159), SE2Transform([8.0, 4.0], -1.5707963267948966), SE2Transform([11.5, 4.0], 0), 3.5, DubinsSegmentType.LEFT, 0.24789282407561952)]]
-    return expected_results
