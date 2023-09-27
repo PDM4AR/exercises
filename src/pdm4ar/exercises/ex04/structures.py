@@ -12,6 +12,7 @@ class Action(IntEnum):
     SOUTH = 2
     EAST = 3
     STAY = 4
+    ABANDON = 5
 
 
 State = Tuple[int, int]
@@ -26,7 +27,7 @@ class Cell(IntEnum):
     SWAMP = 3
 
 
-Policy = NDArray[np.int_]
+Policy = NDArray[np.int64]
 """Type Alias for the policy"""
 ValueFunc = NDArray[np.float64]
 """Type Alias for the value function"""

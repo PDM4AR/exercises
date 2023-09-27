@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
+from pdm4ar.exercises.ex04.structures import Action
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex04.data import get_expected_results, get_test_grids
 from pdm4ar.exercises_def.ex04.map import map2image
@@ -19,126 +20,142 @@ from reprep import MIME_PDF, Report
 @dataclass
 class TestValueEx4(ExIn):
     algo: Type[GridMdpSolver]
-    grid_list: List[GridMdp]
+    grid: GridMdp
+    testId: int = 0
 
     def str_id(self) -> str:
-        return str(self.algo.__name__)
+        return str(self.algo.__name__) + str(self.testId)
 
 @dataclass(frozen=True)
-class Ex04PerformanceResult(PerformanceResults):
+class Ex04Performance(PerformanceResults):
     policy_accuracy: float 
-    value_func_mspa: float   # mean squared percentage accuracy of value function
+    value_func_r2: float
     solve_time: float
 
     def __post__init__(self):
         assert self.policy_accuracy <= 1, self.policy_accuracy
         assert self.solve_time >= 0, self.solve_time
 
+@dataclass(frozen=True)
+class Ex04PerformanceResult(PerformanceResults):
+    # All test cases
+    perf_result: Ex04Performance
+    # Value Iteration test cases
+    value_iteration: Ex04Performance = None
+    # Policy Iteration test cases
+    policy_iteration: Ex04Performance = None
 
-def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
-    grid_mdp_list = ex_in.grid_list
-    solver: GridMdpSolver = ex_in.algo()
-    algo_name = solver.__class__.__name__
-    r = Report(f"Ex4-{algo_name}")
 
-    solve_time_list = []
-    policy_accuracy_list = []
-    value_func_mspa_list = []
-    
-    for k, grid_mdp in enumerate(grid_mdp_list):
-        t = process_time()
-        value_func, policy = solver.solve(grid_mdp)
-        solve_time = process_time() - t
 
-        MAP_SHAPE = grid_mdp.grid.shape
-        font_size = 3 if MAP_SHAPE[0] > 15 else 6
+def get_font_size(grid_mdp: GridMdp) -> int:
+    return 3 if grid_mdp.grid.shape[0] > 15 else 6
 
-        rfig = r.figure(cols=2)
-        with rfig.plot(nid=f"{algo_name}-value-{k}", mime=MIME_PDF, figsize=None) as _:
-            ax = plt.gca()
-            ax.imshow(value_func, aspect="equal")
-            ax.tick_params(axis="both", labelsize=font_size + 3)
-            for i in range(MAP_SHAPE[0]):
-                for j in range(MAP_SHAPE[1]):
-                    ax.text(j, i, f"{value_func[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
+def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name: str):
+    MAP_SHAPE = grid_mdp.grid.shape
+    font_size = get_font_size(grid_mdp)
+    with rfig.plot(nid=f"{algo_name}-value", mime=MIME_PDF, figsize=None) as _:
+        ax = plt.gca()
+        ax.imshow(value_func, aspect="equal")
+        ax.tick_params(axis="both", labelsize=font_size + 3)
+        for i in range(MAP_SHAPE[0]):
+            for j in range(MAP_SHAPE[1]):
+                ax.text(j, i, f"{value_func[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
 
-        map_c = map2image(grid_mdp.grid)
-        with rfig.plot(nid=f"{algo_name}-policy-{k}", mime=MIME_PDF, figsize=None) as _:
-            ax = plt.gca()
-            ax.imshow(map_c, aspect="equal")
-            ax.tick_params(axis="both", labelsize=font_size + 3)
-            for i in range(MAP_SHAPE[0]):
-                for j in range(MAP_SHAPE[1]):
+def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: np.ndarray, algo_name: str):
+    MAP_SHAPE = grid_mdp.grid.shape
+    font_size = get_font_size(grid_mdp)
+    map_c = map2image(grid_mdp.grid)
+    with rfig.plot(nid=f"{algo_name}-policy", mime=MIME_PDF, figsize=None) as _:
+        ax = plt.gca()
+        ax.imshow(map_c, aspect="equal")
+        ax.tick_params(axis="both", labelsize=font_size + 3)
+        for i in range(MAP_SHAPE[0]):
+            for j in range(MAP_SHAPE[1]):
+                if policy[i, j] == Action.ABANDON:
+                    ax.text(j, i, "X", size=2.5*font_size, ha="center", va="center", color="k", weight="bold")
+                else:
                     arrow = action2arrow[policy[i, j]]
                     ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
+                
+def plot_report_figure(r: Report, grid_mdp: GridMdp, value_func: np.ndarray, policy: np.ndarray, algo_name: str):
+    rfig = r.figure(cols=2)
+    plot_grid_values(rfig, grid_mdp, value_func, algo_name)
+    plot_grid_policy(rfig, grid_mdp, policy, algo_name)
 
-        if ex_out is not None:
-            value_func_gt, policy_gt = ex_out[k]
-            # evaluate accuracy
-            policy_accuracy = np.sum(policy_gt==policy) / policy_gt.size
-            value_func_mspa = 1 - np.sum(np.abs(np.divide(value_func_gt-value_func, value_func_gt))) / value_func_gt.size
 
-            policy_accuracy_list.append(policy_accuracy)
-            value_func_mspa_list.append(value_func_mspa)
-            solve_time_list.append(solve_time)
 
-            # plot ground truth
-            rfig = r.figure(cols=2)
-            with rfig.plot(nid=f"GroundTruth-value-{k}", mime=MIME_PDF, figsize=None) as _:
-                ax = plt.gca()
-                ax.imshow(value_func_gt, aspect="equal")
-                ax.tick_params(axis="both", labelsize=font_size + 3)
-                for i in range(MAP_SHAPE[0]):
-                    for j in range(MAP_SHAPE[1]):
-                        ax.text(j, i, f"{value_func_gt[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
+def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
+    grid_mdp = ex_in.grid
+    solver: GridMdpSolver = ex_in.algo()
+    algo_name = ex_in.str_id()
+    r = Report(f"Ex4-{algo_name}")
+    
+    t = process_time()
+    value_func, policy = solver.solve(grid_mdp)
+    solve_time = process_time() - t
+    plot_report_figure(r, grid_mdp, value_func, policy, algo_name)
 
-            map_c = map2image(grid_mdp.grid)
-            with rfig.plot(nid=f"GroundTruth-policy-{k}", mime=MIME_PDF, figsize=None) as _:
-                ax = plt.gca()
-                ax.imshow(map_c, aspect="equal")
-                ax.tick_params(axis="both", labelsize=font_size + 3)
-                for i in range(MAP_SHAPE[0]):
-                    for j in range(MAP_SHAPE[1]):
-                        arrow = action2arrow[policy_gt[i, j]]
-                        ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
+    if ex_out is not None:
+        value_func_gt, policy_gt = ex_out
+        # evaluate accuracy
+        policy_accuracy = np.sum(policy_gt==policy) / policy_gt.size
+        # R2 score - sum of squared errors divided by sum of squared differences from the mean
+        value_func_r2 = 1 - np.sum(np.square(value_func_gt-value_func)) / np.sum(np.square(value_func_gt-np.mean(value_func_gt)))
+        # Clamp negative values to 0
+        value_func_r2 = max(0, value_func_r2)
 
-            msg = f"policy_accuracy: {policy_accuracy}\n"
-            msg += f"value_func_mspa:{value_func_mspa:.3f}\n"
+        # plot ground truth
+        plot_report_figure(r, grid_mdp, value_func_gt, policy_gt, "GroundTruth")
 
-            r.text(f"{algo_name}-query{k}", text=remove_escapes(msg))
+        msg = f"policy_accuracy: {policy_accuracy}\n"
+        msg += f"value_func_r2:{value_func_r2:.3f}\n"
 
-    # aggregate performance of each query
-    query_perf = list(map(Ex04PerformanceResult, policy_accuracy_list, value_func_mspa_list, solve_time_list))
-    perf = ex4_perf_aggregator(query_perf)
+        r.text(f"{algo_name}", text=remove_escapes(msg))
+
+    result = Ex04Performance(policy_accuracy=policy_accuracy, value_func_r2=value_func_r2, solve_time=solve_time)
+    perf = Ex04PerformanceResult(perf_result=result)
+    if isinstance(solver, PolicyIteration):
+        perf = Ex04PerformanceResult(perf_result=result, policy_iteration=result)
+    elif isinstance(solver, ValueIteration):
+        perf = Ex04PerformanceResult(perf_result=result, value_iteration=result)
     return perf, r
 
 
-def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
+def ex4_single_perf_aggregator(perf: Sequence[Ex04Performance]) -> Ex04Performance:
     # perfomance for valid results
     policy_accuracy = [p.policy_accuracy for p in perf]
-    value_func_mspa = [p.value_func_mspa for p in perf]
+    value_func_r2 = [p.value_func_r2 for p in perf]
     solve_time = [p.solve_time for p in perf]
     try:
-        # average accuracy and solve_time
-        avg_policy_accuracy = sum(policy_accuracy) / float(len(policy_accuracy))
-        avg_value_func_mspa = sum(value_func_mspa) / float(len(value_func_mspa)) 
-        avg_solve_time = sum(solve_time) / float(len(solve_time))
+        # average accuracy and solve_time, rounding to 3 decimal places
+        avg_policy_accuracy = round(np.mean(policy_accuracy), 3)
+        avg_value_func_r2 = round(np.mean(value_func_r2), 3)
+        avg_solve_time = round(np.mean(solve_time), 3)
     except ZeroDivisionError:
         # None if gt wasn't provided
         avg_policy_accuracy = 0
-        avg_value_func_mspa = 0
+        avg_value_func_r2 = 0
         avg_solve_time = 0
 
-    return Ex04PerformanceResult(policy_accuracy=avg_policy_accuracy,
-                                 value_func_mspa=avg_value_func_mspa,
-                                 solve_time=avg_solve_time)
+    return Ex04Performance(policy_accuracy=avg_policy_accuracy,
+                                       value_func_r2=avg_value_func_r2,
+                                       solve_time=avg_solve_time)
+
+
+def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
+    perf_result = [p.perf_result for p in perf]
+    policy_iteration = [p.policy_iteration for p in perf if p.policy_iteration is not None]
+    value_iteration = [p.value_iteration for p in perf if p.value_iteration is not None]
+
+    return Ex04PerformanceResult(perf_result=ex4_single_perf_aggregator(perf_result),
+                                policy_iteration=ex4_single_perf_aggregator(policy_iteration),
+                                value_iteration=ex4_single_perf_aggregator(value_iteration))
 
 
 def get_exercise4() -> Exercise:
-    grid_mdp_list = get_test_grids()
-    test_values = [TestValueEx4(algo=ValueIteration, grid_list=grid_mdp_list),
-                   TestValueEx4(algo=PolicyIteration, grid_list=grid_mdp_list)]
-
+    algos = [ValueIteration, PolicyIteration]
+    grid_mdps = get_test_grids()
+    test_values = [TestValueEx4(algo=algo, grid=grid_mdp, testId=i) for algo in algos for i, grid_mdp in enumerate(grid_mdps)]
     expected_results = get_expected_results()
 
     return Exercise[TestValueEx4, Any](
