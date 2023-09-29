@@ -53,13 +53,13 @@ You will submit your solutions via your private repository on Github
   Consider this as a learning experience for robotics, field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
-| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** | **Deadline status** |
-|-----------------|-----------------------|----------------------|-----------------------|---------------------|
-| 02              | Graph Search          | 28th of September    | 11th of October (23:59 CET)         | CONFIRMED            |
-| 03              | Informed Graph Search | 5th of October       | 18th of October (23:59 CET)         | CONFIRMED            |
-| 04              | Dynamic Programming   | -                    | - (23:59 CET)         | TBD                 |
-| 05              | Steering (Dubins)     | -                    | - (23:59 CET)         | TBD                 |
-| 06              | Collision Checking    | -                    | - (23:59 CET)         | TBD                 |
+| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** | **Deadline status** | Available Submissions |
+|-----------------|-----------------------|----------------------|-----------------------|---------------------|---------------------|
+| 02              | Graph Search          | 28th of September    | 11th of October (23:59 CET)         | CONFIRMED | 10 | 
+| 03              | Informed Graph Search | 5th of October       | 18th of October (23:59 CET)         | CONFIRMED | 10 |
+| 04              | Dynamic Programming   | -                    | - (23:59 CET)         | TBD                 |  |
+| 05              | Steering (Dubins)     | -                    | - (23:59 CET)         | TBD                 |  |
+| 06              | Collision Checking    | -                    | - (23:59 CET)         | TBD                 |  |
 
 * Most of these exercises are already accessible before the official evaluation opens.
   You are free to engage with them but be aware that changes may occur until the official opening.
