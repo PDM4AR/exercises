@@ -55,7 +55,7 @@ You will submit your solutions via your private repository on Github
 
 | Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** | **Deadline status** | Available Submissions |
 |-----------------|-----------------------|----------------------|-----------------------|---------------------|---------------------|
-| 02              | Graph Search          | 28th of September    | 11th of October (23:59 CET)         | CONFIRMED | 10 | 
+| 02              | Graph Search          | 28th of September    | 11th of October (23:59 CET)         | CONFIRMED | 15 | 
 | 03              | Informed Graph Search | 5th of October       | 18th of October (23:59 CET)         | CONFIRMED | 10 |
 | 04              | Dynamic Programming   | -                    | - (23:59 CET)         | TBD                 |  |
 | 05              | Steering (Dubins)     | -                    | - (23:59 CET)         | TBD                 |  |
