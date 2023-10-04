@@ -108,6 +108,15 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
             solve_times.append(solve_time)
 
             if algo_name == Astar.__name__:
+                # This section of code can be reached under two circumstances.
+                # 1. The server is evaluating the code. Then the trivial_heuristic_count
+                #    is a strictly positive number, which is calculated using the server's
+                #    implementation of Astar with a heuristic of 0
+                # 2. The code is being evaluated locally. This is indicated by setting
+                #    the trivial_heuristic_count to 0. To find the true value of the
+                #    trivial_heuristic_count, we must rerun the student's Astar implementation
+                #    with a heuristic of 0.
+
                 if trivial_heuristic_count == 0:
                     # We must calculate the trivial heuristic count.
                     # Tell the student's algorithm to use the trivial heuristic rather than the one
@@ -118,7 +127,11 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                     search_algo.path(query[0], query[1])
                     trivial_heuristic_count = heuristic_count_fn(search_algo, query[0], query[1])
 
-                heuristic_performance.append(heuristic_count / trivial_heuristic_count)
+                if trivial_heuristic_count == 0:
+                    # This case is only hit of the student never calls the heuristic.
+                    heuristic_performance.append(float('inf'))
+                else:
+                    heuristic_performance.append(heuristic_count / trivial_heuristic_count)
             else:
                 heuristic_performance.append(0.)
         else:
