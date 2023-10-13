@@ -14,7 +14,7 @@ class InformedGraphSearch(ABC):
 
     @abstractmethod
     def path(self, start: X, goal: X) -> Path:
-        # need to introduce weights!
+        # Abstract function. Nothing to do here.
         pass
 
 @dataclass
