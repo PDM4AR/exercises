@@ -58,7 +58,7 @@ You will submit your solutions via your private repository on Github
 | 02              | Graph Search          | 28th of September    | 11th of October (23:59 CET)         | CONFIRMED | 15 | 
 | 03              | Informed Graph Search | 5th of October       | 18th of October (23:59 CET)         | CONFIRMED | 10 |
 | 04              | Dynamic Programming   | 11th of October      | 31st of October (23:59 CET)         | CONFIRMED | 10 |
-| 05              | Steering (Dubins)     | -                    | - (23:59 CET)         | TBD                 |  |
+| 05              | Steering (Dubins)     | 19th of October      | 5th of November (23:59 CET)         | CONFIRMED | 10 |
 | 06              | Collision Checking    | -                    | - (23:59 CET)         | TBD                 |  |
 
 * Most of these exercises are already accessible before the official evaluation opens.
