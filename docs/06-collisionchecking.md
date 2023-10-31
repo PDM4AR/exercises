@@ -170,7 +170,7 @@ Then using the occupancy grid, you will find the segments of the path in which o
 
 In this step, you will implement `path_collision_check_occupancy_grid` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
 This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
-It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
+It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles. Note that due to the discrete nature of an occupancy grid, it is completely reasonable that the method might not result in a perfect accuracy of 1.0.
 
 #### Step 10: Collision Checking using R-Trees
 
