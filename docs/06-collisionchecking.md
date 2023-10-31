@@ -166,7 +166,7 @@ The aim and all the assumptions are same as `Step 8`.
 However, in this step, you will use different approach for collision checking. 
 You are asked to implement collision checking via occupancy grids. 
 You will initially create an occupancy grid of the given environment. 
-Then using the occupancy grid, you will find the segments of the path in which our robot will collide. You may use the functionalities of `shapely` here.
+Then using the occupancy grid, you will find the segments of the path in which our robot will collide. You may use the functionalities of `shapely` here. Note that you will have to convert the `GeoPrimitives` to `shapely` geometries in order to work with `shapely`.
 
 In this step, you will implement `path_collision_check_occupancy_grid` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
 This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 

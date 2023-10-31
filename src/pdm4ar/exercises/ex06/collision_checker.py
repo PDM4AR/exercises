@@ -10,6 +10,7 @@ from pdm4ar.exercises_def.ex06.structures import (
     Triangle,
     Path,
 )
+import shapely
 
 ##############################################################################################
 ############################# This is a helper function. #####################################
@@ -60,6 +61,23 @@ def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
 
 
 ##############################################################################################
+############################# This is a helper function. #####################################
+# Feel free to use this function or not
+
+def geo_primitive_to_shapely(p: GeoPrimitive):
+    if isinstance(p, Point):
+        return shapely.Point(p.x, p.y)
+    elif isinstance(p, Segment):
+        return shapely.LineString([[p.p1.x, p.p1.y], [p.p2.x, p.p2.y]])
+    elif isinstance(p, Circle):
+        return shapely.Point(p.center.x, p.center.y).buffer(p.radius)
+    elif isinstance(p, Triangle):
+        return shapely.Polygon([[p.v1.x, p.v1.y], [p.v2.x, p.v2.y], [p.v3.x, p.v3.y]])
+    else: #Polygon
+        vertices = []
+        for vertex in p.vertices:
+            vertices += [(vertex.x, vertex.y)]
+        return shapely.Polygon(vertices)
 
 
 class CollisionChecker:
