@@ -27,7 +27,8 @@ def run_exercise(exercise: str, evaluation_mode=False):
     evaluator = ExerciseEvaluator(exercise=ex)
 
     out_main = out_dir(exercise)
-    logging.getLogger("reprep").setLevel(logging.WARNING)   # suppress annoying messages from reprep
+    from zuper_commons import ZLogger
+    ZLogger("reprep").setLevel(logging.WARNING)   # suppress annoying messages from reprep
 
     total = len(ex.test_values)
     # for i, alg_in in enumerate(tqdm(ex.test_values)):
