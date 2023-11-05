@@ -22,6 +22,9 @@ webcolors
 typing_extensions
 decorator
 
+# triangle
+triangle==20230923
+
 # dg
 dg-commons==0.0.34
 
