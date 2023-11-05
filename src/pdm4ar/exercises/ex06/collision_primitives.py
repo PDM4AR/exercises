@@ -1,4 +1,5 @@
 from pdm4ar.exercises_def.ex06.structures import *
+from triangle import triangulate
 
 
 class CollisionPrimitives:
