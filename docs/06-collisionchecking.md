@@ -242,7 +242,7 @@ Lastly, accuracies and execution times of each step are aggregated as weighted a
 ### How to run
 
 Make sure to update your repo before running the exercise. 
-Please refer to [Hello World](01-helloworld.md) for instructions. If you wish to use the `triangle` module, you should run `pip install triangle` in the terminal.
+Please refer to [Hello World](01-helloworld.md) for instructions.
 
 ### Advice
 
