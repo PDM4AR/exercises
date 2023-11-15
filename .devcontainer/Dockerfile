@@ -4,6 +4,8 @@
 ARG VARIANT="3.11-bullseye"
 FROM idscfrazz/pdm4ar2023:${VARIANT}
 
+RUN apt-get clean
+
 # [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
 COPY requirements.txt /tmp/pip-tmp/
 RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
