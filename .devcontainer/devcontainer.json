@@ -20,10 +20,11 @@
 		"vscode": {
 			// Set *default* container specific settings.json values on container create.
 			"settings": {
-				"editor.formatOnSave": false,
 				"[python]": {
+					"languageServer": "Pylance",
 					"editor.defaultFormatter": "ms-python.black-formatter",
     				"editor.formatOnSave": true,
+					"analysis.typeCheckingMode": "basic",
 					"analysis.autoImportCompletions" : true
 				}
 			},
@@ -36,7 +37,6 @@
 				"ms-toolsai.jupyter-keymap",
 				"ms-toolsai.jupyter-renderers",
 				"rokoroku.vscode-theme-darcula",
-				"njqdev.vscode-python-typehint",
 				"ritwickdey.liveserver"
 			]
 		}
