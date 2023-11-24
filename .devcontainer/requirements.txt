@@ -26,7 +26,7 @@ decorator
 triangle==20230923
 
 # dg
-dg-commons==0.0.34
+dg-commons @ git+https://github.com/idsc-frazzoli/dg-commons@dev/rocket
 
 # mpc
 do-mpc==4.6.0

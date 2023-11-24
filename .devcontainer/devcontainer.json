@@ -23,9 +23,9 @@
 				"[python]": {
 					"languageServer": "Pylance",
 					"editor.defaultFormatter": "ms-python.black-formatter",
-    				"editor.formatOnSave": true,
+					"editor.formatOnSave": true,
 					"analysis.typeCheckingMode": "basic",
-					"analysis.autoImportCompletions" : true
+					"analysis.autoImportCompletions": true
 				}
 			},
 			// Add the IDs of extensions you want installed when the container is created.
@@ -34,9 +34,8 @@
 				"ms-python.pylint",
 				"ms-python.black-formatter",
 				"ms-toolsai.jupyter",
-				"ms-toolsai.jupyter-keymap",
 				"ms-toolsai.jupyter-renderers",
-				"rokoroku.vscode-theme-darcula",
+				"rafaelrenanpacheco.darcula-theme",
 				"ritwickdey.liveserver"
 			]
 		}
