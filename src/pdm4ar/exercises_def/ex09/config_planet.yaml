@@ -12,6 +12,7 @@ agents:
       phi: 0.0
       m: 2.1
     goal:
+      type: static
       state: 
         x: 8.0
         y: 8.0
@@ -19,19 +20,21 @@ agents:
         vx: 0.0
         vy: 0.0
         dpsi: 0.0
-      type: static
       pos_tolerance: 0.5
       vel_tolerance: 0.5
     
 
 planets:
-  - center: [5.0, 4.0]
+  Namek:
+    center: [5.0, 4.0]
     radius: 3.0
     satellites: []
-  - center: [-5.0, 4.0]
+  Yardrat:
+    center: [-5.0, 4.0]
     radius: 3.0
     satellites: []
-  - center: [0.0, 0.0]
+  Vampa:
+    center: [0.0, 0.0]
     radius: 2.0
     satellites: []
 

@@ -10,24 +10,19 @@ agents:
       dpsi: 0.0
       phi: 0.0
     goal:
-      type: dynamic # extract first satellite of first planet
-      x: 8.0
-      y: 8.0
-      psi: 0.0
+      type: satellite
+      name: Kelbo
       pos_tolerance: 0.5
-      m: None
-      vx: 0.0
-      vy: 0.0
-      dpsi: 0.0
-      phi: None
       vel_tolerance: 0.5
     color: 'blue'
 
 planets:
-  - center: [0.0, 0.0]
+  Vegeta:
+    center: [0.0, 0.0]
     radius: 3.0
     satellites:
-      - tau: 5.2359
+      Kelbo:
+        tau: 5.2359
         orbit_r: 7.0
         omega: 0.05454
 
