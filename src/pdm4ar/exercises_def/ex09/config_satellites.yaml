@@ -1,5 +1,5 @@
 agents:
-  PDM4ARRocket:
+  PDM4ARocket:
     state:
       x: -8.0
       y: -8.0

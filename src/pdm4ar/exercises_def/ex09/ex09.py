@@ -20,7 +20,7 @@ def ex09_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report
     # visualisation
     report = _ex09_vis(sim_context=sim_context)
     # TODO metrics
-    score = 0
+    score = 1
     # # compute metrics
     # avg_player_metrics, players_metrics = ex09_metrics(sim_context)
     # # report evaluation
@@ -46,7 +46,7 @@ def _ex09_vis(sim_context: SimContext) -> Report:
                          figsize=(16, 16),
                          dt=50,
                          dpi=120,
-                         plot_limits=PlayerName("PDM4AR")
+                         plot_limits=PlayerName("PDM4ARocket")
                          )
 
     return r

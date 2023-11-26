@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Sequence
+import numpy as np
 
 from dg_commons import DgSampledSequence, PlayerName
 from dg_commons.sim import SimObservations, InitSimObservations
@@ -46,11 +47,12 @@ class RocketAgent(Agent):
         This method is called by the simulator only at the beginning of each simulation.
         Do not modify the signature of this method.
         """
-        mystate = sim_obs.players[self.myname].state
-        my_realstate = self.state_traj.at_interp(sim_obs.time)
-        if mystate - my_realstate > 0.1:
-            # update initial state for the planner
-            self.cmds_plan, self.state_traj = self.planner.compute_trajectory()
+        current_state = sim_obs.players[self.myname].state
+        expected_state = self.state_traj.at_interp(sim_obs.time)
+        # todo a possible scheme to update the plan
+        # if np.linalg.norm(current_state.as_ndarray() - expected_state.as_ndarray()) > 0.1:
+        #     # update initial state/time horizon for the planner
+        #     self.cmds_plan, self.state_traj = self.planner.compute_trajectory()
 
         # ZOH
         cmds = self.cmds_plan.at_or_previous(sim_obs.time)

@@ -1,6 +1,6 @@
 # Test case 1 in pdm4ar_scvxx
 agents:
-  PDM4ARRocket:
+  PDM4ARocket:
     color: 'blue'
     state:
       x: -8.0
