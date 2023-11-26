@@ -1,8 +1,13 @@
 from dataclasses import dataclass
-from dg_commons import U, DgSampledSequence, PlayerName
+from typing import Sequence
+
+from dg_commons import DgSampledSequence, PlayerName
 from dg_commons.sim import SimObservations, InitSimObservations
 from dg_commons.sim.agents import Agent
+from dg_commons.sim.goals import PlanningGoal
+from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.models.rocket import RocketCommands, RocketState
+from dg_commons.sim.models.rocket_structures import RocketGeometry, RocketParameters
 
 from .planner import RocketPlanner
 
@@ -13,18 +18,34 @@ class Pdm4arAgentParams:
 
 
 class RocketAgent(Agent):
+    "Do not modify this class name"
     cmds_plan: DgSampledSequence[RocketCommands]
     state_traj: DgSampledSequence[RocketState]
     myname: PlayerName
     planner: RocketPlanner
+    goal: PlanningGoal
+    static_obstacles: Sequence[StaticObstacle]
+    sg: RocketGeometry
+    sp: RocketParameters
 
     def on_episode_init(self, init_sim_obs: InitSimObservations):
-        # todo compute a plan
+        """
+        This is the PDM4AR agent.
+        Do *NOT* modify the naming of the existing methods and the input/output types.
+        Feel free to add additional methods, objects and functions that help you to solve the task
+        """
         self.myname = init_sim_obs.my_name
         self.planner = RocketPlanner()
-        cmds_plan, state_traj = self.planner.compute_trajectory()
+        self.sg = init_sim_obs.model_geometry
+        self.sp = init_sim_obs.model_params
+        # compute a plan
+        self.cmds_plan, self.state_traj = self.planner.compute_trajectory()
 
     def get_commands(self, sim_obs: SimObservations) -> RocketCommands:
+        """
+        This method is called by the simulator only at the beginning of each simulation.
+        Do not modify the signature of this method.
+        """
         mystate = sim_obs.players[self.myname].state
         my_realstate = self.state_traj.at_interp(sim_obs.time)
         if mystate - my_realstate > 0.1:

@@ -5,19 +5,17 @@ from dg_commons.seq import DgSampledSequence
 
 class RocketPlanner:
 
-
     def compute_trajectory(self, ) -> (
-        tuple[DgSampledSequence[RocketCommands], DgSampledSequence[RocketState]]
+            tuple[DgSampledSequence[RocketCommands], DgSampledSequence[RocketState]]
     ):
-        
         # TODO all the planning you want
 
         mycmds, mystates = self._extract_seq_from_array()
         return mycmds, mystates
-    
+
     @staticmethod
     def _extract_seq_from_array() -> (
-        tuple[DgSampledSequence[RocketCommands], DgSampledSequence[RocketState]]
+            tuple[DgSampledSequence[RocketCommands], DgSampledSequence[RocketState]]
     ):
         ts = (0, 1, 2, 3, 4)
         # in case my planner returns 3 numpy arrays
@@ -32,4 +30,3 @@ class RocketPlanner:
         states = [RocketState(*v) for v in npstates]
         mystates = DgSampledSequence[RocketState](timestamps=ts, values=states)
         return mycmds, mystates
-        

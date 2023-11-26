@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from decimal import Decimal
+
 from dg_commons.sim import SimTime
-from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.goals import PlanningGoal
+from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.models.rocket import RocketState
 from shapely.geometry.base import BaseGeometry
 
@@ -15,12 +16,13 @@ class RocketTarget(PlanningGoal):
 
     def is_fulfilled(self, state: RocketState, at: SimTime = Decimal(0)) -> bool:
         target_now = self._compute_taget_position_at(at)
-        # TODO implement state within tollerance
+        # TODO implement state within tolerance
         # between target_now and state
 
         return True
 
     def get_plottable_geometry(self) -> BaseGeometry:
+        # TODO based on tolerance calculation (which norm with respect to the nominal state?)
         raise NotImplementedError
 
     def _compute_taget_position_at(self, at: SimTime) -> DynObstacleState:

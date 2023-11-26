@@ -65,8 +65,9 @@ class AvgPlayerMetrics(PerformanceResults):
     def reduce_to_score(self) -> float:
         """Higher is better"""
         score = (self.goal_success_rate - self.collision_rate) * 1e3
-        score -= (self.avg_relative_heading + self.avg_computation_time)* 1e2
-        score -= (self.avg_distance2goal/2 + self.avg_distance_travelled/5 + self.avg_episode_duration/5 + self.avg_actuation_effort) * 1e1
+        score -= (self.avg_relative_heading + self.avg_computation_time) * 1e2
+        score -= (
+                             self.avg_distance2goal / 2 + self.avg_distance_travelled / 5 + self.avg_episode_duration / 5 + self.avg_actuation_effort) * 1e1
         return score
 
 
@@ -98,7 +99,7 @@ def ex09_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         duration = float(states.get_end() - states.get_start())
 
         # distance left to goal
-        last_point = Point(last_state.x,last_state.y)
+        last_point = Point(last_state.x, last_state.y)
         goal_poly: Polygon = sim_context.missions[player_name].goal
         distance2goal = goal_poly.distance(last_point)
 

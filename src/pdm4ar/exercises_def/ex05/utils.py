@@ -1,4 +1,3 @@
-from tkinter import SE
 from typing import List
 import matplotlib
 import matplotlib.pyplot as plt

@@ -28,15 +28,15 @@ planets:
   Namek:
     center: [5.0, 4.0]
     radius: 3.0
-    satellites: []
+    satellites: {}
   Yardrat:
     center: [-5.0, 4.0]
     radius: 3.0
-    satellites: []
+    satellites: {}
   Vampa:
     center: [0.0, 0.0]
     radius: 2.0
-    satellites: []
+    satellites: {}
 
 boundary:
   corners:

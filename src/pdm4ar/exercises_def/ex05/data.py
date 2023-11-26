@@ -1,13 +1,5 @@
-from abc import ABC
-import itertools
-from turtle import circle
-from typing import Tuple, List
-import math
-import numpy as np
-from dg_commons import SE2Transform
-from pdm4ar.exercises.ex05.structures import *
-from pdm4ar.exercises_def.ex05.problem_def import *
 import pdm4ar.exercises.ex05.algo as algo
+from pdm4ar.exercises_def.ex05.problem_def import *
 
 # TBD
 # TODO TBD

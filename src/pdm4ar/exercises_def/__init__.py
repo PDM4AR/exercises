@@ -11,3 +11,4 @@ from .ex05 import *
 from .ex06 import *
 from .ex07 import *
 from .ex08 import *
+from .ex09 import *
