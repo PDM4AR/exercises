@@ -47,7 +47,7 @@ def _parse_planets(
         planets.append(planet)
         for sname, s in p["satellites"].items():
             s, ps = _parse_satellite(
-                    planet, tau=s["tau"], orbit_r=s["orbit_r"], omega=s["omega"]
+                    planet, tau=s["tau"], orbit_r=s["orbit_r"], omega=s["omega"], radius=s["radius"]
             )
             satellites[sname] = s
             satellites_players[sname] = ps
@@ -56,7 +56,7 @@ def _parse_planets(
 
 
 def _parse_satellite(
-        planet: Point, tau: float, orbit_r, omega
+        planet: Point, tau: float, orbit_r, omega, radius
 ) -> tuple[DynObstacleModel, NPAgent]:
     """
     orbit_r:
@@ -70,7 +70,7 @@ def _parse_satellite(
     satellite_1 = DynObstacleState(
             x=x, y=y, psi=curr_psi, vx=omega * orbit_r, vy=0, dpsi=omega
     )
-    satellite_1_shape = Point(0, 0).buffer(1)
+    satellite_1_shape = Point(0, 0).buffer(radius)
     dyn_obstacle = DynObstacleModel(
             satellite_1,
             shape=satellite_1_shape,

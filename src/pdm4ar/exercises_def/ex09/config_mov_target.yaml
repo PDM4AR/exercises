@@ -25,6 +25,7 @@ planets:
         tau: 5.2359
         orbit_r: 7.0
         omega: 0.05454
+        radius: 0.5
 
 boundary:
   corners:
