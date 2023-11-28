@@ -150,7 +150,7 @@ def sim_context_from_yaml(file_path: str):
                     dt=D("0.01"),
                     dt_commands=D("0.1"),
                     sim_time_after_collision=D(4),
-                    max_sim_time=D(10),
+                    max_sim_time=D(30),
             ),
             seed=config["seed"],
             description=file_path.split("/")[-1].split(".")[0],

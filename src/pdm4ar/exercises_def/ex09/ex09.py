@@ -45,7 +45,7 @@ def _ex09_vis(sim_context: SimContext) -> Report:
                          figsize=(16, 16),
                          dt=50,
                          dpi=120,
-                         plot_limits=[[-2, 12], [-2, 12]]
+                         plot_limits=[[-12, 12], [-12, 12]]
                          )
     return r
 

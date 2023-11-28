@@ -1,4 +1,6 @@
 import json
+import pprint
+
 from tqdm import tqdm
 from abc import ABC, abstractmethod
 from pdm4ar.exercises_def import logger
@@ -113,7 +115,7 @@ class ExerciseEvaluator(ABC):
                 exceptions=exceptions,
                 perf_res=agg_perf)
         r.text("OverallPerformance",
-               text=f"{remove_escapes(str(overall_perf))} ")
+               text=pprint.pformat(overall_perf))
 
         # append all reports
         for i, out_res in enumerate(eval_outputs):
