@@ -1,5 +1,5 @@
 agents:
-  PDM4ARocket:
+  PDM4ARocket: # do not change this name
     state:
       x: -8.0
       y: -8.0
@@ -11,7 +11,7 @@ agents:
       phi: 0.0
     goal:
       type: satellite
-      name: Kelbo
+      name: Vegeta/Kelbo
       pos_tolerance: 0.5
       vel_tolerance: 0.5
     color: 'blue'
@@ -35,4 +35,4 @@ boundary:
     - [10.0, -10.0]
     - [-10.0, -10.0]
 
-seed: 98 # probably  redundant
+seed: 98

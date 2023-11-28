@@ -1,5 +1,5 @@
 agents:
-  PDM4ARocket:
+  PDM4ARocket: # do not change this name
     state:
       x: -8.0
       y: -8.0
@@ -66,5 +66,5 @@ boundary:
     - [10.0, -10.0]
     - [-10.0, -10.0]
 
-seed: 98 # probably  redundant
+seed: 98
 

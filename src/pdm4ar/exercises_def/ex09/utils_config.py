@@ -24,7 +24,7 @@ from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
 from pdm4ar.exercises.ex09.agent import RocketAgent
-from pdm4ar.exercises_def.ex09.goal import RocketTarget
+from pdm4ar.exercises_def.ex09.goal import RocketTarget, SatelliteTarget
 
 
 def _load_config(file_path: str) -> dict[str, Any]:
@@ -42,15 +42,16 @@ def _parse_planets(
     satellites = {}
     satellites_players = {}
 
-    for _, p in c["planets"].items():
+    for pn, p in c["planets"].items():
         planet = Point(p["center"]).buffer(p["radius"])
         planets.append(planet)
         for sname, s in p["satellites"].items():
             s, ps = _parse_satellite(
                     planet, tau=s["tau"], orbit_r=s["orbit_r"], omega=s["omega"], radius=s["radius"]
             )
-            satellites[sname] = s
-            satellites_players[sname] = ps
+            satellite_id = pn + "/" + sname
+            satellites[satellite_id] = s
+            satellites_players[satellite_id] = ps
 
     return planets, satellites, satellites_players
 
@@ -109,12 +110,23 @@ def sim_context_from_yaml(file_path: str):
     conf_goal = config["agents"][name]["goal"]
     conf_goal_type = conf_goal["type"]
     if conf_goal_type == "static":
-        x0_target = conf_goal["state"]
+        x0_target = DynObstacleState(**conf_goal["state"])
         goal = RocketTarget(
                 target=x0_target, pos_tol=conf_goal["pos_tolerance"], vel_tol=conf_goal["vel_tolerance"]
         )
     elif conf_goal_type == "satellite":
-        # TODO goal from satellite
+        satellite_name = conf_goal["name"]
+        target_x0 = satellites[satellite_name].get_state()
+        satellite_config = config["planets"][satellite_name.split("/")[0]]["satellites"][
+            satellite_name.split("/")[1]]
+        goal = SatelliteTarget(target=target_x0,
+                               omega=satellite_config["omega"],
+                               tau=satellite_config["tau"],
+                               orbit_r=satellite_config["orbit_r"],
+                               radius=satellite_config["radius"],
+                               pos_tol=conf_goal["pos_tolerance"],
+                               vel_tol=conf_goal["vel_tolerance"],
+                               )
         pass
     else:
         raise ValueError(f"Unrecognized goal type: {conf_goal_type}")
@@ -149,7 +161,7 @@ if __name__ == "__main__":
     from pathlib import Path
     from pprint import pprint
 
-    configs = ["config_planet.yaml", "config_satellites.yaml", ]#"config_mov_target.yaml"]
+    configs = ["config_planet.yaml", "config_satellites.yaml", "config_mov_target.yaml"]
     for c in configs:
         config_file = Path(__file__).parent / c
         config = _load_config(str(config_file))

@@ -1,15 +1,17 @@
+import pprint
 from pathlib import Path
 from typing import Tuple, List, Mapping
 
 import numpy as np
 import yaml
-from dg_commons import fd, PlayerName
+from dg_commons import fd
 from dg_commons.sim.simulator import SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from dg_commons.sim.utils import run_simulation
 from reprep import MIME_MP4, Report
 
 from pdm4ar.exercises_def import Exercise
+from pdm4ar.exercises_def.ex09.perf_metrics import ex09_metrics
 from pdm4ar.exercises_def.ex09.utils_config import sim_context_from_yaml
 
 
@@ -19,16 +21,13 @@ def ex09_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report
     run_simulation(sim_context)
     # visualisation
     report = _ex09_vis(sim_context=sim_context)
-    # TODO metrics
-    score = 1
-    # # compute metrics
-    # avg_player_metrics, players_metrics = ex09_metrics(sim_context)
-    # # report evaluation
-    # score: float = avg_player_metrics.reduce_to_score()
-    # score_str = f"{score:.2f}\n" + str(avg_player_metrics)
-    # r.text("OverallScore: ", score_str)
-    # for pm in players_metrics:
-    #     r.text(f"EpisodeEvaluation-{pm.player_name}", str(pm))
+    # compute metrics
+    avg_player_metrics, _ = ex09_metrics(sim_context)
+    # report evaluation
+    score: float = avg_player_metrics.reduce_to_score()
+    r.text(f"EpisodeEvaluation:", pprint.pformat(avg_player_metrics))
+    score_str = f"{score:.2f}"
+    r.text("OverallScore: ", score_str)
     r.add_child(report)
     return score, r
 
@@ -46,9 +45,8 @@ def _ex09_vis(sim_context: SimContext) -> Report:
                          figsize=(16, 16),
                          dt=50,
                          dpi=120,
-                         plot_limits=PlayerName("PDM4ARocket")
+                         plot_limits=[[-2, 12], [-2, 12]]
                          )
-
     return r
 
 
@@ -60,7 +58,7 @@ def load_config_ex08(file_path: Path) -> Mapping:
 
 def get_exercise09():
     config_dir = Path(__file__).parent
-    configs = ["config_planet.yaml", "config_satellites.yaml", ]  # "config_mov_target.yaml"]
+    configs = ["config_planet.yaml", "config_satellites.yaml", "config_mov_target.yaml"]
 
     test_values: List[SimContext] = []
     for c in configs:

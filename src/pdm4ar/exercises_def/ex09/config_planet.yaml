@@ -1,6 +1,6 @@
 # Test case 1 in pdm4ar_scvxx
 agents:
-  PDM4ARocket:
+  PDM4ARocket: # do not change this name
     color: 'blue'
     state:
       x: -8.0
@@ -30,7 +30,7 @@ planets:
     radius: 3.0
     satellites: {}
   Yardrat:
-    center: [-5.0, 4.0]
+    center: [-5.0, -4.0]
     radius: 3.0
     satellites: {}
   Vampa:
@@ -46,4 +46,4 @@ boundary:
     - [10.0, -10.0]
     - [-10.0, -10.0]
 
-seed: 98 # probably  redundant
+seed: 98
