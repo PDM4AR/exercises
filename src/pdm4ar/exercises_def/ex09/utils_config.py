@@ -75,7 +75,7 @@ def _parse_satellite(
     dyn_obstacle = DynObstacleModel(
             satellite_1,
             shape=satellite_1_shape,
-            og=ObstacleGeometry(m=5, Iz=50, e=0.5),
+            og=ObstacleGeometry(m=500, Iz=50, e=0.5),
             op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
     )
     centripetal_acc = omega ** 2 * orbit_r
@@ -103,8 +103,8 @@ def sim_context_from_yaml(file_path: str):
     planets, satellites, satellites_npagents = _parse_planets(config)
     env_limits = LineString(config["boundary"]["corners"])
     planets.append(env_limits)
-
-    static_obstacles: list[StaticObstacle] = [StaticObstacle(shape=s) for s in planets]
+    obsgeo = ObstacleGeometry.default_static(color="saddlebrown")
+    static_obstacles: list[StaticObstacle] = [StaticObstacle(shape=s, geometry=obsgeo) for s in planets]
 
     # load goal
     conf_goal = config["agents"][name]["goal"]
@@ -119,6 +119,11 @@ def sim_context_from_yaml(file_path: str):
         target_x0 = satellites[satellite_name].get_state()
         satellite_config = config["planets"][satellite_name.split("/")[0]]["satellites"][
             satellite_name.split("/")[1]]
+        d_shift = satellite_config["radius"] + conf_goal["pos_tolerance"]
+        x_shift = cos(satellite_config["tau"]) * d_shift
+        y_shift = sin(satellite_config["tau"]) * d_shift
+        state_shift: DynObstacleState = DynObstacleState(x=x_shift, y=y_shift, psi=0, vx=0, vy=0, dpsi=0)
+        target_x0 += state_shift
         goal = SatelliteTarget(target=target_x0,
                                omega=satellite_config["omega"],
                                tau=satellite_config["tau"],
@@ -127,7 +132,8 @@ def sim_context_from_yaml(file_path: str):
                                pos_tol=conf_goal["pos_tolerance"],
                                vel_tol=conf_goal["vel_tolerance"],
                                )
-        pass
+
+
     else:
         raise ValueError(f"Unrecognized goal type: {conf_goal_type}")
     missions = {playername: goal}
