@@ -8,11 +8,6 @@ class RocketPlanner:
         self,
     ) -> tuple[DgSampledSequence[RocketCommands], DgSampledSequence[RocketState]]:
         # TODO all the planning you want
-        start = 
-
-        
-
-        all_X_bar, all_U_bar, all_p_bar, converged, error = problem.successive_convexification()
 
         mycmds, mystates = self._extract_seq_from_array()
         return mycmds, mystates
