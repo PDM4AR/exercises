@@ -48,7 +48,7 @@ class SatelliteTarget(RocketTarget):
     tau: float
     orbit_r: float
     radius: float
-    offset: float
+    offset_r: float
 
     def is_fulfilled(self, state: RocketState, at: SimTime = Decimal(0)) -> bool:
         target_at = self._get_target_state_at(at)
@@ -60,17 +60,54 @@ class SatelliteTarget(RocketTarget):
         return goal_shape
 
     def _get_target_state_at(self, at: SimTime) -> DynObstacleState:
-        # todo verify correctness
         at_float = float(at)
-        cos_omega_t = self.orbit_r * cos(self.omega * at_float + self.tau)
-        sin_omega_t = self.orbit_r * sin(self.omega * at_float + self.tau)
-        x = self.target.x + cos_omega_t
-        y = self.target.y + sin_omega_t
-        vx = -self.omega * cos_omega_t
-        vy = self.omega * sin_omega_t
-        psi = np.arctan2(vy, vx)
+        cos_omega_t = (self.orbit_r + self.offset_r) * cos(self.omega * at_float + self.tau)
+        sin_omega_t = (self.orbit_r + self.offset_r) * sin(self.omega * at_float + self.tau)
+        x = cos_omega_t + self.planet_x
+        y = sin_omega_t + self.planet_y
+        v = self.omega * self.orbit_r
+        psi = np.pi/2 + np.arctan2(sin_omega_t, cos_omega_t)
+        vx = v*cos(psi)
+        vy = v*sin(psi)
+
         return DynObstacleState(x=x, y=y, psi=psi, vx=vx, vy=vy, dpsi=self.omega)
     
 
 if __name__ == '__main__':
+    # verify get_target_state_at
+    import matplotlib.pyplot as plt
+    
+    # setup
+    planet_x = 0.0
+    planet_y = 0.0
+
+    tau = 5.2359
+    orbit_r = 7.0
+    omega = 0.05454
+    radius = 0.5
+    offset_r = 0.7
+
+    target = SatelliteTarget(planet_x, planet_y, omega, tau, orbit_r, radius, offset_r)
+
+    times = np.linspace(0, 20, 100)
+
+    # use SimTime
+
+    positions = []
+    for time in times:
+        positions.append(target._get_target_state_at(time))
+
+    x = positions.x
+    y = positions.y
+    vx = positions.vx
+    vy = positions.vy
+    
+    plt.plot(planet_x, planet_y, 'o')
+    plt.plot(x, y, 'x')
+    for x in positions.x:
+        plt.plot([x, x+vx], [y, y+vy])
+    
     pass ###
+
+# change _get_target_state_at
+# increase tolerance
