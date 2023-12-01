@@ -8,7 +8,6 @@ class RocketPlanner:
         self,
     ) -> tuple[DgSampledSequence[RocketCommands], DgSampledSequence[RocketState]]:
         # TODO all the planning you want
-
         mycmds, mystates = self._extract_seq_from_array()
         return mycmds, mystates
 

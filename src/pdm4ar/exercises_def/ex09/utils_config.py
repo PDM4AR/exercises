@@ -1,7 +1,7 @@
 from decimal import Decimal as D
 from math import cos, sin, pi
 from typing import Any
-import deepcopy
+from copy import deepcopy
 
 import yaml
 from dg_commons import PlayerName, DgSampledSequence
@@ -40,11 +40,15 @@ def _parse_planets(
     list[BaseGeometry], dict[PlayerName, DynObstacleModel], dict[PlayerName, NPAgent]
 ]:
     planets = []
+    planet_params = {}
     satellites = {}
     satellites_players = {}
 
     for pn, p in c["planets"].items():
         planet = Point(p["center"]).buffer(p["radius"])
+        
+        planet_params[pn]= [p["center"], p["radius"]]
+
         planets.append(planet)
         for sname, s in p["satellites"].items():
             s, ps = _parse_satellite(
@@ -54,7 +58,7 @@ def _parse_planets(
             satellites[satellite_id] = s
             satellites_players[satellite_id] = ps
 
-    return planets, satellites, satellites_players
+    return planets, planet_params, satellites, satellites_players
 
 
 def _parse_satellite(
@@ -69,8 +73,10 @@ def _parse_satellite(
     y = planet.centroid.y + orbit_r * sin(tau)
     curr_psi = pi / 2 + arctan2(y - planet.centroid.y, x - planet.centroid.x)
 
+    v = omega * orbit_r
+
     satellite_1 = DynObstacleState(
-            x=x, y=y, psi=curr_psi, vx=omega * orbit_r, vy=0, dpsi=omega
+            x=x, y=y, psi=curr_psi, vx=v, vy=0, dpsi=omega
     )
     satellite_1_shape = Point(0, 0).buffer(radius)
     dyn_obstacle = DynObstacleModel(
@@ -101,7 +107,7 @@ def sim_context_from_yaml(file_path: str):
     x0 = RocketState(**config["agents"][name]["state"])
 
     # obstacles (planets + satellites)
-    planets, satellites, satellites_npagents = _parse_planets(config)
+    planets, planet_params, satellites, satellites_npagents = _parse_planets(config)
     env_limits = LineString(config["boundary"]["corners"])
     planets.append(env_limits)
     obsgeo = ObstacleGeometry.default_static(color="saddlebrown")
@@ -149,7 +155,7 @@ def sim_context_from_yaml(file_path: str):
     missions = {playername: goal}
 
     # models & players
-    players = {playername: RocketAgent(satellites=deepcopy(satellites), planets=deepcopy(planets))} # pass as deepcopy, add information about the satellites
+    players = {playername: RocketAgent(satellites=deepcopy(satellites), planets=deepcopy(planet_params))} # pass as deepcopy, add information about the satellites
     # for p,s in satellites.items():
     #     models[p] = deepcopy(s)
 
@@ -169,7 +175,7 @@ def sim_context_from_yaml(file_path: str):
                     dt=D("0.01"),
                     dt_commands=D("0.1"),
                     sim_time_after_collision=D(4),
-                    max_sim_time=D(30),
+                    max_sim_time=D(5),
             ),
             seed=config["seed"],
             description=file_path.split("/")[-1].split(".")[0],

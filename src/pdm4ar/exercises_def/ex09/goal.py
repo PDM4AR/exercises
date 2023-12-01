@@ -67,47 +67,69 @@ class SatelliteTarget(RocketTarget):
         y = sin_omega_t + self.planet_y
         v = self.omega * self.orbit_r
         psi = np.pi/2 + np.arctan2(sin_omega_t, cos_omega_t)
-        vx = v*cos(psi)
-        vy = v*sin(psi)
+        # vx = v*cos(psi)
+        # vy = v*sin(psi)
 
-        return DynObstacleState(x=x, y=y, psi=psi, vx=vx, vy=vy, dpsi=self.omega)
+        return DynObstacleState(x=x, y=y, psi=psi, vx=v, vy=0, dpsi=self.omega)
     
 
 if __name__ == '__main__':
     # verify get_target_state_at
     import matplotlib.pyplot as plt
+
+    planet_x = 2.0
+    planet_y = 1.0
+
+    satellite_orbit_r = 7.0
+    satellite_tau = 5.2359
+    satellite_radius = 0.5
+    satellite_omega = 0.05454
     
-    # setup
-    planet_x = 0.0
-    planet_y = 0.0
+    target_offset_r = 0.7
 
-    tau = 5.2359
-    orbit_r = 7.0
-    omega = 0.05454
-    radius = 0.5
-    offset_r = 0.7
+    satellite_x0 = planet_x + (satellite_orbit_r) * cos(satellite_omega * planet_x + satellite_tau)
+    satellite_y0 = planet_y + (satellite_orbit_r) * sin(satellite_omega * planet_y + satellite_tau)
+    satellite_psi0 = np.pi/2 + np.arctan2(satellite_y0, satellite_x0)
+    satellite_v0 = satellite_omega * satellite_orbit_r
+    satellite_vx0 = satellite_v0*cos(satellite_psi0)
+    satellite_vy0 = satellite_v0*sin(satellite_psi0)
+    
+    target0 = DynObstacleState(x=satellite_x0, y=satellite_y0, psi=satellite_psi0, vx=satellite_vx0, vy=satellite_vy0, dpsi=satellite_omega)
 
-    target = SatelliteTarget(planet_x, planet_y, omega, tau, orbit_r, radius, offset_r)
+    pos_tol, vel_tol = 0.7, 0.7
 
-    times = np.linspace(0, 20, 100)
+    target = SatelliteTarget(target0, pos_tol, vel_tol, planet_x, planet_y, satellite_omega, satellite_tau, satellite_orbit_r, satellite_radius, target_offset_r)
 
-    # use SimTime
+    times = np.linspace(0, 200, 100)
 
-    positions = []
+    print(target0.__dict__)
+    print(target._get_target_state_at(0).__dict__)
+
+    # make square figure and axes
+    plt.figure(figsize=(6,6))
+
+    xs = []
+    ys = []
+    vxs = []
+    vys = []
     for time in times:
-        positions.append(target._get_target_state_at(time))
-
-    x = positions.x
-    y = positions.y
-    vx = positions.vx
-    vy = positions.vy
+        new_target = target._get_target_state_at(time)
+        xs.append(new_target.x)
+        ys.append(new_target.y)
+        vxs.append(new_target.vx)
+        vys.append(new_target.vy)
     
     plt.plot(planet_x, planet_y, 'o')
-    plt.plot(x, y, 'x')
-    for x in positions.x:
-        plt.plot([x, x+vx], [y, y+vy])
+    plt.plot(xs, ys, 'x')
+    for i,x in enumerate(xs):
+        plt.plot([x, x+vxs[i]], [ys[i], ys[i]+vys[i]], 'k-')
+
+    dist = np.sqrt((np.array(xs) - planet_x)**2 + (np.array(ys) - planet_y)**2)
+    print(dist)
+
+    plt.show()
     
-    pass ###
+    pass
 
 # change _get_target_state_at
-# increase tolerance
+# increase tolerance also in private ones

@@ -10,7 +10,7 @@ from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.models.rocket import RocketCommands, RocketState
 from dg_commons.sim.models.rocket_structures import RocketGeometry, RocketParameters
 
-from .planner import RocketPlanner
+from pdm4ar.exercises.ex09.planner import RocketPlanner
 
 
 @dataclass(frozen=True)
@@ -29,10 +29,9 @@ class RocketAgent(Agent):
     sg: RocketGeometry
     sp: RocketParameters
 
-    def __init__(self, satellites, planets, params: Pdm4arAgentParams):
+    def __init__(self, satellites, planets):
         self.satellites = satellites
         self.planets =  planets
-        self.params = params # modify
 
     def on_episode_init(self, init_sim_obs: InitSimObservations):
         """
@@ -44,7 +43,7 @@ class RocketAgent(Agent):
         self.planner = RocketPlanner()
         self.sg = init_sim_obs.model_geometry
         self.sp = init_sim_obs.model_params
-        
+
         # compute a plan
         self.cmds_plan, self.state_traj = self.planner.compute_trajectory()
 
