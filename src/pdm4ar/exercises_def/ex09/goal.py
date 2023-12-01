@@ -42,10 +42,13 @@ class RocketTarget(PlanningGoal):
 
 @dataclass(frozen=True)
 class SatelliteTarget(RocketTarget):
+    planet_x: float
+    planet_y: float
     omega: float
     tau: float
     orbit_r: float
     radius: float
+    offset: float
 
     def is_fulfilled(self, state: RocketState, at: SimTime = Decimal(0)) -> bool:
         target_at = self._get_target_state_at(at)
@@ -67,3 +70,7 @@ class SatelliteTarget(RocketTarget):
         vy = self.omega * sin_omega_t
         psi = np.arctan2(vy, vx)
         return DynObstacleState(x=x, y=y, psi=psi, vx=vx, vy=vy, dpsi=self.omega)
+    
+
+if __name__ == '__main__':
+    pass ###

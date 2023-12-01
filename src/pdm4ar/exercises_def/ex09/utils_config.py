@@ -117,11 +117,16 @@ def sim_context_from_yaml(file_path: str):
     elif conf_goal_type == "satellite":
         satellite_name = conf_goal["name"]
         target_x0 = satellites[satellite_name].get_state()
+
+        planetx = config["planets"][satellite_name.split("/")[0]]["center"][0]
+        planety = config["planets"][satellite_name.split("/")[0]]["center"][1]
+
         satellite_config = config["planets"][satellite_name.split("/")[0]]["satellites"][
             satellite_name.split("/")[1]]
         d_shift = satellite_config["radius"] + conf_goal["pos_tolerance"]
         x_shift = cos(satellite_config["tau"]) * d_shift
-        y_shift = sin(satellite_config["tau"]) * d_shift
+        y_shift = sin(satellite_config["tau"]) * d_shift # slightly increase tolerance
+
         state_shift: DynObstacleState = DynObstacleState(x=x_shift, y=y_shift, psi=0, vx=0, vy=0, dpsi=0)
         target_x0 += state_shift
         goal = SatelliteTarget(target=target_x0,
@@ -131,7 +136,7 @@ def sim_context_from_yaml(file_path: str):
                                radius=satellite_config["radius"],
                                pos_tol=conf_goal["pos_tolerance"],
                                vel_tol=conf_goal["vel_tolerance"],
-                               )
+                               ) # change this
 
 
     else:
@@ -139,7 +144,7 @@ def sim_context_from_yaml(file_path: str):
     missions = {playername: goal}
 
     # models & players
-    players = {playername: RocketAgent()}
+    players = {playername: RocketAgent()} # pass as deepcopy, add information about the satellites
     models = {playername: RocketModel.default(x0)}
     for p, s in satellites.items():
         models[p] = s
@@ -148,7 +153,7 @@ def sim_context_from_yaml(file_path: str):
         players[p] = sagent
 
     return SimContext(
-            dg_scenario=DgScenario(static_obstacles=static_obstacles),
+            dg_scenario=DgScenario(static_obstacles=static_obstacles), # need satellites
             models=models,
             players=players,
             missions=missions,
