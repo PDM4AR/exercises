@@ -44,15 +44,6 @@ class RocketAgent(Agent):
         self.planner = RocketPlanner()
         self.sg = init_sim_obs.model_geometry
         self.sp = init_sim_obs.model_params
-       
-        # given x0
-        # either given goal.x0_target
-        # or given goal
-
-        # agent = Rocket(x0=x0, x1=x1)
-        # planets = planets_test_case(case=TEST_CASE, agent=agent)
-        # map = Map(planets=planets)
-        # problem = SCProblem(agent=agent, map=map)
         
         # compute a plan
         self.cmds_plan, self.state_traj = self.planner.compute_trajectory()
