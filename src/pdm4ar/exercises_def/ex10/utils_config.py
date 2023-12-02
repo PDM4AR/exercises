@@ -1,9 +1,17 @@
+from decimal import Decimal as D
 from typing import Any
 
 import yaml
-from dg_commons import PlayerName
-from dg_commons.sim.goals import PlanningGoal
+from dg_commons.sim import SimParameters
+from dg_commons.sim.goals import PolygonGoal
+from dg_commons.sim.models.diff_drive import DiffDriveModel, DiffDriveState
+from dg_commons.sim.models.diff_drive_structures import DiffDriveGeometry, DiffDriveParameters
+from dg_commons.sim.models.obstacles import StaticObstacle
+from dg_commons.sim.scenarios import DgScenario
 from dg_commons.sim.simulator import SimContext
+from shapely import Polygon, LinearRing
+
+from pdm4ar.exercises.ex10.agent import Pdm4arAgent
 
 
 def _load_config(file_path: str) -> dict[str, Any]:
@@ -12,47 +20,52 @@ def _load_config(file_path: str) -> dict[str, Any]:
     return config
 
 
-def get_sim_context(config_dict: Mapping, seed: Optional[int] = None, config_name: str = "") -> SimContext:
-    dgscenario = get_dgscenario(config_dict, seed)
-    simcontext = _get_empty_sim_context(dgscenario)
-    simcontext.description = f"Environment-{config_name}"
+def sim_context_from_yaml(file_path: str):
+    config = _load_config(file_path=file_path)
 
-    _, gates = build_road_boundary_obstacle(simcontext.dg_scenario.scenario)
+    #  obstacles
+    shapes = list(map(Polygon, config["static_obstacles"]))
+    obstacles = list(map(StaticObstacle, shapes))
+    boundary = [StaticObstacle(LinearRing(config["boundary"])), ]
+    static_obstacles = obstacles + boundary
 
-    # add embodied clones of the nominal agent
-    agents_dict = config_dict["agents"]
-    for pn in agents_dict.keys():
-        player_name = PlayerName(pn)
-        x0 = DiffDriveState(**agents_dict[pn]["state"])
-        goal_n = agents_dict[pn]["goal"]
-        goal = PolygonGoal(gates[goal_n].buffer(1))
-        color = agents_dict[pn]["color"]
-        _add_player(simcontext, x0, player_name, goal=goal, color=color)
-    return simcontext
-
-
-def _add_player(simcontext: SimContext, x0: DiffDriveState, new_name: PlayerName, goal: PlanningGoal,
-                color: str = "royalblue"):
-    model = DiffDriveModel(x0=x0, vg=DiffDriveGeometry.default(color=color), vp=DiffDriveParameters.default_car())
-
-    new_models: Dict[PlayerName, DiffDriveModel] = {new_name: model}
-    new_players = {new_name: Pdm4arAgent(
-            sg=deepcopy(model.model_geometry),
-            sp=deepcopy(model.model_params)
+    # add agents
+    agents_dict = config["agents"]
+    players, models, missions = {}, {}, {}
+    for pn, p_attr in agents_dict.items():
+        x0 = DiffDriveState(**p_attr["state"])
+        color = p_attr["color"]
+        model = DiffDriveModel(
+                x0=x0,
+                vg=DiffDriveGeometry.default(color=color),
+                vp=DiffDriveParameters.default())
+        models[pn] = model
+        player = Pdm4arAgent()
+        players[pn] = player
+        goal = PolygonGoal(Polygon(p_attr["goal"]))
+        missions[pn] = goal
+    # todo sensors 2dlidar
+    return SimContext(
+            dg_scenario=DgScenario(static_obstacles=static_obstacles),
+            models=models,
+            players=players,
+            missions=missions,
+            param=SimParameters(
+                    dt=D("0.01"),
+                    dt_commands=D("0.1"),
+                    sim_time_after_collision=D(4),
+                    max_sim_time=D(5),
+            ),
+            seed=config["seed"],
+            description=file_path.split("/")[-1].split(".")[0],
     )
-    }
-    # update
-    simcontext.models.update(new_models)
-    simcontext.players.update(new_players)
-    simcontext.missions[new_name] = goal
-    return
 
 
 if __name__ == "__main__":
     from pathlib import Path
     from pprint import pprint
 
-    configs = ["config_planet.yaml", "config_satellites.yaml", "config_mov_target.yaml"]
+    configs = ["config_1.yaml", "config_2.yaml"]
     for c in configs:
         config_file = Path(__file__).parent / c
         config = _load_config(str(config_file))
