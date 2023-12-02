@@ -1,0 +1,53 @@
+agents:
+  PDM4AR_1:
+    state:
+      x: -20
+      y: -40
+      psi: 1
+    goal: 16
+    color: 'red'
+  PDM4AR_2:
+    state:
+      x: -20
+      y: -40
+      psi: 1
+    goal: 16
+    color: 'green'
+  PDM4AR_3:
+    state:
+      x: -20
+      y: -40
+      psi: 1
+    goal: 16
+    color: 'blue'
+  PDM4AR_4:
+    state:
+      x: -20
+      y: -40
+      psi: 1
+    goal: 16
+    color: 'saddlebrown'
+
+static_obstacles:
+  centers:
+    - [-5, 10]
+    - [-30, -20]
+    - [-10, -15]
+    - [-22, 0]
+    - [10, 60]
+    - [20, 45]
+    - [7, 15]
+  avg_radius: 2
+  irregularity: 0.3
+  spikiness: 0.5
+  n_vertices: 10
+
+boundary:
+  corners:
+    - [-11, -11]
+    - [-11, 11]
+    - [11, 11]
+    - [11, -11]
+    - [-11, -11]
+
+seed: 98
