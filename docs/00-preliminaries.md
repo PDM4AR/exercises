@@ -73,7 +73,7 @@ Instructions on the group forming modality are provided via Piazza.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes** | **Deadline status** | Available Submissions |
 |-----------------|-----------|----------------------|-----------------------|---------------------|-----------------------|
-| 09              | Rocket's trajectory generation   | 1st of December       | 22nd of December (23:59 CET)   | TENTATIVE | 15 |
+| 09              | Rocket's trajectory generation   | 10th of December      | 10th of January (23:59 CET)   | TENTATIVE | 15 |
 | 10              | Robot Runners                    | 6th of December       | 10th of January (23:59 CET)    | CONFIRMED | 15 |
 
 #### **Extra** exercises from previous years, not graded.
