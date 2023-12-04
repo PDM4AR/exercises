@@ -60,8 +60,10 @@ class AvgPlayerMetrics(PerformanceResults):
         """Higher is better"""
         score = (self.goal_success_rate - self.collision_rate) * 1e3
         score -= self.avg_computation_time * 1e2
-        score -= (
-                         self.avg_distance2goal / 2 + self.avg_distance_travelled / 5 + self.avg_episode_duration / 5 + self.avg_actuation_effort) * 1e1
+        score -= (self.avg_distance2goal / 2 +
+                  self.avg_distance_travelled / 10 +
+                  self.avg_episode_duration / 5 +
+                  self.avg_actuation_effort/2 ) * 1e1
         return score
 
 

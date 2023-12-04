@@ -22,12 +22,13 @@ def find_exercise(exercise: str, evaluation_mode=False) -> Exercise:
             raise ZValueError(f"Cannot find {exercise!r}", available=set(available_exercises))
         return available_exercises[exercise]()
 
+
 def run_exercise(exercise: str, evaluation_mode=False):
     ex: Exercise = find_exercise(exercise, evaluation_mode)
     evaluator = ExerciseEvaluator(exercise=ex)
 
     out_main = out_dir(exercise)
-    logging.getLogger("reprep").setLevel(logging.WARNING)   # suppress annoying messages from reprep
+    logging.getLogger("reprep").setLevel(logging.WARNING)  # suppress annoying messages from reprep
 
     total = len(ex.test_values)
     # for i, alg_in in enumerate(tqdm(ex.test_values)):
@@ -50,5 +51,4 @@ def _setup_args():
 if __name__ == "__main__":
     contracts.disable_all()
     args = _setup_args()
-    #run_exercise(exercise=args.exercise, evaluation_mode=args.evaluate)
-    run_exercise(exercise="10", evaluation_mode=args.evaluate)
+    run_exercise(exercise=args.exercise, evaluation_mode=args.evaluate)

@@ -43,16 +43,17 @@ def sim_context_from_yaml(file_path: str):
         model = DiffDriveModel(
                 x0=x0,
                 vg=DiffDriveGeometry.default(color=color),
-                vp=DiffDriveParameters.default())
+                vp=DiffDriveParameters.default(omega_limits=(-10, 10))
+        )
         models[pn] = model
         player = Pdm4arAgent()
         players[pn] = player
         goal_poly = Point(p_attr["goal"]).buffer(p_attr["goal_radius"])
         goal = PolygonGoal(goal_poly)
         missions[pn] = goal
-    # sensing
-    lidar2d = VisRangeSensor(range=30)
-    sensors: dict[PlayerName, ObsFilter] = defaultdict(lambda: FovObsFilter(deepcopy(lidar2d)))
+        # sensing
+        lidar2d = VisRangeSensor(range=30)
+        sensors: dict[PlayerName, ObsFilter] = defaultdict(lambda: FovObsFilter(deepcopy(lidar2d)))
     return SimContext(
             dg_scenario=DgScenario(static_obstacles=static_obstacles),
             models=models,
@@ -62,24 +63,24 @@ def sim_context_from_yaml(file_path: str):
             param=SimParameters(
                     dt=D("0.01"),
                     dt_commands=D("0.1"),
-                    sim_time_after_collision=D(4),
-                    max_sim_time=D(5),
+                    sim_time_after_collision=D(3),
+                    max_sim_time=D(90),
             ),
             seed=config["seed"],
             description=file_path.split("/")[-1].split(".")[0],
     )
 
 
-if __name__ == "__main__":
-    from pathlib import Path
-    from pprint import pprint
-
-    configs = ["config_1.yaml", ]  # "config_2.yaml"]
-    for c in configs:
-        config_file = Path(__file__).parent / c
-        config = _load_config(str(config_file))
-        pprint(config)
-
-        # test actual sim context creation
-        sim_context = sim_context_from_yaml(str(config_file))
-        pprint(sim_context)
+# if __name__ == "__main__":
+#     from pathlib import Path
+#     from pprint import pprint
+#
+#     configs = ["config_1.yaml", "config_2.yaml"]
+#     for c in configs:
+#         config_file = Path(__file__).parent / c
+#         config = _load_config(str(config_file))
+#         pprint(config)
+#
+#         # test actual sim context creation
+#         sim_context = sim_context_from_yaml(str(config_file))
+#         pprint(sim_context)

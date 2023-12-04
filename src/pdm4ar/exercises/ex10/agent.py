@@ -1,5 +1,5 @@
-import random
 from dataclasses import dataclass
+import random
 from typing import Sequence
 
 from dg_commons import PlayerName
@@ -13,7 +13,7 @@ from dg_commons.sim.models.obstacles import StaticObstacle
 
 @dataclass(frozen=True)
 class Pdm4arAgentParams:
-    param1: float = 0.2
+    param1: float = 10
 
 
 class Pdm4arAgent(Agent):
@@ -48,7 +48,7 @@ class Pdm4arAgent(Agent):
         :return:
         """
 
-        # todo implement here some better planning
+        # todo implement here your planning stack
         omega1 = random.random() * self.params.param1
         omega2 = random.random() * self.params.param1
 
