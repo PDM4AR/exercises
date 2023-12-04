@@ -15,3 +15,4 @@ Welcome to PDM4AR programming exercises for autonomous robots :airplane: :helico
 * [Collision Checking](06-collisionchecking.md)
 * [Optimization](07-optimization.md)
 * [Driving Games](08-driving_games.md)
+* [Robot Runners](10-robot_runners.md)
