@@ -1,23 +1,28 @@
+from collections import defaultdict
+from copy import deepcopy
 from decimal import Decimal as D
-from typing import Any
+from typing import Any, Mapping
 
 import yaml
+from dg_commons import PlayerName, fd
+from dg_commons.perception.sensor import VisRangeSensor
 from dg_commons.sim import SimParameters
 from dg_commons.sim.goals import PolygonGoal
 from dg_commons.sim.models.diff_drive import DiffDriveModel, DiffDriveState
 from dg_commons.sim.models.diff_drive_structures import DiffDriveGeometry, DiffDriveParameters
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.scenarios import DgScenario
+from dg_commons.sim.sim_perception import ObsFilter, FovObsFilter
 from dg_commons.sim.simulator import SimContext
-from shapely import Polygon, LinearRing
+from shapely import Polygon, LinearRing, Point
 
 from pdm4ar.exercises.ex10.agent import Pdm4arAgent
 
 
-def _load_config(file_path: str) -> dict[str, Any]:
+def _load_config(file_path: str) -> Mapping[str, Any]:
     with open(file_path, "r") as file:
         config: dict[str, Any] = yaml.safe_load(file)
-    return config
+    return fd(config)
 
 
 def sim_context_from_yaml(file_path: str):
@@ -42,14 +47,18 @@ def sim_context_from_yaml(file_path: str):
         models[pn] = model
         player = Pdm4arAgent()
         players[pn] = player
-        goal = PolygonGoal(Polygon(p_attr["goal"]))
+        goal_poly = Point(p_attr["goal"]).buffer(p_attr["goal_radius"])
+        goal = PolygonGoal(goal_poly)
         missions[pn] = goal
-    # todo sensors 2dlidar
+    # sensing
+    lidar2d = VisRangeSensor(range=30)
+    sensors: dict[PlayerName, ObsFilter] = defaultdict(lambda: FovObsFilter(deepcopy(lidar2d)))
     return SimContext(
             dg_scenario=DgScenario(static_obstacles=static_obstacles),
             models=models,
             players=players,
             missions=missions,
+            sensors=sensors,
             param=SimParameters(
                     dt=D("0.01"),
                     dt_commands=D("0.1"),
@@ -65,7 +74,7 @@ if __name__ == "__main__":
     from pathlib import Path
     from pprint import pprint
 
-    configs = ["config_1.yaml", "config_2.yaml"]
+    configs = ["config_1.yaml", ]  # "config_2.yaml"]
     for c in configs:
         config_file = Path(__file__).parent / c
         config = _load_config(str(config_file))

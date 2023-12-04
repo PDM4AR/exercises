@@ -6,6 +6,8 @@ from dg_commons import PlayerName
 from dg_commons.sim import SimObservations, InitSimObservations
 from dg_commons.sim.agents import Agent
 from dg_commons.sim.goals import PlanningGoal
+from dg_commons.sim.models.diff_drive import DiffDriveCommands
+from dg_commons.sim.models.diff_drive_structures import DiffDriveGeometry, DiffDriveParameters
 from dg_commons.sim.models.obstacles import StaticObstacle
 
 

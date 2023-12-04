@@ -1,3 +1,4 @@
+import pprint
 from pathlib import Path
 from typing import Tuple, List, Mapping
 
@@ -10,7 +11,7 @@ from reprep import MIME_MP4, Report
 
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex10.perf_metrics import ex10_metrics
-from pdm4ar.exercises_def.ex10.sim_context import get_sim_context
+from pdm4ar.exercises_def.ex10.utils_config import sim_context_from_yaml
 
 
 def ex10_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
@@ -24,10 +25,10 @@ def ex10_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report
     avg_player_metrics, players_metrics = ex10_metrics(sim_context)
     # report evaluation
     score: float = avg_player_metrics.reduce_to_score()
-    score_str = f"{score:.2f}\n" + str(avg_player_metrics)
+    score_str = f"{score:.2f}\n" + pprint.pformat(avg_player_metrics)
     r.text("OverallScore: ", score_str)
     for pm in players_metrics:
-        r.text(f"EpisodeEvaluation-{pm.player_name}", str(pm))
+        r.text(f"EpisodeEvaluation-{pm.player_name}", pprint.pformat(pm))
     r.add_child(report)
     return score, r
 
@@ -44,26 +45,19 @@ def _ex10_vis(sim_context: SimContext) -> Report:
                          sim_context=sim_context,
                          figsize=(16, 16),
                          dt=50,
-                         dpi=120
+                         dpi=120,
+                         plot_limits=[[-12, 12], [-12, 12]] # make sure this is aligned with boundaries
                          )
 
     return r
 
 
-def load_config_ex10(file_path: Path)->Mapping:
-    with open(str(file_path)) as f:
-        config_dict = yaml.safe_load(f)
-    return fd(config_dict)
-
-
 def get_exercise10():
     config_dir = Path(__file__).parent
     name_1, name_2 = "config_1.yaml", "config_2.yaml"
-    config_dict_1 = load_config_ex10(config_dir / name_1)
-    config_dict_2 = load_config_ex10(config_dir / name_2)
     test_values: List[SimContext] = [
-        get_sim_context(config_dict_1, config_dict_1["seed"], config_name=name_1),
-        get_sim_context(config_dict_2, config_dict_2["seed"], config_name=name_2)
+        sim_context_from_yaml(str(config_dir / name_1)),
+        sim_context_from_yaml(str(config_dir / name_2))
     ]
 
     return Exercise[SimContext, None](

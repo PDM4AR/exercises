@@ -26,7 +26,8 @@ decorator
 triangle==20230923
 
 # dg
-git+ssh://git@github.com/idsc-frazzoli/dg-commons.git@fix/tvgoals
+# git+ssh://git@github.com/idsc-frazzoli/dg-commons.git@68fa4b6c5c0a679b07b36cbad85e09f41dcee8e7
+dg-commons==0.0.37
 
 # mpc
 do-mpc==4.6.0
