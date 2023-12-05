@@ -100,7 +100,7 @@ def ex09_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         if isinstance(goal, RocketTarget):
             goal_poly: Point = Point(goal.target.x, goal.target.y)
         elif isinstance(goal, SatelliteTarget):
-            end_target_state = goal._get_target_state_at(states.get_end())
+            end_target_state = goal.get_target_state_at(states.get_end())
             goal_poly: Point = Point(end_target_state.x, end_target_state.y)
         else:
             raise RuntimeError
