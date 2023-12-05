@@ -157,6 +157,25 @@
             "justMyCode": true
         },
         {
+            "name": "Exercise09 - Run",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": ["--exercise", "09"],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "noDebug": true
+        },
+        {
+            "name": "Exercise09 - Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": ["--exercise", "09"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Exercise10 - Run",
             "type": "python",
             "request": "launch",

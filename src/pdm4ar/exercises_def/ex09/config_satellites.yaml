@@ -1,0 +1,70 @@
+agents:
+  PDM4ARocket: # do not change this name
+    state:
+      x: -8.0
+      y: -8.0
+      psi: 3.141592653589793
+      m: 2.1
+      vx: 0.0
+      vy: 0.0
+      dpsi: 0.0
+      phi: 0.0
+    goal:
+      type: static
+      state: 
+        x: 8.0
+        y: 8.0
+        psi: 0.0
+        vx: 0.0
+        vy: 0.0
+        dpsi: 0.0
+      pos_tolerance: 0.5
+      vel_tolerance: 0.5
+    color: 'blue'
+
+planets:
+  Namek:
+    center: [0.0, 0.0]
+    radius: 3.0
+    satellites:
+      Moon:
+        tau: 5.23599
+        orbit_r: 4.0
+        omega: 0.69877
+        radius: 0.1
+      Roh-Kaio:
+        tau: 2.0944
+        orbit_r: 5.0
+        omega: 0.4
+        radius: 0.1
+      Cereal:
+        tau: 0.0
+        orbit_r: 6.0
+        omega: 0.25358
+        radius: 0.5
+      Beehay:
+        tau: 3.14159
+        orbit_r: 7.0
+        omega: 0.17248
+        radius: 0.6
+      Anoyo:
+        tau: 1.5708
+        orbit_r: 8.0
+        omega: 0.12353
+        radius: 0.8
+      Zun:
+        tau: 4.71239
+        orbit_r: 9.0
+        omega: 0.09202
+        radius: 1.0
+
+boundary:
+  corners:
+    - [-11, -11]
+    - [-11, 11]
+    - [11, 11]
+    - [11, -11]
+    - [-11, -11]
+
+seed: 98
+
