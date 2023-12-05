@@ -35,8 +35,7 @@ class RocketTarget(PlanningGoal):
     def _is_fulfilled(state: RocketState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float) -> bool:
         is_within_position = np.linalg.norm(
                 np.array([state.x, state.y]) - np.array([target.x, target.y])) < pos_tol
-        is_within_orientation = np.linalg.norm(
-                np.array([state.psi]) - np.array([target.psi])) < dir_tol
+        is_within_orientation = abs(state.psi - target.psi) < dir_tol
         is_within_velocity = np.linalg.norm(
                 np.array([state.vx, state.vy]) - np.array([target.vx, target.vy])) < vel_tol
 
