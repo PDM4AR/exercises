@@ -1,10 +1,12 @@
 from typing import List
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from dg_commons import SE2Transform
 from matplotlib.lines import Line2D
 from matplotlib.patches import Circle
+
 from pdm4ar.exercises.ex05.structures import DubinsSegmentType, Curve, Line, Path, mod_2_pi
 
 
