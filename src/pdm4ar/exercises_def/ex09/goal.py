@@ -17,9 +17,10 @@ class RocketTarget(PlanningGoal):
     target: DynObstacleState
     pos_tol: float
     vel_tol: float
+    dir_tol: float
 
     def is_fulfilled(self, state: RocketState, at: SimTime = Decimal(0)) -> bool:
-        return self._is_fulfilled(state, self.target, self.pos_tol, self.vel_tol)
+        return self._is_fulfilled(state, self.target, self.pos_tol, self.vel_tol, self.dir_tol)
 
     def get_plottable_geometry(self) -> Polygon:
         return self._plottable_geometry
@@ -31,13 +32,15 @@ class RocketTarget(PlanningGoal):
         return goal_shape
 
     @staticmethod
-    def _is_fulfilled(state: RocketState, target: DynObstacleState, pos_tol: float, vel_tol: float) -> bool:
+    def _is_fulfilled(state: RocketState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float) -> bool:
         is_within_position = np.linalg.norm(
-                np.array([state.x, state.y, state.psi]) - np.array([target.x, target.y, target.psi])) < pos_tol
+                np.array([state.x, state.y]) - np.array([target.x, target.y])) < pos_tol
+        is_within_orientation = np.linalg.norm(
+                np.array([state.psi]) - np.array([target.psi])) < dir_tol
         is_within_velocity = np.linalg.norm(
-                np.array([state.vx, state.vy, state.dpsi]) - np.array([target.vx, target.vy, target.dpsi])) < vel_tol
+                np.array([state.vx, state.vy]) - np.array([target.vx, target.vy])) < vel_tol
 
-        return is_within_position and is_within_velocity
+        return is_within_position and is_within_orientation and is_within_velocity
 
 
 @dataclass(frozen=True)
@@ -51,26 +54,32 @@ class SatelliteTarget(RocketTarget):
     offset_r: float
 
     def is_fulfilled(self, state: RocketState, at: SimTime = Decimal(0)) -> bool:
-        target_at = self._get_target_state_at(at)
-        return self._is_fulfilled(state, target_at, self.pos_tol, self.vel_tol)
+        target_at = self.get_target_state_at(at)
+        return self._is_fulfilled(state, target_at, self.pos_tol, self.vel_tol, self.dir_tol)
 
-    def get_plottable_geometry(self) -> Polygon:
+    def get_plottable_geometry(self, at: SimTime | float = 0) -> Polygon:
         # Make sure norm is aligned with is_fulfilled function
-        goal_shape = Point(self.target.x, self.target.y).buffer(self.pos_tol)
+        target_at = self.get_target_state_at(at)
+        goal_shape = Point(target_at.x, target_at.y).buffer(self.pos_tol)
         return goal_shape
 
-    def _get_target_state_at(self, at: SimTime) -> DynObstacleState:
+    def get_target_state_at(self, at: SimTime) -> DynObstacleState:
         at_float = float(at)
         cos_omega_t = (self.orbit_r + self.offset_r) * cos(self.omega * at_float + self.tau)
         sin_omega_t = (self.orbit_r + self.offset_r) * sin(self.omega * at_float + self.tau)
         x = cos_omega_t + self.planet_x
         y = sin_omega_t + self.planet_y
         v = self.omega * self.orbit_r
-        psi = np.pi/2 + np.arctan2(sin_omega_t, cos_omega_t)
-        # vx = v*cos(psi)
-        # vy = v*sin(psi)
 
-        return DynObstacleState(x=x, y=y, psi=psi, vx=v, vy=0, dpsi=self.omega)
+        psi = np.pi/2 + self.omega * at_float + self.tau
+        vx = v * sin(psi)
+        vy = v * cos(psi)
+
+        return DynObstacleState(x=x, y=y, psi=psi, vx=vx, vy=vy, dpsi=self.omega)
+    
+    @property
+    def is_static(self) -> bool:
+        return False
     
 
 if __name__ == '__main__':
@@ -102,9 +111,6 @@ if __name__ == '__main__':
 
     times = np.linspace(0, 200, 100)
 
-    print(target0.__dict__)
-    print(target._get_target_state_at(0).__dict__)
-
     # make square figure and axes
     plt.figure(figsize=(6,6))
 
@@ -113,7 +119,7 @@ if __name__ == '__main__':
     vxs = []
     vys = []
     for time in times:
-        new_target = target._get_target_state_at(time)
+        new_target = target.get_target_state_at(time)
         xs.append(new_target.x)
         ys.append(new_target.y)
         vxs.append(new_target.vx)
@@ -125,11 +131,7 @@ if __name__ == '__main__':
         plt.plot([x, x+vxs[i]], [ys[i], ys[i]+vys[i]], 'k-')
 
     dist = np.sqrt((np.array(xs) - planet_x)**2 + (np.array(ys) - planet_y)**2)
-    print(dist)
 
     plt.show()
     
     pass
-
-# change _get_target_state_at
-# increase tolerance also in private ones

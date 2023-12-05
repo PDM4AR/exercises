@@ -26,6 +26,7 @@ from shapely.geometry.base import BaseGeometry
 
 from pdm4ar.exercises.ex09.agent import RocketAgent
 from pdm4ar.exercises_def.ex09.goal import RocketTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex09.utils_params import SatelliteParams, PlanetParams
 
 
 def _load_config(file_path: str) -> dict[str, Any]:
@@ -37,28 +38,38 @@ def _load_config(file_path: str) -> dict[str, Any]:
 def _parse_planets(
         c: dict,
 ) -> tuple[
-    list[BaseGeometry], dict[PlayerName, DynObstacleModel], dict[PlayerName, NPAgent]
+    list[BaseGeometry], dict[PlayerName, PlanetParams], dict[PlayerName, DynObstacleModel], dict[PlayerName, SatelliteParams], dict[PlayerName, NPAgent]
 ]:
     planets = []
     planet_params = {}
     satellites = {}
+    satellites_params = {}
     satellites_players = {}
 
     for pn, p in c["planets"].items():
         planet = Point(p["center"]).buffer(p["radius"])
         
-        planet_params[pn]= [p["center"], p["radius"]]
+        planet_params[pn]= PlanetParams(
+            center=p["center"],
+            radius=p["radius"],
+        )
 
         planets.append(planet)
-        for sname, s in p["satellites"].items():
+        for sname, sat in p["satellites"].items():
             s, ps = _parse_satellite(
-                    planet, tau=s["tau"], orbit_r=s["orbit_r"], omega=s["omega"], radius=s["radius"]
+                    planet, tau=sat["tau"], orbit_r=sat["orbit_r"], omega=sat["omega"], radius=sat["radius"]
             )
             satellite_id = pn + "/" + sname
             satellites[satellite_id] = s
             satellites_players[satellite_id] = ps
+            satellites_params[satellite_id] = SatelliteParams(
+                    orbit_r=sat["orbit_r"],
+                    omega=sat["omega"],
+                    tau=sat["tau"],
+                    radius=sat["radius"],
+            )
 
-    return planets, planet_params, satellites, satellites_players
+    return planets, planet_params, satellites, satellites_params, satellites_players
 
 
 def _parse_satellite(
@@ -107,7 +118,8 @@ def sim_context_from_yaml(file_path: str):
     x0 = RocketState(**config["agents"][name]["state"])
 
     # obstacles (planets + satellites)
-    planets, planet_params, satellites, satellites_npagents = _parse_planets(config)
+    planets, planets_params, satellites, satellites_params, satellites_npagents = _parse_planets(config)
+
     env_limits = LineString(config["boundary"]["corners"])
     planets.append(env_limits)
     obsgeo = ObstacleGeometry.default_static(color="saddlebrown")
@@ -119,7 +131,7 @@ def sim_context_from_yaml(file_path: str):
     if conf_goal_type == "static":
         x0_target = DynObstacleState(**conf_goal["state"])
         goal = RocketTarget(
-                target=x0_target, pos_tol=conf_goal["pos_tolerance"], vel_tol=conf_goal["vel_tolerance"]
+                target=x0_target, pos_tol=conf_goal["pos_tolerance"], vel_tol=conf_goal["vel_tolerance"], dir_tol=conf_goal["dir_tolerance"]
         )
     elif conf_goal_type == "satellite":
         satellite_name = conf_goal["name"]
@@ -147,17 +159,16 @@ def sim_context_from_yaml(file_path: str):
                                offset_r=satellite_config["radius"] + conf_goal["pos_tolerance"],
                                pos_tol=conf_goal["pos_tolerance"],
                                vel_tol=conf_goal["vel_tolerance"],
-                               ) # change this
-
+                               dir_tol=conf_goal["dir_tolerance"],
+                               )
 
     else:
         raise ValueError(f"Unrecognized goal type: {conf_goal_type}")
     missions = {playername: goal}
 
     # models & players
-    players = {playername: RocketAgent(satellites=deepcopy(satellites), planets=deepcopy(planet_params))} # pass as deepcopy, add information about the satellites
-    # for p,s in satellites.items():
-    #     models[p] = deepcopy(s)
+    initstate = RocketState(**config["agents"][name]["state"])
+    players = {playername: RocketAgent(init_state=deepcopy(initstate), satellites=deepcopy(satellites_params), planets=deepcopy(planets_params))}
 
     models = {playername: RocketModel.default(x0)}
     for p, s in satellites.items():
@@ -175,7 +186,7 @@ def sim_context_from_yaml(file_path: str):
                     dt=D("0.01"),
                     dt_commands=D("0.1"),
                     sim_time_after_collision=D(4),
-                    max_sim_time=D(5),
+                    max_sim_time=D(60),
             ),
             seed=config["seed"],
             description=file_path.split("/")[-1].split(".")[0],
