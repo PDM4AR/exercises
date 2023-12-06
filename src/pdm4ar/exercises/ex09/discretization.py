@@ -7,8 +7,6 @@ from numpy.typing import NDArray
 
 from pdm4ar.exercises.ex09.rocket import Rocket
 
-# TODO: cite paper where the ode is defined
-
 class DiscretizationMethod:
 
     K: int              # number of discretization points

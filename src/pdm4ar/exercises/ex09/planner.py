@@ -1,8 +1,7 @@
 import numpy as np
 import cvxpy as cvx
 import sympy as spy
-from IPython import embed
-from scipy.integrate import odeint
+from dataclasses import dataclass, field
 
 from numpy.typing import NDArray
 
@@ -17,60 +16,34 @@ from pdm4ar.exercises_def.ex09.utils_params import PlanetParams, SatelliteParams
 from pdm4ar.exercises.ex09.rocket import Rocket
 from pdm4ar.exercises.ex09.discretization import DiscretizationMethod, FirstOrderHold, ZeroOrderHold
 
+@dataclass(frozen=True)
 class SolverParameters:
     """
     Definition space for SCvx parameters in case SCvx algorithm is used.
     Parameters can be fine-tuned by the user.
     """
     # Cvxpy solver parameters
-    solver:         str         # specfiy solver to use
-    verbose_solver: bool        # if True, the optimization steps are shown
-    max_iterations: int         # max algorithm iterations
+    solver: str = 'MOSEK'                                           # specify solver to use
+    verbose_solver: bool = False                                    # if True, the optimization steps are shown
+    max_iterations: int = 100                                       # max algorithm iterations
 
     # SCVX parameters (Add paper reference)
-    lambda_nu:      float       # slack variable weight
-    weight_p:       NDArray     # weight for final time
+    lambda_nu: float = 1e5                                          # slack variable weight
+    weight_p: NDArray = field(default_factory=lambda: 10*np.array([[1.0]]).reshape((1, -1))) # weight for final time
     
-    tr_radius:      float       # initial trust region radius
-    min_tr_radius:  float       # min trust region radius
-    max_tr_radius:  float       # max trust region radius
-    rho_0:          float       # trust region 0
-    rho_1:          float       # trust region 1
-    rho_2:          float       # trust region 2
-    alpha:          float       # div factor trust region update
-    beta:           float       # mult factor trust region update
+    tr_radius: float = 5                                            # initial trust region radius
+    min_tr_radius: float = 1e-4                                     # min trust region radius
+    max_tr_radius: float = 100                                      # max trust region radius
+    rho_0: float = 0.0                                              # trust region 0
+    rho_1: float = 0.25                                             # trust region 1
+    rho_2: float = 0.9                                              # trust region 2
+    alpha: float = 2.0                                              # div factor trust region update
+    beta: float = 3.2                                               # mult factor trust region update
 
     # Discretization constants
-    K:              int         # number of discretization steps 
-    N_sub:          int         # used inside ode solver inside discretization
-    stop_crit:      float       # Stopping criteria constant
-
-    def __init__(self):
-        """
-        Default SCvx parameters.
-        Feel free to fine-tune them.
-        """
-
-        self.solver = ['MOSEK'][0]
-        self.verbose_solver = False
-        self.max_iterations = 100
-
-        self.lambda_nu = 1e5
-        self.weight_p = 10*np.array([[1.0]]).reshape((1, -1))
-
-        self.tr_radius = 5
-        self.min_tr_radius = 1e-4
-        self.max_tr_radius = 100
-        self.rho_0 = 0.0
-        self.rho_1 = 0.25
-        self.rho_2 = 0.9
-        self.alpha = 2.0
-        self.beta = 3.2
-
-        self.K = 50
-        self.N_sub = 5
-        self.stop_crit = 1e-5
-
+    K: int = 50                                                     # number of discretization steps 
+    N_sub: int = 5                                                  # used inside ode solver inside discretization
+    stop_crit: float = 1e-5                                         # Stopping criteria constant
 class RocketPlanner:
     """
     Feel free to change anything in this class.
