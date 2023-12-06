@@ -23,17 +23,17 @@ This challenge has to be approached in three different scenarios:
 1. **Scenario 1: Dodging Planets with a Fixed Goal**
    - In this scenario, the spacecraft needs to avoid planets while reaching a fixed final goal, $X_1$.
 
-   ![Example Image](TODO)
+   ![Planets Image](https://github.com/PDM4AR/exercises/assets/91316303/b8afdb04-2f5a-4236-bde7-09b26dcdfa4e)
 
 2. **Scenario 2: Dodging a Planet and Its Satellites with a Fixed Goal**
    - The spacecraft must navigate around a planet with multiple moving satellites to reach a fixed final goal, $X_1$.
 
-   ![Example Image](TODO)
+   ![Satellites Image](https://github.com/PDM4AR/exercises/assets/91316303/395d0a10-98ee-4a56-9cd3-7ce004c91bb5)
 
 3. **Scenario 3: Dodging a Planet and Its Satellites with a Dynamic Goal**
    - Similar to Scenario 2, but the final goal is linked with one of the satellites.
 
-   ![Example Image](TODO)
+   ![Mov Satellites Image](https://github.com/PDM4AR/exercises/assets/91316303/e775ad18-aa5e-4a83-bf16-b93aeff6c6b0)
 
 ## Rocket dynamics
 Your planner is specifically designed to cope with the unfortunate event of losing the main thruster.
@@ -63,7 +63,9 @@ If the spacecraft's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\ps
 6. **Dynamics:**
     - $\frac{dX(t)}{dt} = f(X(t), U(t))$
 
-![Rocket Dynamics](https://github.com/PDM4AR/exercises/assets/91316303/e0e3d3ff-5fac-49c3-b312-f7043f711d5a)
+The rocket you have the control over has two side thrusters where you are able to control the amount of thrust to produce $F_l$ and $F_r$ and the coupled angle of the thrusters $\phi$. The thrusters are mounted centrally on the rocket with an offset of $l_m$ to the CoG of the rocket. The velocity $v_x$ and $v_y$ are the velocities in the x and y direction of the world frame respectively. The angle $\psi$ is the angle of the rocket with respect to the x-axis. The angle $\phi$ is the angle of the thrusters with respect to the rocket. The length of the rocket is $l$.
+
+![Rocket Dynamics](https://github.com/PDM4AR/exercises/assets/91316303/6557d710-f4e1-4f95-95b1-a9a11216eb32)
 
 ## Constraints
 
