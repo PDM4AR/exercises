@@ -1,36 +1,35 @@
 # PDM4ARocket Explorer
 
-This exercise tackles a complex problem in aerospace engineering - guiding a spacecraft through a challenging space environment. The goal is to navigate the spacecraft past obstacles to reach a predefined target location using only the two functional lateral thrusters. 
+This exercise tackles a complex problem in space exploration - navigating and landing a spacecraft through challenging space environments. 
+The goal is to reach a predefined target location using only the two functional lateral thrusters of the spaceship. 
 
 ## Task
-To this end, your task is to write the planner for an agent that is simulated in closed-loop receiving observations 
-(on its state and other obstacles' state) and it is expected to return control commands.
+Your task is to write the planning stack for a simulated "spaceship agent".
+To this end, the agent is coupled with a simulator in closed-loop.
+At each simulation step, the agent receives observations (about its state and other obstacles' state) and it is expected to return control commands.
 
 ![sim2agent](https://user-images.githubusercontent.com/18750753/144580159-d4d29506-03b2-49b9-b4b8-3cde701cc7d4.png)
 
-You can use any planning algorithm you want. 
-However, we have tested and recommend to solve the problem by generating an initial trajectory with one of the sequential convexification approaches.
-To this end, we provide a skeleton to complete that you are free to disregard if you were to choose other methods. 
-The only important limitation is to leave the `Agent` interface unchanged (or it won't work with the simulator).
-
-<!-- ## Student Task
-Your task is to implement a planner (suggestion: **SCvx algorithm**) to solve the constrained problem and provide **RocketCommands** at each time step (0.1 seconds) to the simulator. -->
+You have the freedom to implement any planning algorithm you deem appropriate. 
+However, based on experience, we suggest to solve the problem adopting a sequential convexification approach.
+In case you choose to use this method, you are provided with a template of the algorithm. 
+In case you choose a different approach, make sure to preserve the `Agent` interface (or it won't work with the simulator).
 
 ## Scenarios
 
-This challenge has to be approached in three different scenarios:
+Your agent will be tested in three different scenarios:
 
-1. **Scenario 1: Dodging Planets with a Fixed Goal**
+1. **Scenario 1: Dodging Planets with a Static Goal**
    - In this scenario, the spacecraft needs to avoid planets while reaching a fixed final goal, $X_1$.
 
    ![Planets Image](https://github.com/PDM4AR/exercises/assets/91316303/b8afdb04-2f5a-4236-bde7-09b26dcdfa4e)
 
-2. **Scenario 2: Dodging a Planet and Its Satellites with a Fixed Goal**
+2. **Scenario 2: Dodging a Planet and Its Satellites with a Static Goal**
    - The spacecraft must navigate around a planet with multiple moving satellites to reach a fixed final goal, $X_1$.
 
    ![Satellites Image](https://github.com/PDM4AR/exercises/assets/91316303/395d0a10-98ee-4a56-9cd3-7ce004c91bb5)
 
-3. **Scenario 3: Dodging a Planet and Its Satellites with a Dynamic Goal**
+3. **Scenario 3: Dodging a Planet and Its Satellites with a Time Varying Goal**
    - Similar to Scenario 2, but the final goal is linked with one of the satellites.
 
    ![Mov Satellites Image](https://github.com/PDM4AR/exercises/assets/91316303/e775ad18-aa5e-4a83-bf16-b93aeff6c6b0)
@@ -69,41 +68,37 @@ The rocket you have the control over has two side thrusters where you are able t
 
 ## Constraints
 
-There are various constraints that need to be satisfied:
+There are several constraints that need to be satisfied:
 
 - The initial and final inputs needs to be zero: $U(t_0) = U(t_f) = 0$
-- The spacecraft needs to arrive close to the goal.
+- The spacecraft needs to arrive close to the goal
     - $\left\lVert \begin{bmatrix} x(t) \\ y(t) \end{bmatrix} - \begin{bmatrix} x_{\text{1}} \\ y_{\text{1}} \end{bmatrix} \right\rVert _{2} < \text{pos\_tol}$
-- The spacecraft needs to point in a specified direction.
+- with a specified orientation.
     - $|\psi(t) - \psi_{\text{1}}| < \text{dir\_tol}$
 - The spacecraft needs to arrive with a specified velocity.
     - $\left\lVert \begin{bmatrix} v_x(t) \\ v_y(t) \end{bmatrix} - \begin{bmatrix} v_{x_{\text{1}}} \\ v_{y_{\text{1}}} \end{bmatrix} \right\rVert _{2} < \text{vel\_tol}$
 - The spacecraft needs to dodge every obstacle in its path: $(x, y) \bigoplus \mathcal{X}_{Rocket}(\psi) \notin Obstacle \quad \forall Obstacle \in Obstacles$
 - The spacecraft's mass should be greater than or equal to the mass of the spacecraft without fuel: $m(t) \geq m_{spacecraft}(t) \quad \forall t$
 - Control inputs, $F_l$ and $F_r$, are limited: $F_l, F_r \in [0, F_{\text{max}}]$.
-- The thrust angle is limited and coupled between the two lateral thusters: $\phi_l=\phi_r=\phi \in [-\phi_{\text{max}}, \phi_{\text{max}}]$.
+- The thrust angle is limited and coupled between the two lateral thrusters: $\phi_l=\phi_r=\phi \in [-\phi_{\text{max}}, \phi_{\text{max}}]$.
 - You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
-- The speed of change of $\phi$ is limited: $v_\phi \in [-v^{max}_ϕ ,v^{max}_ϕ ]$
+- The rate of change of $\phi$ is limited: $v_\phi \in [-v^{max}_ϕ ,v^{max}_ϕ ]$
 
 ## Evaluation Metrics
 
 The quality of the spacecraft's trajectory is evaluated based on several key factors:
 
-0. **Mission achieved** Satisfaction of Mission Goal while satisfying hard constraints
+0. **Mission Accomplishment** You safely reach the goal region.
 
-1. **Code Execution Speed:** The efficiency and speed of the control system's execution.
+1. **Planning Efficiency:** We consider the average time spent in the "get_commands" method as a proxy for efficiency and quality of the planner.
 
-2. **Trajectory Final Time:** The time taken to reach the final goal while avoiding obstacles.
+2. **Time Taken To Reach the Goal:** The time taken to reach the goal.
 
-3. **Average Actuation Effort:** The average amount of fuel used to reach the final goal.
+3. **Actuation Effort:** The amount (integral) of fuel used to reach the final goal .
 
 4. **Mass Consumption:** The amount of fuel used to reach the final goal.
 
-<!-- 5. **Safety:** Ensuring that the spacecraft maintains a safe minimum distance from planets and avoids any radioactive areas beyond the map boundaries (penalty based on a potential function high close to the obstacles and outside of the map boundaries)
-
-6. **Satellites Observability:** The ability of the spacecraft to observe the positions of moving satellites. -->
-
-You can actually check yourself the function computing the final score in the file `src/pdm4ar/exercises_def/ex09/perf_metrics.py` 
+You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex09/perf_metrics.py` 
 
 ## Data  Structures
 
