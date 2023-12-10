@@ -29,7 +29,7 @@ triangle==20230923
 
 # dg
 # git+ssh://git@github.com/idsc-frazzoli/dg-commons.git@a0d5b4e191aa7d75f7ada29a83f51a5720d0ea3f
-dg-commons==0.0.42
+dg-commons==0.0.43
 
 # mpc
 do-mpc==4.6.0
@@ -38,5 +38,6 @@ do-mpc==4.6.0
 # pulp>=2.7.0
 # ortools>=9.4.1874
 cvxpy==1.3.2
+casadi==3.6.4
 # cvxopt==1.3.2
 #cylp==0.91.6
