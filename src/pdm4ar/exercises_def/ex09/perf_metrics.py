@@ -48,6 +48,8 @@ class AvgPlayerMetrics(PerformanceResults):
     """Integral of the commands sent to the robot normalized by the time taken."""
     avg_computation_time: float
     """Average computation time of the get_commands method."""
+    fuel_left: float
+    """Amount of fuel left in the tank"""
 
     def __repr__(self):
         repr: str = ""
@@ -63,6 +65,7 @@ class AvgPlayerMetrics(PerformanceResults):
         score -= self.avg_computation_time * 1e2
         score -= (self.avg_distance2goal / 2 + self.avg_distance_travelled / 5 +
                   self.avg_episode_duration / 5 + self.avg_actuation_effort) * 1e1
+        score -= -self.fuel_left * 1e2
         return score
 
 
@@ -100,7 +103,7 @@ def ex09_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         if isinstance(goal, RocketTarget):
             goal_poly: Point = Point(goal.target.x, goal.target.y)
         elif isinstance(goal, SatelliteTarget):
-            end_target_state = goal._get_target_state_at(states.get_end())
+            end_target_state = goal.get_target_state_at(states.get_end())
             goal_poly: Point = Point(end_target_state.x, end_target_state.y)
         else:
             raise RuntimeError
@@ -110,6 +113,9 @@ def ex09_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         # actuation effort
         abs_acc = agent_log.commands.transform_values(lambda u: abs(u.F_left) + abs(u.F_right) )
         actuation_effort = seq_integrate(abs_acc).values[-1] / duration
+
+        # fuel left
+        fuel_left = agent_log.states.transform_values(lambda x: x.m).values[0] - agent_log.states.transform_values(lambda x: x.m).values[-1]
 
         # computation time
         avg_comp_time = np.average(agent_log.info.values)
@@ -142,7 +148,8 @@ def ex09_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
             avg_episode_duration=avg_duration,
             avg_distance2goal=avg_distance2goal,
             avg_actuation_effort=avg_actuation_effort,
-            avg_computation_time=avg_computation_time
+            avg_computation_time=avg_computation_time,
+            fuel_left=fuel_left
     )
 
     return avg_player_metrics, agents_perf

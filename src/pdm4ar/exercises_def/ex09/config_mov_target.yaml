@@ -3,17 +3,18 @@ agents:
     state:
       x: -8.0
       y: -8.0
-      psi: 3.141592653589793
-      m: 2.1
+      psi: 0.26179938779 
       vx: 0.0
       vy: 0.0
       dpsi: 0.0
       phi: 0.0
+      m: 2.5
     goal:
       type: satellite
       name: Vegeta/Kelbo
       pos_tolerance: 0.7
-      vel_tolerance: 0.7
+      dir_tolerance: 0.5
+      vel_tolerance: 1.0
     color: 'blue'
 
 planets:
