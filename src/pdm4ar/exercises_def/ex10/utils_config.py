@@ -51,9 +51,9 @@ def sim_context_from_yaml(file_path: str):
         goal_poly = Point(p_attr["goal"]).buffer(p_attr["goal_radius"])
         goal = PolygonGoal(goal_poly)
         missions[pn] = goal
-        # sensing
-        lidar2d = VisRangeSensor(range=30)
-        sensors: dict[PlayerName, ObsFilter] = defaultdict(lambda: FovObsFilter(deepcopy(lidar2d)))
+    # sensing
+    lidar2d = VisRangeSensor(range=30)
+    sensors: dict[PlayerName, ObsFilter] = defaultdict(lambda: FovObsFilter(deepcopy(lidar2d)))
     return SimContext(
             dg_scenario=DgScenario(static_obstacles=static_obstacles),
             models=models,

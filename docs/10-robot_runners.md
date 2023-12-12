@@ -64,7 +64,7 @@ Performance criteria involve:
 You can find a precise definition of the performance criteria in `exercises_def/ex10/perf_metrics.py`.
 In particular the `reduce_to_score` method defines how the performance metrics are reduced to a single scalar value.
 
-The **test cases** on the server differ to the ones provided only by the config file. This implies, for instance, that the map topology is fixed. 
+The **test cases** on the server differ to the ones provided only by the config file.
 
 ## Run the exercise
 Update your repository running `make update` (refer to [Hello World](01-helloworld.md) for more instructions).
