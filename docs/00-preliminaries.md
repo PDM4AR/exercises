@@ -26,6 +26,8 @@ There will be four types of exercises:
 - **Finals** group exercises, graded (will account for 70% (30 + 40) of the final grade).
 - **Extra** exercises from previous years, not graded.
 
+**ERRATA CORRIGE 2023**: weekly up to 40%, second final(ex10) 50% and ex09 (as bonus due to delayed release) still 30%. So that in total you have 120%. 
+
 #### **Warm-up** exercises, not graded.
 
 Just ensuring everything is working as expected.
@@ -73,7 +75,7 @@ Instructions on the group forming modality are provided via Piazza.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes** | **Deadline status** | Available Submissions |
 |-----------------|-----------|----------------------|-----------------------|---------------------|-----------------------|
-| 09              | Rocket's trajectory generation   | 10th of December      | 10th of January (23:59 CET)   | TENTATIVE | 15 |
+| 09              | PDM4ARocket Explorer   | 10th of December      | 10th of January (23:59 CET)   | CONFIRMED | 15 |
 | 10              | Robot Runners                    | 6th of December       | 10th of January (23:59 CET)    | CONFIRMED | 15 |
 
 #### **Extra** exercises from previous years, not graded.
