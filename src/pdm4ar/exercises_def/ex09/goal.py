@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import cached_property
 from math import cos, sin
 
 import numpy as np
+from dg_commons import SE2Transform
 from dg_commons.sim import SimTime
 from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.models.rocket import RocketState
+from dg_commons.sim import extract_pose_from_state
+
 from shapely import Polygon
 from shapely.geometry import Point
 
@@ -22,7 +27,7 @@ class RocketTarget(PlanningGoal):
     def is_fulfilled(self, state: RocketState, at: SimTime = Decimal(0)) -> bool:
         return self._is_fulfilled(state, self.target, self.pos_tol, self.vel_tol, self.dir_tol)
 
-    def get_plottable_geometry(self) -> Polygon:
+    def get_plottable_geometry(self, at: SimTime | float = 0) -> Polygon:
         return self._plottable_geometry
 
     @cached_property
@@ -33,9 +38,11 @@ class RocketTarget(PlanningGoal):
 
     @staticmethod
     def _is_fulfilled(state: RocketState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float) -> bool:
+        pose = extract_pose_from_state(state)
         is_within_position = np.linalg.norm(
                 np.array([state.x, state.y]) - np.array([target.x, target.y])) < pos_tol
-        is_within_orientation = abs(state.psi - target.psi) < dir_tol
+        state_psi = SE2Transform.from_SE2(pose).theta
+        is_within_orientation = abs(state_psi - target.psi) < dir_tol
         is_within_velocity = np.linalg.norm(
                 np.array([state.vx, state.vy]) - np.array([target.vx, target.vy])) < vel_tol
 
