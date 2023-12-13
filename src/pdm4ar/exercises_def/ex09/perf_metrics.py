@@ -65,7 +65,7 @@ class AvgPlayerMetrics(PerformanceResults):
         score -= self.avg_computation_time * 1e2
         score -= (self.avg_distance2goal / 2 + self.avg_distance_travelled / 5 +
                   self.avg_episode_duration / 5 + self.avg_actuation_effort) * 1e1
-        score -= -self.fuel_left * 1e2
+        score -= -self.fuel_left * 5e1
         return score
 
 
