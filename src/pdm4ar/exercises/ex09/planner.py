@@ -23,7 +23,7 @@ class SolverParameters:
     Parameters can be fine-tuned by the user.
     """
     # Cvxpy solver parameters
-    solver: str = 'MOSEK'                                           # specify solver to use
+    solver: str = 'ECOS'                                           # specify solver to use
     verbose_solver: bool = False                                    # if True, the optimization steps are shown
     max_iterations: int = 100                                       # max algorithm iterations
 
@@ -220,11 +220,11 @@ class RocketPlanner:
         """
         Example of how to create a DgSampledSequence from numpy arrays and timestamps.
         """
-        ts = (0, 1, 2, 3, 4)
+        ts = (0, 1, 2, 3, 4, 5)
         # in case my planner returns 3 numpy arrays
-        F_l = np.array([0, 1, 2, 3, 4])
-        F_r = np.array([0, 1, 2, 3, 4])
-        dphi = np.array([0, 0, 0, 0, 0])
+        F_l = np.array([0, 1, 2, 3, 4, 5])
+        F_r = np.array([0, 1, 2, 3, 4, 5])
+        dphi = np.array([0, 0, 0, 0, 0, 0])
         cmds_list = [RocketCommands(l, r, dp) for l, r, dp in zip(F_l, F_r, dphi)]
         mycmds = DgSampledSequence[RocketCommands](timestamps=ts, values=cmds_list)
 
