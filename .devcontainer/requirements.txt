@@ -29,7 +29,7 @@ triangle==20230923
 
 # dg
 # git+ssh://git@github.com/idsc-frazzoli/dg-commons.git@a0d5b4e191aa7d75f7ada29a83f51a5720d0ea3f
-dg-commons==0.0.43
+dg-commons==0.0.45
 
 # mpc
 do-mpc==4.6.0
