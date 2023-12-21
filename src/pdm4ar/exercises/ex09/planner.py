@@ -222,8 +222,8 @@ class RocketPlanner:
         """
         ts = (0, 1, 2, 3, 4, 5)
         # in case my planner returns 3 numpy arrays
-        F_l = np.array([0, 1, 2, 3, 4, 5])
-        F_r = np.array([0, 1, 2, 3, 4, 5])
+        F_l = np.array([0, 1, 2, 3, 4, 0])
+        F_r = np.array([0, 1, 2, 3, 4, 0])
         dphi = np.array([0, 0, 0, 0, 0, 0])
         cmds_list = [RocketCommands(l, r, dp) for l, r, dp in zip(F_l, F_r, dphi)]
         mycmds = DgSampledSequence[RocketCommands](timestamps=ts, values=cmds_list)
