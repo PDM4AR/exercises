@@ -53,7 +53,7 @@ The rocket's dynamics are represented by the following equations:
     - $\frac{d\psi}{dt} = \dot{\psi}$
 
 3. **Fuel Dynamics:**
-    - $\frac{dm}{dt} = -k_l(F_l + F_r)$
+    - $\frac{dm}{dt} = -C_T(F_l + F_r)$
 
 4. **Velocity Dynamics:**
     - $\frac{dv_x}{dt} = \frac{1}{m}(sin(\phi+\psi)F_l + sin(\phi-\psi)F_r)$
