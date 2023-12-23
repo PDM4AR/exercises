@@ -75,7 +75,7 @@ with an offset of $l_m$ to the CoG of the rocket. The velocity $v_x$ and $v_y$ a
 direction of the world frame respectively. The angle $\psi$ is the angle of the rocket with respect to the x-axis. The
 angle $\phi$ is the angle of the thrusters with respect to the rocket. The length of the rocket is $l$.
 
-![Rocket Dynamics](https://github.com/PDM4AR/exercises/assets/91316303/6557d710-f4e1-4f95-95b1-a9a11216eb32)
+![Rocket Dynamics](https://github.com/PDM4AR/exercises/assets/91316303/86052460-b0d7-4436-b4fa-6d12e913f931)
 
 ## Constraints
 
