@@ -20,7 +20,9 @@ class Pdm4arAgentParams:
     """
     Definition space for additional agent parameters.
     """
-    param1: float = 0.2
+    pos_tol: 0.5
+    dir_tol: 0.5
+    vel_tol: 1.0
 
 class RocketAgent(Agent):
     """
