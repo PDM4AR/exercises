@@ -79,21 +79,21 @@ angle $\phi$ is the angle of the thrusters with respect to the rocket. The lengt
 
 ## Constraints
 
-There are several constraints that need to be satisfied:
+There are several constraints that need to be satisfied, [$x_0, y_0$] is the starting location and [$x_1, y_1$] is the goal location:
 
 - The initial and final inputs needs to be zero: $U(t_0) = U(t_f) = 0$
 - The spacecraft needs to arrive close to the goal
-    - $\left\lVert \begin{bmatrix} x(t) \\ y(t) \end{bmatrix} - \begin{bmatrix} x_{\text{1}} \\ y_{\text{1}}
+    - $\left\lVert \begin{bmatrix} x(t_f) \\ y(t_f) \end{bmatrix} - \begin{bmatrix} x_{\text{1}} \\ y_{\text{1}}
       \end{bmatrix} \right\rVert _{2} < \text{pos\_tol}$
 - with a specified orientation.
-    - $|\psi(t) - \psi_{\text{1}}| < \text{dir\_tol}$
+    - $\left\lVert \psi(t_f) - \psi_{\text{1}} \right\rVert _{1} < \text{dir\_tol}$
 - The spacecraft needs to arrive with a specified velocity.
-    - $\left\lVert \begin{bmatrix} v_x(t) \\ v_y(t) \end{bmatrix} - \begin{bmatrix} v_{x_{\text{1}}} \\ v_{y_{\text{1}}}
+    - $\left\lVert \begin{bmatrix} v_x(t_f) \\ v_y(t_f) \end{bmatrix} - \begin{bmatrix} v_{x,1} \\ v_{y,1}
       \end{bmatrix} \right\rVert _{2} < \text{vel\_tol}$
 - The spacecraft needs to dodge every obstacle in its path: $(x, y) \bigoplus \mathcal{X}_{Rocket}(\psi) \notin Obstacle
   \quad \forall Obstacle \in Obstacles$
 - The spacecraft's mass should be greater than or equal to the mass of the spacecraft without fuel: $m(t) \geq m_
-  {spacecraft}(t) \quad \forall t$
+  {spacecraft} \quad \forall t$
 - Control inputs, $F_l$ and $F_r$, are limited: $F_l, F_r \in [0, F_{\text{max}}]$.
 - The thrust angle is limited and coupled between the two lateral thrusters: $\phi_l=\phi_r=\phi
   \in [-\phi_{\text{max}}, \phi_{\text{max}}]$.
