@@ -42,8 +42,7 @@ class RocketTarget(PlanningGoal):
         is_within_position = np.linalg.norm(
                 np.array([state.x, state.y]) - np.array([target.x, target.y])) < pos_tol
         state_psi = SE2Transform.from_SE2(pose).theta
-        
-        is_within_orientation = abs(state_psi - target.psi) < dir_tol
+        is_within_orientation = (abs(state_psi - target.psi) < dir_tol or 2 * np.pi - abs(state_psi - target.psi) < dir_tol)
         is_within_velocity = np.linalg.norm(
                 np.array([state.vx, state.vy]) - np.array([target.vx, target.vy])) < vel_tol
 
