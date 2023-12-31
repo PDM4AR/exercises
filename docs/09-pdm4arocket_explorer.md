@@ -111,9 +111,7 @@ The quality of the spacecraft's trajectory is evaluated based on several key fac
 
 2. **Time Taken To Reach the Goal:** The time taken to reach the goal.
 
-3. **Actuation Effort:** The amount (integral) of fuel used to reach the final goal .
-
-4. **Mass Consumption:** The amount of fuel used to reach the final goal.
+3. **Mass Consumption:** The amount of fuel used to reach the final goal.
 
 You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex09/perf_metrics.py`
 
