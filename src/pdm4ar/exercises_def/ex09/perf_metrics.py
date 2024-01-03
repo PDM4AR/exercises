@@ -65,7 +65,7 @@ class AvgPlayerMetrics(PerformanceResults):
         score -= self.avg_computation_time * 1e2
         score -= (self.avg_distance2goal / 2 + self.avg_distance_travelled / 5 +
                   self.avg_episode_duration / 5 + self.avg_actuation_effort) * 1e1
-        score -= -self.fuel_left * 5e1
+        score += self.fuel_left * 5e1
         return score
 
 
@@ -100,11 +100,12 @@ def ex09_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         # distance left to goal
         last_point = Point(last_state.x, last_state.y)
         goal = sim_context.missions[player_name]
-        if isinstance(goal, RocketTarget):
-            goal_poly: Point = Point(goal.target.x, goal.target.y)
-        elif isinstance(goal, SatelliteTarget):
+        
+        if isinstance(goal, SatelliteTarget):
             end_target_state = goal.get_target_state_at(states.get_end())
             goal_poly: Point = Point(end_target_state.x, end_target_state.y)
+        elif isinstance(goal, RocketTarget):
+            goal_poly: Point = Point(goal.target.x, goal.target.y)
         else:
             raise RuntimeError
 
@@ -115,7 +116,7 @@ def ex09_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         actuation_effort = seq_integrate(abs_acc).values[-1] / duration
 
         # fuel left
-        fuel_left = agent_log.states.transform_values(lambda x: x.m).values[0] - agent_log.states.transform_values(lambda x: x.m).values[-1]
+        fuel_left = agent_log.states.transform_values(lambda x: x.m).values[-1] - sim_context.models[player_name].rp.m_v
 
         # computation time
         avg_comp_time = np.average(agent_log.info.values)
