@@ -32,7 +32,7 @@ triangle==20230923
 dg-commons==0.0.45
 
 # mpc
-do-mpc==4.6.0
+do-mpc==4.6.1
 
 # optimization
 scipy==1.11.4
