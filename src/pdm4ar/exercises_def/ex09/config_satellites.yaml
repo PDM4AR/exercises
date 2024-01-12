@@ -32,22 +32,22 @@ planets:
         tau: 0.0
         orbit_r: 6.0
         omega: 0.25358
-        radius: 0.5
+        radius: 0.45
       Beehay:
         tau: 3.14159
         orbit_r: 7.0
         omega: 0.17248
-        radius: 0.6
+        radius: 0.45
       Anoyo:
         tau: 1.5708
         orbit_r: 8.0
         omega: 0.12353
-        radius: 0.8
+        radius: 0.45
       Zun:
         tau: 4.71239
-        orbit_r: 9.0
+        orbit_r: 9.5
         omega: 0.09202
-        radius: 1.0
+        radius: 0.95
 
 boundary:
   corners:
