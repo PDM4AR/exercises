@@ -1,4 +1,10 @@
 # PDM4AR-exercises
+## New Branch
+Modified Exercise 6 Working Branch
+
+Maintained by:
+Jose Lavariega
+Yueshan Li
 
 All the necessary instructions are on our website: [https://pdm4ar.github.io/exercises/](https://pdm4ar.github.io/exercises/).
 
