@@ -1,6 +1,6 @@
 from typing import List
 from dg_commons import SE2Transform
-from pdm4ar.exercises.ex06.collision_primitives import CollisionPrimitives
+from pdm4ar.exercises.ex06.collision_primitives import CollisionPrimitives, CollisionPrimitives_SeparateAxis
 from pdm4ar.exercises_def.ex06.structures import (
     Polygon,
     GeoPrimitive,
