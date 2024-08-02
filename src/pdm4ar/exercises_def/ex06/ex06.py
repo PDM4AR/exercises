@@ -26,6 +26,7 @@ from pdm4ar.exercises_def.ex06.visualization import (
     visualize_map_path,
     visualize_robot_frame_map,
     visualize_axis_poly,
+    viusalize_SAT_poly,
 )
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 from pdm4ar.exercises_def.ex06.data import DataGenerator
@@ -234,7 +235,17 @@ def get_exercise6() -> Exercise:
             CollisionPrimitives_SeparateAxis.proj_polygon,
             segment_eval_function,
             eval_weights=(5, 0),
-        ),  # task 1: proj polygon.
+        ),  # Task 1: proj polygon.
+        TestCollisionCheck(
+            1,
+            2,
+            "Separating Axis Thm",
+            DataGenerator.generate_SAT_poly,
+            viusalize_SAT_poly,
+            CollisionPrimitives_SeparateAxis.separating_axis_thm,
+            float_eval_function,
+            eval_weights=(20, 0),
+        ),  # Task 2: Separate Axis Theorem.
         TestCollisionCheck(
             5,
             8,

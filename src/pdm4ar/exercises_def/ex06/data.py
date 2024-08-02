@@ -247,6 +247,54 @@ class DataGenerator:
         return (poly, seg, proj_seg)
 
     @staticmethod
+    def generate_SAT_poly(index: int) -> Tuple[Polygon, Polygon, bool]:
+        # Generate polygons
+        randflag = True
+        randnum = np.random.uniform()
+        if randnum < 0.4:
+            centerpt1 = Point(0, 0)
+            centerpt2 = Point(5, 5)
+            r1 = 3.0
+            r2 = 2.0
+        elif randnum >= 0.4 and randnum < 0.6:
+            centerpt1 = Point(5, 5)
+            centerpt2 = Point(5, 5)
+            r1 = 4.0
+            r2 = 2.0
+        elif randnum >= 0.6 and randnum < 0.8:
+            centerpt1 = Point(3, 3)
+            centerpt2 = Point(2, 2)
+            r1 = 3.0
+            r2 = 3.0
+        else:
+            randflag = False
+
+        if randflag:
+            poly1 = DataGenerator.generate_random_polygon(
+                center=centerpt1, avg_radius=r1
+            )
+            poly2 = DataGenerator.generate_random_polygon(
+                center=centerpt2, avg_radius=r2
+            )
+        else:
+            poly1 = DataGenerator.generate_random_polygon(
+                center=Point(3, 3), avg_radius=3
+            )
+            vertices_poly2 = poly1.vertices[0:2]
+            vertices_poly2.append(
+                Point(
+                    x=vertices_poly2[0].x + vertices_poly2[1].x, y=vertices_poly2[0].y
+                )
+            )
+            poly2 = Polygon(vertices_poly2)
+        poly1_shapely = geometry.Polygon([[p.x, p.y] for p in poly1.vertices])
+        poly2_shapely = geometry.Polygon([[p.x, p.y] for p in poly2.vertices])
+        ans = poly1_shapely.intersects(
+            poly2_shapely
+        )  # sorry students, we WILL be checkig if you used shapely for this exercise :(
+        return [poly1, poly2, ans]
+
+    @staticmethod
     def generate_triangle_point_collision_data(
         index: int,
     ) -> Tuple[Triangle, Point, bool]:
