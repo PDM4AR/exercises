@@ -2,6 +2,7 @@ from pdm4ar.exercises_def.ex06.structures import *
 from triangle import triangulate
 from shapely import geometry  # TODO Remove
 import numpy as np
+from typing import Union
 
 
 class CollisionPrimitives_SeparateAxis:
@@ -98,23 +99,44 @@ class CollisionPrimitives_SeparateAxis:
 
     # Task 2.c
     @staticmethod
-    def separating_axis_thm(p1: Polygon, p2: Polygon) -> bool:
+    def separating_axis_thm(p1: Polygon, p2: Union[Polygon, Circle]) -> bool:
         """
         Get Candidate Separating Axes.
         Once obtained, loop over the Axes, project the polygons onto each acis and check overlap of the projected segments.
         If an axis with a non-overlapping projection is found, we can terminate early. Conclusion: The polygons do not collide.
+
+        IMPORTANT
+        This Method Evaluates task 2 and Task 3.
+        Task 2 checks the separate axis theorem for two polygons.
+        Task 3 checks the separate axis theorem for a circle and a polygon
+        We have provided a skeleton on this method to distinguish the two test cases, feel free to use any helper methods above, but your output must come
+        from  separating_axis_thm().
 
         Inputs:
         p1, p2: Candidate Polygons
         Outputs:
         bool: True if Polygons dont Collide. False o.w.
         """
+        if isinstance(p2, Polygon):
+            poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
+            poly2_shapely = geometry.Polygon([[p.x, p.y] for p in p2.vertices])
+            ans = poly1_shapely.intersects(poly2_shapely)  # sorry students
+            # TODO: Implement your solution for if polygon here. Exercise 2
+            # raise NotImplementedError
+            return ans
 
-        poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
-        poly2_shapely = geometry.Polygon([[p.x, p.y] for p in p2.vertices])
-        ans = poly1_shapely.intersects(poly2_shapely)  # sorry students
+        elif isinstance(p2, Circle):
 
-        return ans
+            # TODO Implement your solution for SAT for circles here. Exercise 3
+            # raise NotImplementedError
+            poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
+            circ_shapely = geometry.Point(p2.center.x, p2.center.y).buffer(p2.radius)
+            ans = poly1_shapely.intersects(circ_shapely)
+            return ans
+
+        else:
+            print("If we get here we have done a big mistake - TAs")
+            return ans
 
     # Task 3
     @staticmethod

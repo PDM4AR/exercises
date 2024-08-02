@@ -298,6 +298,31 @@ class DataGenerator:
         return [poly1, poly2, ans]
 
     @staticmethod
+    def generate_SAT_poly_circle(index: int) -> Tuple[Polygon, Circle, bool]:
+        # Generate polygons
+        randnum = np.random.uniform()
+        if randnum < 0.5:
+            centerpt1 = Point(0, 0)
+            centerpt2 = Point(5, 5)
+            r1 = 3.0
+            r2 = 2.0
+        else:
+            centerpt1 = Point(5, 5)
+            centerpt2 = Point(5, 5)
+            r1 = 4.0
+            r2 = 2.0
+
+        poly1 = DataGenerator.generate_random_polygon(center=centerpt1, avg_radius=r1)
+        circ = DataGenerator.generate_random_circle(center=centerpt2, min_radius=r2)
+
+        poly1_shapely = geometry.Polygon([[p.x, p.y] for p in poly1.vertices])
+        circ_shapely = geometry.Point(circ.center.x, circ.center.y).buffer(circ.radius)
+        ans = poly1_shapely.intersects(
+            circ_shapely
+        )  # sorry students, we WILL be checkig if you used shapely for this exercise :(
+        return [poly1, circ, ans]
+
+    @staticmethod
     def generate_triangle_point_collision_data(
         index: int,
     ) -> Tuple[Triangle, Point, bool]:

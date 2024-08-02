@@ -27,6 +27,7 @@ from pdm4ar.exercises_def.ex06.visualization import (
     visualize_robot_frame_map,
     visualize_axis_poly,
     viusalize_SAT_poly,
+    viusalize_SAT_poly_circle,
 )
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 from pdm4ar.exercises_def.ex06.data import DataGenerator
@@ -242,6 +243,16 @@ def get_exercise6() -> Exercise:
             "Separating Axis Thm",
             DataGenerator.generate_SAT_poly,
             viusalize_SAT_poly,
+            CollisionPrimitives_SeparateAxis.separating_axis_thm,
+            float_eval_function,
+            eval_weights=(20, 0),
+        ),  # Task 2: Separate Axis Theorem.
+        TestCollisionCheck(
+            6,
+            3,
+            "Separating Axis Thm with Circles",
+            DataGenerator.generate_SAT_poly_circle,
+            viusalize_SAT_poly_circle,
             CollisionPrimitives_SeparateAxis.separating_axis_thm,
             float_eval_function,
             eval_weights=(20, 0),
