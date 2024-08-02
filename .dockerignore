@@ -1,5 +1,6 @@
 **
-!setup.py
+!pyproject.toml
 !src
+!.devcontainer
 src/*.egg-info
 !requirements*
