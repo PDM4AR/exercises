@@ -16,7 +16,7 @@ __all__ = [
     "Polygon",
     "Path",
     "Polygon_3D",
-    "Point_3D", 
+    "Point_3D",
     "Segment_3D",
 ]
 
@@ -63,9 +63,13 @@ class Segment(GeoPrimitive):
         p2 = self.p2.apply_SE2transform(t)
         return replace(self, p1=p1, p2=p2)
 
-    def visualize(self, ax: Any):
+    def visualize(self, ax: Any, colour="r"):
         ax.plot(
-            [self.p1.x, self.p2.x], [self.p1.y, self.p2.y], marker="x", markersize=10
+            [self.p1.x, self.p2.x],
+            [self.p1.y, self.p2.y],
+            marker="x",
+            markersize=10,
+            color=colour,
         )
 
     def get_boundaries(self) -> Tuple["Point", "Point"]:
@@ -227,7 +231,7 @@ def _transform_points(t: SE2value, points: Sequence[Point]) -> Sequence[Point]:
     return [p.apply_SE2transform(t) for p in points]
 
 
-################### 3-D Polygons, Segments and Points:. May be removed. 
+################### 3-D Polygons, Segments and Points:. May be removed.
 @dataclass(frozen=True)
 class Point_3D(GeoPrimitive):
     x: float
@@ -250,7 +254,7 @@ class Point_3D(GeoPrimitive):
 class Segment_3D(GeoPrimitive):
     p1: Point_3D
     p2: Point_3D
-    # TODO: FOR A TA: FINISH OUT THE 3D SEGMENT CLASS. 
+    # TODO: FOR A TA: FINISH OUT THE 3D SEGMENT CLASS.
 
     def apply_SE2transform(self, t: SE2value) -> "Segment":
         p1 = self.p1.apply_SE2transform(t)
@@ -266,7 +270,8 @@ class Segment_3D(GeoPrimitive):
         p_min = Point(min(self.p1.x, self.p2.x), min(self.p1.y, self.p2.y))
         p_max = Point(max(self.p1.x, self.p2.x), max(self.p1.y, self.p2.y))
         return p_min, p_max
-    
+
+
 @dataclass(frozen=True)
 class Polygon_3D(GeoPrimitive):
     vertices: List[Point_3D]
@@ -304,4 +309,3 @@ class Polygon_3D(GeoPrimitive):
             max([v.y for v in self.vertices]),
         )
         return p_min, p_max
-

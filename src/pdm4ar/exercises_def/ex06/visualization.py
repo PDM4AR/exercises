@@ -29,6 +29,28 @@ def visualize_circle_point(r: Report, ex_num: str, data: Tuple[Circle, Point, bo
         )
 
 
+def visualize_axis_poly(r: Report, ex_num: str, data: Tuple[Polygon, Segment, Segment]):
+    poly, seg, proj_seg = data
+    rfig = r.figure(cols=1)
+    with rfig.plot(
+        nid=f"polygon_projection-{ex_num}",
+        mime=MIME_PDF,
+        figsize=None,
+    ) as _:
+        ax = plt.gca()
+        ax.grid()
+
+        # Draw Polygon
+        poly.visualize(ax)
+        # Draw original segment
+        seg.visualize(ax)
+        # Draw projected Segment
+        proj_seg.visualize(ax, colour="b")
+
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, 10)
+
+
 def visualize_triangle_point(
     r: Report, ex_num: str, data: Tuple[Triangle, Point, bool]
 ):

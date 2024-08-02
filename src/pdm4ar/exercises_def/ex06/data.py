@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np
 from geometry.poses import SE2_from_translation_angle
 from numpy.linalg import inv
-from shapely import geometry
+from shapely import geometry, line_locate_point
 from dg_commons import SE2Transform
 
 from .structures import (
@@ -197,6 +197,42 @@ class DataGenerator:
                 circle.radius, 2 * circle.radius, circle.center
             )
             return (circle, point, False)
+
+    @staticmethod  # New method.
+    def generate_axis_polygon(
+        index: int,
+    ) -> Tuple[Polygon, Segment, Segment]:  # 2nd segment is the expected result.
+        # Generate random polygon
+        poly = DataGenerator.generate_random_polygon(center=Point(5, 5), avg_radius=3.0)
+        # Generate the segment for the rand polygon
+        pt1 = Point(x=0.0, y=0.0)
+        pt2 = Point(x=40.0, y=0.0)
+
+        seg = Segment(p1=pt1, p2=pt2)
+
+        # Project the polygon onto the segment.
+        seg_shapely = geometry.LineString([[seg.p1.x, seg.p1.y], [seg.p2.x, seg.p2.y]])
+        min_dist = np.inf
+        min_proj_pt = None
+        max_dist = -np.inf
+        max_proj_pt = None
+        for vertice in poly.vertices:
+            vertice_shapely = geometry.Point(vertice.x, vertice.y)
+            dist = seg_shapely.project(vertice_shapely)
+            if dist < min_dist:
+                min_dist = dist
+                min_proj_pt = seg_shapely.interpolate(dist)
+            if dist > max_dist:
+                max_dist = dist
+                max_proj_pt = seg_shapely.interpolate(dist)
+        if min_proj_pt is not None and max_proj_pt is not None:
+            pt1_proj = Point(x=min_proj_pt.x, y=min_proj_pt.y)
+            pt2_proj = Point(x=max_proj_pt.x, y=max_proj_pt.y)
+            proj_seg = Segment(pt1_proj, pt2_proj)
+
+        # Create the 'true' segment, first project the polygon onto that segment. Can use shapely
+
+        return (poly, seg, proj_seg)
 
     @staticmethod
     def generate_triangle_point_collision_data(

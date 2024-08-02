@@ -2,6 +2,7 @@ import timeit
 import numpy as np
 import random
 from typing import Any, Callable, Sequence, Tuple, List, Dict
+from shapely.geometry import LineString
 from dataclasses import dataclass
 
 from dg_commons import SE2Transform
@@ -12,6 +13,7 @@ from pdm4ar.exercises.ex06.collision_checker import (
 )
 from pdm4ar.exercises.ex06.collision_primitives import (
     CollisionPrimitives,
+    CollisionPrimitives_SeparateAxis,
 )
 from pdm4ar.exercises_def.ex06.structures import Polygon
 from pdm4ar.exercises_def.ex06.visualization import (
@@ -23,6 +25,7 @@ from pdm4ar.exercises_def.ex06.visualization import (
     visualize_polygon_line,
     visualize_map_path,
     visualize_robot_frame_map,
+    visualize_axis_poly,
 )
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 from pdm4ar.exercises_def.ex06.data import DataGenerator
@@ -163,6 +166,41 @@ def idx_list_eval_function(data, estimation):
     return (ground_truth_bool == estimation_bool).mean()
 
 
+def segment_eval_function(data, estimation):
+    _, _, proj_seg = data
+    cand_seg = estimation
+
+    proj_seg_endpts = [
+        np.array([proj_seg.p1.x, proj_seg.p1.y]),
+        np.array([proj_seg.p2.x, proj_seg.p2.y]),
+    ]
+    cand_seg_endpts = [
+        np.array([cand_seg.p1.x, cand_seg.p1.y]),
+        np.array([cand_seg.p2.x, cand_seg.p2.y]),
+    ]
+
+    # norm distance
+    dist_proj = np.linalg.norm(proj_seg_endpts[0] - proj_seg_endpts[1])
+    dist_cand = np.linalg.norm(cand_seg_endpts[0] - cand_seg_endpts[1])
+
+    dist_diff = np.abs(dist_proj - dist_cand)
+    tol = 1e-5
+    # Check that endpts are the same
+    proj_seg_shapely = LineString(
+        [
+            [proj_seg_endpts[0][0], proj_seg_endpts[0][1]],
+            [proj_seg_endpts[1][0], proj_seg_endpts[1][1]],
+        ]
+    )
+    cand_seg_shapely = LineString(
+        [
+            [cand_seg_endpts[0][0], cand_seg_endpts[0][1]],
+            [cand_seg_endpts[1][0], cand_seg_endpts[1][1]],
+        ]
+    )
+    return dist_diff < tol and proj_seg_shapely.equals(cand_seg_shapely)
+
+
 def collision_check_robot_frame_loop(
     poses: List[SE2Transform],
     r: float,
@@ -188,75 +226,15 @@ def get_exercise6() -> Exercise:
     # Generate Test Data
     test_values = [
         TestCollisionCheck(
-            10,
             1,
-            "Point-Circle Collision Primitive",
-            DataGenerator.generate_circle_point_collision_data,
-            visualize_circle_point,
-            CollisionPrimitives.circle_point_collision,
-            float_eval_function,
-            (5, 0),
-        ),  # Step 1
-        TestCollisionCheck(
-            10,
-            2,
-            "Point-Triangle Collision Primitive",
-            DataGenerator.generate_triangle_point_collision_data,
-            visualize_triangle_point,
-            CollisionPrimitives.triangle_point_collision,
-            float_eval_function,
-            (10, 0),
-        ),  # Step 2
-        TestCollisionCheck(
-            10,
-            3,
-            "Point-Polygon Collision Primitive",
-            DataGenerator.generate_polygon_point_collision_data,
-            visualize_polygon_point,
-            CollisionPrimitives.polygon_point_collision,
-            float_eval_function,
-            (10, 0),
-        ),  # Step 3
-        TestCollisionCheck(
-            10,
-            4,
-            "Segment-Circle Collision Primitive",
-            DataGenerator.generate_circle_segment_collision_data,
-            visualize_circle_line,
-            CollisionPrimitives.circle_segment_collision,
-            float_eval_function,
-            (10, 0),
-        ),  # Step 4
-        TestCollisionCheck(
-            10,
-            5,
-            "Segment-Triangle Collision Primitive",
-            DataGenerator.generate_tringle_segment_collision_data,
-            visualize_triangle_line,
-            CollisionPrimitives.triangle_segment_collision,
-            float_eval_function,
-            (10, 0),
-        ),  # Step 5
-        TestCollisionCheck(
-            10,
-            6,
-            "Segment-Polygon Collision Primitive",
-            DataGenerator.generate_polygon_segment_collision_data,
-            visualize_polygon_line,
-            CollisionPrimitives.polygon_segment_collision,
-            float_eval_function,
-            (5, 0),
-        ),  # Step 6
-        TestCollisionCheck(
-            10,
-            7,
-            "Segment-Polygon (AABB) Collision Primitive",
-            DataGenerator.generate_polygon_segment_collision_data,
-            visualize_polygon_line,
-            CollisionPrimitives.polygon_segment_collision_aabb,
-            float_eval_function,
-            (5, 0),
-        ),  # Step 7
+            1,
+            "Project Polygon Check",
+            DataGenerator.generate_axis_polygon,
+            visualize_axis_poly,
+            CollisionPrimitives_SeparateAxis.proj_polygon,
+            segment_eval_function,
+            eval_weights=(5, 0),
+        ),  # task 1: proj polygon.
         TestCollisionCheck(
             5,
             8,
@@ -323,3 +301,77 @@ def get_exercise6() -> Exercise:
         test_values=test_values,
         expected_results=None,
     )
+
+
+# Leftovers:
+
+#     TestCollisionCheck(
+#         10,
+#         1,
+#         "Point-Circle Collision Primitive",
+#         DataGenerator.generate_circle_point_collision_data,
+#         visualize_circle_point,
+#         CollisionPrimitives.circle_point_collision,
+#         float_eval_function,
+#         (5, 0),
+#     ),  # Step 1
+#     TestCollisionCheck(
+#         10,
+#         2,
+#         "Point-Triangle Collision Primitive",
+#         DataGenerator.generate_triangle_point_collision_data,
+#         visualize_triangle_point,
+#         CollisionPrimitives.triangle_point_collision,
+#         float_eval_function,
+#         (10, 0),
+#     ),  # Step 2
+#     TestCollisionCheck(
+#         10,
+#         3,
+#         "Point-Polygon Collision Primitive",
+#         DataGenerator.generate_polygon_point_collision_data,
+#         visualize_polygon_point,
+#         CollisionPrimitives.polygon_point_collision,
+#         float_eval_function,
+#         (10, 0),
+#     ),  # Step 3
+#     TestCollisionCheck(
+#         10,
+#         4,
+#         "Segment-Circle Collision Primitive",
+#         DataGenerator.generate_circle_segment_collision_data,
+#         visualize_circle_line,
+#         CollisionPrimitives.circle_segment_collision,
+#         float_eval_function,
+#         (10, 0),
+#     ),  # Step 4
+#     TestCollisionCheck(
+#         10,
+#         5,
+#         "Segment-Triangle Collision Primitive",
+#         DataGenerator.generate_tringle_segment_collision_data,
+#         visualize_triangle_line,
+#         CollisionPrimitives.triangle_segment_collision,
+#         float_eval_function,
+#         (10, 0),
+#     ),  # Step 5
+#     TestCollisionCheck(
+#         10,
+#         6,
+#         "Segment-Polygon Collision Primitive",
+#         DataGenerator.generate_polygon_segment_collision_data,
+#         visualize_polygon_line,
+#         CollisionPrimitives.polygon_segment_collision,
+#         float_eval_function,
+#         (5, 0),
+#     ),  # Step 6
+#     TestCollisionCheck(
+#         10,
+#         7,
+#         "Segment-Polygon (AABB) Collision Primitive",
+#         DataGenerator.generate_polygon_segment_collision_data,
+#         visualize_polygon_line,
+#         CollisionPrimitives.polygon_segment_collision_aabb,
+#         float_eval_function,
+#         (5, 0),
+#     ),  # Step 7
