@@ -206,7 +206,19 @@ class DataGenerator:
         poly = DataGenerator.generate_random_polygon(center=Point(5, 5), avg_radius=3.0)
         # Generate the segment for the rand polygon
         pt1 = Point(x=0.0, y=0.0)
-        pt2 = Point(x=40.0, y=0.0)
+
+        rand_num = np.random.uniform()
+
+        if rand_num < 0.25:
+            y_coord_pt2 = 2.0
+        elif rand_num >= 0.25 and rand_num < 0.5:
+            y_coord_pt2 = 4.0
+        elif rand_num >= 0.5 and rand_num < 0.75:
+            y_coord_pt2 = 1.0
+        else:
+            y_coord_pt2 = 3.0
+
+        pt2 = Point(x=40.0, y=y_coord_pt2)
 
         seg = Segment(p1=pt1, p2=pt2)
 

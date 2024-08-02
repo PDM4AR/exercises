@@ -226,7 +226,7 @@ def get_exercise6() -> Exercise:
     # Generate Test Data
     test_values = [
         TestCollisionCheck(
-            1,
+            5,
             1,
             "Project Polygon Check",
             DataGenerator.generate_axis_polygon,
