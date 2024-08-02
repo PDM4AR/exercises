@@ -110,8 +110,11 @@ class CollisionPrimitives_SeparateAxis:
         bool: True if Polygons dont Collide. False o.w.
         """
 
-        # TODO
-        raise NotImplementedError
+        poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
+        poly2_shapely = geometry.Polygon([[p.x, p.y] for p in p2.vertices])
+        ans = poly1_shapely.intersects(poly2_shapely)  # sorry students
+
+        return ans
 
     # Task 3
     @staticmethod

@@ -281,11 +281,14 @@ class DataGenerator:
                 center=Point(3, 3), avg_radius=3
             )
             vertices_poly2 = poly1.vertices[0:2]
+
             vertices_poly2.append(
                 Point(
-                    x=vertices_poly2[0].x + vertices_poly2[1].x, y=vertices_poly2[0].y
-                )
+                    x=vertices_poly2[0].x + vertices_poly2[1].x + 2.0,
+                    y=vertices_poly2[0].y + 2.0,
+                ),
             )
+
             poly2 = Polygon(vertices_poly2)
         poly1_shapely = geometry.Polygon([[p.x, p.y] for p in poly1.vertices])
         poly2_shapely = geometry.Polygon([[p.x, p.y] for p in poly2.vertices])

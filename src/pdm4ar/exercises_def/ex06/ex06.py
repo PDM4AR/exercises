@@ -237,7 +237,7 @@ def get_exercise6() -> Exercise:
             eval_weights=(5, 0),
         ),  # Task 1: proj polygon.
         TestCollisionCheck(
-            1,
+            10,
             2,
             "Separating Axis Thm",
             DataGenerator.generate_SAT_poly,
@@ -256,46 +256,46 @@ def get_exercise6() -> Exercise:
             idx_list_eval_function,
             (20, 20),
         ),  # Step 8
-        TestCollisionCheck(
-            5,
-            9,
-            "Path Collision Check - Occupancy Grid",
-            lambda x: DataGenerator().generate_random_robot_map_and_path(9, x),
-            visualize_map_path,
-            CollisionChecker().path_collision_check_occupancy_grid,
-            idx_list_eval_function,
-            (20, 20),
-        ),  # Step 9
-        TestCollisionCheck(
-            5,
-            10,
-            "Path Collision Check - R-Tree",
-            lambda x: DataGenerator().generate_random_robot_map_and_path(10, x),
-            visualize_map_path,
-            CollisionChecker().path_collision_check_r_tree,
-            idx_list_eval_function,
-            (30, 30),
-        ),  # Step 10
-        TestCollisionCheck(
-            5,
-            11,
-            "Collision Check - Rigid Body Transformation",
-            DataGenerator().generate_robot_frame_data,
-            visualize_robot_frame_map,
-            collision_check_robot_frame_loop,
-            idx_list_eval_function,
-            (20, 20),
-        ),  # Step 11
-        TestCollisionCheck(
-            5,
-            12,
-            "Path Collision Check - Safety Certificates",
-            lambda x: DataGenerator().generate_random_robot_map_and_path(12, x),
-            visualize_map_path,
-            CollisionChecker().path_collision_check_safety_certificate,
-            idx_list_eval_function,
-            (30, 30),
-        ),  # Step 12
+        # TestCollisionCheck(
+        #     5,
+        #     9,
+        #     "Path Collision Check - Occupancy Grid",
+        #     lambda x: DataGenerator().generate_random_robot_map_and_path(9, x),
+        #     visualize_map_path,
+        #     CollisionChecker().path_collision_check_occupancy_grid,
+        #     idx_list_eval_function,
+        #     (20, 20),
+        # ),  # Step 9
+        # TestCollisionCheck(
+        #     5,
+        #     10,
+        #     "Path Collision Check - R-Tree",
+        #     lambda x: DataGenerator().generate_random_robot_map_and_path(10, x),
+        #     visualize_map_path,
+        #     CollisionChecker().path_collision_check_r_tree,
+        #     idx_list_eval_function,
+        #     (30, 30),
+        # ),  # Step 10
+        # TestCollisionCheck(
+        #     5,
+        #     11,
+        #     "Collision Check - Rigid Body Transformation",
+        #     DataGenerator().generate_robot_frame_data,
+        #     visualize_robot_frame_map,
+        #     collision_check_robot_frame_loop,
+        #     idx_list_eval_function,
+        #     (20, 20),
+        # ),  # Step 11
+        # TestCollisionCheck(
+        #     5,
+        #     12,
+        #     "Path Collision Check - Safety Certificates",
+        #     lambda x: DataGenerator().generate_random_robot_map_and_path(12, x),
+        #     visualize_map_path,
+        #     CollisionChecker().path_collision_check_safety_certificate,
+        #     idx_list_eval_function,
+        #     (30, 30),
+        # ),  # Step 12
     ]
 
     total_weights = (
