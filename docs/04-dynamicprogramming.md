@@ -5,8 +5,7 @@
 In this exercise you will implement _Value_ and _Policy iterations_ to solve a particular stationary Markov
 Decision Process (MDP).
 
-You are an operator on a distant planet at a base responsible for deploying autonomous survey robots looking for unobtainium.
-Your job is to send a surveying robot to a location specified by your company's client.
+You are an operator on a distant planet at a base responsible for deploying autonomous survey robots looking for unobtainium. Your job is to send a surveying robot to a location specified by your company's client.
 
 For each contract, you can deploy several robots, but only one at a time - corporate requires you to have at most one active robot in the field at any given time to try to save money.
 You can always choose to abandon an active robot and deploy a new one from the base.
@@ -26,9 +25,11 @@ The world is modeled as a 2D grid, which is represented through a _NxM_ matrix (
 Rows and columns represent the “_x_” and “_y_” coordinates of the robot, respectively.
 The area around you is a tropical rainforest, which can be modeled in the grid with the following types of cells:
 - ``GRASS`` (green) - it will take the robot 1 hour to cross this cell,
-- ```SWAMP``` (light blue) - it will take the robot 2 hours to cross this cell,
+- ``SWAMP`` (light blue) - it will take the robot 2 hours to cross this cell,
+- ``WORMHOLE`` (purple) - it is a teleportation cell and can be considered a ``GRASS`` cell. In addition, when the robot is in this cell, it will be teleported instantly (without any time cost) to other ``WORMHOLE`` including the one it is currently in.
+- ``CLIFF`` (black) - untraversable cell. If the robot tries to move in this cell, it will break down and you will need to deploy a new robot from the base.
 - ``GOAL`` (red) - the goal location you need to survey,
-- ``START`` (yellow) - the location of your base, it can be considered a ``GRASS`` cell. The 4 neighbors of the ``START`` cell are always ``GRASS`` cells and are not on the edge of the map (``START`` is always at least 2 cells away from the edge of the map).
+- ``START`` (yellow) - the location of your base, it can be considered a ``GRASS`` cell. The 4 neighbors of the ``START`` cell are always ``GRASS`` cells and are not on the edge of the map **(``START`` is always at least 2 cells away from the edge of the map)**.
 
 The time required to cross each cell corresponds to the time a robot needs to leave this cell (e.g. leaving the ``START`` cell takes 1 hour).
 When in a specific cell, you can plan for the robot to take one of the following actions:
@@ -52,13 +53,19 @@ The planet's atmosphere is very foggy and when the robot decides to move in a sp
   With probability 0.2, the robot will not be able to move out of the cell (it will stay in the cell).
   With probability 0.05 the robot will break down and will need to ``ABANDON`` its mission.
   - If the robot chooses to give up, it will ``ABANDON`` its mission with probability 1.0.
+- In ``WORMHOLE``:
+  - The robot will be teleported instantly to other ``WORMHOLE`` including the one it is currently in with equal probability. For example, if there are 4 ``WORMHOLE`` cells on the map, the robot will be teleported to one of them with probability 0.25.
+  - The robot will not break down during teleportation.
+- In ``CLIFF``:
+  - The robot will break down with probability 1.0.
 - When in the ``GOAL`` the robot will ``STAY``  with probability of 1.0.
-- The robot cannot directly pick an action that would take it outside the map. However, it may be that the robot ends up out of the map as described by the movement transition probabilities above. If this happens, the robot breaks down.
+- The robot cannot directly pick an action that would take it outside the map or to a ``CLIFF`` cell. However, it may be that the robot ends up out of the map or in a ``CLIFF`` cell as described by the movement transition probabilities above. If this happens, the robot breaks down.
 
 If the robot breaks down or chooses to ``ABANDON`` the mission, a new robot is deployed in the ``START`` cell, which costs you 10k USD.
 
 ### Hints
 - You can model the ``ABANDON`` action transition as a transition in your MDP from the current cell to the ``START`` cell with the cost of deploying a new robot.
+- You can model the teleportation as a transition in your MDP from the current cell to one of the other ``WORMHOLE`` cells with a probability $P(x_{k+1} \mid x_k, u_k)=P(x_{k+1} \mid x^-)P(x^- \mid x_k, u_k)$, where $x^-$ (adjacent ``WORMHOLE``) is the state after applying the action $u_k$ in the current state $x_k$, $x_{k+1}$ is the state after the teleportation. As the teleportation is instantaneous, you can model moving to the adjacent ``WORMHOLE`` and then being teleported to the next state as a single transition.
 - If the robot chooses a movement action in any cell, it will take it the time specified for this cell type to try to perform this action. An attempt to move out of the ``SWAMP`` cell always takes 2 hours, even if the robot ends up staying in the cell or breaking down.
 - Note that the robot will never break down in the ``START`` cell or in its neighboring cells (because of assumptions on their type and location on the map).
 
