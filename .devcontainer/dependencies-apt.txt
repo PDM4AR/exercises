@@ -1,12 +1,17 @@
 curl
 build-essential
 
+# for arm64
+gdal-bin
+libgdal-dev
+
 
 #libsuitesparse-dev
 #libopenblas-dev
 #libatlas-base-dev
 #libblas-dev
 #liblapack-dev
+
 
 # old apple fix?
 # RUN apt install -y --no-install-recommends build-essential cmake ffmpeg python3-gdal libgeos-dev libgdal-dev libspatialindex-dev libspatialindex-c6
