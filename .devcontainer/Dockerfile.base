@@ -6,7 +6,8 @@ FROM mcr.microsoft.com/vscode/devcontainers/python:${VARIANT}
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=off \
     POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_VERSION=1.8.3
+    POETRY_VERSION=1.8.3 \
+    FCL_TARGET_SUPPORT_X64_SSE=off
 
 # Install apt dependencies
 COPY .devcontainer/dependencies-apt.txt /tmp/
@@ -19,9 +20,10 @@ RUN apt-get update \
 RUN curl -sSL https://install.python-poetry.org | python3 - && \
     ln -s /root/.local/bin/poetry /usr/local/bin/poetry
 
-# Install package dependencies
+# Install package pdm4ar + dependencies
+RUN pip wheel --no-cache-dir --use-pep517 "commonroad-drivability-checker (==2024.1)"
 COPY pyproject.toml /tmp/pdm4ar/pyproject.toml
-RUN cd /tmp/pdm4ar && poetry install --no-root --no-interaction
+RUN cd /tmp/pdm4ar && poetry install --no-interaction
 RUN rm -rf /tmp/pdm4ar
 
 

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.2.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
@@ -22,15 +22,11 @@ networkx = "3.3"
 osmnx = "1.9.4"
 matplotlib = "3.8.2"
 frozendict = "2.4.4"
-pre-commit = "*"
-pyyaml = "*"
+pyyaml = "6.0.1"
 shapely = "2.0.5"
+triangle = "20230923"
 
-# notebooks
-ipython = "8.26.0"
-ipykernel = "6.29.5"
-
-# zuper 
+# zuper
 zuper-commons-z7 = "7.2"
 PyGeometry-z7 = "7.2"
 reprep-z7 = "7.2"
@@ -42,9 +38,6 @@ future = "*"
 webcolors = "*"
 typing_extensions = "*"
 decorator = "*"
-
-# triangle
-triangle = "20230923"
 
 # dg
 dg-commons = "0.0.47"
@@ -60,6 +53,16 @@ cvxopt = "1.3.2"
 cylp = "0.92.2"
 casadi = "3.6.5"
 sympy = "1.13.0"
+
+# notebooks
+ipython = "8.26.0"
+ipykernel = "6.29.5"
+
+# others
+pre-commit = "3.8.0"
+#setuptools = "*"
+#wheel = "*"
+
 
 [tool.poetry.scripts]
 pdm4ar-exercise = "pdm4ar:exercise_main"
