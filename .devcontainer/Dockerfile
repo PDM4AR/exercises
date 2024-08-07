@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/devcontainers/python:${VARIANT}
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     # pip
-    PIP_DISABLE_PIP_VERSION_CHECK=on
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_NO_CACHE_DIR=off \
     #poetry
     POETRY_VERSION=1.8.3 \
@@ -31,7 +31,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Set working directory to be the same where the devcontainer mounts source
-USER vscode
 WORKDIR /workspace
 
 # Install poetry
