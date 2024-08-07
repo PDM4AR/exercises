@@ -89,7 +89,7 @@ def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, 
 
 5. [10%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
 park backwards and sidewards when they should pick them up. Instead, they wait in the middle of the street...
-In the following, extend the code implemented in task 4 to allow also for situation when the car needs to drive backwards. For simplicity, we will **only** consider cases with **three** path segments all completed in reverse (i.e. $C^{-}S^{-}C^{-}$ type paths) + all optimal forward dubins paths coming from ```calculate_dubins_path``` (don't forget to call this function in the new method). Use the `Gear.REVERSE` enum value to indicate that the car drives backwards. For example, the following reverse path is a $R^{-}S^{-}L^{-}$ path (i.e. the direction of steering wheel input) with the `start_config.theta` and `end_config.theta` values corresponding to the direction that the car is facing towards.
+In the following, extend the code implemented in task 4 to allow also for situation when the car needs to drive backwards. For simplicity, we will **only** consider cases with **three** path segments all completed in reverse (i.e. $C^{-}S^{-}C^{-}$ and $C^{-}C^{-}C^{-}$ type paths) + all optimal forward dubins paths coming from ```calculate_dubins_path``` (don't forget to call this function in the new method). Use the `Gear.REVERSE` enum value to indicate that the car drives backwards. For example, the following reverse path is a $R^{-}S^{-}L^{-}$ path (i.e. the direction of steering wheel input) with the `start_config.theta` and `end_config.theta` values corresponding to the direction that the car is facing towards.
 
 <p align="center">
   <img alt="img-name" src="https://github-production-user-asset-6210df.s3.amazonaws.com/92320167/264764780-23ed014d-9ebf-41b8-8216-e12c4600c3f4.jpg">
@@ -110,7 +110,7 @@ def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transf
 All of the described subtasks are individually graded on different test cases. For each task, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases, i.e. for task $i$: $\frac{N_{correct,i}}{N_{task,i}}$. We define a test case to be computed *correctly*, if:
 
 - For task 1,2,3: The computed return values match the ones of the solution up to some numerical tolerance.
-- For task 4,5: The computed `Path` is in the set of **optimal** (i.e.minimum distance) paths and follows the specification made in the problem description.
+- For task 4,5: The computed `Path` is in the set of **optimal** (i.e.minimum distance) paths and follows the specification made in the problem description. Note we **do not** have test case where the start and end config are the same because it does not test your understanding on the problem.
 
 
 We provide some example test cases for each subtask. After running the exercise locally, you will find the report in the folder `out/ex05`. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g. by modifying the existing ones in `src/pdm4ar/exercises_def/ex05/data.py`.
