@@ -109,8 +109,8 @@ def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transf
 
 All of the described subtasks are individually graded on different test cases. For each task, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases, i.e. for task $i$: $\frac{N_{correct,i}}{N_{task,i}}$. We define a test case to be computed *correctly*, if:
 
-- For task 1,2,3: The computed return values match the ones of the solution up to some numerical tolerance.
-- For task 4,5: The computed `Path` is in the set of **optimal** (i.e.minimum distance) paths and follows the specification made in the problem description. Note we **do not** have test case where the start and end config are the same because it does not test your understanding on the problem.
+- For task 1,2,3: The computed return values match the ones of the solution up to some numerical tolerance. 
+- For task 4,5: The computed `Path` is in the set of **optimal** (i.e.minimum distance) paths and follows the specification made in the problem description. 
 
 
 We provide some example test cases for each subtask. After running the exercise locally, you will find the report in the folder `out/ex05`. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g. by modifying the existing ones in `src/pdm4ar/exercises_def/ex05/data.py`.
@@ -120,3 +120,4 @@ The final evaluation result is the normalized, weighted (see [%] in each descrip
 ### Update & Run
 
 Please refer to [Hello World](01-helloworld.md) for instructions.
+
