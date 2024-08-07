@@ -2,7 +2,7 @@ from pdm4ar.exercises_def.ex06.structures import *
 from triangle import triangulate
 from shapely import geometry  # TODO Remove
 import numpy as np
-from typing import Union
+from typing import Union, Optional
 
 
 class CollisionPrimitives_SeparateAxis:
@@ -99,7 +99,9 @@ class CollisionPrimitives_SeparateAxis:
 
     # Task 2.c
     @staticmethod
-    def separating_axis_thm(p1: Polygon, p2: Union[Polygon, Circle]) -> bool:
+    def separating_axis_thm(
+        p1: Polygon, p2: Union[Polygon, Circle]
+    ) -> tuple[bool, Optional[Segment]]:
         """
         Get Candidate Separating Axes.
         Once obtained, loop over the Axes, project the polygons onto each acis and check overlap of the projected segments.

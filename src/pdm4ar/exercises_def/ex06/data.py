@@ -202,6 +202,7 @@ class DataGenerator:
     def generate_axis_polygon(
         index: int,
     ) -> Tuple[Polygon, Segment, Segment]:  # 2nd segment is the expected result.
+
         # Generate random polygon
         poly = DataGenerator.generate_random_polygon(center=Point(5, 5), avg_radius=3.0)
         # Generate the segment for the rand polygon
@@ -222,6 +223,7 @@ class DataGenerator:
 
         seg = Segment(p1=pt1, p2=pt2)
 
+        # TODO: move to private repo from here till the end.
         # Project the polygon onto the segment.
         seg_shapely = geometry.LineString([[seg.p1.x, seg.p1.y], [seg.p2.x, seg.p2.y]])
         min_dist = np.inf
