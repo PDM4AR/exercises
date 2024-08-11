@@ -153,16 +153,17 @@ def graph_dimensions(G: WeightedGraph):
     return width, height, min_lat, max_lat, min_lon, max_lon
 
 
-def get_random_border_node(G: MultiDiGraph):
+def get_random_border_node(G: MultiDiGraph, seed=0):
     """Get a random node on the border of the graph G
     This defines border of a graph a node with only 1
     neighbor"""
+    random.seed(seed)
     nodes = list(G.nodes)
     border_nodes = [node for node in nodes if len(list(G.neighbors(node))) == 1]
     return random.choice(border_nodes)
 
 
-def create_highway_between_cities(G1: MultiDiGraph, G2: MultiDiGraph):
+def create_highway_between_cities(G1: MultiDiGraph, G2: MultiDiGraph, n_seed=0):
     """Given 2 graphs representing two cities, this function create
     a link between them connecting with a highway two random nodes on
     the border"""
@@ -173,8 +174,8 @@ def create_highway_between_cities(G1: MultiDiGraph, G2: MultiDiGraph):
     # print(f"dimension of city_2 lat {min_lat}-{max_lat}, lon {min_lon}-{max_lon}")
 
     # Get random border nodes
-    node1 = get_random_border_node(G1)
-    node2 = get_random_border_node(G2)
+    node1 = get_random_border_node(G1, seed=n_seed)
+    node2 = get_random_border_node(G2, seed=n_seed)
 
     G_combined = compose(G1, G2)
 
