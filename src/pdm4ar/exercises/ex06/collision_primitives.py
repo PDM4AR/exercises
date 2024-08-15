@@ -85,8 +85,8 @@ class CollisionPrimitives_SeparateAxis:
     def get_axes(p1: Polygon, p2: Polygon) -> list[Segment]:
         """
         Get all Candidate Separating Axes.
-        Hint: These are 2D Polygons, recommend searching over axes that are parallel to the edges only.
-        Rather than returning infinite Segments, return one axis per Edge1-Edge2 pairing. Return an Axis of size N (worldlength)
+        Hint: These are 2D Polygons, recommend searching over axes that are orthogonal to the edges only.
+        Rather than returning infinite Segments, return one axis per Edge1-Edge2 pairing. Return an Axis of size N (worldlength).
 
         Inputs:
         p1, p2: Polygons to obtain separating Axes over.
@@ -145,7 +145,7 @@ class CollisionPrimitives_SeparateAxis:
     def get_axes_cp(circ: Circle, poly: Polygon) -> list[Segment]:
         """
         Get axes between a circle and a polygon.
-        Hint: A sufficient condition is to only check the axis that is formed between the circle center, and the polygon vertex closest to the circle.
+        Hint: A sufficient condition is to only check the axis that is orthogonal to the polygon edge that is closest to the circle center.
 
         Inputs:
         circ, poly: Cicle and Polygon to check, respectively.
