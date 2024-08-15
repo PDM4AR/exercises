@@ -156,40 +156,6 @@ class CollisionPrimitives_SeparateAxis:
         # TODO
         raise NotImplementedError
 
-    # Task 4 (Optional Tasks )
-    @staticmethod
-    def project_polygon_3d(poly: Polygon_3D, ax: Segment_3D) -> Polygon:
-        """
-        Project the 3D Polygon to the plane orthogonal to the 3D Axis.
-        HINT: Project each vertex onto the plane, then the 2D polygon is formed by the convex hull of all the projected points.
-        HINT2: Usage of shapely library is encouraged to get the convex hull.
-
-        Inputs:
-        poly: a 3D body (denoted polygon in 3d Space)
-        ax: a Segment made of 3d Points. (Or a hyperplane? TODO: Verify with Yueshan.)
-        Outputs:
-        Polygon: a 2D polygon that represents the projection of the 3D Polygon.
-        """
-
-        # TODO
-        raise NotImplementedError
-
-    @staticmethod
-    def separate_axis_thm_simplified_3d(p1: Polygon_3D, p2: Polygon_3D) -> bool:
-        """
-        Project the 3D polygons onto the z-axis and check if the projected polygons overlap, using the previously implemented Separating Axis Thm method.
-        Note: This is a conservative check because a separating plane may still exist. For a precise collision check,
-        we need to test all planes formed by the corss products between any of the two edges of the polygons.
-
-        Inputs:
-        p1, p2: 3D polygons (bodies)
-        Outputs:
-        bool: true if SAT finds no collisions , false o.w.
-        """
-
-        # TODO
-        raise NotImplementedError
-
 
 class CollisionPrimitives:
     """
