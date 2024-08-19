@@ -41,6 +41,7 @@ decorator = "*"
 
 # dg
 dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar2024/fix-arm64" }
+dg-commonroad-drivability-checker = "2024.1"
 
 # mpc
 do-mpc = "4.6.5"

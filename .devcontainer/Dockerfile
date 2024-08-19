@@ -14,13 +14,12 @@ ENV PYTHONUNBUFFERED=1 \
     POETRY_VERSION=1.8.3 \
     POETRY_HOME=/opt/poetry \
     # Tell Poetry where to place its cache and virtual environment
-    POETRY_CACHE_DIR=/opt/.cache \
+    #POETRY_CACHE_DIR=/opt/.cache \
     # virtual environment in the project's root (it gets named `.venv`)
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_VIRTUALENVS_CREATE=1 \
     # do not ask any interactive question
     POETRY_NO_INTERACTION=1
-
 
 
 # Install apt dependencies
@@ -29,6 +28,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
+
 
 # Set working directory to be the same where the devcontainer mounts source
 WORKDIR /workspace
@@ -40,6 +40,8 @@ RUN pipx install poetry==${POETRY_VERSION}
 
 # Install package pdm4ar + dependencies
 COPY poetry.lock pyproject.toml ./
-RUN poetry install --no-ansi
+RUN poetry install --no-ansi --no-root --no-cache -vv
 
+# ENV PATH="${HOME}/.local/bin:$PATH"
+# https://github.com/RamiKrispin/vscode-python-medium/blob/main/03_final_example/.devcontainer/set_python_env.sh
 LABEL maintainer="A. Zanardi (azanardi@ethz.ch)"

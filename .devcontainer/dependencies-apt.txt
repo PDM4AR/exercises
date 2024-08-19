@@ -16,6 +16,12 @@ libomp-dev
 libcgal-dev
 libffi-dev
 
+libsuitesparse-dev
+libopenblas-dev
+libatlas-base-dev
+libblas-dev
+liblapack-dev
+
 #libsuitesparse-dev
 #libopenblas-dev
 #libatlas-base-dev

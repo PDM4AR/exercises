@@ -9,7 +9,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "01"],
+            "args": [
+                "--exercise",
+                "01"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -19,7 +22,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "01"],
+            "args": [
+                "--exercise",
+                "01"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -28,7 +34,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "02"],
+            "args": [
+                "--exercise",
+                "02"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -38,7 +47,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "02"],
+            "args": [
+                "--exercise",
+                "02"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -47,7 +59,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "03"],
+            "args": [
+                "--exercise",
+                "03"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -57,7 +72,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "03"],
+            "args": [
+                "--exercise",
+                "03"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -66,7 +84,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "04"],
+            "args": [
+                "--exercise",
+                "04"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -76,7 +97,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "04"],
+            "args": [
+                "--exercise",
+                "04"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -85,7 +109,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "05"],
+            "args": [
+                "--exercise",
+                "05"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -95,7 +122,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "05"],
+            "args": [
+                "--exercise",
+                "05"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -104,7 +134,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "06"],
+            "args": [
+                "--exercise",
+                "06"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -114,7 +147,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "06"],
+            "args": [
+                "--exercise",
+                "06"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -123,7 +159,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "07"],
+            "args": [
+                "--exercise",
+                "07"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -133,7 +172,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "07"],
+            "args": [
+                "--exercise",
+                "07"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -142,7 +184,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "08"],
+            "args": [
+                "--exercise",
+                "08"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -152,7 +197,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "08"],
+            "args": [
+                "--exercise",
+                "08"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -161,7 +209,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "09"],
+            "args": [
+                "--exercise",
+                "09"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -171,7 +222,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "09"],
+            "args": [
+                "--exercise",
+                "09"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -180,7 +234,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "10"],
+            "args": [
+                "--exercise",
+                "10"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
@@ -190,7 +247,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "10"],
+            "args": [
+                "--exercise",
+                "10"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         }
