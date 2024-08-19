@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Exercise1 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -15,11 +15,10 @@
             ],
             "console": "integratedTerminal",
             "justMyCode": true,
-            "noDebug": true
         },
         {
             "name": "Exercise1 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -40,7 +39,6 @@
             ],
             "console": "integratedTerminal",
             "justMyCode": true,
-            "noDebug": true
         },
         {
             "name": "Exercise2 - Debug",
