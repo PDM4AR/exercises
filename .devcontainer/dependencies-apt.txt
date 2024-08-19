@@ -2,8 +2,6 @@
 build-essential
 cmake
 
-
-
 # for arm64
 gdal-bin
 libgdal-dev
@@ -17,6 +15,7 @@ libcgal-dev
 libffi-dev
 
 libsuitesparse-dev
+libc6-dev
 libopenblas-dev
 libatlas-base-dev
 libblas-dev

@@ -40,7 +40,8 @@ RUN pipx install poetry==${POETRY_VERSION}
 
 # Install package pdm4ar + dependencies
 COPY poetry.lock pyproject.toml ./
-RUN poetry install --no-ansi --no-root --no-cache -vv
+RUN poetry lock --no-update
+RUN poetry install --no-root --no-cache -vv
 
 # ENV PATH="${HOME}/.local/bin:$PATH"
 # https://github.com/RamiKrispin/vscode-python-medium/blob/main/03_final_example/.devcontainer/set_python_env.sh
