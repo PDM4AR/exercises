@@ -15,6 +15,7 @@
             ],
             "console": "integratedTerminal",
             "justMyCode": true,
+            "noDebug": true
         },
         {
             "name": "Exercise1 - Debug",
@@ -30,7 +31,7 @@
         },
         {
             "name": "Exercise2 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -39,10 +40,11 @@
             ],
             "console": "integratedTerminal",
             "justMyCode": true,
+            "noDebug": true
         },
         {
             "name": "Exercise2 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -54,7 +56,7 @@
         },
         {
             "name": "Exercise3 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -67,7 +69,7 @@
         },
         {
             "name": "Exercise3 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -79,7 +81,7 @@
         },
         {
             "name": "Exercise4 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -92,7 +94,7 @@
         },
         {
             "name": "Exercise4 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -104,7 +106,7 @@
         },
         {
             "name": "Exercise5 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -117,7 +119,7 @@
         },
         {
             "name": "Exercise5 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -129,7 +131,7 @@
         },
         {
             "name": "Exercise6 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -142,7 +144,7 @@
         },
         {
             "name": "Exercise6 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -154,7 +156,7 @@
         },
         {
             "name": "Exercise7 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -167,7 +169,7 @@
         },
         {
             "name": "Exercise7 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -179,7 +181,7 @@
         },
         {
             "name": "Exercise8 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -192,7 +194,7 @@
         },
         {
             "name": "Exercise8 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -204,7 +206,7 @@
         },
         {
             "name": "Exercise09 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -217,7 +219,7 @@
         },
         {
             "name": "Exercise09 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -229,7 +231,7 @@
         },
         {
             "name": "Exercise10 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
@@ -242,7 +244,7 @@
         },
         {
             "name": "Exercise10 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
             "args": [
