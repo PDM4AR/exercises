@@ -1,6 +1,5 @@
 from pdm4ar.exercises_def.ex06.structures import *
 from triangle import triangulate
-from shapely import geometry  # TODO Remove
 import numpy as np
 from typing import Union, Optional
 
@@ -8,6 +7,12 @@ from typing import Union, Optional
 class CollisionPrimitives_SeparateAxis:
     """
     Class for Implementing the Separate Axis Theorem
+
+
+    A docstring with expected inputs and outputs is provided for each of the functions
+    you are to implement. You do not need to adhere to the given variable names, but you should adhere to
+    the datatypes of inputs and outputs.
+
 
     ## To be added to the website.
     The Separating Axis Theorem states: If two sets are closed and at least one of them is compact, then there is a hyperplane between them,
@@ -41,31 +46,14 @@ class CollisionPrimitives_SeparateAxis:
         segment: a (shorter) segment with start and endpoints of where the polygon has been projected to.
 
         """
+        start_1 = 0  # placeholder
+        end_1 = 0  # placeholder
+        start_2 = 0  # placeholder
+        end_2 = 0  # placeholder
 
-        # poly = p
-        # seg = ax
-        # seg_shapely = geometry.LineString([[seg.p1.x, seg.p1.y], [seg.p2.x, seg.p2.y]])
-        # min_dist = np.inf
-        # min_proj_pt = None
-        # max_dist = -np.inf
-        # max_proj_pt = None
-        # for vertice in poly.vertices:
-        #     vertice_shapely = geometry.Point(vertice.x, vertice.y)
-        #     dist = seg_shapely.project(vertice_shapely)
-        #     if dist < min_dist:
-        #         min_dist = dist
-        #         min_proj_pt = seg_shapely.interpolate(dist)
-        #     if dist > max_dist:
-        #         max_dist = dist
-        #         max_proj_pt = seg_shapely.interpolate(dist)
-        # if min_proj_pt is not None and max_proj_pt is not None:
-        #     pt1_proj = Point(x=min_proj_pt.x, y=min_proj_pt.y)
-        #     pt2_proj = Point(x=max_proj_pt.x, y=max_proj_pt.y)
-        #     proj_seg = Segment(pt1_proj, pt2_proj)
-
-        # return proj_seg
-        # TODO
-        raise NotImplementedError
+        # TODO: Implement function
+        raise NotImplementedError  # remove when you have written your code
+        return Segment(Point(start_1, end_1), Point(start_2, end_2))
 
     # Task 2.a
     @staticmethod
@@ -79,9 +67,11 @@ class CollisionPrimitives_SeparateAxis:
         Outputs:
         bool: True if segments overlap. False o.w.
         """
+        placeholder = True  # placeholder
 
-        # # TODO
-        raise NotImplementedError
+        # TODO: Implement Function
+        raise NotImplementedError  # remove when you have written your code
+        return placeholder
 
     # Task 2.b
     @staticmethod
@@ -96,14 +86,17 @@ class CollisionPrimitives_SeparateAxis:
         Outputs:
         list[Segment]: A list of segments of size N (worldlength) that represent each of the valid separating axes for the two polygons.
         """
+        axes = []  # Populate with Segment types
 
-        # # TODO
-        raise NotImplementedError
+        # TODO: Implement function
+        raise NotImplementedError  # remove when you have written your code
+        return axes
 
     # Task 2.c
     @staticmethod
     def separating_axis_thm(
-        p1: Polygon, p2: Union[Polygon, Circle]
+        p1: Polygon,
+        p2: Union[Polygon, Circle],
     ) -> tuple[bool, Optional[Segment]]:
         """
         Get Candidate Separating Axes.
@@ -117,32 +110,32 @@ class CollisionPrimitives_SeparateAxis:
         We have provided a skeleton on this method to distinguish the two test cases, feel free to use any helper methods above, but your output must come
         from  separating_axis_thm().
 
+        Hint: You can use previously implemented methods, such as overlap() and get_axes()
+
         Inputs:
         p1, p2: Candidate Polygons
         Outputs:
+        Output as a tuple
         bool: True if Polygons dont Collide. False o.w.
+        Segment: An Optional argument that allows you to visualize the axis you are projecting onto.
         """
 
-        # if isinstance(p2, Polygon):
-        #     poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
-        #     poly2_shapely = geometry.Polygon([[p.x, p.y] for p in p2.vertices])
-        #     ans = poly1_shapely.intersects(poly2_shapely)  # sorry students
-        #     # TODO: Implement your solution for if polygon here. Exercise 2
-        #     # raise NotImplementedError
-        #     return (ans, axis)
+        if isinstance(p2, Polygon):
 
-        # elif isinstance(p2, Circle):
+            # TODO: Implement your solution for if polygon here. Exercise 2
+            raise NotImplementedError  # remove when you have written your code
+            # return (bool, axis)
 
-        #     # TODO Implement your solution for SAT for circles here. Exercise 3
-        #     # raise NotImplementedError
-        #     poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
-        #     circ_shapely = geometry.Point(p2.center.x, p2.center.y).buffer(p2.radius)
-        #     ans = poly1_shapely.intersects(circ_shapely)
-        #     return (ans, axis)
+        elif isinstance(p2, Circle):
 
-        # else:
-        #     print("If we get here we have done a big mistake - TAs")
-        # return (ans, axis)
+            # TODO: Implement your solution for SAT for circles here. Exercise 3
+            # raise NotImplementedError
+            raise NotImplementedError  # remove when you have written your code
+            # return (bool, axis)
+
+        else:
+            print("If we get here we have done a big mistake - TAs")
+            return (bool, axis)
 
     # Task 3
     @staticmethod
@@ -156,46 +149,131 @@ class CollisionPrimitives_SeparateAxis:
         Ouputs:
         list[Segment]: A one-elemet list of a separating axis to the closest vertex.
         """
+        axes = []
 
-        # # TODO
-        raise NotImplementedError
+        # TODO
+        raise NotImplementedError  # remove when you have written your code
+        return axes
 
 
 class CollisionPrimitives:
     """
-    Class of collusion primitives
+    Class of collision primitives
     """
 
     @staticmethod
     def circle_point_collision(c: Circle, p: Point) -> bool:
+        """
+        Given function.
+        Checks if a circle and a point are in collision.
+
+        Inputs:
+        c: Circle primitive
+        p: Point primitive
+
+        Outputs:
+        bool: True if in Collision, False otherwise
+        """
         return False
 
     @staticmethod
     def triangle_point_collision(t: Triangle, p: Point) -> bool:
+        """
+        Given function.
+        Checks if a Triangle and a Point are in Collision
+
+        Inputs:
+        t: Triangle Primitive
+        p: Point Primitive
+
+        Outputs:
+        bool: True if in Collision, False otherwise.
+        """
         return False
 
     @staticmethod
     def polygon_point_collision(poly: Polygon, p: Point) -> bool:
+        """
+        Given function.
+
+        Input:
+        poly: Polygon primitive
+        p: Point primitive
+
+        Outputs
+        bool: True if in Collision, False otherwise.
+        """
         return False
 
     @staticmethod
     def circle_segment_collision(c: Circle, segment: Segment) -> bool:
+        """
+        Given function
+
+        Input:
+        c: Circle primitive
+        segment: Segment primitive
+
+        Outputs:
+        bool: True if in collision, False otherwise.
+        """
         return False
 
     @staticmethod
     def triangle_segment_collision(t: Triangle, segment: Segment) -> bool:
+        """
+        Given function.
+
+        Input:
+        t: Triangle Primitive
+        segment: Segment primitive
+
+        Outputs:
+        bool: True if in collision, False otherwise.
+        """
         return False
 
     @staticmethod
     def polygon_segment_collision(p: Polygon, segment: Segment) -> bool:
+        """
+        Given function.
+
+        Input:
+        p: Polygon primitive
+        segment: segment primitive
+
+        Outputs:
+        bool: True if in collision, False otherwise
+        """
         return False
 
     @staticmethod
     def polygon_segment_collision_aabb(p: Polygon, segment: Segment) -> bool:
+        """
+        Given Function
+        Casts a polygon into an AABB, then determines if the bounding box and a segment are in collision
+
+        Inputs:
+        p: Polygon primitive
+        segment: Segment primitive
+
+        Outputs:
+        bool: True if in collision, False otherwise.
+        """
         return False
 
     @staticmethod
     def _poly_to_aabb(g: Polygon) -> AABB:
+        """
+        Given Function
+        Casts a Polygon type into an AABB
+
+        Inputs:
+        g: Polygon
+
+        Outputs:
+        AABB: Bounding Box for the Polygon.
+        """
         # todo feel free to implement functions that upper-bound a shape with an
         #  AABB or simpler shapes for faster collision checks
         return AABB(p_min=Point(0, 0), p_max=Point(1, 1))
