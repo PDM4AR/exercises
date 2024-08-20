@@ -69,6 +69,12 @@ def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
 
 
 def geo_primitive_to_shapely(p: GeoPrimitive):
+    """
+    Given function.
+
+    Casts a geometric primitive into a Shapely object. Feel free to use this function or not
+    for the later tasks.
+    """
     if isinstance(p, Point):
         return shapely.Point(p.x, p.y)
     elif isinstance(p, Segment):
