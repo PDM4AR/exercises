@@ -287,7 +287,7 @@ def get_exercise6() -> Exercise:
         ),  # Task 3: Extended Separate Axis Theorem for circles.
         TestCollisionCheck(
             5,
-            8,
+            4,
             "Path Collision Check",
             lambda x: DataGenerator().generate_random_robot_map_and_path(8, x),
             visualize_map_path,
@@ -297,7 +297,7 @@ def get_exercise6() -> Exercise:
         ),  # Task 4
         TestCollisionCheck(
             5,
-            9,
+            5,
             "Path Collision Check - Occupancy Grid",
             lambda x: DataGenerator().generate_random_robot_map_and_path(9, x),
             visualize_map_path,
@@ -307,7 +307,7 @@ def get_exercise6() -> Exercise:
         ),  # Task 5
         TestCollisionCheck(
             5,
-            10,
+            6,
             "Path Collision Check - R-Tree",
             lambda x: DataGenerator().generate_random_robot_map_and_path(10, x),
             visualize_map_path,
@@ -317,7 +317,7 @@ def get_exercise6() -> Exercise:
         ),  # Task 6
         TestCollisionCheck(
             5,
-            11,
+            7,
             "Collision Check - Rigid Body Transformation",
             DataGenerator().generate_robot_frame_data,
             visualize_robot_frame_map,
@@ -327,7 +327,7 @@ def get_exercise6() -> Exercise:
         ),  # Task 7
         TestCollisionCheck(
             5,
-            12,
+            8,
             "Path Collision Check - Safety Certificates",
             lambda x: DataGenerator().generate_random_robot_map_and_path(12, x),
             visualize_map_path,
