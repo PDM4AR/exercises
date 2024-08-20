@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
-from typing import List, Tuple, Any, Sequence
+from typing import Any, Sequence
 
 import numpy as np
 from geometry import SE2value
@@ -32,7 +32,7 @@ class GeoPrimitive(ABC):
         pass
 
     @abstractmethod
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         pass
 
 
@@ -49,7 +49,7 @@ class Point(GeoPrimitive):
         # Draw Point
         ax.plot(self.x, self.y, marker="x", markersize=10)
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         return self, self
 
 
@@ -72,7 +72,7 @@ class Segment(GeoPrimitive):
             color=colour,
         )
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         p_min = Point(min(self.p1.x, self.p2.x), min(self.p1.y, self.p2.y))
         p_max = Point(max(self.p1.x, self.p2.x), max(self.p1.y, self.p2.y))
         return p_min, p_max
@@ -98,7 +98,7 @@ class Circle(GeoPrimitive):
         ax.set_aspect(1)
         ax.add_artist(draw_circle)
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         return (
             Point(self.center.x - self.radius, self.center.y - self.radius),
             Point(self.center.x + self.radius, self.center.y + self.radius),
@@ -131,7 +131,7 @@ class Triangle(GeoPrimitive):
         ax.set_aspect(1)
         ax.add_artist(draw_triangle)
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         p_min = Point(
             min([self.v1.x, self.v2.x, self.v3.x]),
             min([self.v1.y, self.v2.y, self.v3.y]),
@@ -155,13 +155,13 @@ class AABB(GeoPrimitive):
     def visualize(self, ax: Any):
         raise NotImplementedError()
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         raise NotImplementedError()
 
 
 @dataclass(frozen=True)
 class Polygon(GeoPrimitive):
-    vertices: List[Point]
+    vertices: list[Point]
 
     def apply_SE2transform(self, t: SE2value) -> "Polygon":
         transformed_vertices = _transform_points(t, self.vertices)
@@ -184,7 +184,7 @@ class Polygon(GeoPrimitive):
         ax.set_aspect(1)
         ax.add_artist(draw_poly)
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         p_min = Point(
             min([v.x for v in self.vertices]),
             min([v.y for v in self.vertices]),
@@ -198,7 +198,7 @@ class Polygon(GeoPrimitive):
 
 @dataclass(frozen=True)
 class Path(GeoPrimitive):
-    waypoints: List[Point]
+    waypoints: list[Point]
 
     def apply_SE2transform(self, t: SE2value) -> "Path":
         transformed_waypoints = _transform_points(t, self.waypoints)
@@ -215,7 +215,7 @@ class Path(GeoPrimitive):
             markersize=15,
         )
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         p_min = Point(
             min([v.x for v in self.waypoints]),
             min([v.y for v in self.waypoints]),
@@ -246,7 +246,7 @@ class Point_3D(GeoPrimitive):
         # Draw Point
         ax.plot(self.x, self.y, marker="x", markersize=10)
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         return self, self
 
 
@@ -266,7 +266,7 @@ class Segment_3D(GeoPrimitive):
             [self.p1.x, self.p2.x], [self.p1.y, self.p2.y], marker="x", markersize=10
         )
 
-    def get_boundaries(self) -> Tuple["Point", "Point"]:
+    def get_boundaries(self) -> tuple["Point", "Point"]:
         p_min = Point(min(self.p1.x, self.p2.x), min(self.p1.y, self.p2.y))
         p_max = Point(max(self.p1.x, self.p2.x), max(self.p1.y, self.p2.y))
         return p_min, p_max
@@ -274,7 +274,7 @@ class Segment_3D(GeoPrimitive):
 
 @dataclass(frozen=True)
 class Polygon_3D(GeoPrimitive):
-    vertices: List[Point_3D]
+    vertices: list[Point_3D]
     # TODO: For A TA: FINISH OUT the 3D POLYGON CLASS
 
     def apply_SE2transform(self, t: SE2value) -> "Polygon":
@@ -299,7 +299,7 @@ class Polygon_3D(GeoPrimitive):
         ax.set_aspect(1)
         ax.add_artist(draw_poly)
 
-    def get_boundaries(self) -> Tuple["Point_3D", "Point_3D"]:
+    def get_boundaries(self) -> tuple["Point_3D", "Point_3D"]:
         p_min = Point(
             min([v.x for v in self.vertices]),
             min([v.y for v in self.vertices]),

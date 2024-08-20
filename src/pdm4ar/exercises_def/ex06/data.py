@@ -1,6 +1,6 @@
 import math
 import random
-from typing import List, Tuple
+
 
 import numpy as np
 from geometry.poses import SE2_from_translation_angle
@@ -73,7 +73,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_polygon(
-        center: Tuple[float, float],
+        center: tuple[float, float],
         avg_radius: float,
         irregularity: float,
         spikiness: float,
@@ -88,7 +88,7 @@ class DataGenerator:
         sequential points, and by varying the radial distance of each
         point from the centre.
         Args:
-            center (Tuple[float, float]):
+            center (tuple[float, float]):
                 a pair representing the center of the circumference used
                 to generate the polygon.
             avg_radius (float):
@@ -131,7 +131,7 @@ class DataGenerator:
         return points
 
     @staticmethod
-    def random_angle_steps(steps: int, irregularity: float) -> List[float]:
+    def random_angle_steps(steps: int, irregularity: float) -> list[float]:
         """
         This code is taken from here => https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
 
@@ -142,7 +142,7 @@ class DataGenerator:
             irregularity (float):
                 variance of the spacing of the angles between consecutive vertices.
         Returns:
-            List[float]: the list of the random angles.
+            list[float]: the list of the random angles.
         """
         # generate n angle steps
         angles = []
@@ -185,7 +185,7 @@ class DataGenerator:
     @staticmethod
     def generate_circle_point_collision_data(
         index: int,
-    ) -> Tuple[Circle, Point, bool]:
+    ) -> tuple[Circle, Point, bool]:
         # Generate Random Circle
         circle = DataGenerator.generate_random_circle()
         # Generate Point
@@ -201,7 +201,7 @@ class DataGenerator:
     @staticmethod  # New method.
     def generate_axis_polygon(
         index: int,
-    ) -> Tuple[Polygon, Segment, Segment]:  # 2nd segment is the expected result.
+    ) -> tuple[Polygon, Segment, Segment]:  # 2nd segment is the expected result.
 
         # Generate random polygon
         poly = DataGenerator.generate_random_polygon(center=Point(5, 5), avg_radius=3.0)
@@ -249,7 +249,7 @@ class DataGenerator:
         return (poly, seg, proj_seg)
 
     @staticmethod
-    def generate_SAT_poly(index: int) -> Tuple[Polygon, Polygon, bool]:
+    def generate_SAT_poly(index: int) -> tuple[Polygon, Polygon, bool]:
         # Generate polygons
         randflag = True
         randnum = np.random.uniform()
@@ -300,7 +300,7 @@ class DataGenerator:
         return [poly1, poly2, ans]
 
     @staticmethod
-    def generate_SAT_poly_circle(index: int) -> Tuple[Polygon, Circle, bool]:
+    def generate_SAT_poly_circle(index: int) -> tuple[Polygon, Circle, bool]:
         # Generate polygons
         randnum = np.random.uniform()
         if randnum < 0.5:
@@ -327,7 +327,7 @@ class DataGenerator:
     @staticmethod
     def generate_triangle_point_collision_data(
         index: int,
-    ) -> Tuple[Triangle, Point, bool]:
+    ) -> tuple[Triangle, Point, bool]:
         # Generate Random Triangle
         triangle = DataGenerator.generate_random_triangle()
         # Calculate Center of the Triangle
@@ -353,7 +353,7 @@ class DataGenerator:
     @staticmethod
     def generate_polygon_point_collision_data(
         index: int,
-    ) -> Tuple[Polygon, Point, bool]:
+    ) -> tuple[Polygon, Point, bool]:
         # Generate Random Polygon
         poly = DataGenerator.generate_random_polygon()
         # Calculate Center of the Corners
@@ -369,7 +369,7 @@ class DataGenerator:
     @staticmethod
     def generate_circle_segment_collision_data(
         index: int,
-    ) -> Tuple[Circle, Segment, bool]:
+    ) -> tuple[Circle, Segment, bool]:
         # Generate Random Circle
         circle = DataGenerator.generate_random_circle()
         # Generate Points
@@ -392,7 +392,7 @@ class DataGenerator:
     @staticmethod
     def generate_tringle_segment_collision_data(
         index: int,
-    ) -> Tuple[Triangle, Segment, bool]:
+    ) -> tuple[Triangle, Segment, bool]:
         # Generate Random Polygon
         triangle = DataGenerator.generate_random_triangle()
         # Calculate Center of the Corners
@@ -432,7 +432,7 @@ class DataGenerator:
     @staticmethod
     def generate_polygon_segment_collision_data(
         index: int,
-    ) -> Tuple[Polygon, Segment, bool]:
+    ) -> tuple[Polygon, Segment, bool]:
         # Generate Random Polygon
         poly = DataGenerator.generate_random_polygon()
         # Calculate Center of the Corners
@@ -463,7 +463,7 @@ class DataGenerator:
     def generate_random_robot_map_and_path(
         exercise_id: int,
         index: int,
-    ) -> Tuple[Path, float, List[GeoPrimitive], List[int]]:
+    ) -> tuple[Path, float, list[GeoPrimitive], list[int]]:
 
         map_config = EXERCISE_MAP_CONFIGS[exercise_id]
         # Generate Random Robot Radius
@@ -522,12 +522,12 @@ class DataGenerator:
     @staticmethod
     def generate_robot_frame_data(
         index: int,
-    ) -> Tuple[
-        List[SE2Transform],
+    ) -> tuple[
+        list[SE2Transform],
         float,
-        List[List[GeoPrimitive]],
-        List[GeoPrimitive],
-        List[int],
+        list[list[GeoPrimitive]],
+        list[GeoPrimitive],
+        list[int],
     ]:
         # Initialize Random Map
         (

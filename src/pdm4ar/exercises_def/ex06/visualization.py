@@ -5,7 +5,7 @@ from reprep import Report, MIME_PDF
 from typing import Optional
 
 
-def visualize_circle_point(r: Report, ex_num: str, data: Tuple[Circle, Point, bool]):
+def visualize_circle_point(r: Report, ex_num: str, data: tuple[Circle, Point, bool]):
     c, p, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -30,7 +30,7 @@ def visualize_circle_point(r: Report, ex_num: str, data: Tuple[Circle, Point, bo
         )
 
 
-def visualize_axis_poly(r: Report, ex_num: str, data: Tuple[Polygon, Segment, Segment]):
+def visualize_axis_poly(r: Report, ex_num: str, data: tuple[Polygon, Segment, Segment]):
     poly, seg, proj_seg = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -55,7 +55,7 @@ def visualize_axis_poly(r: Report, ex_num: str, data: Tuple[Polygon, Segment, Se
 def viusalize_SAT_poly(
     r: Report,
     ex_num: str,
-    data: Tuple[Polygon, Polygon, bool],
+    data: tuple[Polygon, Polygon, bool],
     axis_vis: Optional[Segment] = None,
 ):
     # TODO Change. Placeholder rn.
@@ -93,7 +93,7 @@ def viusalize_SAT_poly(
 def viusalize_SAT_poly_circle(
     r: Report,
     ex_num: str,
-    data: Tuple[Polygon, Circle, bool],
+    data: tuple[Polygon, Circle, bool],
     axis_vis: Optional[Segment] = None,
 ):
     # TODO Change. Placeholder rn.
@@ -129,7 +129,7 @@ def viusalize_SAT_poly_circle(
 
 
 def visualize_triangle_point(
-    r: Report, ex_num: str, data: Tuple[Triangle, Point, bool]
+    r: Report, ex_num: str, data: tuple[Triangle, Point, bool]
 ):
     t, p, _ = data
     rfig = r.figure(cols=1)
@@ -157,7 +157,7 @@ def visualize_triangle_point(
         )
 
 
-def visualize_polygon_point(r: Report, ex_num: str, data: Tuple[Polygon, Point, bool]):
+def visualize_polygon_point(r: Report, ex_num: str, data: tuple[Polygon, Point, bool]):
     poly, p, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -184,7 +184,7 @@ def visualize_polygon_point(r: Report, ex_num: str, data: Tuple[Polygon, Point, 
         )
 
 
-def visualize_circle_line(r: Report, ex_num: str, data: Tuple[Circle, Segment, bool]):
+def visualize_circle_line(r: Report, ex_num: str, data: tuple[Circle, Segment, bool]):
     c, l, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -210,7 +210,7 @@ def visualize_circle_line(r: Report, ex_num: str, data: Tuple[Circle, Segment, b
 
 
 def visualize_triangle_line(
-    r: Report, ex_num: str, data: Tuple[Triangle, Segment, bool]
+    r: Report, ex_num: str, data: tuple[Triangle, Segment, bool]
 ):
     t, l, _ = data
     rfig = r.figure(cols=1)
@@ -236,7 +236,7 @@ def visualize_triangle_line(
         )
 
 
-def visualize_polygon_line(r: Report, ex_num: str, data: Tuple[Polygon, Segment, bool]):
+def visualize_polygon_line(r: Report, ex_num: str, data: tuple[Polygon, Segment, bool]):
     poly, l, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -264,7 +264,7 @@ def visualize_polygon_line(r: Report, ex_num: str, data: Tuple[Polygon, Segment,
 def visualize_map_path(
     r: Report,
     ex_num: str,
-    data: Tuple[Path, float, List[GeoPrimitive], List[int]],
+    data: tuple[Path, float, list[GeoPrimitive], list[int]],
 ):
     path, radius, obstacles, _ = data
     rfig = r.figure(cols=1)
@@ -298,12 +298,12 @@ def visualize_map_path(
 def visualize_robot_frame_map(
     r: Report,
     ex_num: str,
-    data: Tuple[
-        List[SE2Transform],
+    data: tuple[
+        list[SE2Transform],
         float,
-        List[List[GeoPrimitive]],
-        List[GeoPrimitive],
-        List[int],
+        list[list[GeoPrimitive]],
+        list[GeoPrimitive],
+        list[int],
     ],
 ):
     path, _, observations, obstacles, _ = data
