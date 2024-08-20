@@ -30,7 +30,7 @@ class CollisionPrimitives_SeparateAxis:
 
     # Task 1
     @staticmethod
-    def proj_polygon(p: Polygon, ax: Segment) -> Segment:
+    def proj_polygon(p: Union[Polygon, Circle], ax: Segment) -> Segment:
         """
         Project the Polygon onto the axis, represented as a Segment.
         Inputs:
@@ -41,28 +41,31 @@ class CollisionPrimitives_SeparateAxis:
         segment: a (shorter) segment with start and endpoints of where the polygon has been projected to.
 
         """
-        poly = p
-        seg = ax
-        seg_shapely = geometry.LineString([[seg.p1.x, seg.p1.y], [seg.p2.x, seg.p2.y]])
-        min_dist = np.inf
-        min_proj_pt = None
-        max_dist = -np.inf
-        max_proj_pt = None
-        for vertice in poly.vertices:
-            vertice_shapely = geometry.Point(vertice.x, vertice.y)
-            dist = seg_shapely.project(vertice_shapely)
-            if dist < min_dist:
-                min_dist = dist
-                min_proj_pt = seg_shapely.interpolate(dist)
-            if dist > max_dist:
-                max_dist = dist
-                max_proj_pt = seg_shapely.interpolate(dist)
-        if min_proj_pt is not None and max_proj_pt is not None:
-            pt1_proj = Point(x=min_proj_pt.x, y=min_proj_pt.y)
-            pt2_proj = Point(x=max_proj_pt.x, y=max_proj_pt.y)
-            proj_seg = Segment(pt1_proj, pt2_proj)
 
-        return proj_seg
+        # poly = p
+        # seg = ax
+        # seg_shapely = geometry.LineString([[seg.p1.x, seg.p1.y], [seg.p2.x, seg.p2.y]])
+        # min_dist = np.inf
+        # min_proj_pt = None
+        # max_dist = -np.inf
+        # max_proj_pt = None
+        # for vertice in poly.vertices:
+        #     vertice_shapely = geometry.Point(vertice.x, vertice.y)
+        #     dist = seg_shapely.project(vertice_shapely)
+        #     if dist < min_dist:
+        #         min_dist = dist
+        #         min_proj_pt = seg_shapely.interpolate(dist)
+        #     if dist > max_dist:
+        #         max_dist = dist
+        #         max_proj_pt = seg_shapely.interpolate(dist)
+        # if min_proj_pt is not None and max_proj_pt is not None:
+        #     pt1_proj = Point(x=min_proj_pt.x, y=min_proj_pt.y)
+        #     pt2_proj = Point(x=max_proj_pt.x, y=max_proj_pt.y)
+        #     proj_seg = Segment(pt1_proj, pt2_proj)
+
+        # return proj_seg
+        # TODO
+        raise NotImplementedError
 
     # Task 2.a
     @staticmethod
@@ -77,7 +80,7 @@ class CollisionPrimitives_SeparateAxis:
         bool: True if segments overlap. False o.w.
         """
 
-        # TODO
+        # # TODO
         raise NotImplementedError
 
     # Task 2.b
@@ -94,7 +97,7 @@ class CollisionPrimitives_SeparateAxis:
         list[Segment]: A list of segments of size N (worldlength) that represent each of the valid separating axes for the two polygons.
         """
 
-        # TODO
+        # # TODO
         raise NotImplementedError
 
     # Task 2.c
@@ -119,26 +122,27 @@ class CollisionPrimitives_SeparateAxis:
         Outputs:
         bool: True if Polygons dont Collide. False o.w.
         """
-        if isinstance(p2, Polygon):
-            poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
-            poly2_shapely = geometry.Polygon([[p.x, p.y] for p in p2.vertices])
-            ans = poly1_shapely.intersects(poly2_shapely)  # sorry students
-            # TODO: Implement your solution for if polygon here. Exercise 2
-            # raise NotImplementedError
-            return ans
 
-        elif isinstance(p2, Circle):
+        # if isinstance(p2, Polygon):
+        #     poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
+        #     poly2_shapely = geometry.Polygon([[p.x, p.y] for p in p2.vertices])
+        #     ans = poly1_shapely.intersects(poly2_shapely)  # sorry students
+        #     # TODO: Implement your solution for if polygon here. Exercise 2
+        #     # raise NotImplementedError
+        #     return (ans, axis)
 
-            # TODO Implement your solution for SAT for circles here. Exercise 3
-            # raise NotImplementedError
-            poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
-            circ_shapely = geometry.Point(p2.center.x, p2.center.y).buffer(p2.radius)
-            ans = poly1_shapely.intersects(circ_shapely)
-            return ans
+        # elif isinstance(p2, Circle):
 
-        else:
-            print("If we get here we have done a big mistake - TAs")
-            return ans
+        #     # TODO Implement your solution for SAT for circles here. Exercise 3
+        #     # raise NotImplementedError
+        #     poly1_shapely = geometry.Polygon([[p.x, p.y] for p in p1.vertices])
+        #     circ_shapely = geometry.Point(p2.center.x, p2.center.y).buffer(p2.radius)
+        #     ans = poly1_shapely.intersects(circ_shapely)
+        #     return (ans, axis)
+
+        # else:
+        #     print("If we get here we have done a big mistake - TAs")
+        # return (ans, axis)
 
     # Task 3
     @staticmethod
@@ -153,7 +157,7 @@ class CollisionPrimitives_SeparateAxis:
         list[Segment]: A one-elemet list of a separating axis to the closest vertex.
         """
 
-        # TODO
+        # # TODO
         raise NotImplementedError
 
 
