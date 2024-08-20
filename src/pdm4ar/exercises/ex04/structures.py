@@ -1,5 +1,5 @@
 from enum import IntEnum, unique
-from typing import Tuple
+from typing import Tuple, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -31,5 +31,7 @@ class Cell(IntEnum):
 
 Policy = NDArray[np.int64]
 """Type Alias for the policy"""
+AllOptimalActions = Union[NDArray[np.object_], Policy]
+"""Type Alias for the all optimal actions per state"""
 ValueFunc = NDArray[np.float64]
 """Type Alias for the value function"""

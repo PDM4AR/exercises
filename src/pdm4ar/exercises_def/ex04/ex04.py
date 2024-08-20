@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
-from pdm4ar.exercises.ex04.structures import Action, Cell
+from pdm4ar.exercises.ex04.structures import Action, AllOptimalActions, Cell
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex04.data import get_expected_results, get_test_grids
 from pdm4ar.exercises_def.ex04.map import map2image
@@ -50,12 +50,12 @@ class Ex04PerformanceResult(PerformanceResults):
 
 def get_font_size(grid_mdp: GridMdp) -> int:
     num_row = grid_mdp.grid.shape[0]
-    if num_row > 30:
-        return 2
-    elif num_row > 20:
+    if num_row <= 15:
+        return 6
+    elif num_row <= 30:
         return 3
     else:
-        return 6
+        return 2
 
 
 def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name: str):
@@ -73,7 +73,7 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
                     ax.text(j, i, f"{value_func[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
 
 
-def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: np.ndarray, algo_name: str):
+def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: AllOptimalActions, algo_name: str):
     MAP_SHAPE = grid_mdp.grid.shape
     font_size = get_font_size(grid_mdp)
     map_c = map2image(grid_mdp.grid)
@@ -83,14 +83,26 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: np.ndarray, algo_name: str
         ax.tick_params(axis="both", labelsize=font_size + 3)
         for i in range(MAP_SHAPE[0]):
             for j in range(MAP_SHAPE[1]):
-                if policy[i, j] == Action.ABANDON:
-                    ax.text(j, i, "X", size=2.5 * font_size, ha="center", va="center", color="k", weight="bold")
+                # Skip cliff
+                if grid_mdp.grid[i, j] == Cell.CLIFF:
+                    continue
+                # Get optimal actions. If policy is a single action, convert it to a list
+                if policy.dtype == object:
+                    optimal_actions = policy[i, j]
+                elif policy.dtype == int:
+                    optimal_actions = [policy[i, j]]
                 else:
-                    arrow = action2arrow[policy[i, j]]
-                    ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
+                    raise ValueError("Invalid policy type")
+
+                for action in optimal_actions:
+                    if action == Action.ABANDON:
+                        ax.text(j, i, "X", size=2.5 * font_size, ha="center", va="center", color="k", weight="bold")
+                    else:
+                        arrow = action2arrow[action]
+                        ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
 
 
-def plot_report_figure(r: Report, grid_mdp: GridMdp, value_func: np.ndarray, policy: np.ndarray, algo_name: str):
+def plot_report_figure(r: Report, grid_mdp: GridMdp, value_func: np.ndarray, policy: AllOptimalActions, algo_name: str):
     rfig = r.figure(cols=2)
     plot_grid_values(rfig, grid_mdp, value_func, algo_name)
     plot_grid_policy(rfig, grid_mdp, policy, algo_name)
@@ -112,9 +124,18 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
         # ground truth
         value_func_gt, policy_gt = ex_out
         # evaluate accuracy
-        policy_accuracy = (
-            np.sum(policy_gt[all_states_mask] == policy[all_states_mask]) / policy_gt[all_states_mask].size
-        )
+        if policy_gt.dtype == int:  # policy_gt only contains single optimal action per state
+            policy_accuracy = (
+                np.sum(policy_gt[all_states_mask] == policy[all_states_mask]) / policy_gt[all_states_mask].size
+            )
+        elif policy_gt.dtype == object:  # policy_gt contains all optimal actions per state
+            correct_policy = 0
+            for user_policy, gt_policy in zip(policy[all_states_mask], policy_gt[all_states_mask]):
+                correct_policy += 1 if user_policy in gt_policy else 0
+            policy_accuracy = float(correct_policy) / policy_gt[all_states_mask].size
+        else:
+            raise ValueError("Invalid policy_gt type")
+
         # R2 score - sum of squared errors divided by sum of squared differences from the mean
         value_func_r2 = 1 - np.sum(np.square(value_func_gt[all_states_mask] - value_func[all_states_mask])) / np.sum(
             np.square(value_func_gt[all_states_mask] - np.mean(value_func_gt[all_states_mask]))

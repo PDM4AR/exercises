@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
-from pdm4ar.exercises.ex04.structures import Policy, ValueFunc
+from pdm4ar.exercises.ex04.structures import AllOptimalActions, ValueFunc
 from pdm4ar.exercises_def.ex04.map import generate_map
 
 
@@ -35,7 +35,7 @@ def get_test_grids(
     return data_in
 
 
-def get_expected_results() -> List[Tuple[ValueFunc, Policy]]:
+def get_expected_results() -> List[Tuple[ValueFunc, AllOptimalActions]]:
     # fmt: off
     expected_results = defaultdict(dict)
 
