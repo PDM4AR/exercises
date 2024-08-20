@@ -25,6 +25,8 @@ class Cell(IntEnum):
     START = 1
     GRASS = 2
     SWAMP = 3
+    WORMHOLE = 4
+    CLIFF = 5
 
 
 Policy = NDArray[np.int64]

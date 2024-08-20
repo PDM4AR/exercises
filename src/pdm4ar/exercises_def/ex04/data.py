@@ -7,18 +7,24 @@ from pdm4ar.exercises.ex04.structures import Policy, ValueFunc
 from pdm4ar.exercises_def.ex04.map import generate_map
 
 
-def get_test_grids(evaluation_tests: List[Tuple[int, int]] = [], n_seed=12) -> List[GridMdp]:
-    MAP_SHAPE_1 = (5, 10)
+def get_test_grids(
+    evaluation_tests: List[Tuple[Tuple[int, int], int, int]] = [], n_test_seed=110, n_eval_seed=12
+) -> List[GridMdp]:
+    MAP_SHAPE_1 = (5, 5)
     MAP_SHAPE_2 = (10, 10)
-    
+    MAP_SHAPE_3 = (40, 40)
+
     test_maps = []
     swamp_ratio = 0.2
-    for ms in [MAP_SHAPE_1, MAP_SHAPE_2]:
-        test_maps.append(generate_map(ms, swamp_ratio, n_seed=n_seed))
+    test_maps.append(generate_map(MAP_SHAPE_1, swamp_ratio, n_wormhole=0, n_cliff=0, n_seed=n_test_seed))
+    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_wormhole=4, n_cliff=10, n_seed=n_test_seed))
+    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_wormhole=5, n_cliff=15, n_seed=n_test_seed))
 
     # additional maps for evaluation
-    for ms in evaluation_tests:
-        test_maps.append(generate_map(ms, swamp_ratio, n_seed=n_seed))
+    for map_info in evaluation_tests:
+        test_maps.append(
+            generate_map(map_info[0], swamp_ratio, n_wormhole=map_info[1], n_cliff=map_info[2], n_seed=n_eval_seed)
+        )
 
     discount = 0.9
     data_in: List[GridMdp] = []
@@ -28,8 +34,9 @@ def get_test_grids(evaluation_tests: List[Tuple[int, int]] = [], n_seed=12) -> L
 
     return data_in
 
-def get_expected_results() -> List[Tuple[ValueFunc, Policy]]:
 
+def get_expected_results() -> List[Tuple[ValueFunc, Policy]]:
+    # fmt: off
     expected_results = defaultdict(dict)
 
     value_func1 = np.array([[146.06783255, 153.61600686, 176.32872787, 205.63826482, 242.16355181, 287.65529141, 342.69300758, 399.81133988, 339.16059923, 252.57964034],
@@ -71,5 +78,5 @@ def get_expected_results() -> List[Tuple[ValueFunc, Policy]]:
                         (value_func2, policy2),
                         (value_func1, policy1),
                         (value_func2, policy2)]
-    
+    # fmt: on
     return expected_results

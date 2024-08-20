@@ -20,7 +20,14 @@ action2arrow = frozendict(
 )
 
 cell2color = frozendict(
-    {Cell.GOAL: to_rgb("red"), Cell.START: to_rgb("yellow"), Cell.GRASS: to_rgb("green"), Cell.SWAMP: to_rgb("cyan")}
+    {
+        Cell.GOAL: to_rgb("red"),
+        Cell.START: to_rgb("yellow"),
+        Cell.GRASS: to_rgb("green"),
+        Cell.SWAMP: to_rgb("cyan"),
+        Cell.WORMHOLE: to_rgb("purple"),
+        Cell.CLIFF: to_rgb("black"),
+    }
 )
 
 
