@@ -1,7 +1,7 @@
 import timeit
 import numpy as np
 import random
-from typing import Any, Callable, Sequence, Tuple, List, Dict
+from typing import Any, Callable, Sequence
 from shapely.geometry import LineString
 from dataclasses import dataclass
 
@@ -49,7 +49,7 @@ class TestCollisionCheck(ExIn):
     visualizer: Callable
     ex_function: Callable
     eval_function: Callable
-    eval_weights: Tuple[float, float]
+    eval_weights: tuple[float, float]
 
     def str_id(self) -> str:
         return f"step-{self.step_id}-"
@@ -59,7 +59,7 @@ class TestCollisionCheck(ExIn):
 class CollisionCheckWeightedPerformance(PerformanceResults):
     accuracy: float
     solve_time: float
-    performances: Dict[int, Dict[str, float]]
+    performances: dict[int, dict[str, float]]
 
     def __post_init__(self):
         assert 0 <= self.accuracy <= 1
@@ -70,7 +70,7 @@ class CollisionCheckWeightedPerformance(PerformanceResults):
 class CollisionCheckPerformance(PerformanceResults):
     accuracy: float
     solve_time: float
-    weights: Tuple[float, float]
+    weights: tuple[float, float]
     step_id: int
     """Percentage of correct comparisons"""
 
@@ -80,7 +80,7 @@ class CollisionCheckPerformance(PerformanceResults):
     @staticmethod
     def perf_aggregator(
         eval_list: Sequence["CollisionCheckPerformance"],
-        total_weights: Tuple[float, float],
+        total_weights: tuple[float, float],
     ) -> "CollisionCheckWeightedPerformance":
 
         if len(eval_list) == 0:
@@ -106,7 +106,7 @@ class CollisionCheckPerformance(PerformanceResults):
 
 def _collision_check_rep(
     algo_in: TestCollisionCheck, alg_out: Any
-) -> Tuple[CollisionCheckPerformance, Report]:
+) -> tuple[CollisionCheckPerformance, Report]:
 
     # Set Random Seed
     set_random_seed(RANDOM_SEED)
@@ -124,8 +124,8 @@ def _collision_check_rep(
         solve_times.append(stop - start)
 
         # get size of the estimate:
-        if isinstance(estimate, Tuple):
-            print("Estimate is a Tuple!")
+        if isinstance(estimate, tuple):
+            print("Estimate is a tuple!")
             accuracy_list.append(algo_in.eval_function(data, estimate[0]))
             algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1])
 
@@ -228,11 +228,11 @@ def segment_eval_function(data, estimation):
 
 
 def collision_check_robot_frame_loop(
-    poses: List[SE2Transform],
+    poses: list[SE2Transform],
     r: float,
-    observed_obstacles_list: List[List[Polygon]],
-    map: List[Polygon],
-) -> List[int]:
+    observed_obstacles_list: list[list[Polygon]],
+    map: list[Polygon],
+) -> list[int]:
     # Initialize Collision Checker
     collision_checker = CollisionChecker()
     # Iterate Over Path
