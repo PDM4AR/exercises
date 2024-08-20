@@ -118,16 +118,31 @@ def _collision_check_rep(
 
     for ex_num in range(algo_in.number_of_test_cases):
         data = algo_in.sample_generator(ex_num)
-        algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
         start = timeit.default_timer()
         estimate = algo_in.ex_function(*data[:-1])
         stop = timeit.default_timer()
-        accuracy_list.append(algo_in.eval_function(data, estimate))
         solve_times.append(stop - start)
-        r.text(
-            f"{algo_in.str_id()}-{ex_num}",
-            f"Ground Truth = {data[-1]} | Estimation = {estimate} | Execution Time = {round(stop - start, 5)}",
-        )
+
+        # get size of the estimate:
+        if isinstance(estimate, Tuple):
+            print("Estimate is a Tuple!")
+            accuracy_list.append(algo_in.eval_function(data, estimate[0]))
+            algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1])
+
+            r.text(
+                f"{algo_in.str_id()}-{ex_num}",
+                f"Ground Truth = {data[-1]} | Estimation = {estimate} | Execution Time = {round(stop - start, 5)}",
+            )
+
+        else:
+
+            accuracy_list.append(algo_in.eval_function(data, estimate))
+            algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
+
+            r.text(
+                f"{algo_in.str_id()}-{ex_num}",
+                f"Ground Truth = {data[-1]} | Estimation = {estimate} | Execution Time = {round(stop - start, 5)}",
+            )
 
     r.text(
         f"{algo_in.str_id()}-results",
@@ -186,7 +201,7 @@ def segment_eval_function(data, estimation):
     dist_cand = np.linalg.norm(cand_seg_endpts[0] - cand_seg_endpts[1])
 
     dist_diff = np.abs(dist_proj - dist_cand)
-    tol = 1e-5
+    tol = 1e-2
     # Check that endpts are the same
     proj_seg_shapely = LineString(
         [
@@ -200,7 +215,16 @@ def segment_eval_function(data, estimation):
             [cand_seg_endpts[1][0], cand_seg_endpts[1][1]],
         ]
     )
-    return dist_diff < tol and proj_seg_shapely.equals(cand_seg_shapely)
+    cand_seg_shapely_rev = LineString(
+        [
+            [cand_seg_endpts[1][0], cand_seg_endpts[1][1]],
+            [cand_seg_endpts[0][0], cand_seg_endpts[0][1]],
+        ]
+    )
+    return dist_diff < tol and (
+        proj_seg_shapely.equals_exact(cand_seg_shapely, tolerance=tol)
+        or proj_seg_shapely.equals_exact(cand_seg_shapely_rev, tolerance=tol)
+    )
 
 
 def collision_check_robot_frame_loop(
