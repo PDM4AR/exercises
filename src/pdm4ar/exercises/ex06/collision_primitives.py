@@ -141,13 +141,14 @@ class CollisionPrimitives_SeparateAxis:
     @staticmethod
     def get_axes_cp(circ: Circle, poly: Polygon) -> list[Segment]:
         """
-        Get axes between a circle and a polygon.
-        Hint: A sufficient condition is to only check the axis that is orthogonal to the polygon edge that is closest to the circle center.
+        Get all Candidate Separating Axes.
+        Hint: Notice that the circle is a polygon with infinite number of edges. Fortunately we do not need to check all axes normal to the edges.
+        It's sufficient to check the axes normal to the polygon edges plus ONE axis formed by the circle center and the closest vertice of the polygon.
 
         Inputs:
         circ, poly: Cicle and Polygon to check, respectively.
         Ouputs:
-        list[Segment]: A one-elemet list of a separating axis to the closest vertex.
+        list[Segment]: A list of segments of size N (worldlength) that represent each of the valid separating axes for the two polygons.
         """
         axes = []
 
@@ -160,6 +161,8 @@ class CollisionPrimitives:
     """
     Class of collision primitives
     """
+
+    NUMBER_OF_SAMPLES = 100
 
     @staticmethod
     def circle_point_collision(c: Circle, p: Point) -> bool:
@@ -174,7 +177,7 @@ class CollisionPrimitives:
         Outputs:
         bool: True if in Collision, False otherwise
         """
-        return False
+        return (p.x - c.center.x) ** 2 + (p.y - c.center.y) ** 2 < c.radius**2
 
     @staticmethod
     def triangle_point_collision(t: Triangle, p: Point) -> bool:
@@ -189,6 +192,24 @@ class CollisionPrimitives:
         Outputs:
         bool: True if in Collision, False otherwise.
         """
+        area_orig = np.abs(
+            (t.v2.x - t.v1.x) * (t.v3.y - t.v1.y)
+            - (t.v3.x - t.v1.x) * (t.v2.y - t.v1.y)
+        )
+
+        area1 = np.abs(
+            (t.v1.x - p.x) * (t.v2.y - p.y) - (t.v2.x - p.x) * (t.v1.y - p.y)
+        )
+        area2 = np.abs(
+            (t.v2.x - p.x) * (t.v3.y - p.y) - (t.v3.x - p.x) * (t.v2.y - p.y)
+        )
+        area3 = np.abs(
+            (t.v3.x - p.x) * (t.v1.y - p.y) - (t.v1.x - p.x) * (t.v3.y - p.y)
+        )
+
+        if np.abs(area1 + area2 + area3 - area_orig) < 1e-3:
+            return True
+
         return False
 
     @staticmethod
@@ -203,6 +224,25 @@ class CollisionPrimitives:
         Outputs
         bool: True if in Collision, False otherwise.
         """
+        triangulation_result = tr.triangulate(
+            dict(vertices=np.array([[v.x, v.y] for v in poly.vertices]))
+        )
+
+        triangles = [
+            Triangle(
+                Point(triangle[0, 0], triangle[0, 1]),
+                Point(triangle[1, 0], triangle[1, 1]),
+                Point(triangle[2, 0], triangle[2, 1]),
+            )
+            for triangle in triangulation_result["vertices"][
+                triangulation_result["triangles"]
+            ]
+        ]
+
+        for t in triangles:
+            if CollisionPrimitives.triangle_point_collision(t, p):
+                return True
+
         return False
 
     @staticmethod
@@ -217,7 +257,58 @@ class CollisionPrimitives:
         Outputs:
         bool: True if in collision, False otherwise.
         """
+        inside_1 = CollisionPrimitives.circle_point_collision(c, segment.p1)
+        inside_2 = CollisionPrimitives.circle_point_collision(c, segment.p2)
+
+        if inside_1 or inside_2:
+            return True
+
+        dist_x = segment.p1.x - segment.p2.x
+        dist_y = segment.p1.y - segment.p2.y
+        segment_len = np.sqrt(dist_x**2 + dist_y**2)
+
+        dot = (
+            ((c.center.x - segment.p1.x) * (segment.p2.x - segment.p1.x))
+            + ((c.center.y - segment.p1.y) * (segment.p2.y - segment.p1.y))
+        ) / pow(segment_len, 2)
+
+        closest_point = Point(
+            segment.p1.x + (dot * (segment.p2.x - segment.p1.x)),
+            segment.p1.y + (dot * (segment.p2.y - segment.p1.y)),
+        )
+
+        # Check whether point is on the segment segment or not
+        segment_len_1 = np.sqrt(
+            (segment.p1.x - closest_point.x) ** 2
+            + (segment.p1.y - closest_point.y) ** 2
+        )
+        segment_len_2 = np.sqrt(
+            (segment.p2.x - closest_point.x) ** 2
+            + (segment.p2.y - closest_point.y) ** 2
+        )
+
+        if np.abs(segment_len_1 + segment_len_2 - segment_len) > 1e-3:
+            return False
+
+        closest_dist = np.sqrt(
+            (c.center.x - closest_point.x) ** 2 + (c.center.y - closest_point.y) ** 2
+        )
+
+        if closest_dist < c.radius:
+            return True
+
         return False
+
+    @staticmethod
+    def sample_segment(segment: Segment) -> list[Point]:
+
+        x_diff = (segment.p1.x - segment.p2.x) / CollisionPrimitives.NUMBER_OF_SAMPLES
+        y_diff = (segment.p1.y - segment.p2.y) / CollisionPrimitives.NUMBER_OF_SAMPLES
+
+        return [
+            Point(x_diff * i + segment.p2.x, y_diff * i + segment.p2.y)
+            for i in range(CollisionPrimitives.NUMBER_OF_SAMPLES)
+        ]
 
     @staticmethod
     def triangle_segment_collision(t: Triangle, segment: Segment) -> bool:
@@ -231,6 +322,12 @@ class CollisionPrimitives:
         Outputs:
         bool: True if in collision, False otherwise.
         """
+        sampled_points = CollisionPrimitives.sample_segment(segment)
+
+        for point in sampled_points:
+            if CollisionPrimitives.triangle_point_collision(t, point):
+                return True
+
         return False
 
     @staticmethod
@@ -245,6 +342,12 @@ class CollisionPrimitives:
         Outputs:
         bool: True if in collision, False otherwise
         """
+        sampled_points = CollisionPrimitives.sample_segment(segment)
+
+        for point in sampled_points:
+            if CollisionPrimitives.polygon_point_collision(p, point):
+                return True
+
         return False
 
     @staticmethod
@@ -260,6 +363,20 @@ class CollisionPrimitives:
         Outputs:
         bool: True if in collision, False otherwise.
         """
+        aabb = CollisionPrimitives._poly_to_aabb(p)
+        sampled_points = CollisionPrimitives.sample_segment(segment)
+
+        for point in sampled_points:
+
+            if aabb.p_min.x > point.x or aabb.p_min.y > point.y:
+                continue
+
+            if aabb.p_max.x < point.x or aabb.p_max.y < point.y:
+                continue
+
+            if CollisionPrimitives.polygon_point_collision(p, point):
+                return True
+
         return False
 
     @staticmethod
@@ -274,6 +391,9 @@ class CollisionPrimitives:
         Outputs:
         AABB: Bounding Box for the Polygon.
         """
-        # todo feel free to implement functions that upper-bound a shape with an
-        #  AABB or simpler shapes for faster collision checks
-        return AABB(p_min=Point(0, 0), p_max=Point(1, 1))
+        x_values = [v.x for v in g.vertices]
+        y_values = [v.y for v in g.vertices]
+
+        return AABB(
+            Point(min(x_values), min(y_values)), Point(max(x_values), max(y_values))
+        )
