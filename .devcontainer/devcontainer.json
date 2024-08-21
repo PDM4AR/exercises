@@ -35,24 +35,22 @@
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
-				// Python extensions
 				"ms-python.python",
 				"ms-python.pylint",
 				"ms-python.black-formatter",
 				"ms-toolsai.jupyter",
 				"ms-toolsai.jupyter-renderers",
-				// Theme extension
 				"rafaelrenanpacheco.darcula-theme",
-				// Live server extension
-				"ritwickdey.liveserver"
+				"ritwickdey.liveserver",
+				"ritwickdey.LiveServer"
 			]
 		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [
-		// Example: Forward port 8000 for a web server
-		8000
-	],
+	// "forwardPorts": [
+	// 	// Example: Forward port 8000 for a web server
+	// 	8000
+	// ],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "poetry lock && poetry install",
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
