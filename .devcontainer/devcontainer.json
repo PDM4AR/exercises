@@ -22,7 +22,8 @@
 			// Set *default* container specific settings.json values on container create.
 			"settings": {
 				"[python]": {
-					"defaultInterpreterPath": "./.venv/bin/python",
+					"defaultInterpreterPath": "/workspaces/.venv/bin/python",
+					"pythonPath": "/workspaces/.venv/bin/python",
 					"linting.enabled": true,
 					"linting.pylintEnabled": true,
 					"formatting.provider": "black",
