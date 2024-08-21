@@ -1,13 +1,12 @@
 from itertools import product
 from random import sample, seed
-from typing import Tuple
 
 import numpy as np
 from pdm4ar.exercises.ex04.structures import Cell
 from pdm4ar.exercises_def.ex04.utils import cell2color
 
 
-def generate_map(shape: Tuple[int, int], swamp_percentage: float, n_wormhole: int, n_cliff: int, n_seed) -> np.ndarray:
+def generate_map(shape: tuple[int, int], swamp_percentage: float, n_wormhole: int, n_cliff: int, n_seed) -> np.ndarray:
     # map dimensions should be at least 5x5
     assert shape[0] >= 5 and shape[1] >= 5, "Map dimensions should be at least 5x5"
 

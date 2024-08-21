@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
 
 import numpy as np
 from numpy.typing import NDArray
@@ -27,5 +26,5 @@ class GridMdp:
 class GridMdpSolver(ABC):
     @staticmethod
     @abstractmethod
-    def solve(grid_mdp: GridMdp) -> Tuple[ValueFunc, Policy]:
+    def solve(grid_mdp: GridMdp) -> tuple[ValueFunc, Policy]:
         pass

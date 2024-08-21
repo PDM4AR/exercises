@@ -1,5 +1,3 @@
-from collections import defaultdict
-from typing import List, Tuple
 from pathlib import Path
 
 import numpy as np
@@ -21,7 +19,7 @@ def get_simple_test_grid() -> np.ndarray:
     return simple_map
 
 
-def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = [], n_eval_seed=12) -> List[GridMdp]:
+def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = [], n_eval_seed=12) -> tuple[GridMdp]:
     MAP_SHAPE_2 = (10, 10)
     MAP_SHAPE_3 = (40, 40)
 
@@ -38,7 +36,7 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = []
         )
 
     discount = 0.9
-    data_in: List[GridMdp] = []
+    data_in: list[GridMdp] = []
     for m in test_maps:
         p = GridMdp(grid=m, gamma=discount)
         data_in.append(p)
@@ -46,9 +44,7 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = []
     return data_in
 
 
-def get_expected_results() -> List[Tuple[ValueFunc, AllOptimalActions]]:
-    expected_results = defaultdict(dict)
-
+def get_expected_results() -> list[tuple[ValueFunc, AllOptimalActions]]:
     data_dir = Path(__file__).parent
     all_data = np.load(data_dir / "data/expected_results.npz", allow_pickle=True)
 

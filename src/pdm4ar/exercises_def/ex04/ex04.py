@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from time import process_time
-from typing import Any, List, Sequence, Type
+from typing import Any, Sequence, Type
 from zuper_commons.text import remove_escapes
 
 import numpy as np

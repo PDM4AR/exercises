@@ -1,5 +1,5 @@
 from enum import IntEnum, unique
-from typing import Tuple, Union
+from typing import Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -15,7 +15,7 @@ class Action(IntEnum):
     ABANDON = 5
 
 
-State = Tuple[int, int]
+State = tuple[int, int]
 """The state on a grid is simply a tuple of two ints"""
 
 
