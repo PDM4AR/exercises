@@ -32,8 +32,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Set working directory
-WORKDIR /workspace
-ENV VIRTUAL_ENV=/workspace/.venv
+WORKDIR /workspaces
+ENV VIRTUAL_ENV=/workspaces/.venv
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 
 # Install poetry
