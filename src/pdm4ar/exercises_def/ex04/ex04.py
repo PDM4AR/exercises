@@ -5,6 +5,7 @@ from zuper_commons.text import remove_escapes
 
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.ticker import MaxNLocator
 from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
@@ -64,6 +65,8 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
     with rfig.plot(nid=f"{algo_name}-value", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         ax.imshow(value_func, aspect="equal")
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         ax.tick_params(axis="both", labelsize=font_size + 3)
         for i in range(MAP_SHAPE[0]):
             for j in range(MAP_SHAPE[1]):
@@ -80,6 +83,8 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: AllOptimalActions, algo_na
     with rfig.plot(nid=f"{algo_name}-policy", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         ax.imshow(map_c, aspect="equal")
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         ax.tick_params(axis="both", labelsize=font_size + 3)
         for i in range(MAP_SHAPE[0]):
             for j in range(MAP_SHAPE[1]):
