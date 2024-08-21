@@ -33,7 +33,7 @@ RUN apt-get update \
 
 
 # Set working directory to be the same where the devcontainer mounts source
-WORKDIR /workspace/exercises
+WORKDIR /workspace
 
 # Install poetry
 RUN pipx install poetry==${POETRY_VERSION}
@@ -42,6 +42,9 @@ RUN pipx install poetry==${POETRY_VERSION}
 COPY poetry.lock pyproject.toml ./
 RUN poetry lock --no-update
 RUN poetry install --no-root --no-cache -vv
+RUN rm poetry.lock pyproject.toml
+ENV VIRTUAL_ENV=/workspace/.venv
+ENV PATH="/workspace/.venv/bin:$PATH"
 
 # ENV PATH="${HOME}/.local/bin:$PATH"
 # https://github.com/RamiKrispin/vscode-python-medium/blob/main/03_final_example/.devcontainer/set_python_env.sh
