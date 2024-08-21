@@ -19,7 +19,9 @@ ENV PYTHONUNBUFFERED=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_VIRTUALENVS_CREATE=1 \
     # do not ask any interactive question
-    POETRY_NO_INTERACTION=1
+    POETRY_NO_INTERACTION=1 \
+    # for pycontracts
+    DISABLE_CONTRACTS=1
 
 
 # Install apt dependencies
@@ -31,12 +33,10 @@ RUN apt-get update \
 
 
 # Set working directory to be the same where the devcontainer mounts source
-WORKDIR /workspace
+WORKDIR /workspace/exercises
 
 # Install poetry
 RUN pipx install poetry==${POETRY_VERSION}
-
-#RUN pip wheel --no-cache-dir --use-pep517 "dg-commonroad-drivability-checker (==2024.1)"
 
 # Install package pdm4ar + dependencies
 COPY poetry.lock pyproject.toml ./
