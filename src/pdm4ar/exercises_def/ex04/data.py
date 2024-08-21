@@ -3,22 +3,32 @@ from typing import List, Tuple
 
 import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
-from pdm4ar.exercises.ex04.structures import AllOptimalActions, ValueFunc
+from pdm4ar.exercises.ex04.structures import AllOptimalActions, ValueFunc, Cell
 from pdm4ar.exercises_def.ex04.map import generate_map
 
 
-def get_test_grids(
-    evaluation_tests: List[Tuple[Tuple[int, int], int, int]] = [], n_test_seed=110, n_eval_seed=12
-) -> List[GridMdp]:
-    MAP_SHAPE_1 = (5, 5)
+def get_simple_test_grid() -> np.ndarray:
+    simple_map = np.array(
+        [
+            [Cell.CLIFF, Cell.CLIFF, Cell.GRASS, Cell.CLIFF, Cell.CLIFF],
+            [Cell.CLIFF, Cell.WORMHOLE, Cell.GRASS, Cell.SWAMP, Cell.CLIFF],
+            [Cell.GRASS, Cell.GRASS, Cell.START, Cell.WORMHOLE, Cell.GOAL],
+            [Cell.CLIFF, Cell.WORMHOLE, Cell.GRASS, Cell.SWAMP, Cell.CLIFF],
+            [Cell.CLIFF, Cell.CLIFF, Cell.GRASS, Cell.CLIFF, Cell.CLIFF],
+        ]
+    )
+    return simple_map
+
+
+def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = [], n_eval_seed=12) -> List[GridMdp]:
     MAP_SHAPE_2 = (10, 10)
     MAP_SHAPE_3 = (40, 40)
 
     test_maps = []
     swamp_ratio = 0.2
-    test_maps.append(generate_map(MAP_SHAPE_1, swamp_ratio, n_wormhole=0, n_cliff=0, n_seed=n_test_seed))
-    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_wormhole=4, n_cliff=10, n_seed=n_test_seed))
-    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_wormhole=5, n_cliff=15, n_seed=n_test_seed))
+    test_maps.append(get_simple_test_grid())
+    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_wormhole=4, n_cliff=10, n_seed=5))
+    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_wormhole=5, n_cliff=15, n_seed=110))
 
     # additional maps for evaluation
     for map_info in evaluation_tests:
