@@ -55,7 +55,7 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "poetry lock && poetry install",
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "vscode",
+	"remoteUser": "root",
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/git-lfs:1": {},
