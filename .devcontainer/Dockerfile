@@ -24,6 +24,7 @@ ENV PYTHONUNBUFFERED=1 \
     DISABLE_CONTRACTS=1
 
 
+
 # Install apt dependencies
 COPY .devcontainer/dependencies-apt.txt /tmp/
 RUN apt-get update \
@@ -32,9 +33,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Set working directory
-WORKDIR /workspaces
-ENV VIRTUAL_ENV=/workspaces/.venv
+ENV WORKDIR_PATH="/workspaces"
+WORKDIR ${WORKDIR_PATH}
+ENV VIRTUAL_ENV=${WORKDIR_PATH}/.venv
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
+
+# Install Suite sparse for arm64 to be used by cvxopt
+RUN mkdir SuiteSparse \
+   && curl -fsSL https://api.github.com/repos/DrTimothyAldenDavis/SuiteSparse/tarball/v5.8.1 \
+    | tar xzvpf - --no-same-owner --strip-components=1 -C SuiteSparse
+ENV CVXOPT_SUITESPARSE_SRC_DIR=${WORKDIR_PATH}/SuiteSparse
 
 # Install poetry
 RUN pipx install poetry==${POETRY_VERSION}
