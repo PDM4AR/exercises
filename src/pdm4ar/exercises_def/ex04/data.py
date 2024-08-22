@@ -19,7 +19,7 @@ def get_simple_test_grid() -> np.ndarray:
     return simple_map
 
 
-def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = [], n_eval_seed=12) -> tuple[GridMdp]:
+def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]] = []) -> tuple[GridMdp]:
     MAP_SHAPE_2 = (10, 10)
     MAP_SHAPE_3 = (40, 40)
 
@@ -32,7 +32,7 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = []
     # additional maps for evaluation
     for map_info in evaluation_tests:
         test_maps.append(
-            generate_map(map_info[0], swamp_ratio, n_wormhole=map_info[1], n_cliff=map_info[2], n_seed=n_eval_seed)
+            generate_map(map_info[0], swamp_ratio, n_wormhole=map_info[1], n_cliff=map_info[2], n_seed=map_info[3])
         )
 
     discount = 0.9
