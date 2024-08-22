@@ -2,6 +2,6 @@
     "files.exclude": {
         "**/__pycache__": true,
         "**/*.egg-info": true,
-        "**/.venv/*": true
+        "**/.circleci/*": true
     }
 }

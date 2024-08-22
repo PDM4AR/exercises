@@ -3,18 +3,6 @@
 {
 	"name": "pdm4ar2024",
 	"image": "idscfrazz/pdm4ar2024:3.11-bullseye",
-	//	"build": {
-	//		"dockerfile": "Dockerfile",
-	//		"context": "..",
-	//		"args": {
-	//			// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
-	//			// Append -bullseye or -buster to pin to an OS version.
-	//			// Use -bullseye variants on local on arm64/Apple Silicon.
-	//			"VARIANT": "3.11-bullseye",
-	//			// Options
-	//			"NODE_VERSION": "none"
-	//		}
-	//	},
 	// Configure tool-specific properties.
 	"customizations": {
 		// Configure properties specific to VS Code.
@@ -23,7 +11,7 @@
 			"settings": {
 				"[python]": {
 					"defaultInterpreterPath": "/workspaces/.venv/bin/python",
-					"pythonPath": "/workspaces/.venv/bin/python",
+					"venvPath": "/workspaces/.venv",
 					"linting.enabled": true,
 					"linting.pylintEnabled": true,
 					"formatting.provider": "black",
