@@ -1,0 +1,33 @@
+#curl
+build-essential
+cmake
+
+# for arm64
+gdal-bin
+libgdal-dev
+libeigen3-dev
+libboost-dev
+libboost-thread-dev
+libboost-test-dev
+libboost-filesystem-dev
+libomp-dev
+libcgal-dev
+libffi-dev
+
+libsuitesparse-dev
+libc6-dev
+libopenblas-dev
+libatlas-base-dev
+libblas-dev
+liblapack-dev
+
+#libsuitesparse-dev
+#libopenblas-dev
+#libatlas-base-dev
+#libblas-dev
+#liblapack-dev
+
+
+# old apple fix?
+# RUN apt install -y --no-install-recommends build-essential cmake ffmpeg python3-gdal libgeos-dev libgdal-dev libspatialindex-dev libspatialindex-c6
+# RUN apt install -y --no-install-recommends libeigen3-dev libboost-dev libboost-thread-dev libboost-test-dev libboost-filesystem-dev libomp-dev libcgal-dev git-lfs libssl-dev libffi-dev
