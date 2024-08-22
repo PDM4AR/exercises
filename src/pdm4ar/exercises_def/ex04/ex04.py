@@ -142,7 +142,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
             raise ValueError("Invalid policy_gt type")
 
         # R2 score - sum of squared errors divided by sum of squared differences from the mean
-        value_func_r2 = 1 - np.sum(np.square(value_func_gt[all_states_mask] - value_func[all_states_mask])) / np.sum(
+        value_func_r2 = 1.0 - np.sum(np.square(value_func_gt[all_states_mask] - value_func[all_states_mask])) / np.sum(
             np.square(value_func_gt[all_states_mask] - np.mean(value_func_gt[all_states_mask]))
         )
         # Clamp negative values to 0
