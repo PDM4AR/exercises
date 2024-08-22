@@ -4,4 +4,3 @@
 !src
 !.devcontainer
 src/*.egg-info
-!requirements*
