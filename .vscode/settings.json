@@ -3,5 +3,7 @@
         "**/__pycache__": true,
         "**/*.egg-info": true,
         "**/.circleci/*": true
-    }
+    },
+    "python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
 }

@@ -9,17 +9,16 @@
 		"vscode": {
 			// Set *default* container specific settings.json values on container create.
 			"settings": {
+				"python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
+				"python.venvPath": "/workspaces/.venv",
+				"python.formatting.provider": "black",
+				"python.analysis.typeCheckingMode": "basic",
+				"python.analysis.autoImportCompletions": true,
+				"python.terminal.activateEnvironment": true,
 				"[python]": {
-					"defaultInterpreterPath": "/workspaces/.venv/bin/python",
-					"venvPath": "/workspaces/.venv",
-					"linting.enabled": true,
-					"linting.pylintEnabled": true,
-					"formatting.provider": "black",
-					"analysis.typeCheckingMode": "basic",
-					"analysis.autoImportCompletions": true,
-					"terminal.activateEnvironment": true
-				},
-				"editor.formatOnSave": true
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					"editor.formatOnSave": true
+				}
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
