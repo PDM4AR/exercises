@@ -5,5 +5,11 @@
         "**/.circleci/*": true
     },
     "python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoImportCompletions": true,
     "python.terminal.activateEnvironment": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    }
 }
