@@ -47,8 +47,10 @@ def get_ex4_start_end_test_values() -> DubinsProblem:
     config_list = []
     queries = []
     radius = 3.5
-    config_list.append((SE2Transform([1., 2.5], -np.pi/4), SE2Transform([12, 1.0], -np.pi/3))) 
-    config_list.append((SE2Transform([0., 0.], -np.pi/6), SE2Transform([8, 4.], -np.pi/3))) 
+    config_list.append((SE2Transform([1., 2.5], -np.pi/4), SE2Transform([12, 1.0], -np.pi/3)))
+    config_list.append((SE2Transform([0., 0.], 0), SE2Transform([0., 7], -np.pi))) 
+    config_list.append((SE2Transform([0., 0.], -np.pi/6), SE2Transform([8, 4.], -np.pi/3)))
+    config_list.append((SE2Transform([0., 0.], np.pi/2), SE2Transform([7, 0.], np.pi/2))) 
     for config in config_list:
         queries += [(*config, radius) ]
 
@@ -60,7 +62,10 @@ def get_ex5_start_end_test_values() -> DubinsProblem:
     queries = []
     radius = 3.5
     config_list.append((SE2Transform([1., 2.5], 0.), SE2Transform([-8, 2.5], 0))) 
-    config_list.append((SE2Transform([0., 0.], np.pi/6), SE2Transform([8, 4.], -np.pi/2))) 
+    config_list.append((SE2Transform([0., 0.], np.pi/6), SE2Transform([8, 4.], -np.pi/2)))
+    config_list.append((SE2Transform([0., 0.], np.pi/2), SE2Transform([-7, 0.], -np.pi/2)))
+    config_list.append((SE2Transform([-3., 7.], 1.05*np.pi), SE2Transform([-4, 2.5], 1.83*np.pi)))
+     
     for config in config_list:
         queries += [(*config, radius) ]
     return DubinsProblem(queries=queries, id_num=5, id_str="Reeds' Path Test", algo_fun=algo.calculate_reeds_shepp_path, eval_fun=ex4_path_eval, eval_weight=EX_5_REEDS_WEIGHT, plot_fun=ex4_path_plot_fun, pre_tf_fun=ex4_pre_tf_fun)
