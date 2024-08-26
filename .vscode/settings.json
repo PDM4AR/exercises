@@ -4,7 +4,7 @@
         "**/*.egg-info": true,
         "**/.circleci/*": true
     },
-    "python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
+    "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.autoImportCompletions": true,
     "python.terminal.activateEnvironment": true,

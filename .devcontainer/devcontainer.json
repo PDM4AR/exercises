@@ -9,8 +9,8 @@
 		"vscode": {
 			// Set *default* container specific settings.json values on container create.
 			"settings": {
-				"python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
-				"python.venvPath": "/workspaces/.venv",
+				"python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
+				"python.venvPath": "/home/vscode/.venv",
 				"python.formatting.provider": "black",
 				"python.analysis.typeCheckingMode": "basic",
 				"python.analysis.autoImportCompletions": true,
@@ -41,7 +41,7 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "poetry lock && poetry install",
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "root",
+	"remoteUser": "vscode",
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/git-lfs:1": {},
