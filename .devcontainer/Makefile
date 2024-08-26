@@ -4,7 +4,7 @@ image_name=pdm4ar2024
 dockerfile=Dockerfile
 
 platforms=linux/amd64,linux/arm64
-#platforms=linux/amd64
+#platforms=linux/arm64
 tag=$(registry)/$(image_name):$(python_version)
 
 

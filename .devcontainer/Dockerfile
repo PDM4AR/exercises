@@ -50,8 +50,9 @@ RUN pipx install poetry==${POETRY_VERSION}
 
 # Install package pdm4ar + dependencies
 COPY poetry.lock pyproject.toml ./
-RUN sudo chown vscode:vscode poetry.lock pyproject.toml
-
+USER root
+RUN chown vscode:vscode poetry.lock pyproject.toml
+USER vscode
 RUN poetry lock --no-update
 RUN poetry install --no-root --no-cache -vv
 RUN rm poetry.lock pyproject.toml
