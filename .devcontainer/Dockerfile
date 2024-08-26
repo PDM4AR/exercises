@@ -23,8 +23,6 @@ ENV PYTHONUNBUFFERED=1 \
     # for pycontracts
     DISABLE_CONTRACTS=1
 
-
-
 # Install apt dependencies
 COPY .devcontainer/dependencies-apt.txt /tmp/
 RUN apt-get update \
@@ -33,10 +31,13 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Set working directory
-ENV WORKDIR_PATH="/workspaces"
+ENV WORKDIR_PATH="/home/vscode"
 WORKDIR ${WORKDIR_PATH}
 ENV VIRTUAL_ENV=${WORKDIR_PATH}/.venv
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
+# Setting non-root user
+USER vscode
+
 
 # Install Suite sparse for arm64 to be used by cvxopt
 RUN mkdir SuiteSparse \
@@ -49,6 +50,9 @@ RUN pipx install poetry==${POETRY_VERSION}
 
 # Install package pdm4ar + dependencies
 COPY poetry.lock pyproject.toml ./
+USER root
+RUN chown vscode:vscode poetry.lock pyproject.toml
+USER vscode
 RUN poetry lock --no-update
 RUN poetry install --no-root --no-cache -vv
 RUN rm poetry.lock pyproject.toml
