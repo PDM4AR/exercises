@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List, Set, Tuple
 import pathlib
 import pickle
 
@@ -34,7 +33,7 @@ _other = ("unclassified", "road", "service")
 @dataclass
 class InformedGraphSearchProblem:
     graph: WeightedGraph
-    queries: Set[Query]
+    queries: set[Query]
     graph_id: str
 
 
@@ -107,8 +106,8 @@ def download_gsproblems(test_maps=None, data_dir=None):
 def get_test_informed_gsproblem(
     n_queries=1,
     n_seed=None,
-    extra_test_graph_problems: List[InformedGraphSearchProblem] = [],
-) -> List[InformedGraphSearchProblem]:
+    extra_test_graph_problems: list[InformedGraphSearchProblem] = [],
+) -> list[InformedGraphSearchProblem]:
     data_dir = pathlib.Path(__file__).parent
 
     graph_ids = ["ny", "eth", "milan"]
@@ -121,7 +120,7 @@ def get_test_informed_gsproblem(
     test_graphs = map(add_travel_time_weight, test_graphs)
     test_wgraphs = map(networkx_2_weighted_graph, test_graphs)
     # convert graph to InformedGraphSearchProblem
-    data_in: List[InformedGraphSearchProblem] = []
+    data_in: list[InformedGraphSearchProblem] = []
     for i, G in enumerate(test_wgraphs):
         q = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)
         p = InformedGraphSearchProblem(
@@ -234,7 +233,7 @@ def find_center_of_cities(G: WeightedGraph, n_clusters=2):
     return centroids
 
 
-def ex3_get_expected_results() -> List[List[Tuple[Path, int]]]:
+def ex3_get_expected_results() -> list[list[tuple[Path, int]]]:
 
     # The shortest path solutions for both UCS and Astar
     ny_path = [

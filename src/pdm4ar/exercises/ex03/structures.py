@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, unique
-from typing import Tuple, Mapping, Optional, Any
+from typing import Mapping, Optional, Any
 
 from networkx import MultiDiGraph
 
@@ -17,8 +17,8 @@ class NodePropertyNotFound(Exception):
 
 @unique
 class NodeAttribute(str, Enum):
-    LONGITUDE = 'x'
-    LATITUDE = 'y'
+    LONGITUDE = "x"
+    LATITUDE = "y"
 
 
 @unique
@@ -32,7 +32,7 @@ class TravelSpeed(float, Enum):
 @dataclass
 class WeightedGraph:
     adj_list: AdjacencyList
-    weights: Mapping[Tuple[X, X], float]
+    weights: Mapping[tuple[X, X], float]
     _G: MultiDiGraph
 
     def get_weight(self, u: X, v: X) -> Optional[float]:
@@ -55,10 +55,13 @@ class WeightedGraph:
         """
         return self._G.nodes[node_id][attribute]
 
-    def get_node_coordinates(self, u: X) -> Tuple[float, float]:
+    def get_node_coordinates(self, u: X) -> tuple[float, float]:
         """
         Method of class WeightedGraph:
         :param u: node id
         :return (x, y): coordinates (LON & LAT) of node u
         """
-        return self._G.nodes[u][NodeAttribute.LONGITUDE], self._G.nodes[u][NodeAttribute.LATITUDE]
+        return (
+            self._G.nodes[u][NodeAttribute.LONGITUDE],
+            self._G.nodes[u][NodeAttribute.LATITUDE],
+        )
