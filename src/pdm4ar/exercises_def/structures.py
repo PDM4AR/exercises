@@ -1,4 +1,6 @@
 import json
+import pprint
+
 from tqdm import tqdm
 from abc import ABC, abstractmethod
 from pdm4ar.exercises_def import logger
@@ -63,7 +65,7 @@ class Exercise(Generic[ExInT, ExOutT]):
     """A series of test cases for the exercise"""
     expected_results: Sequence[Optional[ExOutT]] = field(default_factory=list)
     """A series of expected results for the exercise, could be None if unknown"""
-    test_case_timeout: float = 60*3
+    test_case_timeout: float = 60 * 3
     """Timeout for each test case, in seconds?"""
 
     def __post_init__(self):
@@ -90,7 +92,7 @@ class ExerciseEvaluator(ABC):
             eval_out = self.ex.evaluation_fun(test_input, expected_out)
             if isinstance(eval_out, Exception):
                 n_failed_test_cases += 1
-                exception_str =f"{eval_out.__class__.__name__}" 
+                exception_str = f"{eval_out.__class__.__name__}"
                 exceptions.append(exception_str)
                 logger.warn(f"Failed because of:\n {eval_out.args}")
                 continue
@@ -102,7 +104,7 @@ class ExerciseEvaluator(ABC):
         n_completed_test_cases = n_test_values - n_failed_test_cases
         r.text("Evaluated",
                text=f"Test cases completion ratio:\n\t"
-               f"({n_completed_test_cases}/{n_test_values})")
+                    f"({n_completed_test_cases}/{n_test_values})")
 
         agg_perf = self.ex.perf_aggregator(
                 [out_res[0] for out_res in eval_outputs])
@@ -113,12 +115,13 @@ class ExerciseEvaluator(ABC):
                 exceptions=exceptions,
                 perf_res=agg_perf)
         r.text("OverallPerformance",
-               text=f"{remove_escapes(str(overall_perf))} ")
+               text=pprint.pformat(overall_perf))
 
         # append all reports
         for i, out_res in enumerate(eval_outputs):
             r.add_child(out_res[1])
         return overall_perf, r
+
 
 def out_dir(exercise: str) -> str:
     repo_dir = __file__

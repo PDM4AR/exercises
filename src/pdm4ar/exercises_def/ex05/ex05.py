@@ -1,12 +1,19 @@
-from typing import Tuple, Any
 from collections.abc import Iterable
-from reprep import Report, MIME_PDF
+from reprep import Report
 from zuper_commons.text import remove_escapes
 
-from pdm4ar.exercises_def.ex05.comparison import *
 from pdm4ar.exercises_def.ex05.data import get_example_test_values
 from pdm4ar.exercises_def.structures import Exercise
 from pdm4ar.exercises_def.ex05.problem_def import *
+from collections.abc import Iterable
+
+from reprep import Report
+from zuper_commons.text import remove_escapes
+
+from pdm4ar.exercises_def.ex05.data import get_example_test_values
+from pdm4ar.exercises_def.ex05.problem_def import *
+from pdm4ar.exercises_def.structures import Exercise
+
 
 def exercise_dubins_eval(prob: DubinsProblem,
                          expected: List[DubinsProblem],

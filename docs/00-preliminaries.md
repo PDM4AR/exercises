@@ -21,7 +21,7 @@ The programming exercises are a great way to understand and apply what you learn
 
 There will be four types of exercises:
 
-- **Warm-up** exercises, not graded;
+- **Warm-up** exercise(s), not graded;
 - **Weekly** individual exercises, graded (will account for 30% of the final grade);
 - **Finals** group exercises, graded (will account for 70% (30 + 40) of the final grade).
 - **Extra** exercises from previous years, not graded.
@@ -53,47 +53,46 @@ You will submit your solutions via your private repository on Github
   Consider this as a learning experience for robotics, field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
-| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes** | **Deadline status** | Available Submissions |
-|-----------------|-----------------------|----------------------|-----------------------|---------------------|---------------------|
-| 02              | Graph Search          | 28th of September    | 11th of October (23:59 CET)         | CONFIRMED | 15 | 
-| 03              | Informed Graph Search | 5th of October       | 18th of October (23:59 CET)         | CONFIRMED | 10 |
-| 04              | Dynamic Programming   | 11th of October      | 31st of October (23:59 CET)         | CONFIRMED | 10 |
-| 05              | Steering (Dubins)     | 19th of October      | 5th of November (23:59 CET)         | CONFIRMED | 10 |
-| 06              | Collision Checking    | 3rd of November      | 20th of November (23:59 CET)        | CONFIRMED | 15 |
+| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**      | **Deadline status** | Available Submissions |
+|-----------------|-----------------------|----------------------|----------------------------|---------------------|-----------------------|
+| 02              | Graph Search          | xx of September      | xx of October (23:59 CET)  |                     | 10                    | 
+| 03              | Informed Graph Search | xx of October        | xx of October (23:59 CET)  |                     | 10                    |
+| 04              | Dynamic Programming   | xx of October        | xx of October (23:59 CET)  |                     | 10                    |
+| 05              | Steering (Dubins)     | xx of October        | xx of November (23:59 CET) |                     | 10                    |
+| 06              | Collision Checking    | xx of November       | xx of November (23:59 CET) |                     | 10                    |
 
 * Most of these exercises are already accessible before the official evaluation opens.
-  You are free to engage with them but be aware that changes may occur until the official opening.
+  You are free to engage with them earlier, but be aware that changes may occur up until the official opening.
   After the evaluation opens the exercise is "frozen" and you can solve it and submit it.
 
 #### **Finals** exercises, graded.
 
-These will be solved in small groups of 3-4 people but the modality is the same as the weekly exercises. 
+These will be solved in small groups of 3 people maximum but the modality is the same as the weekly exercises.
 They will be a bit more involved content-wise.
-We will provide instructions on the group forming modality later on.
+Instructions on the group forming modality are provided via Piazza.
 
-| Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes** |
-|-----------------|-----------|----------------------|-----------------------|
-| 09              | ???       | -                    | -                     |
-| 10              | ???       | -                    | -                     |
+| Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes**      | **Deadline status** | Available Submissions |
+|-----------------|-----------|----------------------|----------------------------|---------------------|-----------------------|
+| 11              | mistery 1 | xx of December       | xx of December (23:59 CET) |                     | 15                    |
+| 12              | mistery 2 | xx of December       | xx of January (23:59 CET)  |                     | 15                    |
 
 #### **Extra** exercises from previous years, not graded.
 
 You can have a look at the finals from last year and challenge yourself.
 
-| Exercise **ID** | **Topic**     | Evaluation **opens** | Evaluation **closes** |
-|-----------------|---------------|----------------------|-----------------------|
-| 07              | Optimization  | -                    | -                     |
-| 08              | Driving Games | -                    | -                     |
+| Exercise **ID** | **Topic**            | Evaluation **opens** | Evaluation **closes** |
+|-----------------|----------------------|----------------------|-----------------------|
+| 07              | Optimization         | -                    | -                     |
+| 08              | Driving Games        | -                    | -                     |
+| 09              | PDM4ARocket Explorer | -                    | -                     |
+| 10              | Robot Runners        | -                    | -                     |
 
 ## Plagiarism and dishonest conduct
 
 We take plagiarism and dishonest conduct very seriously.
 The exercises are meant to be solved **individually**.
 We will check for plagiarism with automated software and human help.
-Violating
-the [ETH plagiarism etiquette](https://ethz.ch/content/dam/ethz/main/education/rechtliches-abschluesse/leistungskontrollen/plagiarism-citationetiquette.pdf)
-will result in consequences according to the ETH regulations:
-
+Violating the [ETH plagiarism etiquette](https://ethz.ch/content/dam/ethz/main/education/rechtliches-abschluesse/leistungskontrollen/plagiarism-citationetiquette.pdf) will result in disciplinary actions as per ETH regulations.
 > "C. The consequences of plagiarism Pursuant to Art. 2 Para. b of the ETH Zurich Disciplinary Code (RSETHZ 361.1)
 > plagiarism constitutes a disciplinary violation and will result in disciplinary procedures.
 > Detailed information regarding these procedures and their jurisdiction may be found in the ETH Zurich Disciplinary
@@ -151,8 +150,9 @@ development.
 Now let's install it on your computer:
 
 * (Mac, Linux) [installation instructions](https://docs.docker.com/engine/install/)
-* (Windows) the procedure is slightly more complicated, we suggest to start from [here](https://docs.docker.com/desktop/install/windows-install/). 
-Make sure to install WSL 2 and Ubuntu 22.04 LTS as reccomended distro.
+* (Windows) the procedure is slightly more complicated, we suggest to start
+  from [here](https://docs.docker.com/desktop/install/windows-install/).
+  Make sure to install WSL 2 and Ubuntu 22.04 LTS as recommended distro.
 
 #### _Resources_
 
@@ -183,7 +183,7 @@ Moreover, we will provide environment configurations that will make your life ea
 Install [VS Code](https://code.visualstudio.com/)
 
 There are many other good IDEs for python (PyCharm, Atom, Spyder,...), they should work just fine if you know how to
-replicate exactly the development evironment in `.devcontainer/` but we won't support them officially.
+replicate exactly the development environment in `.devcontainer/` but we won't support them officially.
 
 ## Support
 

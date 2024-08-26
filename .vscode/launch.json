@@ -6,153 +6,251 @@
     "configurations": [
         {
             "name": "Exercise1 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "01"],
+            "args": [
+                "--exercise",
+                "01"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
         },
         {
             "name": "Exercise1 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "01"],
+            "args": [
+                "--exercise",
+                "01"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
             "name": "Exercise2 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "02"],
+            "args": [
+                "--exercise",
+                "02"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
         },
         {
             "name": "Exercise2 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "02"],
+            "args": [
+                "--exercise",
+                "02"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
             "name": "Exercise3 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "03"],
+            "args": [
+                "--exercise",
+                "03"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
         },
         {
             "name": "Exercise3 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "03"],
+            "args": [
+                "--exercise",
+                "03"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
             "name": "Exercise4 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "04"],
+            "args": [
+                "--exercise",
+                "04"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
         },
         {
             "name": "Exercise4 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "04"],
+            "args": [
+                "--exercise",
+                "04"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
             "name": "Exercise5 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "05"],
+            "args": [
+                "--exercise",
+                "05"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
         },
         {
             "name": "Exercise5 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "05"],
+            "args": [
+                "--exercise",
+                "05"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
             "name": "Exercise6 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "06"],
+            "args": [
+                "--exercise",
+                "06"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
         },
         {
             "name": "Exercise6 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "06"],
+            "args": [
+                "--exercise",
+                "06"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
             "name": "Exercise7 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "07"],
+            "args": [
+                "--exercise",
+                "07"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
         },
         {
             "name": "Exercise7 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "07"],
+            "args": [
+                "--exercise",
+                "07"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
             "name": "Exercise8 - Run",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "08"],
+            "args": [
+                "--exercise",
+                "08"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "noDebug": true
         },
         {
             "name": "Exercise8 - Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pdm4ar/main.py",
-            "args": ["--exercise", "08"],
+            "args": [
+                "--exercise",
+                "08"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Exercise09 - Run",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": [
+                "--exercise",
+                "09"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "noDebug": true
+        },
+        {
+            "name": "Exercise09 - Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": [
+                "--exercise",
+                "09"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Exercise10 - Run",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": [
+                "--exercise",
+                "10"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "noDebug": true
+        },
+        {
+            "name": "Exercise10 - Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": [
+                "--exercise",
+                "10"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         }

@@ -3,6 +3,7 @@ import os
 import logging
 
 import contracts
+from zuper_commons import ZLogger
 from zuper_commons.types import ZValueError
 from zuper_commons.text import remove_escapes
 
@@ -22,12 +23,13 @@ def find_exercise(exercise: str, evaluation_mode=False) -> Exercise:
             raise ZValueError(f"Cannot find {exercise!r}", available=set(available_exercises))
         return available_exercises[exercise]()
 
+
 def run_exercise(exercise: str, evaluation_mode=False):
     ex: Exercise = find_exercise(exercise, evaluation_mode)
     evaluator = ExerciseEvaluator(exercise=ex)
 
     out_main = out_dir(exercise)
-    from zuper_commons import ZLogger
+    
     ZLogger("reprep").setLevel(logging.WARNING)   # suppress annoying messages from reprep
 
     total = len(ex.test_values)
@@ -52,3 +54,4 @@ if __name__ == "__main__":
     contracts.disable_all()
     args = _setup_args()
     run_exercise(exercise=args.exercise, evaluation_mode=args.evaluate)
+    
