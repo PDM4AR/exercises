@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from dg_commons import SE2Transform
 
@@ -16,13 +16,13 @@ class Dubins(PathPlanner):
     def __init__(self, params: DubinsParam):
         self.params = params
 
-    def compute_path(self, start: SE2Transform, end: SE2Transform) -> List[SE2Transform]:
+    def compute_path(self, start: SE2Transform, end: SE2Transform) -> list[SE2Transform]:
         """ Generates an optimal Dubins path between start and end configuration
 
         :param start: the start configuration of the car (x,y,theta)
         :param end: the end configuration of the car (x,y,theta)
 
-        :return: a List[SE2Transform] of configurations in the optimal path the car needs to follow
+        :return: a list[SE2Transform] of configurations in the optimal path the car needs to follow
         """
         path = calculate_dubins_path(start_config=start, end_config=end, radius=self.params.min_radius)
         se2_list = extract_path_points(path)
@@ -34,12 +34,12 @@ class ReedsShepp(PathPlanner):
         self.params = params
 
     def compute_path(self, start: SE2Transform, end: SE2Transform) -> Sequence[SE2Transform]:
-        """ Generates a Reeds-Shepp *inspired* optimal path between start and end configuration
+        """Generates a Reeds-Shepp *inspired* optimal path between start and end configuration
 
         :param start: the start configuration of the car (x,y,theta)
         :param end: the end configuration of the car (x,y,theta)
 
-        :return: a List[SE2Transform] of configurations in the optimal path the car needs to follow 
+        :return: a list[SE2Transform] of configurations in the optimal path the car needs to follow
         """
         path = calculate_reeds_shepp_path(start_config=start, end_config=end, radius=self.params.min_radius)
         se2_list = extract_path_points(path)
@@ -58,7 +58,7 @@ def calculate_turning_circles(current_config: SE2Transform, radius: float) -> Tu
     return TurningCircle(left=dummy_circle, right=dummy_circle)
 
 
-def calculate_tangent_btw_circles(circle_start: Curve, circle_end: Curve) -> List[Line]:
+def calculate_tangent_btw_circles(circle_start: Curve, circle_end: Curve) -> list[Line]:
     # TODO implement here your solution
     return []  # i.e., [Line(),...]
 

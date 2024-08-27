@@ -1,5 +1,6 @@
 **
-!setup.py
+!pyproject.toml
+!poetry.lock
 !src
+!.devcontainer
 src/*.egg-info
-!requirements*
