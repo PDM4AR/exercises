@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
-from pdm4ar.exercises.ex04.structures import AllOptimalActions, ValueFunc, Cell
+from pdm4ar.exercises.ex04.structures import OptimalActions, ValueFunc, Cell
 from pdm4ar.exercises_def.ex04.map import generate_map
 
 
@@ -19,7 +19,7 @@ def get_simple_test_grid() -> np.ndarray:
     return simple_map
 
 
-def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]] = []) -> tuple[GridMdp]:
+def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]] = []) -> list[GridMdp]:
     MAP_SHAPE_2 = (10, 10)
     MAP_SHAPE_3 = (40, 40)
 
@@ -44,7 +44,7 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]]
     return data_in
 
 
-def get_expected_results() -> list[tuple[ValueFunc, AllOptimalActions]]:
+def get_expected_results() -> list[tuple[ValueFunc, OptimalActions]]:
     data_dir = Path(__file__).parent
     all_data = np.load(data_dir / "data/expected_results.npz", allow_pickle=True)
 

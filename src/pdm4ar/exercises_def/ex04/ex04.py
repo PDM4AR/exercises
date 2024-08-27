@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from time import process_time
-from typing import Any, Sequence, Type
+from typing import Any, Sequence, Type, Union
 from zuper_commons.text import remove_escapes
 
 import numpy as np
@@ -9,7 +9,7 @@ from matplotlib.ticker import MaxNLocator
 from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
-from pdm4ar.exercises.ex04.structures import Action, AllOptimalActions, Cell
+from pdm4ar.exercises.ex04.structures import Action, OptimalActions, Cell, Policy
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex04.data import get_expected_results, get_test_grids
 from pdm4ar.exercises_def.ex04.map import map2image
@@ -76,7 +76,7 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
                     ax.text(j, i, f"{value_func[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
 
 
-def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: AllOptimalActions, algo_name: str):
+def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Policy], algo_name: str):
     MAP_SHAPE = grid_mdp.grid.shape
     font_size = get_font_size(grid_mdp)
     map_c = map2image(grid_mdp.grid)
@@ -107,7 +107,9 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: AllOptimalActions, algo_na
                         ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
 
 
-def plot_report_figure(r: Report, grid_mdp: GridMdp, value_func: np.ndarray, policy: AllOptimalActions, algo_name: str):
+def plot_report_figure(
+    r: Report, grid_mdp: GridMdp, value_func: np.ndarray, policy: Union[OptimalActions, Policy], algo_name: str
+):
     rfig = r.figure(cols=2)
     plot_grid_values(rfig, grid_mdp, value_func, algo_name)
     plot_grid_policy(rfig, grid_mdp, policy, algo_name)
