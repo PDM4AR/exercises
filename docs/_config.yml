@@ -1,6 +1,8 @@
 description: PDM4AR programming exercises [Fall 2024]
 
 theme: jekyll-theme-cayman
+url: https://pdm4ar.github.io
+baseurl: /exercises
 
 plugins:
   - jemoji

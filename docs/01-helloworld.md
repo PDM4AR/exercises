@@ -107,7 +107,7 @@ where `xx` is the exercise ID you want to submit for evaluation.
 
 For example, if you want to submit your solution for exercise 1 (after implementing a solution):
 commit and push your changes with the following message:
-```[submit][01] luky solution?```
+```[submit][01] luky solution```
 After a few minutes you should see your summary results directly on the Github pull request named Feedback.
 
 **Important**: your grade for the upcoming exercises will depend *only* on the ***last valid*** submission that you make for that specific exercise.
