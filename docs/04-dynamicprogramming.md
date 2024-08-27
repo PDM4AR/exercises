@@ -5,8 +5,7 @@
 In this exercise you will implement _Value_ and _Policy iterations_ to solve a particular stationary Markov
 Decision Process (MDP).
 
-You are an operator on a distant planet at a base responsible for deploying autonomous survey robots looking for unobtainium.
-Your job is to send a surveying robot to a location specified by your company's client.
+You are an operator on a distant planet at a base responsible for deploying autonomous survey robots looking for unobtainium. Your job is to send a surveying robot to a location specified by your company's client.
 
 For each contract, you can deploy several robots, but only one at a time - corporate requires you to have at most one active robot in the field at any given time to try to save money.
 You can always choose to abandon an active robot and deploy a new one from the base.
@@ -22,13 +21,16 @@ You choose to model this problem as a Markov Decision Process (MDP) and use dyna
 
 ## Problem description
 
-The world is modeled as a 2D grid, which is represented through a _NxM_ matrix (numpy array).
-Rows and columns represent the “_x_” and “_y_” coordinates of the robot, respectively.
+The world is modeled as a 2D grid, which is represented through a _MxN_ matrix (numpy array).
+Rows and columns represent the $i$ and $j$ coordinates of the robot, respectively.
 The area around you is a tropical rainforest, which can be modeled in the grid with the following types of cells:
-- ``GRASS`` (green) - it will take the robot 1 hour to cross this cell,
-- ```SWAMP``` (light blue) - it will take the robot 2 hours to cross this cell,
-- ``GOAL`` (red) - the goal location you need to survey,
-- ``START`` (yellow) - the location of your base, it can be considered a ``GRASS`` cell. The 4 neighbors of the ``START`` cell are always ``GRASS`` cells and are not on the edge of the map (``START`` is always at least 2 cells away from the edge of the map).
+- ``GRASS`` (green) - it will take the robot 1 hour to cross this cell.
+- ``SWAMP`` (light blue) - it will take the robot 2 hours to cross this cell.
+- ``WORMHOLE`` (purple) - it is a teleportation cell and can be considered a ``GRASS`` cell. In addition, when the robot moves to a wormhole, it will be teleported instantly (without any time cost) to other ``WORMHOLE`` including the one it is currently in.
+- ``CLIFF`` (black) - untraversable cell. If the robot tries to move in this cell, it will break down and you will need to deploy a new robot from the base.
+- ``GOAL`` (red) - the goal location you need to survey.
+- ``START`` (yellow) - the location of your base, it can be considered a ``GRASS`` cell. The 4 neighbors of the ``START`` cell are always ``GRASS-type`` cells ``(GRASS, WORMHOLE and GOAL)`` and are not on the edge of the map nor adjacent to ``CLIFF`` cells. **(``START`` is always at least 2 cells away from the edge of the map or a ``CLIFF`` cell)**. In other word, the robot will never break down in the ``START`` cell and the four neighboring cells.
+
 
 The time required to cross each cell corresponds to the time a robot needs to leave this cell (e.g. leaving the ``START`` cell takes 1 hour).
 When in a specific cell, you can plan for the robot to take one of the following actions:
@@ -37,8 +39,8 @@ When in a specific cell, you can plan for the robot to take one of the following
 - ``STAY`` if arrived at the ``GOAL``.
 
 The goal of your policy is to maximize profit (use 1k USD as the default unit):
-- You receive a bonus of 50k USD for your robot surveying the goal location,
-- For each hour of the time it takes you to fulfill the contract, your client is entitled to a compensation of 1k USD,
+- You keep receiving a bonus of 50k USD for your robot surveying(staying at) the goal location.
+- For each hour of the time it takes you to fulfill the contract, your client is entitled to a compensation of 1k USD. No compensation is paid if the robot is already at the goal location.
 - The deployment of each new robot costs you 10k USD (the first robot is covered by the client).
 
 
@@ -52,15 +54,21 @@ The planet's atmosphere is very foggy and when the robot decides to move in a sp
   With probability 0.2, the robot will not be able to move out of the cell (it will stay in the cell).
   With probability 0.05 the robot will break down and will need to ``ABANDON`` its mission.
   - If the robot chooses to give up, it will ``ABANDON`` its mission with probability 1.0.
+- In ``WORMHOLE``:
+  - The robot will be teleported instantly to other ``WORMHOLE`` including the one it is currently in with equal probability. For example, if there are 4 ``WORMHOLE`` cells on the map, the robot will be teleported to one of them with probability 0.25.
+  - The robot will not break down during teleportation.
+- In ``CLIFF``:
+  - The robot will break down with probability 1.0.
 - When in the ``GOAL`` the robot will ``STAY``  with probability of 1.0.
-- The robot cannot directly pick an action that would take it outside the map. However, it may be that the robot ends up out of the map as described by the movement transition probabilities above. If this happens, the robot breaks down.
+- The robot cannot directly pick an action that would take it outside the map or to a ``CLIFF`` cell. However, it may be that the robot ends up out of the map or in a ``CLIFF`` cell as described by the movement transition probabilities above. If this happens, the robot breaks down.
 
 If the robot breaks down or chooses to ``ABANDON`` the mission, a new robot is deployed in the ``START`` cell, which costs you 10k USD.
 
 ### Hints
 - You can model the ``ABANDON`` action transition as a transition in your MDP from the current cell to the ``START`` cell with the cost of deploying a new robot.
+- You can model the teleportation as a transition in your MDP from the current cell to one of the ``WORMHOLE`` cells with a probability $P(x_{k+1} \mid x_k, u_k)=P(x_{k+1} \mid x^-)P(x^- \mid x_k, u_k)$, where $x^-$ is the state of the adjacent ``WORMHOLE`` after applying the action $u_k$ in the current state $x_k$, $x_{k+1}$ is the state after the teleportation. As the teleportation is instantaneous, you can model __moving to the adjacent ``WORMHOLE``__ and then __being teleported to the next state__ as a single transition.
 - If the robot chooses a movement action in any cell, it will take it the time specified for this cell type to try to perform this action. An attempt to move out of the ``SWAMP`` cell always takes 2 hours, even if the robot ends up staying in the cell or breaking down.
-- Note that the robot will never break down in the ``START`` cell or in its neighboring cells (because of assumptions on their type and location on the map).
+- Note that the robot will never break down in the ``START`` cell or in its four neighboring cells because of the assumptions on their type and location on the map.
 
 ## Tasks
 
@@ -70,7 +78,7 @@ Actions, states, Value function and Policy are defined as follows (exercises/ex0
 
 ```python
 from enum import IntEnum, unique
-from typing import Tuple
+from typing import Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -86,7 +94,7 @@ class Action(IntEnum):
     ABANDON = 5
 
 
-State = Tuple[int, int]
+State = tuple[int, int]
 """The state on a grid is simply a tuple of two ints"""
 
 
@@ -96,12 +104,20 @@ class Cell(IntEnum):
     START = 1
     GRASS = 2
     SWAMP = 3
+    WORMHOLE = 4
+    CLIFF = 5
 
 
-Policy = NDArray[np.int]
-"""Type Alias for the policy"""
-ValueFunc = NDArray[np.float]
-"""Type Alias for the value function"""
+Policy = NDArray[np.int64]
+"""Type Alias for the policy.It is the expected type of the policy that your solution should return."""
+OptimalActions = NDArray[np.object_]
+"""
+Type Alias for the all optimal actions per state. It is a numpy array of list objects where each list contains the
+optimal actions that are equally good for a given state. It is the type of the ground truth policy that your
+solution will be compared against. You are not required to use this type in your solution.
+"""
+ValueFunc = NDArray[np.float64]
+"""Type Alias for the value function. It is the expected type of the value function that your solution should return."""
 ```
 
 The first subtask is to implement the missing methods in `exercises/ex04/mdp.py`.
@@ -165,12 +181,19 @@ class PolicyIteration(GridMdpSolver):
 
 #### Expected outcome
 
+For both _Value_ and _Policy iterations_, you need to return the optimal `ValueFunc` and **one of the optimal `Policy`** for the given MDP.
+
+> **Note**: The optimal value function is unique, but the optimal policy is not. You can return any optimal policy that satisfies the Bellman optimality equation.
+
+To keep the format consistent, the value function and policy should be returned as _MxN_ matrices (numpy arrays) where each cell corresponds to the value of the state or the action to be taken in the state, respectively. The value function and policy of `CLIFF` cells will be excluded for evaluation.
+
 If your algorithm works, in the report you should find some results similar to this:
 
 ![image](img/ex04_example.png)
 
 On the left the Value function is visualized as a heatmap.
-On the right you can see the map with the original cells (grass, swamps, goal, start) and the corresponding optimal policy (arrows for movement actions, X for the ``ABANDON`` action).
+On the right you can see the map with the original cells and the corresponding optimal policy (arrows for movement actions, X for the ``ABANDON`` action).
+
 
 ### Test cases and performance criteria
 
