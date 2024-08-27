@@ -1,6 +1,4 @@
 # PDM4AR-exercises
-## New Branch
-Modified Exercise 6 Working Branch
 
 Maintained by:
 Jose Lavariega
