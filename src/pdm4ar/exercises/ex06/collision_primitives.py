@@ -13,23 +13,15 @@ class CollisionPrimitives_SeparateAxis:
     you are to implement. You do not need to adhere to the given variable names, but you should adhere to
     the datatypes of inputs and outputs.
 
-
-    ## To be added to the website.
-    The Separating Axis Theorem states: If two sets are closed and at least one of them is compact, then there is a hyperplane between them,
-    and even two parallel hyperplanes separated by a gap. An axis that is orthogonal to a separating hyperplane is deemed a separating axis, because
-    the orthogonal projections of the convex bodies onto the axis are disjoint.
-
     ## THEOREM
     Let A and B be two disjoint nonempty convex subsets of R^n. Then there exist a nonzero vector v anda  real number c s.t.
     <x,v> >= c and <y,v> <= c. For all x in A and y in B. i.e. the hyperplane <.,v> = c separates A and B.
 
-    If both sets are clsoed, and at least one of them is compact, then the separation can be strict, that is,
+    If both sets are closed, and at least one of them is compact, then the separation can be strict, that is,
     <x,v> > c_1 and <y,v> < c_2 for some c_1 > c_2
 
 
     In this exercise, we will be implementing the Separating Axis Theorem for 2d Primitives.
-
-    Axis are represented as Segments with length N (world length)
 
     """
 
@@ -79,7 +71,7 @@ class CollisionPrimitives_SeparateAxis:
         """
         Get all Candidate Separating Axes.
         Hint: These are 2D Polygons, recommend searching over axes that are orthogonal to the edges only.
-        Rather than returning infinite Segments, return one axis per Edge1-Edge2 pairing. Return an Axis of size N (worldlength).
+        Rather than returning infinite Segments, return one axis per Edge1-Edge2 pairing.
 
         Inputs:
         p1, p2: Polygons to obtain separating Axes over.
@@ -116,17 +108,17 @@ class CollisionPrimitives_SeparateAxis:
         p1, p2: Candidate Polygons
         Outputs:
         Output as a tuple
-        bool: True if Polygons dont Collide. False o.w.
+        bool: True if Polygons Collide. False o.w.
         Segment: An Optional argument that allows you to visualize the axis you are projecting onto.
         """
 
-        if isinstance(p2, Polygon):
+        if isinstance(p2, Polygon):  # Task 2c
 
             # TODO: Implement your solution for if polygon here. Exercise 2
             raise NotImplementedError  # remove when you have written your code
             # return (bool, axis)
 
-        elif isinstance(p2, Circle):
+        elif isinstance(p2, Circle):  # Task 3b
 
             # TODO: Implement your solution for SAT for circles here. Exercise 3
             # raise NotImplementedError
