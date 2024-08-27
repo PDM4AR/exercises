@@ -10,17 +10,27 @@ from zuper_commons.text import remove_escapes
 
 from pdm4ar.exercises_def import Exercise, NodeColors, EdgeColors, ExIn
 from pdm4ar.exercises_def.structures import PerformanceResults
-from pdm4ar.exercises.ex03 import informed_graph_search_algo, compute_path_cost, \
-    UniformCostSearch, Astar
+from pdm4ar.exercises.ex03 import (
+    informed_graph_search_algo,
+    compute_path_cost,
+    UniformCostSearch,
+    Astar,
+)
 from pdm4ar.exercises_def.ex02 import str_from_path
 from pdm4ar.exercises.ex02.structures import X
-from pdm4ar.exercises_def.ex03.data import ex3_get_expected_results, get_test_informed_gsproblem, \
-    InformedGraphSearchProblem
+from pdm4ar.exercises_def.ex03.data import (
+    ex3_get_expected_results,
+    get_test_informed_gsproblem,
+    graph_dimensions,
+    find_center_of_cities,
+    InformedGraphSearchProblem,
+)
 
 
 class TestValueEx3(ExIn, Tuple[InformedGraphSearchProblem, str]):
     def str_id(self) -> str:
         return str(self[1])
+
 
 @dataclass(frozen=True)
 class Ex03PerformanceResult(PerformanceResults):
@@ -33,7 +43,10 @@ class Ex03PerformanceResult(PerformanceResults):
         assert self.solve_time >= 0, self.solve_time
         assert 0 <= self.heuristic_efficiency, self.heuristic_efficiency
 
-def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex03PerformanceResult, Report]:
+
+def ex3_evaluation(
+    ex_in: TestValueEx3, ex_out=None, plotGraph=True
+) -> Tuple[Ex03PerformanceResult, Report]:
     # ex properties
     prob, (algo_name, heuristic_count_fn) = ex_in
     wG = prob.graph
@@ -43,12 +56,16 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
     r = Report(f"Exercise3-{algo_name}-{prob.graph_id}")
     # draw graph
     figsize = None
-    rfig = r.figure(cols=1)
+    rfig = r.figure(cols=2)
     with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=figsize) as _:
         ax = plt.gca()
         ox.plot_graph(
-                wG._G, ax=ax, node_color=NodeColors.default, edge_color=EdgeColors.default, node_edgecolor="k",
-                show=False
+            wG._G,
+            ax=ax,
+            node_color=NodeColors.default,
+            edge_color=EdgeColors.default,
+            node_edgecolor="k",
+            show=False,
         )
 
     # run algo
@@ -58,7 +75,11 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
     heuristic_performance = []
     for i, query in enumerate(test_queries):
         nc = [
-            NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default)
+            (
+                NodeColors.start
+                if n == query[0]
+                else (NodeColors.goal if n == query[1] else NodeColors.default)
+            )
             for n in wG._G
         ]
         # Ground truth
@@ -75,11 +96,97 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
             path_str = str_from_path(path)
             path_cost = compute_path_cost(wG, path)
             if plotGraph:
-                with rfig.plot(nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
-                    ax = plt.gca()
-                    ox.plot_graph(wG._G, ax=ax, node_color=nc, node_edgecolor="k", edge_color=ec, show=False, close=False)
-                    ox.plot_graph_route(wG._G, route=path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False,
-                                        close=False)
+                # case 2 cities connected
+                if graph_dimensions(wG._G)[0] > 1:
+                    # print("printing double")
+                    centers = find_center_of_cities(wG._G)
+                    print(f"center city {centers[0]}")
+                    with rfig.plot(
+                        nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize
+                    ) as _:
+                        ax = plt.gca()
+                        # function needed to display one of the combined
+                        # city around its center
+                        bbox = ox.utils_geo.bbox_from_point(
+                            centers[0], 1500, project_utm=False, return_crs=False
+                        )
+                        ox.plot_graph(
+                            wG._G,
+                            ax=ax,
+                            bbox=bbox,
+                            node_color=nc,
+                            node_edgecolor="k",
+                            edge_color=ec,
+                            show=False,
+                            close=False,
+                        )
+                        if len(path) > 0:
+                            ox.plot_graph_route(
+                                wG._G,
+                                route=path,
+                                ax=ax,
+                                orig_dest_size=0,
+                                route_linewidth=5,
+                                show=False,
+                                close=False,
+                            )
+
+                    with rfig.plot(
+                        nid=f"YourPath{i}-{algo_name}-{2}",
+                        mime=MIME_PDF,
+                        figsize=figsize,
+                    ) as _:
+                        ax = plt.gca()
+                        bbox = ox.utils_geo.bbox_from_point(
+                            centers[1],
+                            1500,
+                            project_utm=False,
+                            return_crs=False,
+                        )
+                        ox.plot_graph(
+                            wG._G,
+                            ax=ax,
+                            bbox=bbox,
+                            node_color=nc,
+                            node_edgecolor="k",
+                            edge_color=ec,
+                            show=False,
+                            close=False,
+                        )
+                        if len(path) > 0:
+                            ox.plot_graph_route(
+                                wG._G,
+                                route=path,
+                                ax=ax,
+                                orig_dest_size=0,
+                                route_linewidth=5,
+                                show=False,
+                                close=False,
+                            )
+                else:
+                    # standard case
+                    with rfig.plot(
+                        nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize
+                    ) as _:
+                        ax = plt.gca()
+                        ox.plot_graph(
+                            wG._G,
+                            ax=ax,
+                            node_color=nc,
+                            node_edgecolor="k",
+                            edge_color=ec,
+                            show=False,
+                            close=False,
+                        )
+                        ox.plot_graph_route(
+                            wG._G,
+                            route=path,
+                            ax=ax,
+                            orig_dest_size=0,
+                            route_linewidth=5,
+                            show=False,
+                            close=False,
+                        )
         else:
             path_str = "Your algo did not find any path."
             path_cost = float("inf")
@@ -93,17 +200,103 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
             gt_path_str = str_from_path(gt_path)
             # Plot ground truth
             if plotGraph:
-                with rfig.plot(nid=f"GroundTruth{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
-                    ax = plt.gca()
-                    ox.plot_graph(wG._G, ax=ax, node_color=nc, node_edgecolor="k", edge_color=ec, show=False, close=False)
-                    ox.plot_graph_route(wG._G, route=gt_path, ax=ax, orig_dest_size=0, route_linewidth=1, show=False,
-                                        close=False)
+                if graph_dimensions(wG._G)[0] > 1:
+                    # print("printing double city")
+                    centers = find_center_of_cities(wG._G)
+                    with rfig.plot(
+                        nid=f"GroundTruth{i}-{algo_name}",
+                        mime=MIME_PDF,
+                        figsize=figsize,
+                    ) as _:
+                        ax = plt.gca()
+                        bbox = ox.utils_geo.bbox_from_point(
+                            centers[0], 1500, project_utm=False, return_crs=False
+                        )
+                        ox.plot_graph(
+                            wG._G,
+                            ax=ax,
+                            bbox=bbox,
+                            node_color=nc,
+                            node_edgecolor="k",
+                            edge_color=ec,
+                            show=False,
+                            close=False,
+                        )
+                        if len(gt_path) > 0:
+                            ox.plot_graph_route(
+                                wG._G,
+                                route=gt_path,
+                                ax=ax,
+                                orig_dest_size=0,
+                                route_linewidth=5,
+                                show=False,
+                                close=False,
+                            )
+
+                    with rfig.plot(
+                        nid=f"GroundTruth{i}-{algo_name}-{2}",
+                        mime=MIME_PDF,
+                        figsize=figsize,
+                    ) as _:
+                        ax = plt.gca()
+                        bbox = ox.utils_geo.bbox_from_point(
+                            centers[1],
+                            1500,
+                            project_utm=False,
+                            return_crs=False,
+                        )
+
+                        ox.plot_graph(
+                            wG._G,
+                            ax=ax,
+                            bbox=bbox,
+                            node_color=nc,
+                            node_edgecolor="k",
+                            edge_color=ec,
+                            show=False,
+                            close=False,
+                        )
+                        if len(gt_path) > 0:
+                            ox.plot_graph_route(
+                                wG._G,
+                                route=gt_path,
+                                ax=ax,
+                                orig_dest_size=0,
+                                route_linewidth=5,
+                                show=False,
+                                close=False,
+                            )
+                else:
+                    with rfig.plot(
+                        nid=f"GroundTruth{i}-{algo_name}",
+                        mime=MIME_PDF,
+                        figsize=figsize,
+                    ) as _:
+                        ax = plt.gca()
+                        ox.plot_graph(
+                            wG._G,
+                            ax=ax,
+                            node_color=nc,
+                            node_edgecolor="k",
+                            edge_color=ec,
+                            show=False,
+                            close=False,
+                        )
+                        ox.plot_graph_route(
+                            wG._G,
+                            route=gt_path,
+                            ax=ax,
+                            orig_dest_size=0,
+                            route_linewidth=5,
+                            show=False,
+                            close=False,
+                        )
             # Compare your algo to ground truth
             if gt_path_cost == path_cost:
-                accuracy.append(1.)
+                accuracy.append(1.0)
                 msg += "Student solution : CORRECT\n"
             else:
-                accuracy.append(0.)
+                accuracy.append(0.0)
                 msg += "Student solution : WRONG\n"
             solve_times.append(solve_time)
 
@@ -125,15 +318,19 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                     search_algo.use_trivial_heuristic = True
                     # Rerun Astar, counting how many times the heuristic was invoked
                     search_algo.path(query[0], query[1])
-                    trivial_heuristic_count = heuristic_count_fn(search_algo, query[0], query[1])
+                    trivial_heuristic_count = heuristic_count_fn(
+                        search_algo, query[0], query[1]
+                    )
 
                 if trivial_heuristic_count == 0:
                     # This case is only hit of the student never calls the heuristic.
-                    heuristic_performance.append(float('inf'))
+                    heuristic_performance.append(float("inf"))
                 else:
-                    heuristic_performance.append(heuristic_count / trivial_heuristic_count)
+                    heuristic_performance.append(
+                        heuristic_count / trivial_heuristic_count
+                    )
             else:
-                heuristic_performance.append(0.)
+                heuristic_performance.append(0.0)
         else:
             gt_path_str = "Solution not given"
 
@@ -151,9 +348,12 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
 
     # aggregate performance of each query
-    query_perf = list(map(Ex03PerformanceResult, accuracy, solve_times, heuristic_performance))
+    query_perf = list(
+        map(Ex03PerformanceResult, accuracy, solve_times, heuristic_performance)
+    )
     perf = ex3_perf_aggregator(query_perf)
     return perf, r
+
 
 def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03PerformanceResult:
     # Very similar to ex2 perf aggregator, except now we include the heuristic performance
@@ -161,40 +361,49 @@ def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03Performanc
     # perfomance for valid results
     valid_acc = [p.accuracy for p in perf]
     valid_time = [p.solve_time for p in perf]
-    valid_heuristic_efficiency = [p.heuristic_efficiency for p in perf if p.heuristic_efficiency != 0]
+    valid_heuristic_efficiency = [
+        p.heuristic_efficiency for p in perf if p.heuristic_efficiency != 0
+    ]
 
     avgs = []
     for valid_result in [valid_acc, valid_time, valid_heuristic_efficiency]:
         try:
             avg_result = sum(valid_result) / float(len(valid_result))
         except ZeroDivisionError:
-            avg_result = 0.
+            avg_result = 0.0
         avgs.append(avg_result)
 
-    return Ex03PerformanceResult(accuracy=avgs[0], solve_time=avgs[1], heuristic_efficiency=avgs[2])
+    return Ex03PerformanceResult(
+        accuracy=avgs[0], solve_time=avgs[1], heuristic_efficiency=avgs[2]
+    )
+
 
 def get_exercise3() -> Exercise:
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
     expected_results = ex3_get_expected_results()
     test_values = list()
 
-    def uniform_cost_heuristic_counter(search_algo: UniformCostSearch, start: X, goal: X) -> int:
+    def uniform_cost_heuristic_counter(
+        search_algo: UniformCostSearch, start: X, goal: X
+    ) -> int:
         # There is no heuristic in UCS, so we just return 0
         return 0
 
     def astar_heuristic_counter(search_algo: Astar, start: X, goal: X) -> int:
         return search_algo.heuristic_counter
 
-    algos = [(UniformCostSearch.__name__, uniform_cost_heuristic_counter),
-             (Astar.__name__, astar_heuristic_counter)]
+    algos = [
+        (UniformCostSearch.__name__, uniform_cost_heuristic_counter),
+        (Astar.__name__, astar_heuristic_counter),
+    ]
 
     for ab in product(test_wgraphs, algos):
         test_values.append(TestValueEx3(ab))
 
     return Exercise[TestValueEx3, Any](
-            desc='This exercise is about graph search',
-            evaluation_fun=ex3_evaluation,
-            perf_aggregator=ex3_perf_aggregator,
-            test_values=test_values,
-            expected_results=expected_results,
+        desc="This exercise is about graph search",
+        evaluation_fun=ex3_evaluation,
+        perf_aggregator=ex3_perf_aggregator,
+        test_values=test_values,
+        expected_results=expected_results,
     )

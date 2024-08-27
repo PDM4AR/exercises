@@ -54,7 +54,7 @@ class WeightedGraph:
 ```
 
 
-We will be using connectivity graphs of few (famous) cities around the world.
+We will be using connectivity graphs of a few (famous) cities around the world; sometimes, these cities will also be connected to their nearest neighboring cities (you can find a clue on how this is done in the file 'exercises_def/ex03/data.py').
 In order to properly implement your algorithms, you will need to get some property from the nodes (e.g., their position on the map).
 You can access a nodes coordinate using the method `get_node_coordinates()`.
 
