@@ -3,6 +3,7 @@ import os
 import logging
 
 import contracts
+from zuper_commons import ZLogger
 from zuper_commons.types import ZValueError
 from zuper_commons.text import remove_escapes
 
@@ -28,7 +29,8 @@ def run_exercise(exercise: str, evaluation_mode=False):
     evaluator = ExerciseEvaluator(exercise=ex)
 
     out_main = out_dir(exercise)
-    logging.getLogger("reprep").setLevel(logging.WARNING)  # suppress annoying messages from reprep
+    
+    ZLogger("reprep").setLevel(logging.WARNING)   # suppress annoying messages from reprep
 
     total = len(ex.test_values)
     # for i, alg_in in enumerate(tqdm(ex.test_values)):
