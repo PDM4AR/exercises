@@ -109,11 +109,15 @@ class Cell(IntEnum):
 
 
 Policy = NDArray[np.int64]
-"""Type Alias for the policy"""
-AllOptimalActions = Union[NDArray[np.object_], Policy]
-"""Type Alias for the all optimal actions per state"""
+"""Type Alias for the policy.It is the expected type of the policy that your solution should return."""
+OptimalActions = NDArray[np.object_]
+"""
+Type Alias for the all optimal actions per state. It is a numpy array of list objects where each list contains the
+optimal actions that are equally good for a given state. It is the type of the ground truth policy that your
+solution will be compared against. You are not required to use this type in your solution.
+"""
 ValueFunc = NDArray[np.float64]
-"""Type Alias for the value function"""
+"""Type Alias for the value function. It is the expected type of the value function that your solution should return."""
 ```
 
 The first subtask is to implement the missing methods in `exercises/ex04/mdp.py`.
