@@ -15,6 +15,12 @@
 				"python.analysis.typeCheckingMode": "basic",
 				"python.analysis.autoImportCompletions": true,
 				"python.terminal.activateEnvironment": true,
+				"black-formatter.args": [
+					"--line-length=120"
+				],
+				"pylint.args": [
+					"--disable=missing-class-docstring,missing-function-docstring,missing-module-docstring"
+				],
 				"[python]": {
 					"editor.defaultFormatter": "ms-python.black-formatter",
 					"editor.formatOnSave": true
@@ -27,8 +33,6 @@
 				"ms-python.black-formatter",
 				"ms-toolsai.jupyter",
 				"ms-toolsai.jupyter-renderers",
-				"rafaelrenanpacheco.darcula-theme",
-				"ritwickdey.liveserver",
 				"ritwickdey.LiveServer"
 			]
 		}
