@@ -1,11 +1,11 @@
 import math
 import random
-from typing import List, Tuple
+
 
 import numpy as np
 from geometry.poses import SE2_from_translation_angle
 from numpy.linalg import inv
-from shapely import geometry
+from shapely import geometry, line_locate_point
 from dg_commons import SE2Transform
 
 from .structures import (
@@ -73,7 +73,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_polygon(
-        center: Tuple[float, float],
+        center: tuple[float, float],
         avg_radius: float,
         irregularity: float,
         spikiness: float,
@@ -88,7 +88,7 @@ class DataGenerator:
         sequential points, and by varying the radial distance of each
         point from the centre.
         Args:
-            center (Tuple[float, float]):
+            center (tuple[float, float]):
                 a pair representing the center of the circumference used
                 to generate the polygon.
             avg_radius (float):
@@ -131,7 +131,7 @@ class DataGenerator:
         return points
 
     @staticmethod
-    def random_angle_steps(steps: int, irregularity: float) -> List[float]:
+    def random_angle_steps(steps: int, irregularity: float) -> list[float]:
         """
         This code is taken from here => https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
 
@@ -142,7 +142,7 @@ class DataGenerator:
             irregularity (float):
                 variance of the spacing of the angles between consecutive vertices.
         Returns:
-            List[float]: the list of the random angles.
+            list[float]: the list of the random angles.
         """
         # generate n angle steps
         angles = []
@@ -185,7 +185,7 @@ class DataGenerator:
     @staticmethod
     def generate_circle_point_collision_data(
         index: int,
-    ) -> Tuple[Circle, Point, bool]:
+    ) -> tuple[Circle, Point, bool]:
         # Generate Random Circle
         circle = DataGenerator.generate_random_circle()
         # Generate Point
@@ -198,10 +198,136 @@ class DataGenerator:
             )
             return (circle, point, False)
 
+    @staticmethod  # New method.
+    def generate_axis_polygon(
+        index: int,
+    ) -> tuple[Polygon, Segment, Segment]:  # 2nd segment is the expected result.
+
+        # Generate random polygon
+        poly = DataGenerator.generate_random_polygon(center=Point(5, 5), avg_radius=3.0)
+        # Generate the segment for the rand polygon
+        pt1 = Point(x=0.0, y=0.0)
+
+        rand_num = np.random.uniform()
+
+        if rand_num < 0.25:
+            y_coord_pt2 = 2.0
+        elif rand_num >= 0.25 and rand_num < 0.5:
+            y_coord_pt2 = 4.0
+        elif rand_num >= 0.5 and rand_num < 0.75:
+            y_coord_pt2 = 1.0
+        else:
+            y_coord_pt2 = 3.0
+
+        pt2 = Point(x=40.0, y=y_coord_pt2)
+
+        seg = Segment(p1=pt1, p2=pt2)
+
+        # TODO: move to private repo from here till the end.
+        # Project the polygon onto the segment.
+        seg_shapely = geometry.LineString([[seg.p1.x, seg.p1.y], [seg.p2.x, seg.p2.y]])
+        min_dist = np.inf
+        min_proj_pt = None
+        max_dist = -np.inf
+        max_proj_pt = None
+        for vertice in poly.vertices:
+            vertice_shapely = geometry.Point(vertice.x, vertice.y)
+            dist = seg_shapely.project(vertice_shapely)
+            if dist < min_dist:
+                min_dist = dist
+                min_proj_pt = seg_shapely.interpolate(dist)
+            if dist > max_dist:
+                max_dist = dist
+                max_proj_pt = seg_shapely.interpolate(dist)
+        if min_proj_pt is not None and max_proj_pt is not None:
+            pt1_proj = Point(x=min_proj_pt.x, y=min_proj_pt.y)
+            pt2_proj = Point(x=max_proj_pt.x, y=max_proj_pt.y)
+            proj_seg = Segment(pt1_proj, pt2_proj)
+
+        # Create the 'true' segment, first project the polygon onto that segment. Can use shapely
+
+        return (poly, seg, proj_seg)
+
+    @staticmethod
+    def generate_SAT_poly(index: int) -> tuple[Polygon, Polygon, bool]:
+        # Generate polygons
+        randflag = True
+        randnum = np.random.uniform()
+        if randnum < 0.4:
+            centerpt1 = Point(0, 0)
+            centerpt2 = Point(5, 5)
+            r1 = 3.0
+            r2 = 2.0
+        elif randnum >= 0.4 and randnum < 0.6:
+            centerpt1 = Point(5, 5)
+            centerpt2 = Point(5, 5)
+            r1 = 4.0
+            r2 = 2.0
+        elif randnum >= 0.6 and randnum < 0.8:
+            centerpt1 = Point(3, 3)
+            centerpt2 = Point(2, 2)
+            r1 = 3.0
+            r2 = 3.0
+        else:
+            randflag = False
+
+        if randflag:
+            poly1 = DataGenerator.generate_random_polygon(
+                center=centerpt1, avg_radius=r1
+            )
+            poly2 = DataGenerator.generate_random_polygon(
+                center=centerpt2, avg_radius=r2
+            )
+        else:
+            poly1 = DataGenerator.generate_random_polygon(
+                center=Point(3, 3), avg_radius=3
+            )
+            vertices_poly2 = poly1.vertices[0:2]
+
+            vertices_poly2.append(
+                Point(
+                    x=vertices_poly2[0].x + vertices_poly2[1].x + 2.0,
+                    y=vertices_poly2[0].y + 2.0,
+                ),
+            )
+
+            poly2 = Polygon(vertices_poly2)
+        poly1_shapely = geometry.Polygon([[p.x, p.y] for p in poly1.vertices])
+        poly2_shapely = geometry.Polygon([[p.x, p.y] for p in poly2.vertices])
+        ans = poly1_shapely.intersects(
+            poly2_shapely
+        )  # sorry students, we WILL be checkig if you used shapely for this exercise :(
+        return [poly1, poly2, ans]
+
+    @staticmethod
+    def generate_SAT_poly_circle(index: int) -> tuple[Polygon, Circle, bool]:
+        # Generate polygons
+        randnum = np.random.uniform()
+        if randnum < 0.5:
+            centerpt1 = Point(0, 0)
+            centerpt2 = Point(5, 5)
+            r1 = 3.0
+            r2 = 2.0
+        else:
+            centerpt1 = Point(5, 5)
+            centerpt2 = Point(5, 5)
+            r1 = 4.0
+            r2 = 2.0
+
+        poly1 = DataGenerator.generate_random_polygon(center=centerpt1, avg_radius=r1)
+        circ = DataGenerator.generate_random_circle(center=centerpt2, min_radius=r2)
+
+        poly1_shapely = geometry.Polygon([[p.x, p.y] for p in poly1.vertices])
+        circ_shapely = geometry.Point(circ.center.x, circ.center.y).buffer(circ.radius)
+        ans = poly1_shapely.intersects(
+            circ_shapely
+        )  # sorry students, we WILL be checkig if you used shapely for this exercise :(
+        return [poly1, circ, ans]
+
     @staticmethod
     def generate_triangle_point_collision_data(
         index: int,
-    ) -> Tuple[Triangle, Point, bool]:
+    ) -> tuple[Triangle, Point, bool]:
         # Generate Random Triangle
         triangle = DataGenerator.generate_random_triangle()
         # Calculate Center of the Triangle
@@ -227,7 +353,7 @@ class DataGenerator:
     @staticmethod
     def generate_polygon_point_collision_data(
         index: int,
-    ) -> Tuple[Polygon, Point, bool]:
+    ) -> tuple[Polygon, Point, bool]:
         # Generate Random Polygon
         poly = DataGenerator.generate_random_polygon()
         # Calculate Center of the Corners
@@ -243,7 +369,7 @@ class DataGenerator:
     @staticmethod
     def generate_circle_segment_collision_data(
         index: int,
-    ) -> Tuple[Circle, Segment, bool]:
+    ) -> tuple[Circle, Segment, bool]:
         # Generate Random Circle
         circle = DataGenerator.generate_random_circle()
         # Generate Points
@@ -266,7 +392,7 @@ class DataGenerator:
     @staticmethod
     def generate_tringle_segment_collision_data(
         index: int,
-    ) -> Tuple[Triangle, Segment, bool]:
+    ) -> tuple[Triangle, Segment, bool]:
         # Generate Random Polygon
         triangle = DataGenerator.generate_random_triangle()
         # Calculate Center of the Corners
@@ -306,7 +432,7 @@ class DataGenerator:
     @staticmethod
     def generate_polygon_segment_collision_data(
         index: int,
-    ) -> Tuple[Polygon, Segment, bool]:
+    ) -> tuple[Polygon, Segment, bool]:
         # Generate Random Polygon
         poly = DataGenerator.generate_random_polygon()
         # Calculate Center of the Corners
@@ -337,7 +463,7 @@ class DataGenerator:
     def generate_random_robot_map_and_path(
         exercise_id: int,
         index: int,
-    ) -> Tuple[Path, float, List[GeoPrimitive], List[int]]:
+    ) -> tuple[Path, float, list[GeoPrimitive], list[int]]:
 
         map_config = EXERCISE_MAP_CONFIGS[exercise_id]
         # Generate Random Robot Radius
@@ -396,12 +522,12 @@ class DataGenerator:
     @staticmethod
     def generate_robot_frame_data(
         index: int,
-    ) -> Tuple[
-        List[SE2Transform],
+    ) -> tuple[
+        list[SE2Transform],
         float,
-        List[List[GeoPrimitive]],
-        List[GeoPrimitive],
-        List[int],
+        list[list[GeoPrimitive]],
+        list[GeoPrimitive],
+        list[int],
     ]:
         # Initialize Random Map
         (

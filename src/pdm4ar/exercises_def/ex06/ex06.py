@@ -1,7 +1,8 @@
 import timeit
 import numpy as np
 import random
-from typing import Any, Callable, Sequence, Tuple, List, Dict
+from typing import Any, Callable, Sequence
+from shapely.geometry import LineString
 from dataclasses import dataclass
 
 from dg_commons import SE2Transform
@@ -12,6 +13,7 @@ from pdm4ar.exercises.ex06.collision_checker import (
 )
 from pdm4ar.exercises.ex06.collision_primitives import (
     CollisionPrimitives,
+    CollisionPrimitives_SeparateAxis,
 )
 from pdm4ar.exercises_def.ex06.structures import Polygon
 from pdm4ar.exercises_def.ex06.visualization import (
@@ -23,6 +25,9 @@ from pdm4ar.exercises_def.ex06.visualization import (
     visualize_polygon_line,
     visualize_map_path,
     visualize_robot_frame_map,
+    visualize_axis_poly,
+    viusalize_SAT_poly,
+    viusalize_SAT_poly_circle,
 )
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 from pdm4ar.exercises_def.ex06.data import DataGenerator
@@ -44,7 +49,7 @@ class TestCollisionCheck(ExIn):
     visualizer: Callable
     ex_function: Callable
     eval_function: Callable
-    eval_weights: Tuple[float, float]
+    eval_weights: tuple[float, float]
 
     def str_id(self) -> str:
         return f"step-{self.step_id}-"
@@ -54,7 +59,7 @@ class TestCollisionCheck(ExIn):
 class CollisionCheckWeightedPerformance(PerformanceResults):
     accuracy: float
     solve_time: float
-    performances: Dict[int, Dict[str, float]]
+    performances: dict[int, dict[str, float]]
 
     def __post_init__(self):
         assert 0 <= self.accuracy <= 1
@@ -65,7 +70,7 @@ class CollisionCheckWeightedPerformance(PerformanceResults):
 class CollisionCheckPerformance(PerformanceResults):
     accuracy: float
     solve_time: float
-    weights: Tuple[float, float]
+    weights: tuple[float, float]
     step_id: int
     """Percentage of correct comparisons"""
 
@@ -75,7 +80,7 @@ class CollisionCheckPerformance(PerformanceResults):
     @staticmethod
     def perf_aggregator(
         eval_list: Sequence["CollisionCheckPerformance"],
-        total_weights: Tuple[float, float],
+        total_weights: tuple[float, float],
     ) -> "CollisionCheckWeightedPerformance":
 
         if len(eval_list) == 0:
@@ -101,7 +106,7 @@ class CollisionCheckPerformance(PerformanceResults):
 
 def _collision_check_rep(
     algo_in: TestCollisionCheck, alg_out: Any
-) -> Tuple[CollisionCheckPerformance, Report]:
+) -> tuple[CollisionCheckPerformance, Report]:
 
     # Set Random Seed
     set_random_seed(RANDOM_SEED)
@@ -113,16 +118,35 @@ def _collision_check_rep(
 
     for ex_num in range(algo_in.number_of_test_cases):
         data = algo_in.sample_generator(ex_num)
-        algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
         start = timeit.default_timer()
         estimate = algo_in.ex_function(*data[:-1])
         stop = timeit.default_timer()
-        accuracy_list.append(algo_in.eval_function(data, estimate))
         solve_times.append(stop - start)
-        r.text(
-            f"{algo_in.str_id()}-{ex_num}",
-            f"Ground Truth = {data[-1]} | Estimation = {estimate} | Execution Time = {round(stop - start, 5)}",
-        )
+
+        # get size of the estimate:
+        if isinstance(estimate, tuple):
+            # print("Estimate is a tuple!")
+            accuracy_list.append(algo_in.eval_function(data, estimate[0]))
+            try:
+                algo_in.visualizer(
+                    r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1]
+                )
+            except:
+                algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
+            r.text(
+                f"{algo_in.str_id()}-{ex_num}",
+                f"Ground Truth = {data[-1]} | Estimation = {estimate[0]} | Execution Time = {round(stop - start, 5)}",
+            )
+
+        else:
+
+            accuracy_list.append(algo_in.eval_function(data, estimate))
+            algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
+
+            r.text(
+                f"{algo_in.str_id()}-{ex_num}",
+                f"Ground Truth = {data[-1]} | Estimation = {estimate} | Execution Time = {round(stop - start, 5)}",
+            )
 
     r.text(
         f"{algo_in.str_id()}-results",
@@ -163,12 +187,56 @@ def idx_list_eval_function(data, estimation):
     return (ground_truth_bool == estimation_bool).mean()
 
 
+def segment_eval_function(data, estimation):
+    _, _, proj_seg = data
+    cand_seg = estimation
+
+    proj_seg_endpts = [
+        np.array([proj_seg.p1.x, proj_seg.p1.y]),
+        np.array([proj_seg.p2.x, proj_seg.p2.y]),
+    ]
+    cand_seg_endpts = [
+        np.array([cand_seg.p1.x, cand_seg.p1.y]),
+        np.array([cand_seg.p2.x, cand_seg.p2.y]),
+    ]
+
+    # norm distance
+    dist_proj = np.linalg.norm(proj_seg_endpts[0] - proj_seg_endpts[1])
+    dist_cand = np.linalg.norm(cand_seg_endpts[0] - cand_seg_endpts[1])
+
+    dist_diff = np.abs(dist_proj - dist_cand)
+    tol = 1e-2
+    # Check that endpts are the same
+    proj_seg_shapely = LineString(
+        [
+            [proj_seg_endpts[0][0], proj_seg_endpts[0][1]],
+            [proj_seg_endpts[1][0], proj_seg_endpts[1][1]],
+        ]
+    )
+    cand_seg_shapely = LineString(
+        [
+            [cand_seg_endpts[0][0], cand_seg_endpts[0][1]],
+            [cand_seg_endpts[1][0], cand_seg_endpts[1][1]],
+        ]
+    )
+    cand_seg_shapely_rev = LineString(
+        [
+            [cand_seg_endpts[1][0], cand_seg_endpts[1][1]],
+            [cand_seg_endpts[0][0], cand_seg_endpts[0][1]],
+        ]
+    )
+    return dist_diff < tol and (
+        proj_seg_shapely.equals_exact(cand_seg_shapely, tolerance=tol)
+        or proj_seg_shapely.equals_exact(cand_seg_shapely_rev, tolerance=tol)
+    )
+
+
 def collision_check_robot_frame_loop(
-    poses: List[SE2Transform],
+    poses: list[SE2Transform],
     r: float,
-    observed_obstacles_list: List[List[Polygon]],
-    map: List[Polygon],
-) -> List[int]:
+    observed_obstacles_list: list[list[Polygon]],
+    map: list[Polygon],
+) -> list[int]:
     # Initialize Collision Checker
     collision_checker = CollisionChecker()
     # Iterate Over Path
@@ -188,125 +256,85 @@ def get_exercise6() -> Exercise:
     # Generate Test Data
     test_values = [
         TestCollisionCheck(
-            10,
+            5,
             1,
-            "Point-Circle Collision Primitive",
-            DataGenerator.generate_circle_point_collision_data,
-            visualize_circle_point,
-            CollisionPrimitives.circle_point_collision,
-            float_eval_function,
-            (5, 0),
-        ),  # Step 1
+            "Project Polygon Check",
+            DataGenerator.generate_axis_polygon,
+            visualize_axis_poly,
+            CollisionPrimitives_SeparateAxis.proj_polygon,
+            segment_eval_function,
+            eval_weights=(5, 5),
+        ),  # Task 1: proj polygon.
         TestCollisionCheck(
             10,
             2,
-            "Point-Triangle Collision Primitive",
-            DataGenerator.generate_triangle_point_collision_data,
-            visualize_triangle_point,
-            CollisionPrimitives.triangle_point_collision,
+            "Separating Axis Thm",
+            DataGenerator.generate_SAT_poly,
+            viusalize_SAT_poly,
+            CollisionPrimitives_SeparateAxis.separating_axis_thm,
             float_eval_function,
-            (10, 0),
-        ),  # Step 2
+            eval_weights=(20, 20),
+        ),  # Task 2: Separate Axis Theorem.
         TestCollisionCheck(
-            10,
-            3,
-            "Point-Polygon Collision Primitive",
-            DataGenerator.generate_polygon_point_collision_data,
-            visualize_polygon_point,
-            CollisionPrimitives.polygon_point_collision,
-            float_eval_function,
-            (10, 0),
-        ),  # Step 3
-        TestCollisionCheck(
-            10,
-            4,
-            "Segment-Circle Collision Primitive",
-            DataGenerator.generate_circle_segment_collision_data,
-            visualize_circle_line,
-            CollisionPrimitives.circle_segment_collision,
-            float_eval_function,
-            (10, 0),
-        ),  # Step 4
-        TestCollisionCheck(
-            10,
-            5,
-            "Segment-Triangle Collision Primitive",
-            DataGenerator.generate_tringle_segment_collision_data,
-            visualize_triangle_line,
-            CollisionPrimitives.triangle_segment_collision,
-            float_eval_function,
-            (10, 0),
-        ),  # Step 5
-        TestCollisionCheck(
-            10,
             6,
-            "Segment-Polygon Collision Primitive",
-            DataGenerator.generate_polygon_segment_collision_data,
-            visualize_polygon_line,
-            CollisionPrimitives.polygon_segment_collision,
+            3,
+            "Separating Axis Thm with Circles",
+            DataGenerator.generate_SAT_poly_circle,
+            viusalize_SAT_poly_circle,
+            CollisionPrimitives_SeparateAxis.separating_axis_thm,
             float_eval_function,
-            (5, 0),
-        ),  # Step 6
-        TestCollisionCheck(
-            10,
-            7,
-            "Segment-Polygon (AABB) Collision Primitive",
-            DataGenerator.generate_polygon_segment_collision_data,
-            visualize_polygon_line,
-            CollisionPrimitives.polygon_segment_collision_aabb,
-            float_eval_function,
-            (5, 0),
-        ),  # Step 7
+            eval_weights=(20, 20),
+        ),  # Task 3: Extended Separate Axis Theorem for circles.
         TestCollisionCheck(
             5,
-            8,
+            4,
             "Path Collision Check",
             lambda x: DataGenerator().generate_random_robot_map_and_path(8, x),
             visualize_map_path,
             CollisionChecker().path_collision_check,
             idx_list_eval_function,
             (20, 20),
-        ),  # Step 8
+        ),  # Task 4
         TestCollisionCheck(
             5,
-            9,
+            5,
             "Path Collision Check - Occupancy Grid",
             lambda x: DataGenerator().generate_random_robot_map_and_path(9, x),
             visualize_map_path,
             CollisionChecker().path_collision_check_occupancy_grid,
             idx_list_eval_function,
             (20, 20),
-        ),  # Step 9
+        ),  # Task 5
         TestCollisionCheck(
             5,
-            10,
+            6,
             "Path Collision Check - R-Tree",
             lambda x: DataGenerator().generate_random_robot_map_and_path(10, x),
             visualize_map_path,
             CollisionChecker().path_collision_check_r_tree,
             idx_list_eval_function,
             (30, 30),
-        ),  # Step 10
+        ),  # Task 6
         TestCollisionCheck(
             5,
-            11,
+            7,
             "Collision Check - Rigid Body Transformation",
             DataGenerator().generate_robot_frame_data,
             visualize_robot_frame_map,
             collision_check_robot_frame_loop,
             idx_list_eval_function,
             (20, 20),
-        ),  # Step 11
+        ),  # Task 7
         TestCollisionCheck(
             5,
-            12,
+            8,
             "Path Collision Check - Safety Certificates",
             lambda x: DataGenerator().generate_random_robot_map_and_path(12, x),
             visualize_map_path,
             CollisionChecker().path_collision_check_safety_certificate,
             idx_list_eval_function,
             (30, 30),
-        ),  # Step 12
+        ),  # Task 8
     ]
 
     total_weights = (

@@ -1,6 +1,9 @@
 from typing import List
 from dg_commons import SE2Transform
-from pdm4ar.exercises.ex06.collision_primitives import CollisionPrimitives
+from pdm4ar.exercises.ex06.collision_primitives import (
+    CollisionPrimitives,
+    CollisionPrimitives_SeparateAxis,
+)
 from pdm4ar.exercises_def.ex06.structures import (
     Polygon,
     GeoPrimitive,
@@ -64,7 +67,14 @@ def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
 ############################# This is a helper function. #####################################
 # Feel free to use this function or not
 
+
 def geo_primitive_to_shapely(p: GeoPrimitive):
+    """
+    Given function.
+
+    Casts a geometric primitive into a Shapely object. Feel free to use this function or not
+    for the later tasks.
+    """
     if isinstance(p, Point):
         return shapely.Point(p.x, p.y)
     elif isinstance(p, Segment):
@@ -73,7 +83,7 @@ def geo_primitive_to_shapely(p: GeoPrimitive):
         return shapely.Point(p.center.x, p.center.y).buffer(p.radius)
     elif isinstance(p, Triangle):
         return shapely.Polygon([[p.v1.x, p.v1.y], [p.v2.x, p.v2.y], [p.v3.x, p.v3.y]])
-    else: #Polygon
+    else:  # Polygon
         vertices = []
         for vertex in p.vertices:
             vertices += [(vertex.x, vertex.y)]
@@ -92,8 +102,8 @@ class CollisionChecker:
         pass
 
     def path_collision_check(
-        self, t: Path, r: float, obstacles: List[GeoPrimitive]
-    ) -> List[int]:
+        self, t: Path, r: float, obstacles: list[GeoPrimitive]
+    ) -> list[int]:
         """
         Returns the indices of collided line segments.
         Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1.
@@ -101,14 +111,14 @@ class CollisionChecker:
             Parameters:
                     t (Path): Path of circular differential drive robot
                     r (float): Radius of circular differential drive robot
-                    obstacles (List[GeoPrimitive]): List of obstacles as GeoPrimitives
+                    obstacles (list[GeoPrimitive]): list of obstacles as GeoPrimitives
                     Please note that only Triangle, Circle and Polygon exist in this list
         """
         return []
 
     def path_collision_check_occupancy_grid(
-        self, t: Path, r: float, obstacles: List[GeoPrimitive]
-    ) -> List[int]:
+        self, t: Path, r: float, obstacles: list[GeoPrimitive]
+    ) -> list[int]:
         """
         Returns the indices of collided line segments.
         Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1
@@ -119,14 +129,14 @@ class CollisionChecker:
             Parameters:
                     t (Path): Path of circular differential drive robot
                     r (float): Radius of circular differential drive robot
-                    obstacles (List[GeoPrimitive]): List of obstacles as GeoPrimitives
+                    obstacles (list[GeoPrimitive]): list of obstacles as GeoPrimitives
                     Please note that only Triangle, Circle and Polygon exist in this list
         """
         return []
 
     def path_collision_check_r_tree(
-        self, t: Path, r: float, obstacles: List[GeoPrimitive]
-    ) -> List[int]:
+        self, t: Path, r: float, obstacles: list[GeoPrimitive]
+    ) -> list[int]:
         """
         Returns the indices of collided line segments.
         Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1
@@ -147,7 +157,7 @@ class CollisionChecker:
         r: float,
         current_pose: SE2Transform,
         next_pose: SE2Transform,
-        observed_obstacles: List[GeoPrimitive],
+        observed_obstacles: list[GeoPrimitive],
     ) -> bool:
         """
         Returns there exists a collision or not during the movement of a circular differential drive robot until its next pose.
@@ -162,8 +172,8 @@ class CollisionChecker:
         return False
 
     def path_collision_check_safety_certificate(
-        self, t: Path, r: float, obstacles: List[GeoPrimitive]
-    ) -> List[int]:
+        self, t: Path, r: float, obstacles: list[GeoPrimitive]
+    ) -> list[int]:
         """
         Returns the indices of collided line segments.
         Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1
@@ -176,7 +186,7 @@ class CollisionChecker:
             Parameters:
                     t (Path): Path of circular differential drive robot
                     r (float): Radius of circular differential drive robot
-                    obstacles (List[GeoPrimitive]): List of obstacles as GeoPrimitives
+                    obstacles (list[GeoPrimitive]): list of obstacles as GeoPrimitives
                     Please note that only Triangle, Circle and Polygon exist in this list
         """
         return []

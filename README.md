@@ -2,7 +2,6 @@
 
 All the necessary instructions are on our website: [https://pdm4ar.github.io/exercises/](https://pdm4ar.github.io/exercises/).
 
-
 ### Highlights from the previous year
 
 |                                            *Using safety certificates*                                             |                                                  *Informed RRT**                                                   |                                       *Navigating through an asteroids' field*                                        |
