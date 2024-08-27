@@ -8,26 +8,21 @@
 
 ## Exercise
 
-Collision checking is a crucial capability of any planning system. 
-In this exercise, you will implement a basic collision checking module for a circle-shaped differential drive robot. 
-The goal is to obtain a module that can perform collision checks between basic geometric primitives. 
-This module can then be used for a given robot to check whether its candidate (sub-)paths are collision-free.
+Collision checking is an indispensable feature of any effective planning system. In this exercise, you will design and implement a basic collision checking module tailored for a circle-shaped differential drive robot. The primary goal is to create a module capable of performing collision checks between fundamental geometric primitives, thereby enabling the evaluation of whether a robot's candidate (sub-)paths are collision-free.
 
-### Collision check primitives
+### Collision Check Primitives
+To kick off, we will develop collision check primitives for elementary geometric shapes. For this purpose, we'll employ the Separating Axis Theorem (SAT) for 2D primitives. SAT is a robust method for collision checking between any convex n-polygon, frequently used in path planning, robotic navigation, and game development.
 
-We start off by implementing some collision check primitives for basic geometric shapes.  To do so, we will use the Separating Axis Theorem for 2d Primitives. The Separating Axis Theorem allows for collision checking between any convex n-polygon. It is also widely used as a tool in path planning and navigation for robotics, as well as game programming. 
-
-As a reminder, the Separating Axis Theorem states: If two sets are closed and at least one of them is compact, then there is a hyperplane between them, and even two parallel hyperplanes separated by a gap. An axis that is orthogonal to a separating hyperplane is deemed a Separating Axis, because the orthogonal projections of the convex bodies onto the axis are disjoint.
-
-For the 2D Case, the hyperplanes are no more than line segments. 
-
+#### Separating Axis Theorem (SAT) Recap
+The Separating Axis Theorem asserts that if two sets are closed and at least one set is compact, there exists a hyperplane separating them. Essentially, this implies the existence of two parallel hyperplanes with a gap in between. An axis orthogonal to such a separating hyperplane is referred to as a Separating Axis. The orthogonal projections of the convex bodies onto this axis are disjoint, ensuring no overlap and thus no collision.
+By leveraging SAT, we can efficiently determine whether simple geometric shapes such as circles or polygons intersect, thereby facilitating reliable collision checks for our robot's path planning needs. 
 These will come in handy later on. 
+
+#### Step 1: Project A Polygon onto an Segment
 The first step is to implement the functions inside the `CollisionPrimitives_SeparateAxis` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
 
 In this section, we suggest the use of linear algebra modules like `numpy`. 
-However, you are not allowed to use modules that implement collision checking directly such as `shapely`. We will be checking solutions for correct implementation without usage of `shapely`.
-
-#### Step 1: Project A Polygon onto an Segment
+However, you are **not** allowed to use modules that implement collision checking directly such as `shapely`. We will be checking solutions for correct implementation without usage of `shapely`.
 
 Implement a function that Projects a Polygon onto a Segment (the segment will later represent the Axis when implementing the theorem). Accuracy of the projection is checked by length of the section of the segment onto which the polygon is projected on, as well as having the endpoints of the projected segment be within some epsilon. 
 
@@ -147,25 +142,29 @@ Test cases are provided in the online checker for this exercise.
 
 
 
-### Collision check module
+### Collision Check Module
 
-In the second part of this exercise, we leverage another method of computing collisions: through intersecting shapes and triangulation. Triangulation is less widely used than Separating Axis Theorem, although it is an intuitive way to break down large polygons into more manageable triangular shapes. For this exercise, the `CollisionPrimitives` class within `src/pdm4ar/exercises/ex06/collision_primitives.py` is given to you. Notably, the following functions:
-`circle_point_collision`,
-`triangle_point_collision`,
-`polygon_point_collision`,
-`circle_segment_collision`,
-`sample_segment`,
-`triangle_segment_collision`,
-`polygon_segment_collision`,
-`polygon_segment_collision_aabb`,
-`_poly_to_aabb`
-We encourage you to read through these given functions, as you will be calling them in the next part of the exercise. 
- 
-Please note that, for the remaining part of this exercise, we will use a circle-shaped differential drive robot. 
-For this part of the exercise, you can assume that our robot will move inside a 2D world that contains fixed obstacles on a pre-defined path. 
-The obstacles inside the world must be circular, triangular or polygon-shaped. 
-For each of the following steps, you will implement different methods to check collisions for the possible path of our robot. Do note that this second part of the exercise is designed for you to implement different approaches to solve the collision-checking problem. Therefore, the code for each of the collision-checking functions should be distinct from one another.
+In the second part of this exercise, we will explore an alternative method for detecting collisions using shape intersections and triangulation. Although triangulation is less commonly employed than the Separating Axis Theorem (SAT), it offers an intuitive approach for decomposing large polygons into manageable triangular shapes.
 
+For this exercise, the `CollisionPrimitives` class located in `src/pdm4ar/exercises/ex06/collision_primitives.py` is provided to you. This class includes the following functions:
+
+- `circle_point_collision`
+- `triangle_point_collision`
+- `polygon_point_collision`
+- `circle_segment_collision`
+- `sample_segment`
+- `triangle_segment_collision`
+- `polygon_segment_collision`
+- `polygon_segment_collision_aabb`
+- `_poly_to_aabb`
+
+We recommend that you thoroughly review these functions, as they will be crucial for the subsequent steps of the exercise.
+
+The context for this part of the exercise assumes a circle-shaped differential drive robot navigating a 2D world populated with fixed obstacles arranged along a predefined path. These obstacles can be circular, triangular, or polygonal in shape.
+
+You will implement various methods to check for collisions along the possible path of our robot in the following steps. It is important to note that each method you implement should adopt a unique approach to solving the collision-checking problem. As such, the code for each collision-checking function should be distinct from one another.
+
+By employing different strategies, you will gain a comprehensive understanding of the strengths and limitations of various collision detection methods, ultimately enhancing the robustness of the collision-checking module for path planning.
 To represent the path of robot, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
@@ -235,7 +234,7 @@ This function takes radius of the robot *r*, current pose `SE2transform`, next p
 
 #### Step 8: Collision Checking via Safety Certificates
 
-The aim and all of the assumptions are same as `Step 8`. 
+The aim and all the assumptions are the same as in `Step 8`. 
 Like the previous steps, the aim is to find the segments of the path in which our circular robot will collide. 
 However, in this step you will use a different optimization method called Safety Certificates. 
 For environments with small number of obstacles but high number of points to be checked, it provides us an execution time decrease via the approach it uses on collision check. 
@@ -279,4 +278,4 @@ Please refer to [Hello World](01-helloworld.md) for instructions.
 
 Be cautious of clashing class names between our self-defined `GeoPrimitive` classes and the `shapely` classes. It is not recommended to run the following: `import triangle` or `from shapely import *` as these will result in errors due to identical class/module names. You may instead choose to use aliases for your imported modules (e.g. `import triangle as tr` or `from shapely.geometry import Point as shapelyPoint`) or to just import the methods that you need (e.g. `from triangle import triangulate`).
 
-There are also times where you may be dealing with calculations involving lots of floating point numbers and you may wish to compare the result against a certain value. The `math.isclose` method might be helpful as a direct `==` comparison will likely return *False* more often than not.
+There are also times when you may be dealing with calculations involving lots of floating point numbers and you may wish to compare the result against a certain value. The `math.isclose` method might be helpful as a direct `==` comparison will likely return *False* more often than not.
