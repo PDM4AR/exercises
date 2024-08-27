@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from time import process_time
-from typing import Any, Sequence, Type, Union
+from typing import Any, Sequence, Type, Union, Optional
 from zuper_commons.text import remove_escapes
 
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator
 from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
@@ -44,9 +45,9 @@ class Ex04PerformanceResult(PerformanceResults):
     # All test cases
     perf_result: Ex04Performance
     # Value Iteration test cases
-    value_iteration: Ex04Performance = None
+    value_iteration: Optional[Ex04Performance] = None
     # Policy Iteration test cases
-    policy_iteration: Ex04Performance = None
+    policy_iteration: Optional[Ex04Performance] = None
 
 
 def get_font_size(grid_mdp: GridMdp) -> int:
@@ -71,7 +72,7 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
         for i in range(MAP_SHAPE[0]):
             for j in range(MAP_SHAPE[1]):
                 if grid_mdp.grid[i, j] == Cell.CLIFF:
-                    ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="k"))
+                    ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="k"))
                 else:
                     ax.text(j, i, f"{value_func[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
 
@@ -115,7 +116,7 @@ def plot_report_figure(
     plot_grid_policy(rfig, grid_mdp, policy, algo_name)
 
 
-def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> Report:
+def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceResults, Report]:
     grid_mdp = ex_in.grid
     solver: GridMdpSolver = ex_in.algo()
     algo_name = ex_in.str_id()
@@ -184,7 +185,9 @@ def ex4_single_perf_aggregator(perf: Sequence[Ex04Performance]) -> Ex04Performan
         avg_solve_time = 0
 
     return Ex04Performance(
-        policy_accuracy=avg_policy_accuracy, value_func_r2=avg_value_func_r2, solve_time=avg_solve_time
+        policy_accuracy=float(avg_policy_accuracy),
+        value_func_r2=float(avg_value_func_r2),
+        solve_time=float(avg_solve_time),
     )
 
 
