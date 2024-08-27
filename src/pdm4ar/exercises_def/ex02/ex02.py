@@ -32,9 +32,10 @@ class EdgeColors:
     gt_path: str = "green"
 
 
-class TestValueEx2(ExIn, Tuple[GraphSearchProblem, str]):
+class TestValueEx2(ExIn, tuple[GraphSearchProblem, str]):
     def str_id(self) -> str:
         return str(self[1])
+
 
 class GraphImageCache:
     """
@@ -67,7 +68,7 @@ class GraphImageCache:
 
         # If there is cache data present, use it to fill in our field values.
         if os.path.exists(cache_file):
-            with open(cache_file, 'rb') as f:
+            with open(cache_file, "rb") as f:
                 self.__dict__ = pickle.load(f).__dict__
 
             if not self.consistency_check(cache_dir):
@@ -90,7 +91,9 @@ class GraphImageCache:
         make this unlikely, by grouping these actions close together. However, if it does occur,
         we just delete the cache and start over :(
         """
-        image_file_names = sorted(os.listdir(cache_dir))[:-1]  # everything except the pickle file
+        image_file_names = sorted(os.listdir(cache_dir))[
+            :-1
+        ]  # everything except the pickle file
         if len(image_file_names) != len(self.cache):
             return False
         for image_id in self.cache.values():
@@ -98,7 +101,9 @@ class GraphImageCache:
                 return False
         return True
 
-    def create_graph_image_node(self, graph: nx.Graph, name: str, pos, figsize) -> DataNode:
+    def create_graph_image_node(
+        self, graph: nx.Graph, name: str, pos, figsize
+    ) -> DataNode:
         """
         Create an image node, containing the image of the graph. When creating
         the html report, a parent node can add this image node as a child.
@@ -124,7 +129,7 @@ class GraphImageCache:
         return image_node
 
     def save(self):
-        with open(self.cache_file, 'wb') as f:
+        with open(self.cache_file, "wb") as f:
             pickle.dump(self, f)
 
     def remove_oldest_graph_from_cache(self):
@@ -142,8 +147,14 @@ class GraphImageCache:
         # stored on the graph components
         node_colors = [graph.nodes[u]["node_color"] for u in graph.nodes]
         edge_colors = [graph.edges[u, v]["edge_color"] for (u, v) in graph.edges]
-        nx.draw(graph, node_color=node_colors, edge_color=edge_colors, pos=pos, with_labels=True)
-        plt.savefig(self.image_file(self.counter), pil_kwargs={"figsize":figsize})
+        nx.draw(
+            graph,
+            node_color=node_colors,
+            edge_color=edge_colors,
+            pos=pos,
+            with_labels=True,
+        )
+        plt.savefig(self.image_file(self.counter), pil_kwargs={"figsize": figsize})
 
         # add the graph data to our cache lookup
         self.cache[graph_encoding] = self.counter
@@ -162,6 +173,7 @@ class GraphImageCache:
         # for this purpose
         return str(pickle.dumps(graph))
 
+
 @dataclass(frozen=True)
 class Ex02PerformanceResult(PerformanceResults):
     accuracy: float
@@ -171,11 +183,14 @@ class Ex02PerformanceResult(PerformanceResults):
         assert 0 <= self.accuracy <= 1, self.accuracy
         assert self.solve_time >= 0, self.solve_time
 
-def str_from_path(path:Path) -> str:
+
+def str_from_path(path: Path) -> str:
     return "".join(list(map(lambda u: f"{u}->", path)))[:-2]
 
 
-def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceResult, Report]:
+def ex2_evaluation(
+    ex_in, ex_out=None, plotGraph=True
+) -> tuple[Ex02PerformanceResult, Report]:
     # draw graph
     graph_search_prob, algo_name = ex_in
     test_graph = graph_search_prob.graph
@@ -192,12 +207,12 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceR
     figsize = (pic_size, pic_size)
     for n, successors in test_graph.items():
         G.add_edges_from(
-                product(
-                        [
-                            n,
-                        ],
-                        successors,
-                )
+            product(
+                [
+                    n,
+                ],
+                successors,
+            )
         )
     # draw graph
     pos = nx.get_node_attributes(G, "pos")
@@ -221,7 +236,7 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceR
         # Set all edge color attribute to black
         for e in G.edges():
             G[e[0]][e[1]]["color"] = EdgeColors.default
-        
+
         rfig = r.figure(cols=2)
 
         # Your algo
@@ -279,8 +294,8 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceR
             node_colors[query[0]] = NodeColors.start
             node_colors[query[1]] = NodeColors.goal
             edge_colors = {
-                (u, v): EdgeColors.path if (u, v) in path_edges else EdgeColors.default \
-                    for (u, v) in G.edges()
+                (u, v): EdgeColors.path if (u, v) in path_edges else EdgeColors.default
+                for (u, v) in G.edges()
             }
             nx.set_node_attributes(G, values=node_colors, name="node_color")
             nx.set_edge_attributes(G, values=edge_colors, name="edge_color")
@@ -288,11 +303,15 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> Tuple[Ex02PerformanceR
             rfig.add_child(image_node)
 
             edge_colors = {
-                (u, v): EdgeColors.path if (u, v) in gt_path_edges else EdgeColors.default \
-                    for (u, v) in G.edges()
+                (u, v): (
+                    EdgeColors.path if (u, v) in gt_path_edges else EdgeColors.default
+                )
+                for (u, v) in G.edges()
             }
             nx.set_edge_attributes(G, values=edge_colors, name="edge_color")
-            image_node = cache.create_graph_image_node(G, f"GroundTruth{i}", pos, figsize)
+            image_node = cache.create_graph_image_node(
+                G, f"GroundTruth{i}", pos, figsize
+            )
             rfig.add_child(image_node)
 
     cache.save()
@@ -322,7 +341,7 @@ def ex2_perf_aggregator(perf: Sequence[Ex02PerformanceResult]) -> Ex02Performanc
 
 def get_exercise2() -> Exercise:
     graph_search_problems = get_graph_search_problems(n_seed=4)
-    expected_results = ex2_get_expected_results() 
+    expected_results = ex2_get_expected_results()
     graph_search_algos = graph_search_algo.keys()
 
     test_values = list()
@@ -330,9 +349,9 @@ def get_exercise2() -> Exercise:
         test_values.append(TestValueEx2(ab))
 
     return Exercise[TestValueEx2, Any](
-            desc='This exercise is about graph search',
-            evaluation_fun=ex2_evaluation,
-            perf_aggregator=ex2_perf_aggregator,
-            test_values=test_values,
-            expected_results=expected_results,
+        desc="This exercise is about graph search",
+        evaluation_fun=ex2_evaluation,
+        perf_aggregator=ex2_perf_aggregator,
+        test_values=test_values,
+        expected_results=expected_results,
     )
