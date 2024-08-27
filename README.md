@@ -1,11 +1,6 @@
 # PDM4AR-exercises
 
-Maintained by:
-Jose Lavariega
-Yueshan Li
-
 All the necessary instructions are on our website: [https://pdm4ar.github.io/exercises/](https://pdm4ar.github.io/exercises/).
-
 
 ### Highlights from the previous year
 
