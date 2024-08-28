@@ -25,6 +25,7 @@ frozendict = "2.4.4"
 pyyaml = "6.0.1"
 shapely = "2.0.5"
 triangle = { git = "https://github.com/ClearCalcs/triangle.git", branch = "master" }
+scikit-learn  = "1.5.1"
 
 # zuper
 zuper-commons-z7 = "7.2"
