@@ -38,10 +38,15 @@
 		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [
-	// 	// Example: Forward port 8000 for a web server
-	// 	8000
-	// ],
+	"forwardPorts": [
+		5500
+	],
+	"portsAttributes": {
+		"5500": {
+			"label": "report-liveServer",
+			"onAutoForward": "notify"
+		}
+	},
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "poetry lock && poetry install",
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
