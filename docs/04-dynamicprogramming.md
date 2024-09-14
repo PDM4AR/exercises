@@ -189,10 +189,49 @@ To keep the format consistent, the value function and policy should be returned 
 
 If your algorithm works, in the report you should find some results similar to this:
 
+{: #example-picture}
 ![image](img/ex04_example.png)
+
+<span style="text-align: center; display: block;">
+Figure 1: Visualization of the optimal value function and policy for a 5x5 example.
+</span>
+
 
 On the left the Value function is visualized as a heatmap.
 On the right you can see the map with the original cells and the corresponding optimal policy (arrows for movement actions, X for the ``ABANDON`` action).
+
+### Help for modeling the MDP
+
+Correctly modeling the MDP is crucial for the success of your algorithms. To help you with this, we provide you with the admissible action set, the ground truth transition probabilities and rewards for selected cells of the [5x5 example](#example-picture) above. You can use these to validate your implementation. 
+
+The coordinates of the cells are given in the format `(row, column)` starting from the top left corner of the grid. All axes are 0-indexed.
+
+#### Admissible action set
+
+> **Note**: The admissible action set is only given for a selection of states.
+
+```<current state>: [list of admissible actions]```
+
+```
+- (0, 2): [SOUTH, ABANDON]  
+- (1, 2): [WEST,EAST ,NORTH, SOUTH, ABANDON]
+- (1, 1): [SOUTH, EAST, ABANDON]
+- (3, 3): [WEST, NORTH, ABANDON]
+```
+
+#### Ground truth transition probabilities and rewards
+
+> **Note**: The ground truths are only given for a selection of state-action pairs.
+
+```(<current state>, <action>): (<next state>, <probability>, <reward>)```
+
+```
+- ((0, 2), SOUTH):   ((1, 2), 0.75, -1), ((2, 2), 0.25, -11)
+- ((0, 2), ABANDON): ((2, 2), 1.0, -10)
+- ((1, 2), WEST):    ((3, 1), 0.25, -1), ((1, 1), 0.25, -1), ((2, 3), 0.25, -1), ((0, 2), 0.0833, -1), ((2, 2), 0.0833, -1), ((1, 3), 0.0833, -1)
+- ((1, 1), SOUTH):   ((1, 2), 0.0833, -1), ((2, 1), 0.75, -1), ((2, 2), 0.1667, -11)
+- ((3, 3), WEST):    ((3, 1), 0.02778, -2), ((1, 1), 0.02778, -2), ((2, 3), 0.02778, -2), ((2, 2), 0.21667, -12), ((3, 2), 0.5, -2)
+```
 
 
 ### Test cases and performance criteria
@@ -203,7 +242,7 @@ After running the exercise, you will find the reports in `out/04/` for each test
 There you will be able to visualize the MDPs, your output and the expected solution.
 These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
 
-The final evaluation will combine the following metrics: ratio of completed cases, avrage policy_accuracy, average value_func_R2, and average solve_time:
+The final evaluation will combine the following metrics: ratio of completed cases, average policy_accuracy, average value_func_R2, and average solve_time:
 * **ratio of completed cases**: $\frac{N_{completed}}{N}$
 * **policy_accuracy**: This metric will evaluate the accuracy of your `Policy`, in particular, it averages for each state of the MDP the number of correct actions (# of correct actions)/(# of states). Thus, policy_accuracy will be in the interval [0, 1].
 * **value_func_R2**: This metric will evaluate the accuracy of your `ValueFunc`. It is a measure of how well your `ValueFunc` approximates the ground truth `ValueFunc`. It is computed as $R^2 = 1 - \frac{\sum_{s \in S} (VF^{gt}(s) - VF(s))^2}{\sum_{s \in S} (VF^{gt}(s) - \bar{VF^{gt}})^2}$ where $VF^{gt}$ is the ground truth `ValueFunc`, $VF$ is your `ValueFunc`, and $\bar{VF^{gt}}$ is the mean of the ground truth `ValueFunc`. With negative values being clipped to 0, this metric will be in the interval [0, 1].
