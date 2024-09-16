@@ -53,13 +53,13 @@ You will submit your solutions via your private repository on Github
   Consider this as a learning experience for robotics, field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
-| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**      | **Deadline status** | Available Submissions |
-|-----------------|-----------------------|----------------------|----------------------------|---------------------|-----------------------|
-| 02              | Graph Search          | xx of September      | xx of October (23:59 CET)  |                     | 10                    | 
-| 03              | Informed Graph Search | xx of October        | xx of October (23:59 CET)  |                     | 10                    |
-| 04              | Dynamic Programming   | xx of October        | xx of October (23:59 CET)  |                     | 10                    |
-| 05              | Steering (Dubins)     | xx of October        | xx of November (23:59 CET) |                     | 10                    |
-| 06              | Collision Checking    | xx of November       | xx of November (23:59 CET) |                     | 10                    |
+| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
+|-----------------|-----------------------|----------------------|------------------------------|---------------------|-----------------------|
+| 02              | Graph Search          | 25th of September    | 15th of October (23:59 CET)  | confirmed           | 10                    | 
+| 03              | Informed Graph Search | 25th of September    | 15th of October (23:59 CET)  | confirmed           | 10                    |
+| 04              | Dynamic Programming   | 2nd of October       | 22nd of October (23:59 CET)  | confirmed           | 10                    |
+| 05              | Steering (Dubins)     | 16th of October      | 5th of November (23:59 CET)  | confirmed           | 10                    |
+| 06              | Collision Checking    | 23rd of October      | 12th of November (23:59 CET) | confirmed           | 10                    |
 
 * Most of these exercises are already accessible before the official evaluation opens.
   You are free to engage with them earlier, but be aware that changes may occur up until the official opening.
@@ -67,14 +67,14 @@ You will submit your solutions via your private repository on Github
 
 #### **Finals** exercises, graded.
 
-These will be solved in small groups of 3 people maximum but the modality is the same as the weekly exercises.
+These will be solved in small groups of **3 people maximum** but the modality is the same as the weekly exercises.
 They will be a bit more involved content-wise.
 Instructions on the group forming modality are provided via Piazza.
 
-| Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes**      | **Deadline status** | Available Submissions |
-|-----------------|-----------|----------------------|----------------------------|---------------------|-----------------------|
-| 11              | mistery 1 | xx of December       | xx of December (23:59 CET) |                     | 15                    |
-| 12              | mistery 2 | xx of December       | xx of January (23:59 CET)  |                     | 15                    |
+| Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
+|-----------------|-----------|----------------------|------------------------------|---------------------|-----------------------|
+| 11              | mistery 1 | 13th of November     | 3rd of December (23:59 CET)  | tentative           | 15                    |
+| 12              | mistery 2 | 27th of November     | 23rd of December (23:59 CET) | tentative           | 15                    |
 
 #### **Extra** exercises from previous years, not graded.
 
