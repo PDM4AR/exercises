@@ -10,7 +10,7 @@ class GraphSearch(ABC):
         :param graph: The given graph as an adjacency list
         :param start: The initial state (i.e. a node)
         :param goal: The goal state (i.e. a node)
-        :return: The path from start to goal as a Sequence of states, None if a path does not exist
+        :return: The path from start to goal as a Sequence of states, [] if a path does not exist
         """
         pass
 
