@@ -95,7 +95,11 @@ You can open it from the filesystem in you favorite browser or simply right clic
 Here is an example for the lexi comparison:
 ![image](https://user-images.githubusercontent.com/18750753/194091460-4e0896ea-26fa-4f43-a4b2-341991da0e5a.png)
 
+### Creating local test cases
 
+You might have noticed that the expected outputs in the above report are always `None` instead of the true answers. How can you fix this? Take a look at the function `get_exercise1()` in the file `src/pdm4ar/exercises_def/ex01/ex01.py`. In this function, an `Exercise` object is constructed with a description(`desc`), the evaluation functions(`evaluation_fun` and `perf_aggregator`), the test cases(`test_values`) and the expected results(`expected_results`). The last two arguments are relevant for creating the local test cases. Notice that in line 71, the expected results are declared as a list of `none`. This is why you see it in the report. Try play around with it and observe the change in the generated report.
+
+In all the following exercises, we will provide you with some local test cases and the true answers to them. Nonetheless, feel free to create your own test cases in the same function of other exercises(e.g.`get_exercise2()` in `src/pdm4ar/exercises_def/ex02/ex02.py`). 
 
 ### Submitting your solution to the server
 
