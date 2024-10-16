@@ -11,9 +11,9 @@ from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.models.rocket import RocketCommands, RocketState
 from dg_commons.sim.models.rocket_structures import RocketGeometry, RocketParameters
 
-from pdm4ar.exercises.ex09.planner import RocketPlanner
-from pdm4ar.exercises_def.ex09.goal import RocketTarget, SatelliteTarget
-from pdm4ar.exercises_def.ex09.utils_params import PlanetParams, SatelliteParams
+from pdm4ar.exercises.ex11.planner import RocketPlanner
+from pdm4ar.exercises_def.ex11.goal import RocketTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
 
 @dataclass(frozen=True)
 class Pdm4arAgentParams:

@@ -24,9 +24,9 @@ from numpy import arctan2
 from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
-from pdm4ar.exercises.ex09.agent import RocketAgent
-from pdm4ar.exercises_def.ex09.goal import RocketTarget, SatelliteTarget
-from pdm4ar.exercises_def.ex09.utils_params import SatelliteParams, PlanetParams
+from pdm4ar.exercises.ex11.agent import RocketAgent
+from pdm4ar.exercises_def.ex11.goal import RocketTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex11.utils_params import SatelliteParams, PlanetParams
 
 
 def _load_config(file_path: str) -> dict[str, Any]:

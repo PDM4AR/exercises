@@ -9,7 +9,7 @@ from dg_commons.sim.simulator import SimContext
 from shapely.geometry import Point, Polygon
 
 from pdm4ar.exercises_def import PerformanceResults
-from pdm4ar.exercises_def.ex09.goal import RocketTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex11.goal import RocketTarget, SatelliteTarget
 
 
 @dataclass(frozen=True)
@@ -69,7 +69,7 @@ class AvgPlayerMetrics(PerformanceResults):
         return score
 
 
-def ex09_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[PlayerMetrics]]:
+def ex11_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[PlayerMetrics]]:
     agents_perf: List[PlayerMetrics] = []
     collided_players: Set[PlayerName] = set()
     for cr in sim_context.collision_reports:

@@ -5,7 +5,7 @@ from scipy.integrate import odeint
 from typing import Any
 from numpy.typing import NDArray
 
-from pdm4ar.exercises.ex09.rocket import Rocket
+from pdm4ar.exercises.ex11.rocket import Rocket
 
 class DiscretizationMethod:
 

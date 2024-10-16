@@ -11,10 +11,10 @@ from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.models.rocket import RocketCommands, RocketState
 from dg_commons.sim.models.rocket_structures import RocketGeometry, RocketParameters
 
-from pdm4ar.exercises_def.ex09.utils_params import PlanetParams, SatelliteParams
+from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
 
-from pdm4ar.exercises.ex09.rocket import Rocket
-from pdm4ar.exercises.ex09.discretization import DiscretizationMethod, FirstOrderHold, ZeroOrderHold
+from pdm4ar.exercises.ex11.rocket import Rocket
+from pdm4ar.exercises.ex11.discretization import DiscretizationMethod, FirstOrderHold, ZeroOrderHold
 
 @dataclass(frozen=True)
 class SolverParameters:
