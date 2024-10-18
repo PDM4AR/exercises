@@ -12,17 +12,17 @@ agents:
       phi: 0.0
       m: 2.5
     goal:
-      type: static
+      type: dock
       state: 
-        x: 8.0
-        y: 8.0
-        psi: 0.0
+        x: 9.5
+        y: 9.5
+        psi: 3.3
         vx: 0.0
         vy: 0.0
         dpsi: 0.0
       pos_tolerance: 0.5
-      dir_tolerance: 0.5
-      vel_tolerance: 1.0
+      dir_tolerance: 0.1
+      vel_tolerance: 0.2
 
 planets:
   Namek:
