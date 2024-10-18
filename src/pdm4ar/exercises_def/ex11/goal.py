@@ -5,6 +5,7 @@ from decimal import Decimal
 from functools import cached_property
 from math import cos, sin
 
+from matplotlib.transforms import offset_copy
 import numpy as np
 from dg_commons import SE2Transform
 from dg_commons.sim import SimTime
@@ -14,7 +15,8 @@ from dg_commons.sim.models.rocket import RocketState
 from dg_commons.sim import extract_pose_from_state
 
 from shapely import Polygon
-from shapely.geometry import Point
+from shapely.geometry import Point, LineString
+from shapely.ops import unary_union
 
 
 @dataclass(frozen=True)
@@ -34,19 +36,111 @@ class RocketTarget(PlanningGoal):
     def _plottable_geometry(self) -> Polygon:
         # Make sure norm is aligned with is_fulfilled function
         goal_shape = Point(self.target.x, self.target.y).buffer(self.pos_tol)
-        return goal_shape
+        # Calculate the endpoint of the line using self.psi and pos_tol
+        line_end_x = self.target.x + (self.pos_tol + 0.1) * cos(self.target.psi)
+        line_end_y = self.target.y + (self.pos_tol + 0.1) * sin(self.target.psi)
+
+        # Create a line from the center to the calculated endpoint
+        line = LineString([(self.target.x, self.target.y), (line_end_x, line_end_y)])
+        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_buffer = line.buffer(line_thickness, cap_style=2)
+
+        # Combine the goal shape and the line into a single geometry (using union)
+        # combined_shape = goal_shape.union(line_buffer)
+        return line_buffer
 
     @staticmethod
-    def _is_fulfilled(state: RocketState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float) -> bool:
+    def _is_fulfilled(
+        state: RocketState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float
+    ) -> bool:
         pose = extract_pose_from_state(state)
-        is_within_position = np.linalg.norm(
-                np.array([state.x, state.y]) - np.array([target.x, target.y])) < pos_tol
+        is_within_position = np.linalg.norm(np.array([state.x, state.y]) - np.array([target.x, target.y])) < pos_tol
         state_psi = SE2Transform.from_SE2(pose).theta
-        is_within_orientation = (abs(state_psi - target.psi) < dir_tol or 2 * np.pi - abs(state_psi - target.psi) < dir_tol)
-        is_within_velocity = np.linalg.norm(
-                np.array([state.vx, state.vy]) - np.array([target.vx, target.vy])) < vel_tol
+        is_within_orientation = (
+            abs(state_psi - target.psi) < dir_tol or 2 * np.pi - abs(state_psi - target.psi) < dir_tol
+        )
+        is_within_velocity = np.linalg.norm(np.array([state.vx, state.vy]) - np.array([target.vx, target.vy])) < vel_tol
 
         return is_within_position and is_within_orientation and is_within_velocity
+
+
+@dataclass(frozen=True)
+class DockingTarget(RocketTarget):
+
+    @cached_property
+    def _plottable_geometry(self) -> Polygon:
+        # the real offset y must be the distance cog and thruster end
+        offset_y = 0.3
+        # Make sure norm is aligned with is_fulfilled function
+        goal_shape = Point(self.target.x, self.target.y).buffer(self.pos_tol)
+        # Calculate the endpoint of the line using self.psi and pos_tol
+        line_end_x = self.target.x + (self.pos_tol + 0.1) * cos(self.target.psi)
+        line_end_y = self.target.y + (self.pos_tol + 0.1) * sin(self.target.psi)
+        line_start_x = self.target.x - offset_y * cos(self.target.psi)
+        line_start_y = self.target.y - offset_y * sin(self.target.psi)
+
+        line_dock_x_start = (
+            self.target.x - offset_y * cos(self.target.psi) - (self.pos_tol - 0.075) * sin(self.target.psi)
+        )
+        line_dock_y_start = (
+            self.target.y - offset_y * sin(self.target.psi) + (self.pos_tol - 0.075) * cos(self.target.psi)
+        )
+        line_dock_x_end = (
+            self.target.x - offset_y * cos(self.target.psi) + (self.pos_tol - 0.075) * sin(self.target.psi)
+        )
+        line_dock_y_end = (
+            self.target.y - offset_y * sin(self.target.psi) - (self.pos_tol - 0.075) * cos(self.target.psi)
+        )
+
+        # Create a line from the center to the calculated endpoint
+        line = LineString([(self.target.x, self.target.y), (line_end_x, line_end_y)])
+        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_buffer = line.buffer(line_thickness, cap_style=2)
+
+        line_dock = LineString([(line_dock_x_start, line_dock_y_start), (line_dock_x_end, line_dock_y_end)])
+        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_dock_buffer = line_dock.buffer(line_thickness, cap_style=2)
+
+        line_catch_x_end = line_dock_x_start + (self.pos_tol + 0.7) * cos(self.target.psi)
+        line_catch_y_end = line_dock_y_start + (self.pos_tol + 0.7) * sin(self.target.psi)
+        line_catch = LineString([(line_dock_x_start, line_dock_y_start), (line_catch_x_end, line_catch_y_end)])
+        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_catch_buffer = line_catch.buffer(line_thickness, cap_style=2)
+
+        combined_polygon = unary_union([line_dock_buffer, line_catch_buffer])
+
+        line_catch_x_end = line_dock_x_end + (self.pos_tol + 0.7) * cos(self.target.psi)
+        line_catch_y_end = line_dock_y_end + (self.pos_tol + 0.7) * sin(self.target.psi)
+        line_catch = LineString([(line_dock_x_end, line_dock_y_end), (line_catch_x_end, line_catch_y_end)])
+        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_catch_buffer = line_catch.buffer(line_thickness, cap_style=2)
+        # Combine the goal shape and the line into a single geometry (using union)
+        # combined_shape = goal_shape.union(line_buffer)
+        combined_polygon = unary_union([combined_polygon, line_catch_buffer])
+        return combined_polygon
+
+    def get_landing_base(self):
+        offset_y = 0.3
+        line_end_x = self.target.x + (self.pos_tol + 0.1) * cos(self.target.psi)
+        line_end_y = self.target.y + (self.pos_tol + 0.1) * sin(self.target.psi)
+
+        line_dock_x_start = (
+            self.target.x - offset_y * cos(self.target.psi) - (self.pos_tol - 0.075) * sin(self.target.psi)
+        )
+        line_dock_y_start = (
+            self.target.y - offset_y * sin(self.target.psi) + (self.pos_tol - 0.075) * cos(self.target.psi)
+        )
+        line_dock_x_end = (
+            self.target.x - offset_y * cos(self.target.psi) + (self.pos_tol - 0.075) * sin(self.target.psi)
+        )
+        line_dock_y_end = (
+            self.target.y - offset_y * sin(self.target.psi) - (self.pos_tol - 0.075) * cos(self.target.psi)
+        )
+
+        line_dock = LineString([(line_dock_x_start, line_dock_y_start), (line_dock_x_end, line_dock_y_end)])
+        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_dock_buffer = line_dock.buffer(line_thickness, cap_style=2)
+        return line_dock_buffer
 
 
 @dataclass(frozen=True)
@@ -77,12 +171,12 @@ class SatelliteTarget(RocketTarget):
         y = sin_omega_t + self.planet_y
         v = self.omega * self.orbit_r
 
-        psi = (np.pi/2 + self.omega * at_float + self.tau) % (2 * np.pi)
+        psi = (np.pi / 2 + self.omega * at_float + self.tau) % (2 * np.pi)
         vx = v * sin(psi)
         vy = v * cos(psi)
 
         return DynObstacleState(x=x, y=y, psi=psi, vx=vx, vy=vy, dpsi=self.omega)
-    
+
     @property
     def is_static(self) -> bool:
         return False

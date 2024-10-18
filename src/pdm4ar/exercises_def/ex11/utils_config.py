@@ -25,7 +25,7 @@ from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
 from pdm4ar.exercises.ex11.agent import RocketAgent
-from pdm4ar.exercises_def.ex11.goal import RocketTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex11.goal import RocketTarget, SatelliteTarget, DockingTarget
 from pdm4ar.exercises_def.ex11.utils_params import SatelliteParams, PlanetParams
 
 
@@ -36,9 +36,13 @@ def _load_config(file_path: str) -> dict[str, Any]:
 
 
 def _parse_planets(
-        c: dict,
+    c: dict,
 ) -> tuple[
-    list[BaseGeometry], dict[PlayerName, PlanetParams], dict[PlayerName, DynObstacleModel], dict[PlayerName, SatelliteParams], dict[PlayerName, NPAgent]
+    list[BaseGeometry],
+    dict[PlayerName, PlanetParams],
+    dict[PlayerName, DynObstacleModel],
+    dict[PlayerName, SatelliteParams],
+    dict[PlayerName, NPAgent],
 ]:
     planets = []
     planet_params = {}
@@ -48,8 +52,8 @@ def _parse_planets(
 
     for pn, p in c["planets"].items():
         planet = Point(p["center"]).buffer(p["radius"])
-        
-        planet_params[pn]= PlanetParams(
+
+        planet_params[pn] = PlanetParams(
             center=p["center"],
             radius=p["radius"],
         )
@@ -57,24 +61,22 @@ def _parse_planets(
         planets.append(planet)
         for sname, sat in p["satellites"].items():
             s, ps = _parse_satellite(
-                    planet, tau=sat["tau"], orbit_r=sat["orbit_r"], omega=sat["omega"], radius=sat["radius"]
+                planet, tau=sat["tau"], orbit_r=sat["orbit_r"], omega=sat["omega"], radius=sat["radius"]
             )
             satellite_id = pn + "/" + sname
             satellites[satellite_id] = s
             satellites_players[satellite_id] = ps
             satellites_params[satellite_id] = SatelliteParams(
-                    orbit_r=sat["orbit_r"],
-                    omega=sat["omega"],
-                    tau=sat["tau"],
-                    radius=sat["radius"],
+                orbit_r=sat["orbit_r"],
+                omega=sat["omega"],
+                tau=sat["tau"],
+                radius=sat["radius"],
             )
 
     return planets, planet_params, satellites, satellites_params, satellites_players
 
 
-def _parse_satellite(
-        planet: Point, tau: float, orbit_r, omega, radius
-) -> tuple[DynObstacleModel, NPAgent]:
+def _parse_satellite(planet: Point, tau: float, orbit_r, omega, radius) -> tuple[DynObstacleModel, NPAgent]:
     """
     orbit_r:
     omega:
@@ -86,23 +88,21 @@ def _parse_satellite(
 
     v = omega * orbit_r
 
-    satellite_1 = DynObstacleState(
-            x=x, y=y, psi=curr_psi, vx=v, vy=0, dpsi=omega
-    )
+    satellite_1 = DynObstacleState(x=x, y=y, psi=curr_psi, vx=v, vy=0, dpsi=omega)
     satellite_1_shape = Point(0, 0).buffer(radius)
     dyn_obstacle = DynObstacleModel(
-            satellite_1,
-            shape=satellite_1_shape,
-            og=ObstacleGeometry(m=500, Iz=50, e=0.5),
-            op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
+        satellite_1,
+        shape=satellite_1_shape,
+        og=ObstacleGeometry(m=500, Iz=50, e=0.5),
+        op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
     )
-    centripetal_acc = omega ** 2 * orbit_r
+    centripetal_acc = omega**2 * orbit_r
     # keep sequence of commands constant
     cmds_seq = DgSampledSequence[DynObstacleCommands](
-            timestamps=[0],
-            values=[
-                DynObstacleCommands(acc_x=0, acc_y=centripetal_acc, acc_psi=0),
-            ],
+        timestamps=[0],
+        values=[
+            DynObstacleCommands(acc_x=0, acc_y=centripetal_acc, acc_psi=0),
+        ],
     )
     player = NPAgent(cmds_seq)
     return dyn_obstacle, player
@@ -131,8 +131,22 @@ def sim_context_from_yaml(file_path: str):
     if conf_goal_type == "static":
         x0_target = DynObstacleState(**conf_goal["state"])
         goal = RocketTarget(
-                target=x0_target, pos_tol=conf_goal["pos_tolerance"], vel_tol=conf_goal["vel_tolerance"], dir_tol=conf_goal["dir_tolerance"]
+            target=x0_target,
+            pos_tol=conf_goal["pos_tolerance"],
+            vel_tol=conf_goal["vel_tolerance"],
+            dir_tol=conf_goal["dir_tolerance"],
         )
+    elif conf_goal_type == "dock":
+        x0_target = DynObstacleState(**conf_goal["state"])
+        goal = DockingTarget(
+            target=x0_target,
+            pos_tol=conf_goal["pos_tolerance"],
+            vel_tol=conf_goal["vel_tolerance"],
+            dir_tol=conf_goal["dir_tolerance"],
+        )
+        landing_shape = goal.get_landing_base()
+        obsgeo = ObstacleGeometry.default_static(color="blue")
+        static_obstacles += [StaticObstacle(shape=landing_shape, geometry=obsgeo)]
     elif conf_goal_type == "satellite":
         satellite_name = conf_goal["name"]
         target_x0 = satellites[satellite_name].get_state()
@@ -141,26 +155,26 @@ def sim_context_from_yaml(file_path: str):
         planety = config["planets"][satellite_name.split("/")[0]]["center"][1]
 
         # Extract first target
-        satellite_config = config["planets"][satellite_name.split("/")[0]]["satellites"][
-            satellite_name.split("/")[1]]
+        satellite_config = config["planets"][satellite_name.split("/")[0]]["satellites"][satellite_name.split("/")[1]]
         d_shift = satellite_config["radius"] + conf_goal["pos_tolerance"]
         x_shift = cos(satellite_config["tau"]) * d_shift
-        y_shift = sin(satellite_config["tau"]) * d_shift # slightly increase tolerance
+        y_shift = sin(satellite_config["tau"]) * d_shift  # slightly increase tolerance
         state_shift: DynObstacleState = DynObstacleState(x=x_shift, y=y_shift, psi=0, vx=0, vy=0, dpsi=0)
         target_x0 += state_shift
 
-        goal = SatelliteTarget(target=target_x0,
-                               planet_x=planetx,
-                               planet_y=planety,
-                               omega=satellite_config["omega"],
-                               tau=satellite_config["tau"],
-                               orbit_r=satellite_config["orbit_r"],
-                               radius=satellite_config["radius"],
-                               offset_r=satellite_config["radius"] + conf_goal["pos_tolerance"],
-                               pos_tol=conf_goal["pos_tolerance"],
-                               vel_tol=conf_goal["vel_tolerance"],
-                               dir_tol=conf_goal["dir_tolerance"],
-                               )
+        goal = SatelliteTarget(
+            target=target_x0,
+            planet_x=planetx,
+            planet_y=planety,
+            omega=satellite_config["omega"],
+            tau=satellite_config["tau"],
+            orbit_r=satellite_config["orbit_r"],
+            radius=satellite_config["radius"],
+            offset_r=satellite_config["radius"] + conf_goal["pos_tolerance"],
+            pos_tol=conf_goal["pos_tolerance"],
+            vel_tol=conf_goal["vel_tolerance"],
+            dir_tol=conf_goal["dir_tolerance"],
+        )
 
     else:
         raise ValueError(f"Unrecognized goal type: {conf_goal_type}")
@@ -168,7 +182,11 @@ def sim_context_from_yaml(file_path: str):
 
     # models & players
     initstate = RocketState(**config["agents"][name]["state"])
-    players = {playername: RocketAgent(init_state=deepcopy(initstate), satellites=deepcopy(satellites_params), planets=deepcopy(planets_params))}
+    players = {
+        playername: RocketAgent(
+            init_state=deepcopy(initstate), satellites=deepcopy(satellites_params), planets=deepcopy(planets_params)
+        )
+    }
 
     models = {playername: RocketModel.default(x0)}
     for p, s in satellites.items():
@@ -178,18 +196,18 @@ def sim_context_from_yaml(file_path: str):
         players[p] = sagent
 
     return SimContext(
-            dg_scenario=DgScenario(static_obstacles=static_obstacles), # need satellites
-            models=models,
-            players=players,
-            missions=missions,
-            param=SimParameters(
-                    dt=D("0.01"),
-                    dt_commands=D("0.1"),
-                    sim_time_after_collision=D(4),
-                    max_sim_time=D(60),
-            ),
-            seed=config["seed"],
-            description=file_path.split("/")[-1].split(".")[0],
+        dg_scenario=DgScenario(static_obstacles=static_obstacles),  # need satellites
+        models=models,
+        players=players,
+        missions=missions,
+        param=SimParameters(
+            dt=D("0.01"),
+            dt_commands=D("0.1"),
+            sim_time_after_collision=D(4),
+            max_sim_time=D(60),
+        ),
+        seed=config["seed"],
+        description=file_path.split("/")[-1].split(".")[0],
     )
 
 
