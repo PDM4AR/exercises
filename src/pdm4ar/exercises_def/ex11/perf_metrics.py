@@ -4,12 +4,12 @@ from typing import List, Set, Tuple
 
 import numpy as np
 from dg_commons import iterate_with_dt, seq_integrate, DgSampledSequence, PlayerName
-from dg_commons.sim.models.rocket import RocketState
+from dg_commons.sim.models.spaceship import SpaceshipState
 from dg_commons.sim.simulator import SimContext
 from shapely.geometry import Point, Polygon
 
 from pdm4ar.exercises_def import PerformanceResults
-from pdm4ar.exercises_def.ex11.goal import RocketTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget
 
 
 @dataclass(frozen=True)
@@ -79,7 +79,7 @@ def ex11_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         if "PDM4AR" not in player_name:
             continue
 
-        states: DgSampledSequence[RocketState] = agent_log.states
+        states: DgSampledSequence[SpaceshipState] = agent_log.states
 
         # if the last state of the sim is inside the goal
         last_state = states.values[-1]
@@ -100,11 +100,11 @@ def ex11_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         # distance left to goal
         last_point = Point(last_state.x, last_state.y)
         goal = sim_context.missions[player_name]
-        
+
         if isinstance(goal, SatelliteTarget):
             end_target_state = goal.get_target_state_at(states.get_end())
             goal_poly: Point = Point(end_target_state.x, end_target_state.y)
-        elif isinstance(goal, RocketTarget):
+        elif isinstance(goal, SpaceshipTarget):
             goal_poly: Point = Point(goal.target.x, goal.target.y)
         else:
             raise RuntimeError
@@ -112,11 +112,11 @@ def ex11_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         distance2goal = goal_poly.distance(last_point)
 
         # actuation effort
-        abs_acc = agent_log.commands.transform_values(lambda u: abs(u.F_left) + abs(u.F_right) )
+        abs_acc = agent_log.commands.transform_values(lambda u: abs(u.thrust))
         actuation_effort = seq_integrate(abs_acc).values[-1] / duration
 
         # fuel left
-        fuel_left = agent_log.states.transform_values(lambda x: x.m).values[-1] - sim_context.models[player_name].rp.m_v
+        fuel_left = agent_log.states.transform_values(lambda x: x.m).values[-1] - sim_context.models[player_name].sp.m_v
 
         # computation time
         avg_comp_time = np.average(agent_log.info.values)

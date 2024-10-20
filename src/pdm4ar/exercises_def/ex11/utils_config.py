@@ -17,15 +17,15 @@ from dg_commons.sim.models.obstacles_dyn import (
     DynObstacleState,
     DynObstacleCommands,
 )
-from dg_commons.sim.models.rocket import RocketState, RocketModel
+from dg_commons.sim.models.spaceship import SpaceshipState, SpaceshipModel
 from dg_commons.sim.scenarios.structures import DgScenario
 from dg_commons.sim.simulator import SimContext
 from numpy import arctan2
 from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
-from pdm4ar.exercises.ex11.agent import RocketAgent
-from pdm4ar.exercises_def.ex11.goal import RocketTarget, SatelliteTarget, DockingTarget
+from pdm4ar.exercises.ex11.agent import SpaceshipAgent
+from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget, DockingTarget
 from pdm4ar.exercises_def.ex11.utils_params import SatelliteParams, PlanetParams
 
 
@@ -111,11 +111,11 @@ def _parse_satellite(planet: Point, tau: float, orbit_r, omega, radius) -> tuple
 def sim_context_from_yaml(file_path: str):
     config = _load_config(file_path=file_path)
 
-    # rocket
+    # Spaceship
     assert len(config["agents"].keys()) == 1, "Only one player today"
     name = list(config["agents"])[0]
     playername = PlayerName(name)
-    x0 = RocketState(**config["agents"][name]["state"])
+    x0 = SpaceshipState(**config["agents"][name]["state"])
 
     # obstacles (planets + satellites)
     planets, planets_params, satellites, satellites_params, satellites_npagents = _parse_planets(config)
@@ -130,7 +130,7 @@ def sim_context_from_yaml(file_path: str):
     conf_goal_type = conf_goal["type"]
     if conf_goal_type == "static":
         x0_target = DynObstacleState(**conf_goal["state"])
-        goal = RocketTarget(
+        goal = SpaceshipTarget(
             target=x0_target,
             pos_tol=conf_goal["pos_tolerance"],
             vel_tol=conf_goal["vel_tolerance"],
@@ -181,14 +181,14 @@ def sim_context_from_yaml(file_path: str):
     missions = {playername: goal}
 
     # models & players
-    initstate = RocketState(**config["agents"][name]["state"])
+    initstate = SpaceshipState(**config["agents"][name]["state"])
     players = {
-        playername: RocketAgent(
+        playername: SpaceshipAgent(
             init_state=deepcopy(initstate), satellites=deepcopy(satellites_params), planets=deepcopy(planets_params)
         )
     }
 
-    models = {playername: RocketModel.default(x0)}
+    models = {playername: SpaceshipModel.default(x0)}
     for p, s in satellites.items():
         models[p] = s
 

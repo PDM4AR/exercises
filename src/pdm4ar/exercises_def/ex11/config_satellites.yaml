@@ -1,5 +1,5 @@
 agents:
-  PDM4ARocket: # do not change this name
+  PDM4ARSpaceship: # do not change this name
     state:
       x: -8.0
       y: -8.0
@@ -7,7 +7,7 @@ agents:
       vx: 0.0
       vy: 0.0
       dpsi: 0.0
-      phi: 0.0
+      delta: 0.0
       m: 2.5
     goal:
       type: static

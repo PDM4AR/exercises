@@ -1,5 +1,6 @@
 import numpy as np
 import cvxpy as cvx
+from pdm4ar.exercises.ex11 import spaceship
 import sympy as spy
 from dataclasses import dataclass, field
 
@@ -8,12 +9,12 @@ from numpy.typing import NDArray
 from dg_commons import PlayerName
 from dg_commons.seq import DgSampledSequence
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
-from dg_commons.sim.models.rocket import RocketCommands, RocketState
-from dg_commons.sim.models.rocket_structures import RocketGeometry, RocketParameters
+from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
+from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
 from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
 
-from pdm4ar.exercises.ex11.rocket import Rocket
+from pdm4ar.exercises.ex11.spaceship import Spaceship
 from pdm4ar.exercises.ex11.discretization import DiscretizationMethod, FirstOrderHold, ZeroOrderHold
 
 @dataclass(frozen=True)
@@ -30,7 +31,7 @@ class SolverParameters:
     # SCVX parameters (Add paper reference)
     lambda_nu: float = 1e5                                          # slack variable weight
     weight_p: NDArray = field(default_factory=lambda: 10*np.array([[1.0]]).reshape((1, -1))) # weight for final time
-    
+
     tr_radius: float = 5                                            # initial trust region radius
     min_tr_radius: float = 1e-4                                     # min trust region radius
     max_tr_radius: float = 100                                      # max trust region radius
@@ -44,18 +45,20 @@ class SolverParameters:
     K: int = 50                                                     # number of discretization steps 
     N_sub: int = 5                                                  # used inside ode solver inside discretization
     stop_crit: float = 1e-5                                         # Stopping criteria constant
-class RocketPlanner:
+
+
+class SpaceshipPlanner:
     """
     Feel free to change anything in this class.
     """
-    
+
     planets: list[PlanetParams]
     satellites: list[SatelliteParams]
-    rocket: Rocket
-    sg: RocketGeometry
-    sp: RocketParameters
+    spaceship: Spaceship
+    sg: SpaceshipGeometry
+    sp: SpaceshipParameters
     params: SolverParameters
-    
+
     # Simpy variables
     x: spy.Matrix
     u: spy.Matrix
@@ -69,7 +72,13 @@ class RocketPlanner:
     U_bar: NDArray
     p_bar: NDArray
 
-    def __init__(self, planets: dict[PlayerName, PlanetParams], satellites: dict[PlayerName, SatelliteParams], sg: RocketGeometry, sp: RocketParameters):
+    def __init__(
+        self,
+        planets: dict[PlayerName, PlanetParams],
+        satellites: dict[PlayerName, SatelliteParams],
+        sg: SpaceshipGeometry,
+        sp: SpaceshipParameters,
+    ):
         """
         Pass environment information to the planner.
         """
@@ -81,12 +90,12 @@ class RocketPlanner:
         # Solver Parameters
         self.params = SolverParameters()
 
-        # Rocket Dynamics
-        self.rocket = Rocket(self.sg, self.sp)
+        # Spaceship Dynamics
+        self.spaceship = Spaceship(self.sg, self.sp)
 
         # Discretization Method
-        # self.integrator = ZeroOrderHold(self.rocket, self.params.K, self.params.N_sub)
-        self.integrator = FirstOrderHold(self.rocket, self.params.K, self.params.N_sub)
+        # self.integrator = ZeroOrderHold(self.spaceship, self.params.K, self.params.N_sub)
+        self.integrator = FirstOrderHold(self.spaceship, self.params.K, self.params.N_sub)
 
         # Variables
         self.variables = self._get_variables()
@@ -106,7 +115,9 @@ class RocketPlanner:
         # Cvx Optimisation Problem
         self.problem = cvx.Problem(objective, constraints)
 
-    def compute_trajectory(self, init_state: RocketState, goal_state: DynObstacleState) -> tuple[DgSampledSequence[RocketCommands], DgSampledSequence[RocketState]]:
+    def compute_trajectory(
+        self, init_state: SpaceshipState, goal_state: DynObstacleState
+    ) -> tuple[DgSampledSequence[SpaceshipCommands], DgSampledSequence[SpaceshipState]]:
         """
         Compute a trajectory from init_state to goal_state.
         """
@@ -127,16 +138,16 @@ class RocketPlanner:
         mycmds, mystates = self._extract_seq_from_array()
 
         return mycmds, mystates
-    
+
     def intial_guess(self) -> tuple[NDArray, NDArray, NDArray]:
         """
         Define initial guess for SCvx.
         """
         K = self.params.K
-        
-        X = np.zeros((self.rocket.n_x, K))
-        U = np.zeros((self.rocket.n_u, K))
-        p = np.zeros((self.rocket.n_p))
+
+        X = np.zeros((self.spaceship.n_x, K))
+        U = np.zeros((self.spaceship.n_u, K))
+        p = np.zeros((self.spaceship.n_p))
 
         return X, U, p
 
@@ -152,11 +163,11 @@ class RocketPlanner:
         Define optimisation variables for SCvx.
         """
         variables = {
-            'X': cvx.Variable((self.rocket.n_x, self.params.K)),
-            'U': cvx.Variable((self.rocket.n_u, self.params.K)),
-            'p': cvx.Variable(self.rocket.n_p)
+            "X": cvx.Variable((self.spaceship.n_x, self.params.K)),
+            "U": cvx.Variable((self.spaceship.n_u, self.params.K)),
+            "p": cvx.Variable(self.spaceship.n_p),
         }
-        
+
         return variables
 
     def _get_problem_parameters(self) -> dict:
@@ -164,7 +175,7 @@ class RocketPlanner:
         Define problem parameters for SCvx.
         """
         problem_parameters = {
-            'init_state': cvx.Parameter(self.rocket.n_x)
+            "init_state": cvx.Parameter(self.spaceship.n_x)
             # ...
         }
         return problem_parameters
@@ -185,7 +196,7 @@ class RocketPlanner:
         """
         # Example objective
         objective =  self.params.weight_p@self.variables['p']
-        
+
         return cvx.Minimize(objective)
 
     def _convexification(self):
@@ -214,22 +225,19 @@ class RocketPlanner:
         pass
 
     @staticmethod
-    def _extract_seq_from_array() -> (
-        tuple[DgSampledSequence[RocketCommands], DgSampledSequence[RocketState]]
-    ):
+    def _extract_seq_from_array() -> tuple[DgSampledSequence[SpaceshipCommands], DgSampledSequence[SpaceshipState]]:
         """
         Example of how to create a DgSampledSequence from numpy arrays and timestamps.
         """
         ts = (0, 1, 2, 3, 4, 5)
         # in case my planner returns 3 numpy arrays
-        F_l = np.array([0, 1, 2, 3, 4, 0])
-        F_r = np.array([0, 1, 2, 3, 4, 0])
-        dphi = np.array([0, 0, 0, 0, 0, 0])
-        cmds_list = [RocketCommands(l, r, dp) for l, r, dp in zip(F_l, F_r, dphi)]
-        mycmds = DgSampledSequence[RocketCommands](timestamps=ts, values=cmds_list)
+        thrust = np.array([0, 1, 2, 3, 4, 0])
+        ddelta = np.array([0, -5, 5, 5, -5, 0])
+        cmds_list = [SpaceshipCommands(thrust, ddelta) for thrust, ddelta in zip(thrust, ddelta)]
+        mycmds = DgSampledSequence[SpaceshipCommands](timestamps=ts, values=cmds_list)
 
         # in case my state trajectory is in a 2d array
         npstates = np.random.rand(len(ts), 8)
-        states = [RocketState(*v) for v in npstates]
-        mystates = DgSampledSequence[RocketState](timestamps=ts, values=states)
+        states = [SpaceshipState(*v) for v in npstates]
+        mystates = DgSampledSequence[SpaceshipState](timestamps=ts, values=states)
         return mycmds, mystates

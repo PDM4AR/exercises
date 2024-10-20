@@ -1,11 +1,13 @@
+from re import S
 import sympy as spy
 
-from dg_commons.sim.models.rocket_structures import RocketGeometry, RocketParameters
+from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
-class Rocket():
 
-    sg: RocketGeometry
-    sp: RocketParameters
+class Spaceship:
+
+    sg: SpaceshipGeometry
+    sp: SpaceshipParameters
 
     x: spy.Matrix
     u: spy.Matrix
@@ -20,15 +22,15 @@ class Rocket():
     B: spy.Function
     F: spy.Function
 
-    def __init__(self, sg: RocketGeometry, sp: RocketParameters):
+    def __init__(self, sg: SpaceshipGeometry, sp: SpaceshipParameters):
 
         self.sg = sg
         self.sp = sp
 
-        self.x = spy.Matrix(spy.symbols('x y psi vx vy dpsi phi m', real=True))             # states
-        self.u = spy.Matrix(spy.symbols('F_l F_r dphi', real=True))                         # inputs
+        self.x = spy.Matrix(spy.symbols("x y psi vx vy ddelta delta m", real=True))  # states
+        self.u = spy.Matrix(spy.symbols("thrust ddelta", real=True))  # inputs
         self.p = spy.Matrix([spy.symbols('t_f', positive=True)])                            # final time    
-        
+
         self.n_x = self.x.shape[0]                                                          # number of states                                        
         self.n_u = self.u.shape[0]                                                          # number of inputs
         self.n_p = self.p.shape[0]     

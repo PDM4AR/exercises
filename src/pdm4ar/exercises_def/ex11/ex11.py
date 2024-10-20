@@ -67,10 +67,13 @@ def get_exercise11():
         test_values.append(sim_context)
 
     return Exercise[SimContext, None](
-            desc="PDM4ARocket(ex11)",
-            evaluation_fun=ex11_evaluation,
-            perf_aggregator=lambda x: ex11_performance_aggregator(x),
-            test_values=test_values,
-            expected_results=[None, ] * len(test_values),
-            test_case_timeout=60 * 10,  # For debugging, increase value if your report generation is slow!
+        desc="PDM4ASpaceship(ex11)",
+        evaluation_fun=ex11_evaluation,
+        perf_aggregator=lambda x: ex11_performance_aggregator(x),
+        test_values=test_values,
+        expected_results=[
+            None,
+        ]
+        * len(test_values),
+        test_case_timeout=60 * 10,  # For debugging, increase value if your report generation is slow!
     )

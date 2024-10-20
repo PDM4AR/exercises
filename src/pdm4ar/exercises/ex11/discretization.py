@@ -1,11 +1,12 @@
 import numpy as np
+from pdm4ar.exercises.ex11 import spaceship
 import sympy as spy
 from scipy.integrate import odeint
 
 from typing import Any
 from numpy.typing import NDArray
 
-from pdm4ar.exercises.ex11.rocket import Rocket
+from pdm4ar.exercises.ex11.spaceship import Spaceship
 
 class DiscretizationMethod:
 
@@ -13,7 +14,7 @@ class DiscretizationMethod:
     N_sub: int          # number of substeps to approximate the ode
     range_t: tuple      # range of discretization points
 
-    rocket: Rocket
+    spaceship: Spaceship
 
     n_x: int
     n_u: int
@@ -24,8 +25,8 @@ class DiscretizationMethod:
     B: spy.Function
     F: spy.Function
 
-    def __init__(self, rocket: Rocket, K: int, N_sub: int):
-        
+    def __init__(self, spaceship: Spaceship, K: int, N_sub: int):
+
         # number of discretization points
         self.K = K
 
@@ -33,12 +34,12 @@ class DiscretizationMethod:
         self.N_sub = N_sub
         self.range_t = tuple(np.linspace(0, 1. / (self.K - 1), self.N_sub))
 
-        self.f, self.A, self.B, self.F = rocket.get_dynamics()
-        
+        self.f, self.A, self.B, self.F = spaceship.get_dynamics()
+
         # number of states, inputs and parameters
-        self.n_x = rocket.n_x
-        self.n_u = rocket.n_u
-        self.n_p = rocket.n_p
+        self.n_x = spaceship.n_x
+        self.n_u = spaceship.n_u
+        self.n_p = spaceship.n_p
 
     def integrate_nonlinear_piecewise(self, X_l: NDArray, U: NDArray, p: NDArray) -> NDArray:
         pass
@@ -61,9 +62,9 @@ class ZeroOrderHold(DiscretizationMethod):
 
     P0: NDArray
 
-    def __init__(self, rocket: Rocket, K: int, N_sub: int):
+    def __init__(self, spaceship: Spaceship, K: int, N_sub: int):
 
-        super().__init__(rocket, K, N_sub)
+        super().__init__(spaceship, K, N_sub)
 
         # x+ = A_bar(x*(k))x(k) + B_bar(x*(k))u(k) + F_bar(x*(k))p + r_bar(k)
         self.A_bar = np.zeros([self.n_x * self.n_x, self.K-1])
@@ -103,7 +104,7 @@ class ZeroOrderHold(DiscretizationMethod):
                                 self.P0, 
                                 self.range_t, 
                                 args=(U[:, k], p))[-1, :])
-            
+
             Phi = P[self.A_bar_ind].reshape((self.n_x, self.n_x))
             self.A_bar[:, k] = Phi.flatten(order='F')
             self.B_bar[:, k] = (Phi@P[self.B_bar_ind].reshape((self.n_x, self.n_u))).flatten(order='F')
@@ -176,7 +177,7 @@ class ZeroOrderHold(DiscretizationMethod):
                                     args=(U[:, k], p))[-1, :]
 
         return X_nl
-    
+
     def integrate_nonlinear_full_dense(self, x0: NDArray, U: NDArray, p: NDArray) -> NDArray:
         """
         Simulate nonlinear behavior given an initial state and an input over time.
@@ -204,7 +205,7 @@ class ZeroOrderHold(DiscretizationMethod):
 
     def _dxdt(self, x: NDArray, t: float, u: NDArray, p: NDArray) -> NDArray:
         return np.squeeze(self.f(x, u, p))
-    
+
 class FirstOrderHold(DiscretizationMethod):
 
     A_bar: NDArray
@@ -221,10 +222,10 @@ class FirstOrderHold(DiscretizationMethod):
     r_bar_ind: slice
 
     P0: NDArray
-    
-    def __init__(self, rocket: Rocket, K: int, N_sub: int):
-        
-        super().__init__(rocket, K, N_sub)
+
+    def __init__(self, spaceship: Spaceship, K: int, N_sub: int):
+
+        super().__init__(spaceship, K, N_sub)
 
         # x+ = A_bar(x*(k))x(k) + B_plus_bar(x*(k))u(k+1) + B_minus_bar(x*(k))u(k) + F_bar(x*(k))p + r_bar(k)
         self.A_bar = np.zeros([self.n_x * self.n_x, self.K-1])
@@ -232,7 +233,7 @@ class FirstOrderHold(DiscretizationMethod):
         self.B_minus_bar = np.zeros([self.n_x * self.n_u, self.K-1])
         self.F_bar = np.zeros([self.n_x * self.n_p, self.K-1])
         self.r_bar = np.zeros([self.n_x, self.K-1])
-        
+
         # vector indices for flat matrices
         x_end = self.n_x
         A_bar_end = self.n_x * (1 + self.n_x)
@@ -278,7 +279,7 @@ class FirstOrderHold(DiscretizationMethod):
             self.r_bar[:, k] = Phi@P[self.r_bar_ind]
 
         return self.A_bar, self.B_plus_bar, self.B_minus_bar, self.F_bar, self.r_bar
-    
+
     def _ode_dPdt(self, P: NDArray, t: float, u_t0: NDArray, u_t1: NDArray, p: NDArray) -> NDArray:
 
         beta = (self.K-1)*t
@@ -289,12 +290,12 @@ class FirstOrderHold(DiscretizationMethod):
         # using \Phi_A(\tau_{k+1},\xi) = \Phi_A(\tau_{k+1},\tau_k)\Phi_A(\xi,\tau_k)^{-1}
         # and pre-multiplying with \Phi_A(\tau_{k+1},\tau_k) after integration
         Phi_A_xi = np.linalg.inv(P[self.A_bar_ind].reshape((self.n_x, self.n_x)))
-        
+
         A_subs = self.A(x, u, p)
         B_subs = self.B(x, u, p)
         F_subs = self.F(x, u, p)
         f_subs = self.f(x, u, p).reshape(-1)
-        
+
         dPdt = np.zeros_like(P)
         dPdt[self.x_ind] = f_subs.transpose()
         dPdt[self.A_bar_ind] = (A_subs@P[self.A_bar_ind].reshape((self.n_x, self.n_x))).reshape(-1)
@@ -348,7 +349,7 @@ class FirstOrderHold(DiscretizationMethod):
                                   args=(U[:, k], U[:, k + 1], p))[-1, :]
 
         return X_nl
-    
+
     def integrate_nonlinear_full_dense(self, x0: NDArray, U: NDArray, p: NDArray) -> NDArray:
         """
         Simulate nonlinear behavior given an initial state and an input over time.

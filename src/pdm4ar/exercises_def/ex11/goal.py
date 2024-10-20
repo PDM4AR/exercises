@@ -11,7 +11,7 @@ from dg_commons import SE2Transform
 from dg_commons.sim import SimTime
 from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
-from dg_commons.sim.models.rocket import RocketState
+from dg_commons.sim.models.spaceship import SpaceshipState
 from dg_commons.sim import extract_pose_from_state
 
 from shapely import Polygon
@@ -20,13 +20,13 @@ from shapely.ops import unary_union
 
 
 @dataclass(frozen=True)
-class RocketTarget(PlanningGoal):
+class SpaceshipTarget(PlanningGoal):
     target: DynObstacleState
     pos_tol: float
     vel_tol: float
     dir_tol: float
 
-    def is_fulfilled(self, state: RocketState, at: SimTime = Decimal(0)) -> bool:
+    def is_fulfilled(self, state: SpaceshipState, at: SimTime = Decimal(0)) -> bool:
         return self._is_fulfilled(state, self.target, self.pos_tol, self.vel_tol, self.dir_tol)
 
     def get_plottable_geometry(self, at: SimTime | float = 0) -> Polygon:
@@ -51,7 +51,7 @@ class RocketTarget(PlanningGoal):
 
     @staticmethod
     def _is_fulfilled(
-        state: RocketState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float
+        state: SpaceshipState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float
     ) -> bool:
         pose = extract_pose_from_state(state)
         is_within_position = np.linalg.norm(np.array([state.x, state.y]) - np.array([target.x, target.y])) < pos_tol
@@ -65,7 +65,7 @@ class RocketTarget(PlanningGoal):
 
 
 @dataclass(frozen=True)
-class DockingTarget(RocketTarget):
+class DockingTarget(SpaceshipTarget):
 
     @cached_property
     def _plottable_geometry(self) -> Polygon:
@@ -144,7 +144,7 @@ class DockingTarget(RocketTarget):
 
 
 @dataclass(frozen=True)
-class SatelliteTarget(RocketTarget):
+class SatelliteTarget(SpaceshipTarget):
     planet_x: float
     planet_y: float
     omega: float
@@ -153,7 +153,7 @@ class SatelliteTarget(RocketTarget):
     radius: float
     offset_r: float
 
-    def is_fulfilled(self, state: RocketState, at: SimTime = Decimal(0)) -> bool:
+    def is_fulfilled(self, state: SpaceshipState, at: SimTime = Decimal(0)) -> bool:
         target_at = self.get_target_state_at(at)
         return self._is_fulfilled(state, target_at, self.pos_tol, self.vel_tol, self.dir_tol)
 
