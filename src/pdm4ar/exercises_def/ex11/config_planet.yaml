@@ -23,6 +23,9 @@ agents:
       pos_tolerance: 0.5
       dir_tolerance: 0.1
       vel_tolerance: 0.2
+      add_land_space: -0.075
+      arms_length: 0.7
+
 
 planets:
   Namek:

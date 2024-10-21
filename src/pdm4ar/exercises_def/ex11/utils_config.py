@@ -143,6 +143,8 @@ def sim_context_from_yaml(file_path: str):
             pos_tol=conf_goal["pos_tolerance"],
             vel_tol=conf_goal["vel_tolerance"],
             dir_tol=conf_goal["dir_tolerance"],
+            add_land_space = conf_goal["add_land_space"],
+            arms_length = conf_goal["arms_length"]
         )
         landing_shape = goal.get_landing_base()
         obsgeo = ObstacleGeometry.default_static(color="blue")
@@ -215,7 +217,7 @@ if __name__ == "__main__":
     from pathlib import Path
     from pprint import pprint
 
-    configs = ["config_planet.yaml", "config_satellites.yaml", "config_mov_target.yaml"]
+    configs = ["config_planet.yaml"] #, "config_satellites.yaml", "config_mov_target.yaml"]
     for c in configs:
         config_file = Path(__file__).parent / c
         config = _load_config(str(config_file))
