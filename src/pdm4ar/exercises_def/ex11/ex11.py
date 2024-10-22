@@ -16,7 +16,7 @@ from pdm4ar.exercises_def.ex11.utils_config import sim_context_from_yaml
 
 
 def ex11_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
-    r = Report("Final23-" + sim_context.description)
+    r = Report("Final24-" + sim_context.description)
     # run simulation
     run_simulation(sim_context)
     # visualisation
@@ -50,7 +50,7 @@ def _ex11_vis(sim_context: SimContext) -> Report:
     return r
 
 
-def load_config_ex08(file_path: Path) -> Mapping:
+def load_config_ex11(file_path: Path) -> Mapping:
     with open(str(file_path)) as f:
         config_dict = yaml.safe_load(f)
     return fd(config_dict)
