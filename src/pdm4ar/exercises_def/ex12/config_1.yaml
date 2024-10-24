@@ -1,0 +1,10 @@
+Testcases:
+  -
+    Scenario: "USA_US101-9_1_T-1"
+    Ego:
+      - original_name: P10
+      - goal_lane_id: 16
+    Others:
+      - names: [P1, P2]
+    
+seed: 98
