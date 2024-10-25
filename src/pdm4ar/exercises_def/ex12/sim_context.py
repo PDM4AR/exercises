@@ -88,6 +88,7 @@ def commonroad_scenario_to_simcontext(
         log=SimLog(),
         param=sim_param,
         seed=seed,
+        description="Highway Driving",
     )
 
 

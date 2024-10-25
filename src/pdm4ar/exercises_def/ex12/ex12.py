@@ -22,13 +22,11 @@ def ex12_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report
     # visualisation
     report = _ex12_vis(sim_context=sim_context)
     # compute metrics
-    avg_player_metrics, players_metrics = ex12_metrics(sim_context)
+    player_metrics = ex12_metrics(sim_context)
     # report evaluation
-    score: float = avg_player_metrics.reduce_to_score()
-    score_str = f"{score:.2f}\n" + str(avg_player_metrics)
-    r.text("OverallScore: ", score_str)
-    for pm in players_metrics:
-        r.text(f"EpisodeEvaluation-{pm.player_name}", str(pm))
+    score: float = player_metrics.reduce_to_score()
+    score_str = f"{score:.2f}\n" + str(player_metrics)
+    r.text("Score: ", score_str)
     r.add_child(report)
     return score, r
 
@@ -53,15 +51,11 @@ def load_config_ex12(file_path: Path) -> Mapping:
 
 
 def get_exercise12():
-    # TODO: get the list of sim_context based on the configs
     config_dir = Path(__file__).parent
     name_1 = "config_1.yaml"
     config_dict_1 = load_config_ex12(config_dir / name_1)
     # config_dict_2 = load_config_ex12(config_dir / name_2)
-    test_values: List[SimContext] = [
-        get_sim_contexts(config_dict_1),
-        # get_sim_context(config_dict_2, config_dict_2["seed"], config_name=name_2),
-    ]
+    test_values: List[SimContext] = get_sim_contexts(config_dict_1)
 
     return Exercise[SimContext, None](
         desc="Final '24 planning course exercise.",
@@ -74,10 +68,3 @@ def get_exercise12():
         * len(test_values),
         test_case_timeout=60 * 10,  # For debugging, increase value if your report generation is slow!
     )
-
-
-if __name__ == "__main__":
-    config_dir = Path(__file__).parent
-    name_1 = "config_1.yaml"
-    config_dict_1 = load_config_ex12(config_dir / name_1)
-    pass

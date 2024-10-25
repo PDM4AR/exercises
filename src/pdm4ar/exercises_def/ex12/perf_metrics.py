@@ -1,14 +1,15 @@
 from dataclasses import dataclass
-from typing import List, Set, Tuple
+from typing import List, Set
 
 import numpy as np
-from shapely.geometry import Point, Polygon
-from dg_commons import iterate_with_dt, seq_integrate, DgSampledSequence, PlayerName
+from dg_commons import PlayerName
 from dg_commons.maps import DgLanelet, DgLanePose
 from dg_commons.sim import extract_pose_from_state
-from dg_commons.sim.models.vehicle import VehicleState
 from dg_commons.sim.simulator import SimContext
-from math import sqrt, pi
+from dg_commons.eval.safety import has_collision, get_min_ttc_max_drac
+from dg_commons.eval.efficiency import time_goal_lane_reached
+from dg_commons.eval.comfort import get_acc_rms
+from dg_commons.seq.sequence import Timestamp
 
 from pdm4ar.exercises_def import PerformanceResults
 
@@ -17,40 +18,24 @@ from pdm4ar.exercises_def import PerformanceResults
 class PlayerMetrics(PerformanceResults):
     player_name: PlayerName
     "Player's name"
-    goal_reached: bool
-    """Has the player reached the goal?"""
     collided: bool
     """Has the player collided?"""
-    travelled_distance: float
-    """The length of the trajectory travelled by the robot"""
-    episode_duration: float
-    """The time it took till the end the simulation."""
-    distance2goal: float
-    """The beeline distance to the goal, >=0"""
+    collided_with: List[PlayerName]
+    """List of players with which the player has collided"""
+    goal_reached: bool
+    """Has the player reached the goal?"""
+    min_ttc: float
+    """The minimum time-to-collision throughout the simulation"""
+    lane_changing_time: Timestamp | None
+    """The time it took to reach the goal lane."""
     avg_relative_heading: float
     """The average relative heading of the vehicle wrt the lane it is driving on"""
-    actuation_effort: float
-    """Integral of the commands sent to the robot normalized by the time taken"""
-    avg_computation_time: float
-    """Average computation time of the get_commands method."""
-
-
-@dataclass(frozen=True)
-class AvgPlayerMetrics(PerformanceResults):
-    goal_success_rate: float
-    """Average over the players for goal reaching rate."""
-    collision_rate: float
-    """Average over the players for collision with an obstacle."""
-    avg_distance_travelled: float
-    """The length of the trajectory travelled by the robot"""
-    avg_episode_duration: float
-    """The time it took till the end the simulation."""
-    avg_distance2goal: float
-    """The beeline distance to the goal, >=0"""
-    avg_relative_heading: float
-    """The average relative heading of the vehicle wrt the lane it is driving on"""
-    avg_actuation_effort: float
-    """Integral of the commands sent to the robot normalized by the time taken."""
+    max_velocity: float
+    """The maximum velocity of the vehicle"""
+    min_velocity: float
+    """The minimum velocity of the vehicle"""
+    discomfort: float
+    """The frequency-weighted acceleration of the vehicle according to ISO 2631-1"""
     avg_computation_time: float
     """Average computation time of the get_commands method."""
 
@@ -64,110 +49,107 @@ class AvgPlayerMetrics(PerformanceResults):
 
     def reduce_to_score(self) -> float:
         """Higher is better"""
-        score = (self.goal_success_rate - self.collision_rate) * 1e3
-        score -= (self.avg_relative_heading + self.avg_computation_time) * 1e2
-        score -= (
-            self.avg_distance2goal / 2
-            + self.avg_distance_travelled / 5
-            + self.avg_episode_duration / 5
-            + self.avg_actuation_effort
-        ) * 1e1
-        return score
+        max_score = 100
+        if self.collided:
+            max_score *= 0.2
+        if not self.goal_reached:
+            max_score *= 0.5
+        score = max_score
+        # lose points if the lane changing takes too long
+        if self.lane_changing_time is not None:
+            score -= 2.0 * np.maximum(0.0, float(self.lane_changing_time) - 5.0)
+        else:
+            score -= 15.0
+        # lose points if the planned trajectory is risky
+        score -= 15.0 * np.maximum(0.0, -self.min_ttc + 1.0)
+        # lose points if the computation takes too long
+        score -= 5.0 * np.maximum(0.0, self.avg_computation_time - 0.5)
+        # lose points if the planned trajectory is not comfortable
+        score -= 5.0 * np.maximum(0.0, self.discomfort - 0.6)
+        # lose points if the vehicle is not compliant with the lane
+        score -= 5.0 * np.maximum(0.0, np.abs(self.avg_relative_heading) - 0.1)
+        # lose points if the vehicle is too fast or too slow
+        v_diff = np.maximum(self.max_velocity - 15.0, 5.0 - self.min_velocity)
+        score -= 5.0 * np.maximum(0.0, v_diff)
+        return np.maximum(0.0, score)
 
 
-def ex12_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[PlayerMetrics]]:
-    agents_perf: List[PlayerMetrics] = []
+def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:
     collided_players: Set[PlayerName] = set()
     for cr in sim_context.collision_reports:
         collided_players.update((cr.players.keys()))
 
-    for player_name, agent_log in sim_context.log.items():
-        if "PDM4AR" not in player_name:
-            continue
+    lanelet_network = sim_context.dg_scenario.lanelet_network
+    collision_reports = sim_context.collision_reports
+    ego_name = PlayerName("Ego")
+    ego_goal_lane = sim_context.missions[ego_name]
+    ego_log = sim_context.log[ego_name]
+    ego_states = ego_log.states
+    ego_commands = ego_log.commands
 
-        states: DgSampledSequence[VehicleState] = agent_log.states
+    # collision
+    collided = has_collision(collision_reports)
 
-        # if the last state of the sim is inside the goal
-        last_state = states.values[-1]
-        has_reached_the_goal: bool = sim_context.missions[player_name].is_fulfilled(last_state)
+    # efficiency metrics
+    time_to_reach = time_goal_lane_reached(lanelet_network, ego_goal_lane, ego_states, pos_tol=0.8, heading_tol=0.08)
+    if time_to_reach is None:
+        has_reached_the_goal = False
+    else:
+        has_reached_the_goal = True
 
-        # collision
-        has_collided = True if player_name in collided_players else False
-
-        # distance travelled
-        dist: float = 0
-        for it in iterate_with_dt(states):
-            dist += sqrt((it.v1.x - it.v0.x) ** 2 + (it.v1.y - it.v0.y) ** 2)
-
-        # time duration
-        duration = float(states.get_end() - states.get_start())
-
-        # distance left to goal
-        last_point = Point(last_state.x, last_state.y)
-        goal_poly: Polygon = sim_context.missions[player_name].goal
-        distance2goal = goal_poly.distance(last_point)
-
-        # actuation effort
-        abs_acc = agent_log.commands.transform_values(lambda u: abs(u.acc))
-        actuation_effort = seq_integrate(abs_acc).values[-1] / duration
-        abs_ddelta = agent_log.commands.transform_values(lambda u: abs(u.ddelta))
-        actuation_effort += seq_integrate(abs_ddelta).values[-1] / duration
-
-        # lane orientation
-        network = sim_context.dg_scenario.lanelet_network
-        avg_heading = 0
-        for state in agent_log.states.values:
-            lanelet_ids = network.find_lanelet_by_position(
-                [
-                    [state.x, state.y],
-                ]
-            )[0]
-            if len(lanelet_ids) == 0:
-                # penalized for being outside the lanelet network as driving against the traffic
-                avg_heading += pi
-            else:
-                lanelet = network.find_lanelet_by_id(lanelet_ids[0])
-                dg_lanelet = DgLanelet.from_commonroad_lanelet(lanelet)
-                pose = extract_pose_from_state(state)
-                dg_pose: DgLanePose = dg_lanelet.lane_pose_from_SE2_generic(pose)
-                avg_heading += abs(dg_pose.relative_heading)
-        avg_heading /= len(agent_log.states)
-
-        # computation time
-        avg_comp_time = np.average(agent_log.info.values)
-
-        # create the player metrics
-        pm = PlayerMetrics(
-            player_name=player_name,
-            goal_reached=has_reached_the_goal,
-            collided=has_collided,
-            travelled_distance=dist,
-            episode_duration=duration,
-            distance2goal=distance2goal,
-            avg_relative_heading=avg_heading,
-            actuation_effort=actuation_effort,
-            avg_computation_time=avg_comp_time,
+    # safety metrics
+    if has_reached_the_goal:
+        min_ttc, _, _, _, _, _ = get_min_ttc_max_drac(
+            sim_context.log, sim_context.models, sim_context.missions, ego_name, (0.0, time_to_reach)
         )
-        agents_perf.append(pm)
+    else:
+        min_ttc, _, _, _, _, _ = get_min_ttc_max_drac(
+            sim_context.log, sim_context.models, sim_context.missions, ego_name
+        )
 
-    goal_success_rate = [p.goal_reached for p in agents_perf].count(True) / len(agents_perf)
-    collision_rate = [p.collided for p in agents_perf].count(True) / len(agents_perf)
-    avg_travelled_distance = np.average([p.travelled_distance for p in agents_perf])
-    avg_duration = np.average([p.episode_duration for p in agents_perf])
-    avg_distance2goal = np.average([p.distance2goal for p in agents_perf])
-    avg_relative_heading = np.average([p.avg_relative_heading for p in agents_perf])
-    avg_actuation_effort = np.average([p.actuation_effort for p in agents_perf])
-    avg_computation_time = np.average([p.avg_computation_time for p in agents_perf])
+    # comfort matrics
+    discomfort = get_acc_rms(ego_commands)
 
-    avg_player_metrics = AvgPlayerMetrics(
-        goal_success_rate=goal_success_rate,
-        collision_rate=collision_rate,
-        avg_distance_travelled=avg_travelled_distance,
-        avg_episode_duration=avg_duration,
-        avg_distance2goal=avg_distance2goal,
-        avg_relative_heading=avg_relative_heading,
-        avg_actuation_effort=avg_actuation_effort,
-        avg_computation_time=avg_computation_time,
+    # computation time
+    avg_comp_time = np.average(ego_log.info.values)
+
+    # lane orientation
+    avg_heading = 0.0
+    max_velocity = -np.inf
+    min_velocity = np.inf
+    for state in ego_log.states.values:
+        lanelet_ids = lanelet_network.find_lanelet_by_position(
+            [
+                [state.x, state.y],
+            ]
+        )[0]
+        if len(lanelet_ids) == 0:
+            # penalized for being outside the lanelet network as driving against the traffic
+            avg_heading += np.pi
+        else:
+            lanelet = lanelet_network.find_lanelet_by_id(lanelet_ids[0])
+            dg_lanelet = DgLanelet.from_commonroad_lanelet(lanelet)
+            pose = extract_pose_from_state(state)
+            dg_pose: DgLanePose = dg_lanelet.lane_pose_from_SE2_generic(pose)
+            avg_heading += abs(dg_pose.relative_heading)
+        if max_velocity < state.v:
+            max_velocity = state.v
+        if min_velocity > state.v:
+            min_velocity = state.v
+    avg_heading /= len(ego_log.states)
+
+    player_metrics = PlayerMetrics(
+        player_name=ego_name,
+        collided=collided,
+        collided_with=list(collided_players),
+        goal_reached=has_reached_the_goal,
+        min_ttc=min_ttc,
+        lane_changing_time=time_to_reach,
+        avg_relative_heading=avg_heading,
+        max_velocity=max_velocity,
+        min_velocity=min_velocity,
+        discomfort=discomfort,
+        avg_computation_time=avg_comp_time,
     )
 
-    return avg_player_metrics, agents_perf
+    return player_metrics
