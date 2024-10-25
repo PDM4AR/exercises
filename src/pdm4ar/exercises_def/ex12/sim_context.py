@@ -94,15 +94,16 @@ def commonroad_scenario_to_simcontext(
 
 def get_sim_contexts(config_dict: Mapping) -> list[SimContext]:
     sim_context_all = []
-    sim_param = SimParameters(
-        dt=SimTime("0.05"),
-        dt_commands=SimTime("0.1"),
-        max_sim_time=SimTime(10),
-        sim_time_after_collision=SimTime("1.0"),
-    )
     seed = config_dict["seed"]
     np.random.seed(seed)
     for test_config in config_dict["testcases"]:
+        max_sim_time = test_config["max_sim_time"]
+        sim_param = SimParameters(
+            dt=SimTime("0.05"),
+            dt_commands=SimTime("0.1"),
+            max_sim_time=SimTime(max_sim_time),
+            sim_time_after_collision=SimTime("1.0"),
+        )
         sim_context: SimContext = commonroad_scenario_to_simcontext(
             scenario_name=test_config["scenario"],
             ego_player=test_config["ego"]["original_name"],

@@ -1,6 +1,7 @@
 testcases:
   -
     scenario: "USA_US101-9_1_T-1"
+    max_sim_time: 10.0
     ego:
       original_name: P19
       goal_lane_id: 29

@@ -132,10 +132,10 @@ def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:
             pose = extract_pose_from_state(state)
             dg_pose: DgLanePose = dg_lanelet.lane_pose_from_SE2_generic(pose)
             avg_heading += abs(dg_pose.relative_heading)
-        if max_velocity < state.v:
-            max_velocity = state.v
-        if min_velocity > state.v:
-            min_velocity = state.v
+        if max_velocity < state.vx:
+            max_velocity = state.vx
+        if min_velocity > state.vx:
+            min_velocity = state.vx
     avg_heading /= len(ego_log.states)
 
     player_metrics = PlayerMetrics(
