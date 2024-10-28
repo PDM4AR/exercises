@@ -66,9 +66,9 @@ class SpaceshipTarget(PlanningGoal):
 
 @dataclass(frozen=True)
 class DockingTarget(SpaceshipTarget):
-    #add_land_space together with pos_tol defines the lenght of the landing base
+    # add_land_space together with pos_tol defines the lenght of the landing base
     add_land_space: float
-    #length of the arms
+    # length of the arms
     arms_length: float
 
     @cached_property
@@ -76,25 +76,33 @@ class DockingTarget(SpaceshipTarget):
         # the real offset y must be the distance cog and thruster end
         offset_y = 0.3
 
-        #define the landing base starting and ending points
+        # define the landing base starting and ending points
         line_dock_x_start = (
-            self.target.x - offset_y * cos(self.target.psi) - (self.pos_tol + self.add_land_space) * sin(self.target.psi)
+            self.target.x
+            - offset_y * cos(self.target.psi)
+            - (self.pos_tol + self.add_land_space) * sin(self.target.psi)
         )
         line_dock_y_start = (
-            self.target.y - offset_y * sin(self.target.psi) + (self.pos_tol + self.add_land_space) * cos(self.target.psi)
+            self.target.y
+            - offset_y * sin(self.target.psi)
+            + (self.pos_tol + self.add_land_space) * cos(self.target.psi)
         )
         line_dock_x_end = (
-            self.target.x - offset_y * cos(self.target.psi) + (self.pos_tol + self.add_land_space) * sin(self.target.psi)
+            self.target.x
+            - offset_y * cos(self.target.psi)
+            + (self.pos_tol + self.add_land_space) * sin(self.target.psi)
         )
         line_dock_y_end = (
-            self.target.y - offset_y * sin(self.target.psi) - (self.pos_tol + self.add_land_space) * cos(self.target.psi)
+            self.target.y
+            - offset_y * sin(self.target.psi)
+            - (self.pos_tol + self.add_land_space) * cos(self.target.psi)
         )
 
         line_dock = LineString([(line_dock_x_start, line_dock_y_start), (line_dock_x_end, line_dock_y_end)])
         line_thickness = 0.05  # Adjust the thickness of the line if needed
         line_dock_buffer = line_dock.buffer(line_thickness, cap_style=2)
 
-        #define the first arm
+        # define the first arm
         line_catch_x_end = line_dock_x_start + (self.pos_tol + self.arms_length) * cos(self.target.psi)
         line_catch_y_end = line_dock_y_start + (self.pos_tol + self.arms_length) * sin(self.target.psi)
         line_catch = LineString([(line_dock_x_start, line_dock_y_start), (line_catch_x_end, line_catch_y_end)])
@@ -102,7 +110,7 @@ class DockingTarget(SpaceshipTarget):
         line_catch_buffer = line_catch.buffer(line_thickness, cap_style=2)
         combined_polygon = unary_union([line_dock_buffer, line_catch_buffer])
 
-        #define the second arm
+        # define the second arm
         line_catch_x_end = line_dock_x_end + (self.pos_tol + self.arms_length) * cos(self.target.psi)
         line_catch_y_end = line_dock_y_end + (self.pos_tol + self.arms_length) * sin(self.target.psi)
         line_catch = LineString([(line_dock_x_end, line_dock_y_end), (line_catch_x_end, line_catch_y_end)])
@@ -117,28 +125,36 @@ class DockingTarget(SpaceshipTarget):
         offset_y = 0.3
 
         line_dock_x_start = (
-            self.target.x - offset_y * cos(self.target.psi) - (self.pos_tol + self.add_land_space) * sin(self.target.psi)
+            self.target.x
+            - offset_y * cos(self.target.psi)
+            - (self.pos_tol + self.add_land_space) * sin(self.target.psi)
         )
         line_dock_y_start = (
-            self.target.y - offset_y * sin(self.target.psi) + (self.pos_tol + self.add_land_space) * cos(self.target.psi)
+            self.target.y
+            - offset_y * sin(self.target.psi)
+            + (self.pos_tol + self.add_land_space) * cos(self.target.psi)
         )
         line_dock_x_end = (
-            self.target.x - offset_y * cos(self.target.psi) + (self.pos_tol + self.add_land_space) * sin(self.target.psi)
+            self.target.x
+            - offset_y * cos(self.target.psi)
+            + (self.pos_tol + self.add_land_space) * sin(self.target.psi)
         )
         line_dock_y_end = (
-            self.target.y - offset_y * sin(self.target.psi) - (self.pos_tol + self.add_land_space) * cos(self.target.psi)
+            self.target.y
+            - offset_y * sin(self.target.psi)
+            - (self.pos_tol + self.add_land_space) * cos(self.target.psi)
         )
 
         line_dock = LineString([(line_dock_x_start, line_dock_y_start), (line_dock_x_end, line_dock_y_end)])
         line_thickness = 0.05  # Adjust the thickness of the line if needed
         line_dock_buffer = line_dock.buffer(line_thickness, cap_style=2)
         return line_dock_buffer
-    
+
     def get_landing_constraint_points(self):
         offset_y = 0.3
 
-        center_of_landing_x = self.target.x - offset_y * cos(self.target.psi)
-        center_of_landing_y = self.target.y - offset_y * sin(self.target.psi)
+        center_of_landing_x = self.target.x - 0.1 * cos(self.target.psi)
+        center_of_landing_y = self.target.y - 0.1 * sin(self.target.psi)
 
         line_dock_x_start = (
             self.target.x - offset_y * cos(self.target.psi) - (self.pos_tol - 0.2) * sin(self.target.psi)
@@ -156,10 +172,12 @@ class DockingTarget(SpaceshipTarget):
         t2_y = line_dock_y_end + (self.pos_tol + self.arms_length) * sin(self.target.psi)
 
         A = np.array([center_of_landing_x, center_of_landing_y])
-        B = np.array([t1_x, t1_y])
-        C = np.array([t2_x, t2_y])
 
-        return A, B, C
+        C = np.array([t1_x, t1_y])
+        B = np.array([t2_x, t2_y])
+
+        return A, B, C, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
+
 
 @dataclass(frozen=True)
 class SatelliteTarget(SpaceshipTarget):
