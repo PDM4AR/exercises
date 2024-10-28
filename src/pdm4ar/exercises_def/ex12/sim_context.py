@@ -36,6 +36,7 @@ def commonroad_scenario_to_simcontext(
     other_players: list[PlayerName],
     sim_param: Optional[SimParameters] = None,
     seed: int = 0,
+    description: str = "",
 ) -> SimContext:
     """
     This function loads a CommonRoad scenario and tries to convert the dynamic
@@ -88,13 +89,14 @@ def commonroad_scenario_to_simcontext(
         log=SimLog(),
         param=sim_param,
         seed=seed,
-        description="Highway Driving",
+        description=description,
     )
 
 
 def get_sim_contexts(config_dict: Mapping) -> list[SimContext]:
     sim_context_all = []
     seed = config_dict["seed"]
+    task_level = config_dict["task_level"]
     np.random.seed(seed)
     for test_config in config_dict["testcases"]:
         max_sim_time = test_config["max_sim_time"]
@@ -111,6 +113,7 @@ def get_sim_contexts(config_dict: Mapping) -> list[SimContext]:
             other_players=test_config["others"]["names"],
             sim_param=sim_param,
             seed=seed,
+            description=str(task_level) + "_" + test_config["description"],
         )
         sim_context_all.append(sim_context)
 

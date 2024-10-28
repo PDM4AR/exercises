@@ -7,14 +7,19 @@ from dg_commons import fd
 from dg_commons.sim.simulator import Simulator, SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from reprep import MIME_MP4, Report
-from zuper_commons.text import remove_escapes
 
 from pdm4ar.exercises_def import Exercise
-from pdm4ar.exercises_def.ex12.perf_metrics import ex12_metrics
+from pdm4ar.exercises_def.ex12.perf_metrics import (
+    PlayerMetrics,
+    ex12_metrics,
+    HighwayScenariosPerformance,
+    HighwayFinalPerformance,
+    get_scenarios_performance,
+)
 from pdm4ar.exercises_def.ex12.sim_context import get_sim_contexts
 
 
-def ex12_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
+def ex12_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[PlayerMetrics, Report]:
     r = Report("Final24-" + sim_context.description)
     # run simulation
     sim = Simulator()
@@ -26,13 +31,38 @@ def ex12_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report
     # report evaluation
     score: float = player_metrics.reduce_to_score()
     score_str = f"{score:.2f}\n" + str(player_metrics)
-    r.text("Score: ", score_str)
+    r.text("Evaluation: ", score_str)
     r.add_child(report)
-    return score, r
+    return player_metrics, r
 
 
-def ex12_performance_aggregator(ex_out: List[float]) -> float:
-    return np.average(ex_out)
+def ex12_performance_aggregator(ex_out: List[PlayerMetrics]) -> HighwayFinalPerformance:
+    metrics_by_level = {1: [], 2: [], 3: []}
+    for metrics in ex_out:
+        if metrics.task_level == 1:
+            metrics_by_level[1].append(metrics)
+        elif metrics.task_level == 2:
+            metrics_by_level[2].append(metrics)
+        elif metrics.task_level == 3:
+            metrics_by_level[3].append(metrics)
+        else:
+            # this line should not be reached
+            pass
+    basic_performances = {
+        1: get_scenarios_performance(metrics_by_level[1]),
+        2: get_scenarios_performance(metrics_by_level[2]),
+    }
+    basic_score = 0.3 * basic_performances[1].avg_score + 0.7 * basic_performances[2].avg_score
+    bonus_performances = {
+        3: get_scenarios_performance(metrics_by_level[3]),
+    }
+    bonus_score = bonus_performances[3].avg_score
+    return HighwayFinalPerformance(
+        basic_score=basic_score,
+        basic_performances=basic_performances,
+        bonus_score=bonus_score,
+        bonus_performances=bonus_performances,
+    )
 
 
 def _ex12_vis(sim_context: SimContext) -> Report:

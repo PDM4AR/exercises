@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Set
 
 import numpy as np
@@ -16,12 +16,12 @@ from pdm4ar.exercises_def import PerformanceResults
 
 @dataclass(frozen=True)
 class PlayerMetrics(PerformanceResults):
-    player_name: PlayerName
-    "Player's name"
+    task_level: int
+    """How difficult is the task?(1:simple, 2:moderate, 3: challenging)"""
     collided: bool
     """Has the player collided?"""
-    collided_with: List[PlayerName]
-    """List of players with which the player has collided"""
+    collided_players: List[PlayerName]
+    """List of players that are involved in at least one collision"""
     goal_reached: bool
     """Has the player reached the goal?"""
     min_ttc: float
@@ -39,46 +39,123 @@ class PlayerMetrics(PerformanceResults):
     avg_computation_time: float
     """Average computation time of the get_commands method."""
 
+    _lc_time_penalty: float = field(init=False)
+    _ttc_penalty: float = field(init=False)
+    _solving_time_penalty: float = field(init=False)
+    _discomfort_penalty: float = field(init=False)
+    _heading_penalty: float = field(init=False)
+    _velocity_penalty: float = field(init=False)
+    _score: float = field(init=False)
+
+    def __post_init__(self):
+        """compute and store the score"""
+        max_score = 100
+        if self.collided:
+            max_score *= 0.2
+        if not self.goal_reached:
+            max_score *= 0.7
+        score = max_score
+        # lose points if the lane changing takes longer than 5 seconds
+        if self.lane_changing_time is not None:
+            lc_time_penalty = (float(self.lane_changing_time) - 5.0) / 5.0
+            lc_time_penalty = np.clip(lc_time_penalty, 0.0, 1.0)
+            score -= 10.0 * lc_time_penalty
+        else:
+            lc_time_penalty = 1.0
+            score -= 15.0
+        # lose points if ttc of the planned trajectory is less than 0.5s
+        ttc_penalty = (-self.min_ttc + 0.5) * 2.0
+        ttc_penalty = np.clip(ttc_penalty, 0.0, 1.0)
+        score -= 15.0 * ttc_penalty
+        # lose points if the computation takes longer than 0.5s
+        solving_time_penalty = (self.avg_computation_time - 0.5) * 2.0
+        solving_time_penalty = np.clip(solving_time_penalty, 0.0, 1.0)
+        score -= 5.0 * solving_time_penalty
+        # lose points if the discomfort level is larger than 0.6
+        discomfort_penalty = (self.discomfort - 0.6) * 3.0
+        discomfort_penalty = np.clip(discomfort_penalty, 0.0, 1.0)
+        score -= 5.0 * discomfort_penalty
+        # lose points if the vehicle is not compliant with the lane
+        heading_penalty = (np.abs(self.avg_relative_heading) - 0.1) * 10.0
+        heading_penalty = np.clip(heading_penalty, 0.0, 1.0)
+        score -= 5.0 * heading_penalty
+        # lose points if the vehicle is too fast or too slow
+        v_diff = np.maximum(self.max_velocity - 25.0, 10.0 - self.min_velocity)
+        velocity_penalty = v_diff / 5.0
+        velocity_penalty = np.clip(velocity_penalty, 0.0, 1.0)
+        score -= 5.0 * velocity_penalty
+
+        object.__setattr__(self, "_lc_time_penalty", lc_time_penalty)
+        object.__setattr__(self, "_ttc_penalty", ttc_penalty)
+        object.__setattr__(self, "_solving_time_penalty", solving_time_penalty)
+        object.__setattr__(self, "_discomfort_penalty", discomfort_penalty)
+        object.__setattr__(self, "_heading_penalty", heading_penalty)
+        object.__setattr__(self, "_velocity_penalty", velocity_penalty)
+        object.__setattr__(self, "_score", np.maximum(0.0, score))
+
     def __repr__(self):
         repr: str = ""
         for k, v in self.__dict__.items():
+            if k.startswith("_"):
+                continue
             value = f"{v:>5.2f}" if isinstance(v, float) else f"{v:>5}"
             repr += f"\t{k:<20}=\t" + value + ",\n"
 
         return f"EpisodeOutcome(\n" + repr + "\n)"
 
     def reduce_to_score(self) -> float:
-        """Higher is better"""
-        max_score = 100
-        if self.collided:
-            max_score *= 0.2
-        if not self.goal_reached:
-            max_score *= 0.5
-        score = max_score
-        # lose points if the lane changing takes too long
-        if self.lane_changing_time is not None:
-            score -= 2.0 * np.maximum(0.0, float(self.lane_changing_time) - 5.0)
-        else:
-            score -= 15.0
-        # lose points if the planned trajectory is risky
-        score -= 15.0 * np.maximum(0.0, -self.min_ttc + 1.0)
-        # lose points if the computation takes too long
-        score -= 5.0 * np.maximum(0.0, self.avg_computation_time - 0.5)
-        # lose points if the planned trajectory is not comfortable
-        score -= 5.0 * np.maximum(0.0, self.discomfort - 0.6)
-        # lose points if the vehicle is not compliant with the lane
-        score -= 5.0 * np.maximum(0.0, np.abs(self.avg_relative_heading) - 0.1)
-        # lose points if the vehicle is too fast or too slow
-        v_diff = np.maximum(self.max_velocity - 15.0, 5.0 - self.min_velocity)
-        score -= 5.0 * np.maximum(0.0, v_diff)
-        return np.maximum(0.0, score)
+        return self._score
+
+
+@dataclass(frozen=True)
+class HighwayScenariosPerformance(PerformanceResults):
+    avg_score: float = 0.0
+    collision_rate: float = 0.0
+    success_rate: float = 0.0
+    avg_lc_time_penalty: float = 0.0
+    avg_risk_penalty: float = 0.0
+    avg_heading_penalty: float = 0.0
+    avg_velocity_penalty: float = 0.0
+
+
+def get_scenarios_performance(metrics_all: list[PlayerMetrics]) -> HighwayScenariosPerformance:
+    avg_score = 0.0
+    collision_rate = -0.0
+    success_rate = 0.0
+    avg_lc_time_penalty = 0.0
+    avg_risk_penalty = 0.0
+    avg_heading_penalty = 0.0
+    avg_velocity_penalty = 0.0
+
+    for metrics in metrics_all:
+        avg_score += metrics._score
+        collision_rate += 1 if metrics.collided else 0
+        success_rate += 1 if metrics.goal_reached else 0
+        avg_lc_time_penalty += metrics._lc_time_penalty
+        avg_risk_penalty += metrics._ttc_penalty
+        avg_heading_penalty += metrics._heading_penalty
+        avg_velocity_penalty += metrics._velocity_penalty
+    num_scenarios = len(metrics_all) if len(metrics_all) > 0 else 1
+    return HighwayScenariosPerformance(
+        avg_score=avg_score / num_scenarios,
+        collision_rate=collision_rate / num_scenarios,
+        success_rate=success_rate / num_scenarios,
+        avg_lc_time_penalty=avg_lc_time_penalty / num_scenarios,
+        avg_risk_penalty=avg_risk_penalty / num_scenarios,
+        avg_heading_penalty=avg_heading_penalty / num_scenarios,
+        avg_velocity_penalty=avg_velocity_penalty / num_scenarios,
+    )
+
+
+@dataclass(frozen=True)
+class HighwayFinalPerformance(PerformanceResults):
+    basic_score: float
+    basic_performances: dict[int, HighwayScenariosPerformance]
+    bonus_score: float
+    bonus_performances: dict[int, HighwayScenariosPerformance]
 
 
 def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:
-    collided_players: Set[PlayerName] = set()
-    for cr in sim_context.collision_reports:
-        collided_players.update((cr.players.keys()))
-
     lanelet_network = sim_context.dg_scenario.lanelet_network
     collision_reports = sim_context.collision_reports
     ego_name = PlayerName("Ego")
@@ -88,7 +165,7 @@ def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:
     ego_commands = ego_log.commands
 
     # collision
-    collided = has_collision(collision_reports)
+    collided, collided_players = has_collision(collision_reports)
 
     # efficiency metrics
     time_to_reach = time_goal_lane_reached(lanelet_network, ego_goal_lane, ego_states, pos_tol=0.8, heading_tol=0.08)
@@ -138,10 +215,12 @@ def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:
             min_velocity = state.vx
     avg_heading /= len(ego_log.states)
 
+    task_level = int(sim_context.description.split("_")[0])
+
     player_metrics = PlayerMetrics(
-        player_name=ego_name,
+        task_level=task_level,
         collided=collided,
-        collided_with=list(collided_players),
+        collided_players=list(collided_players),
         goal_reached=has_reached_the_goal,
         min_ttc=min_ttc,
         lane_changing_time=time_to_reach,
