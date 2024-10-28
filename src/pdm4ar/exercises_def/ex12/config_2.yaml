@@ -1,0 +1,24 @@
+task_level: 2
+
+testcases:
+  -
+    scenario: "ESP_Mad-1_10_I-1-1.cr"
+    max_sim_time: 10.0
+    ego:
+      original_name: P14
+      goal_lane_id: 7
+    others:
+      names: [P4, P6, P7, P10, P13, P17, P18, P19, P21]
+    description: "scenario1"
+  
+  -
+    scenario: "USA_US101-22_3_T-1"
+    max_sim_time: 10.0
+    ego:
+      original_name: P34
+      goal_lane_id: 26
+    others:
+      names: [P30, P31, P32, P35, P36, P37, P38, P44]
+    description: "scenario2"
+
+seed: 98

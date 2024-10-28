@@ -1,0 +1,24 @@
+task_level: 3
+
+testcases:
+  -
+    scenario: "USA_US101-15_2_T-1"
+    max_sim_time: 15.0
+    ego:
+      original_name: P20
+      goal_lane_id: 28
+    others:
+      names: [P17, P18, P26, P29, P30, P31, P32, P33, P34, P35]
+    description: "scenario1"
+  
+  -
+    scenario: "USA_US101-18_1_T-1"
+    max_sim_time: 15.0
+    ego:
+      original_name: P27
+      goal_lane_id: 28
+    others:
+      names: [P19, P24, P25, P30, P36, P37, P38, P39, P40, P41, P42]
+    description: "scenario2"
+
+seed: 98
