@@ -80,7 +80,7 @@ class PlayerMetrics(PerformanceResults):
         heading_penalty = np.clip(heading_penalty, 0.0, 1.0)
         score -= 5.0 * heading_penalty
         # lose points if the vehicle is too fast or too slow
-        v_diff = np.maximum(self.max_velocity - 25.0, 10.0 - self.min_velocity)
+        v_diff = np.maximum(self.max_velocity - 25.0, 5.0 - self.min_velocity)
         velocity_penalty = v_diff / 5.0
         velocity_penalty = np.clip(velocity_penalty, 0.0, 1.0)
         score -= 5.0 * velocity_penalty
