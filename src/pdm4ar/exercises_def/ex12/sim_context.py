@@ -52,6 +52,9 @@ def commonroad_scenario_to_simcontext(
     scenario, planning_problem_set = load_commonroad_scenario(scenario_name, scenarios_dir)
     players, models, missions = {}, {}, {}
 
+    keep_all_players = False
+    if "all" in other_players:
+        keep_all_players = True
     for i, dyn_obs in enumerate(scenario.dynamic_obstacles):
         assert isinstance(dyn_obs.prediction, TrajectoryPrediction), "Only trajectory predictions are supported"
         p_name = PlayerName(f"P{i}")
@@ -61,7 +64,7 @@ def commonroad_scenario_to_simcontext(
             agent = Pdm4arAgent()
             goal_lane = scenario.lanelet_network.find_lanelet_by_id(ego_goal_lane_id)
             dglane = DgLanelet.from_commonroad_lanelet(goal_lane)
-        elif p_name in other_players:
+        elif keep_all_players or p_name in other_players:
             model: SimModel = infer_model_from_cr_dyn_obstacle(dyn_obs, color="royalblue")
             agent = IDMAgent()
             dglane = infer_lane_from_dyn_obs(dyn_obs=dyn_obs, network=scenario.lanelet_network)

@@ -82,13 +82,11 @@ def load_config_ex12(file_path: Path) -> Mapping:
 
 def get_exercise12():
     config_dir = Path(__file__).parent
-    config_dict_1 = load_config_ex12(config_dir / "config_1.yaml")
-    config_dict_2 = load_config_ex12(config_dir / "config_2.yaml")
-    config_dict_3 = load_config_ex12(config_dir / "config_3.yaml")
+    config_list = ["config_1.yaml", "config_2.yaml", "config_3.yaml"]
     test_values: List[SimContext] = []
-    test_values += get_sim_contexts(config_dict_1)
-    test_values += get_sim_contexts(config_dict_2)
-    test_values += get_sim_contexts(config_dict_3)
+    for config_name in config_list:
+        config_dict = load_config_ex12(config_dir / config_name)
+        test_values += get_sim_contexts(config_dict)
 
     return Exercise[SimContext, None](
         desc="Final '24 planning course exercise.",

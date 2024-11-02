@@ -8,7 +8,7 @@ testcases:
       original_name: P20
       goal_lane_id: 28
     others:
-      names: [P17, P18, P26, P29, P30, P31, P32, P33, P34, P35]
+      names: [all]
     description: "scenario1"
   
   -
@@ -18,7 +18,6 @@ testcases:
       original_name: P27
       goal_lane_id: 28
     others:
-      names: [P19, P24, P25, P30, P36, P37, P38, P39, P40, P41, P42]
+      names: [all]
     description: "scenario2"
-
 seed: 98
