@@ -3,9 +3,9 @@ agents:
   PDM4ARSpaceship: # do not change this name
     color: 'blue'
     state:
-      x: -8.0
-      y: -8.0
-      psi: 0.0
+      x: -9.0
+      y: -9.0
+      psi: 0
       vx: 0.0
       vy: 0.0
       dpsi: 0.0
@@ -14,7 +14,7 @@ agents:
     goal:
       type: dock
       state: 
-        x: 9.5
+        x: 8.5
         y: 9.5
         psi: 3.3
         vx: 0.0
@@ -23,19 +23,20 @@ agents:
       pos_tolerance: 0.5
       dir_tolerance: 0.1
       vel_tolerance: 0.2
-      add_land_space: -0.075
-      arms_length: 0.7
+      add_land_space: 0.0 #-0.075
+      arms_length: 1.3 #0.7
+      offset: 0.6
 
 
 planets:
   Namek:
     center: [5.0, 4.0]
-    radius: 3.0
+    radius: 2.5
     satellites: {}
-  Yardrat:
-    center: [-5.0, -4.0]
-    radius: 3.0
-    satellites: {}
+  # Yardrat:
+  #   center: [-5.0, -4.0]
+  #   radius: 1.6
+  #   satellites: {}
   Vampa:
     center: [0.0, 0.0]
     radius: 2.0
