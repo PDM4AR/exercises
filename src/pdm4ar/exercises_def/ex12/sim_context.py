@@ -30,6 +30,7 @@ __all__ = ["get_sim_contexts"]
 
 
 def commonroad_scenario_to_simcontext(
+    scenarios_dir: str,
     scenario_name: str,
     ego_player: PlayerName,
     ego_goal_lane_id: int,
@@ -48,7 +49,6 @@ def commonroad_scenario_to_simcontext(
     :param seed:
     :return:
     """
-    scenarios_dir = str(Path(__file__).parent)
     scenario, planning_problem_set = load_commonroad_scenario(scenario_name, scenarios_dir)
     players, models, missions = {}, {}, {}
 
@@ -75,7 +75,7 @@ def commonroad_scenario_to_simcontext(
         goal_progress = dglane.along_lane_from_beta(len(dglane.control_points))
         goal = RefLaneGoal(dglane, goal_progress=goal_progress)
         missions.update({p_name: goal})
-        logger.info(f"Managed to load {len(players)}")
+        # logger.info(f"Managed to load {len(players)}")
 
     sim_param = SimParameters() if sim_param is None else sim_param
 
@@ -96,7 +96,7 @@ def commonroad_scenario_to_simcontext(
     )
 
 
-def get_sim_contexts(config_dict: Mapping) -> list[SimContext]:
+def get_sim_contexts(config_dict: Mapping, scenarios_dir: str) -> list[SimContext]:
     sim_context_all = []
     seed = config_dict["seed"]
     task_level = config_dict["task_level"]
@@ -110,6 +110,7 @@ def get_sim_contexts(config_dict: Mapping) -> list[SimContext]:
             sim_time_after_collision=SimTime("1.0"),
         )
         sim_context: SimContext = commonroad_scenario_to_simcontext(
+            scenarios_dir=scenarios_dir,
             scenario_name=test_config["scenario"],
             ego_player=test_config["ego"]["original_name"],
             ego_goal_lane_id=test_config["ego"]["goal_lane_id"],
@@ -130,7 +131,8 @@ if __name__ == "__main__":
 
     config_path = Path(__file__).parent / "config_1.yaml"
     config_dict = load_config_ex12(config_path)
-    sim_contexts = get_sim_contexts(config_dict)
+    scenarios_dir = str(Path(__file__).parent)
+    sim_contexts = get_sim_contexts(config_dict, scenarios_dir)
     fig, axes = plt.subplots(len(sim_contexts), 1, figsize=(10, 10))
     axes = [axes] if len(sim_contexts) == 1 else axes
     for idx, sim_context in enumerate(sim_contexts):
