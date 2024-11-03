@@ -12,9 +12,9 @@ from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex12.perf_metrics import (
     PlayerMetrics,
     ex12_metrics,
-    HighwayScenariosPerformance,
+    HighwayTaskPerformance,
     HighwayFinalPerformance,
-    get_scenarios_performance,
+    get_task_performance,
 )
 from pdm4ar.exercises_def.ex12.sim_context import get_sim_contexts
 
@@ -48,20 +48,19 @@ def ex12_performance_aggregator(ex_out: List[PlayerMetrics]) -> HighwayFinalPerf
         else:
             # this line should not be reached
             pass
-    basic_performances = {
-        1: get_scenarios_performance(metrics_by_level[1]),
-        2: get_scenarios_performance(metrics_by_level[2]),
+    task_performances = {
+        1: get_task_performance(metrics_by_level[1]),
+        2: get_task_performance(metrics_by_level[2]),
+        3: get_task_performance(metrics_by_level[3]),
     }
-    basic_score = 0.3 * basic_performances[1].avg_score + 0.7 * basic_performances[2].avg_score
-    bonus_performances = {
-        3: get_scenarios_performance(metrics_by_level[3]),
-    }
-    bonus_score = bonus_performances[3].avg_score
+    final_score = (
+        0.4 * task_performances[1].avg_score
+        + 0.5 * task_performances[2].avg_score
+        + 0.2 * task_performances[3].avg_score
+    )
     return HighwayFinalPerformance(
-        basic_score=basic_score,
-        basic_performances=basic_performances,
-        bonus_score=bonus_score,
-        bonus_performances=bonus_performances,
+        final_score=final_score,
+        task_performances=task_performances,
     )
 
 

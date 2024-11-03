@@ -108,7 +108,7 @@ class PlayerMetrics(PerformanceResults):
 
 
 @dataclass(frozen=True)
-class HighwayScenariosPerformance(PerformanceResults):
+class HighwayTaskPerformance(PerformanceResults):
     avg_score: float = 0.0
     collision_rate: float = 0.0
     success_rate: float = 0.0
@@ -118,7 +118,7 @@ class HighwayScenariosPerformance(PerformanceResults):
     avg_velocity_penalty: float = 0.0
 
 
-def get_scenarios_performance(metrics_all: list[PlayerMetrics]) -> HighwayScenariosPerformance:
+def get_task_performance(metrics_all: list[PlayerMetrics]) -> HighwayTaskPerformance:
     avg_score = 0.0
     collision_rate = -0.0
     success_rate = 0.0
@@ -136,7 +136,7 @@ def get_scenarios_performance(metrics_all: list[PlayerMetrics]) -> HighwayScenar
         avg_heading_penalty += metrics._heading_penalty
         avg_velocity_penalty += metrics._velocity_penalty
     num_scenarios = len(metrics_all) if len(metrics_all) > 0 else 1
-    return HighwayScenariosPerformance(
+    return HighwayTaskPerformance(
         avg_score=avg_score / num_scenarios,
         collision_rate=collision_rate / num_scenarios,
         success_rate=success_rate / num_scenarios,
@@ -149,10 +149,8 @@ def get_scenarios_performance(metrics_all: list[PlayerMetrics]) -> HighwayScenar
 
 @dataclass(frozen=True)
 class HighwayFinalPerformance(PerformanceResults):
-    basic_score: float
-    basic_performances: dict[int, HighwayScenariosPerformance]
-    bonus_score: float
-    bonus_performances: dict[int, HighwayScenariosPerformance]
+    final_score: float
+    task_performances: dict[int, HighwayTaskPerformance]
 
 
 def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:

@@ -6,7 +6,7 @@ testcases:
     max_sim_time: 10.0
     ego:
       original_name: P0
-      goal_lane_id: 24
+      goal_lane_id: 26
     others:
       names: [P1, P2]
     description: "scenario1"
