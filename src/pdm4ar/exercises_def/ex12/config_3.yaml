@@ -3,7 +3,7 @@ task_level: 3
 testcases:
   -
     scenario: "USA_US101-15_2_T-1"
-    max_sim_time: 15.0
+    max_sim_time: 10.0
     ego:
       original_name: P20
       goal_lane_id: 28

@@ -199,14 +199,16 @@ def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:
             ]
         )[0]
         if len(lanelet_ids) == 0:
-            # penalized for being outside the lanelet network as driving against the traffic
-            avg_heading += np.pi
+            break
         else:
             lanelet = lanelet_network.find_lanelet_by_id(lanelet_ids[0])
             dg_lanelet = DgLanelet.from_commonroad_lanelet(lanelet)
             pose = extract_pose_from_state(state)
             dg_pose: DgLanePose = dg_lanelet.lane_pose_from_SE2_generic(pose)
-            avg_heading += abs(dg_pose.relative_heading)
+            if state.vx < 0:
+                avg_heading += np.pi
+            else:
+                avg_heading += abs(dg_pose.relative_heading)
         if max_velocity < state.vx:
             max_velocity = state.vx
         if min_velocity > state.vx:
