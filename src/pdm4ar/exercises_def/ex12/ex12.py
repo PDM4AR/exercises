@@ -55,7 +55,7 @@ def ex12_performance_aggregator(ex_out: List[PlayerMetrics]) -> HighwayFinalPerf
     }
     final_score = (
         0.4 * task_performances[1].avg_score
-        + 0.5 * task_performances[2].avg_score
+        + 0.4 * task_performances[2].avg_score
         + 0.2 * task_performances[3].avg_score
     )
     return HighwayFinalPerformance(

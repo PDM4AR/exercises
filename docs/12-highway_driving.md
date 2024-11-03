@@ -70,9 +70,9 @@ Your solution will then be used to control the ego vehicle in different maps wit
 We evaluate your planning stack in three groups of scenarios:
 - **basic scenarios**: There are at most 4 neighboring vehicles. The free space is enough to perform the lane changing. The performance of your algorithm on this type of scenarios contributes to 40% of the final points.
 
-- **dense scenarios**: There is a flow of traffic on the goal lane. You need to find the right timing to change the lane efficiently and safely. The performance of your algorithm on this type of scenarios contributes to 50% of the final points.
+- **dense scenarios**: There is a flow of traffic on the goal lane. You need to find the right timing to change the lane efficiently and safely. The performance of your algorithm on this type of scenarios contributes to 40% of the final points.
 
-- **challenging scenarios**: You almost missed a highway exit. As a remedial action, you want to merge in to the queue of exiting vehicles. Whether or not the merge is successful depends on the **reaction** of the other vehicles. Before you commit to a merging maneuver, make sure the rear vehicle will brake enough to avoid the collision. The performance of your algorithm on this type of scenarios contributes to 20% of the final points(you get the additional 10% as the bonus).
+- **challenging scenarios**: You almost missed a highway exit. As a remedial action, you want to merge in to the queue of exiting vehicles. Whether or not the merge is successful depends on the **reaction** of the other vehicles. Before you commit to a merging maneuver, make sure the rear vehicle will brake enough to avoid the collision. The performance of your algorithm on this type of scenarios contributes to 20% of the final points.
 
 Once you run a simulation a report containing the performance metrics and a visualisation of the episode (make sure to click on the _data_nodes_ tab to see the animations) is generated.
 
