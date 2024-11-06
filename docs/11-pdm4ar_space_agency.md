@@ -23,20 +23,21 @@ simulator).
 
 Your agent will be tested in three different scenarios:
 
-1. **Scenario 1: Dodging Planets with a Static Goal**
+1. **Scenario 1: Dodging Planets with Landing Goal**
     - In this scenario, the spacecraft needs to avoid planets while trying to land in a fixed final goal, $X_1$. 
 
-   ![Planets Image](https://github.com/PDM4AR/exercises/assets/91316303/b8afdb04-2f5a-4236-bde7-09b26dcdfa4e)
+   ![Planets Image](https://github.com/PDM4AR/exercises/img/example1.png)
+
 
 2. **Scenario 2: Dodging a Planet and Its Satellites with a Static Goal**
-    - The spacecraft must navigate around a planet with multiple moving satellites to land in a fixed final goal, $X_1$.
+    - The spacecraft must navigate around a planet with multiple moving satellites to reach a certain fixed position, $X_1$.
 
-   ![Satellites Image](https://github.com/PDM4AR/exercises/assets/91316303/395d0a10-98ee-4a56-9cd3-7ce004c91bb5)
+   ![Satellites Image](https://github.com/PDM4AR/exercises/img/example2.png)
 
-3. **Scenario 3: Dodging a Planet and Its Satellites with a Time Varying Goal**
-    - Similar to Scenario 2, but the final goal is linked with one of the satellites.
+3. **Scenario 3: Dodging a Planet and Its Satellites with a Landing Goal**
+    - Similar to Scenario 2, but the final goal must be reached by landing.
 
-   ![Mov Satellites Image](https://github.com/PDM4AR/exercises/assets/91316303/e775ad18-aa5e-4a83-bf16-b93aeff6c6b0)
+   ![Mov Satellites Image](https://github.com/PDM4AR/exercises/img/example3.png)
 
 ## Rocket dynamics
 
@@ -44,8 +45,8 @@ Your planner is specifically designed to navigate the rocket past obstacles whil
 The rocket's dynamics are represented by the following equations:
 
 1. **Position Dynamics:**
-    - $\frac{dx}{dt} = v_x$
-    - $\frac{dy}{dt} = v_y$
+    - $\frac{dx}{dt} = v_x cos(\psi) - v_y sin(\psi)$
+    - $\frac{dy}{dt} = v_x sin (\psi) + v_y cos(\psi)$
 
 2. **Orientation Dynamics:**
     - $\frac{d\psi}{dt} = \dot{\psi}$
@@ -54,23 +55,23 @@ The rocket's dynamics are represented by the following equations:
     - $\frac{dm}{dt} = -C_T * F_{thrust}$
 
 4. **Velocity Dynamics:**
-    - $\frac{dv_x}{dt} = \frac{1}{m} cos(\phi+\psi)F_{thrust}$
-    - $\frac{dv_y}{dt} = \frac{1}{m}sin(\phi+\psi)F_{thrust}$
+    - $\frac{dv_x}{dt} = \frac{1}{m} cos(\delta)F_{thrust} + \dot{\psi} v_y$
+    - $\frac{dv_y}{dt} = \frac{1}{m}sin(\delta)F_{thrust} - \dot{\psi} v_x$
 
 5. **Angular Velocity Dynamics:**
-    - $\frac{d\dot{\psi}}{dt} = \frac{l_r}{I_Z}sin(\phi)F_{thrust}$
-    - $\frac{d\phi}{dt} = \dot{\phi}$
+    - $\frac{d\dot{\psi}}{dt} = \- frac{l_r}{I}sin(\delta)F_{thrust}$
+    - $\frac{d\psi}{dt} = v_{\delta}$
 
-If the spacecraft's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}, \phi, m]'$, and the control inputs 
-are $U = [F_{thrust}, \dot{\phi}]$, we obtain the following dynamics equations:
+If the spacecraft's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}, \delta, m]'$, and the control inputs 
+are $U = [F_{thrust}, \dot{\delta}]$, we obtain the following dynamics equations:
 
 6. **Dynamics:**
     - $\frac{dX(t)}{dt} = f(X(t), U(t))$
 
 The rocket you have the control over has one central thruster where you are able to control the amount of thrust to
-produce $F_{thrust}$ and the angle of the thruster with respect to the rocket $\phi$. The thruster is mounted centrally on the rocket
+produce $F_{thrust}$ and the angle of the thruster with respect to the rocket $\delta$. The thruster is mounted centrally on the rocket
 with an offset of $l_r$ to the CoG of the rocket. The velocity $v_x$ and $v_y$ are the velocities in the x and y
-direction of the world frame respectively. The angle $\psi$ is the angle of the rocket with respect to the x-axis. The length of the rocket is $l$.
+direction of the rocket frame respectively. The angle $\psi$ is the angle of the rocket with respect to the x-axis. The length of the rocket is $l$.
 
 ![Rocket Dynamics](https://github.com/PDM4AR/exercises/assets/91316303/86052460-b0d7-4436-b4fa-6d12e913f931)
 
@@ -91,9 +92,9 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
   \quad \forall Obstacle \in Obstacles$
 - The spacecraft's mass should be greater than or equal to the mass of the spacecraft without fuel: $m(t) \geq m_
   {spacecraft} \quad \forall t$
-- Control inputs, $F_l$ and $F_r$, are limited: $F_l, F_r \in [0, F_{\text{max}}]$.
-- The thrust angle is limited and coupled between the two lateral thrusters: $\phi_l=\phi_r=\phi
-  \in [-\phi_{\text{max}}, \phi_{\text{max}}]$.
+- Control inputs, $F_{thrust}$ is limited: $F_{thrust} \in [-F_{\text{max}}, F_{\text{max}}]$.
+- The thrust angle is limited: $\delta
+  \in [-\delta_{\text{max}}, \delta_{\text{max}}]$.
 - You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
 - The rate of change of $\phi$ is limited: $v_\phi \in [-v^{max}_ϕ ,v^{max}_ϕ ]$
 
@@ -116,9 +117,9 @@ You can verify more precisely the function computing the final score in  `src/pd
 
 The various data structures needed for the development of the exercise can be inspected in the following files:
 
-- RocketState & RocketCommands: `dg_commons/sim/models/rocket.py`
-- RocketGeometry & RocketParameters: `dg_commons/sim/models/rocket_structures.py`
-- SatelliteParams & PlanetParams: `src/pdm4ar/exercises_def/ex09/utils_params.py`
+- SpaceshipState & SpaceshipCommands: `dg_commons/sim/models/spaceship.py`
+- SpaceshipGeometry & SpaceshipParameters: `dg_commons/sim/models/spaceship_structure.py`
+- SatelliteParams & PlanetParams: `src/pdm4ar/exercises_def/ex11/utils_params.py`
 
 ## Code Structure
 
@@ -143,6 +144,8 @@ and [A Real-Time Algorithm  for Non-Convex Powered Descent Guidance](https://dep
 
 <!-- In the paper "A Real-Time Algorithm for Non-Convex Powered Descent Guidance" (https://depts.washington.edu/uwrainlab/wordpress/wp-content/uploads/2020/01/AIAA_SciTech_2020.pdf), you will find the use of \textit{Scaling Matrices} to scale states, inputs and parameters to produce numerically well-conditioned optimization problems. Our solution implementation only made use of scaling the parameters, not touching on states and inputs, and converged reliably. We recommend to use the same approach and  only introducing the normalization of states and inputs if you are facing numerical issues. -->
 
+In addition, the docker goal class has a method to return notable points. Try to think how you can use them to create a valid constraints. (We suggest to activate the landing constraints only on the final [5-7] steps).
+
 As a general and final advice try to understand the method **before** starting to code.
 
 ## Available Optimization Tools
@@ -150,5 +153,5 @@ As a general and final advice try to understand the method **before** starting t
 If your solution needs to solve an optimization problem, we have added powerful libraries in the container to solve
 optimization problems. For instance, scipy.optimize, PuLP, cvxpy and cvxopt. We tested cvxpy with "ECOS" and "MOSEK" as
 solvers for our SCvx pipeline. If you want to use other optimizers or you are not using SCvx to solve the problem,
-please consider that we have not tested it.
+**please consider that we have not tested it**.
 
