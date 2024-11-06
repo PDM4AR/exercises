@@ -70,11 +70,12 @@ class DockingTarget(SpaceshipTarget):
     add_land_space: float
     # length of the arms
     arms_length: float
+    offset: float
 
     @cached_property
     def _plottable_geometry(self) -> Polygon:
         # the real offset y must be the distance cog and thruster end
-        offset_y = 0.3
+        offset_y = self.offset
 
         # define the landing base starting and ending points
         line_dock_x_start = (
@@ -122,7 +123,7 @@ class DockingTarget(SpaceshipTarget):
         return combined_polygon
 
     def get_landing_base(self):
-        offset_y = 0.3
+        offset_y = self.offset
 
         line_dock_x_start = (
             self.target.x
@@ -175,8 +176,10 @@ class DockingTarget(SpaceshipTarget):
 
         C = np.array([t1_x, t1_y])
         B = np.array([t2_x, t2_y])
+        A1 = np.array([line_dock_x_start, line_dock_y_start])
+        A2 = np.array([line_dock_x_end, line_dock_y_end])
 
-        return A, B, C, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
+        return A, B, C, A1, A2, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
 
 
 @dataclass(frozen=True)
