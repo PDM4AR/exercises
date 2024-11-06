@@ -40,13 +40,9 @@ def _ex11_vis(sim_context: SimContext) -> Report:
     r = Report("EpisodeVisualisation")
     gif_viz = r.figure(cols=1)
     with gif_viz.data_file("Animation", MIME_MP4) as fn:
-        create_animation(file_path=fn,
-                         sim_context=sim_context,
-                         figsize=(16, 16),
-                         dt=50,
-                         dpi=120,
-                         plot_limits=[[-12, 12], [-12, 12]]
-                         )
+        create_animation(
+            file_path=fn, sim_context=sim_context, figsize=(16, 16), dt=50, dpi=120, plot_limits=[[-12, 27], [-12, 12]]
+        )
     return r
 
 
@@ -58,7 +54,7 @@ def load_config_ex11(file_path: Path) -> Mapping:
 
 def get_exercise11():
     config_dir = Path(__file__).parent
-    configs = ["config_planet.yaml", "config_satellites.yaml", "config_mov_target.yaml"]
+    configs = ["config_planet.yaml", "config_satellites.yaml", "config_satellites_diff.yaml"]
 
     test_values: List[SimContext] = []
     for c in configs:
