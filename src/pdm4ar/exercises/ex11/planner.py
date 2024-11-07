@@ -1,6 +1,5 @@
 import numpy as np
 import cvxpy as cvx
-from pdm4ar.exercises.ex11 import spaceship
 import sympy as spy
 from dataclasses import dataclass, field
 
@@ -10,12 +9,28 @@ from dg_commons import PlayerName
 from dg_commons.seq import DgSampledSequence
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
-from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
+from dg_commons.sim.models.spaceship_structures import (
+    SpaceshipGeometry,
+    SpaceshipParameters,
+)
 
 from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
 
 from pdm4ar.exercises.ex11.spaceship import Spaceship
-from pdm4ar.exercises.ex11.discretization import DiscretizationMethod, FirstOrderHold, ZeroOrderHold
+from pdm4ar.exercises.ex11.discretization import (
+    DiscretizationMethod,
+    FirstOrderHold,
+    ZeroOrderHold,
+)
+
+import math
+from dg_commons.sim.goals import PlanningGoal
+from pdm4ar.exercises_def.ex11.goal import (
+    SpaceshipTarget,
+    SatelliteTarget,
+    DockingTarget,
+)
+
 
 @dataclass(frozen=True)
 class SolverParameters:
@@ -23,28 +38,29 @@ class SolverParameters:
     Definition space for SCvx parameters in case SCvx algorithm is used.
     Parameters can be fine-tuned by the user.
     """
+
     # Cvxpy solver parameters
-    solver: str = 'ECOS'                                           # specify solver to use
-    verbose_solver: bool = False                                    # if True, the optimization steps are shown
-    max_iterations: int = 100                                       # max algorithm iterations
+    solver: str = "ECOS"  # specify solver to use
+    verbose_solver: bool = False  # if True, the optimization steps are shown
+    max_iterations: int = 200  # max algorithm iterations
 
     # SCVX parameters (Add paper reference)
-    lambda_nu: float = 1e5                                          # slack variable weight
-    weight_p: NDArray = field(default_factory=lambda: 10*np.array([[1.0]]).reshape((1, -1))) # weight for final time
+    lambda_nu: float = 1e5  # slack variable weight
+    weight_p: NDArray = field(default_factory=lambda: 10 * np.array([[1.0]]).reshape((1, -1)))  # weight for final time
 
-    tr_radius: float = 5                                            # initial trust region radius
-    min_tr_radius: float = 1e-4                                     # min trust region radius
-    max_tr_radius: float = 100                                      # max trust region radius
-    rho_0: float = 0.0                                              # trust region 0
-    rho_1: float = 0.25                                             # trust region 1
-    rho_2: float = 0.9                                              # trust region 2
-    alpha: float = 2.0                                              # div factor trust region update
-    beta: float = 3.2                                               # mult factor trust region update
+    tr_radius: float = 5  # initial trust region radius
+    min_tr_radius: float = 1e-4  # min trust region radius
+    max_tr_radius: float = 100  # max trust region radius
+    rho_0: float = 0.0  # trust region 0
+    rho_1: float = 0.25  # trust region 1
+    rho_2: float = 0.9  # trust region 2
+    alpha: float = 2.0  # div factor trust region update
+    beta: float = 3.2  # mult factor trust region update
 
     # Discretization constants
-    K: int = 50                                                     # number of discretization steps 
-    N_sub: int = 5                                                  # used inside ode solver inside discretization
-    stop_crit: float = 1e-5                                         # Stopping criteria constant
+    K: int = 50  # number of discretization steps
+    N_sub: int = 5  # used inside ode solver inside discretization
+    stop_crit: float = 1e-5  # Stopping criteria constant
 
 
 class SpaceshipPlanner:
@@ -72,6 +88,11 @@ class SpaceshipPlanner:
     U_bar: NDArray
     p_bar: NDArray
 
+    Al: NDArray
+    bl: NDArray
+
+    dock: bool
+
     def __init__(
         self,
         planets: dict[PlayerName, PlanetParams],
@@ -90,11 +111,20 @@ class SpaceshipPlanner:
         # Solver Parameters
         self.params = SolverParameters()
 
+        # Tunable Parameters
+        self.toggle_params = ToggleParams()
+
         # Spaceship Dynamics
         self.spaceship = Spaceship(self.sg, self.sp)
 
+        self.n_x = self.spaceship.n_x
+        self.n_u = self.spaceship.n_u
+        self.n_p = self.spaceship.n_p
+
+        self.dock = False
+
         # Discretization Method
-        # self.integrator = ZeroOrderHold(self.spaceship, self.params.K, self.params.N_sub)
+        # self.integrator = ZeroOrderHold(self.Spaceship, self.params.K, self.params.N_sub)
         self.integrator = FirstOrderHold(self.spaceship, self.params.K, self.params.N_sub)
 
         # Variables
@@ -102,9 +132,6 @@ class SpaceshipPlanner:
 
         # Problem Parameters
         self.problem_parameters = self._get_problem_parameters()
-
-        # Initial Guess
-        self.X_bar, self.U_bar, self.p_bar = self.intial_guess()
 
         # Constraints
         constraints = self._get_constraints()
@@ -116,13 +143,13 @@ class SpaceshipPlanner:
         self.problem = cvx.Problem(objective, constraints)
 
     def compute_trajectory(
-        self, init_state: SpaceshipState, goal_state: DynObstacleState
+        self, init_state: SpaceshipState, goal: PlanningGoal
     ) -> tuple[DgSampledSequence[SpaceshipCommands], DgSampledSequence[SpaceshipState]]:
         """
         Compute a trajectory from init_state to goal_state.
         """
         self.init_state = init_state
-        self.goal_state = goal_state
+        self.goal_state = goal
 
         #
         # TODO: Implement SCvx algorithm or comparable
@@ -139,15 +166,15 @@ class SpaceshipPlanner:
 
         return mycmds, mystates
 
-    def intial_guess(self) -> tuple[NDArray, NDArray, NDArray]:
+    def intial_guess(self, start, goal) -> tuple[NDArray, NDArray, NDArray]:
         """
         Define initial guess for SCvx.
         """
         K = self.params.K
-
-        X = np.zeros((self.spaceship.n_x, K))
-        U = np.zeros((self.spaceship.n_u, K))
-        p = np.zeros((self.spaceship.n_p))
+        print("n_u ", self.n_u)
+        X = np.zeros((self.n_x, K))
+        U = np.zeros((self.n_u, K))
+        p = np.zeros((self.n_p))
 
         return X, U, p
 
@@ -163,9 +190,9 @@ class SpaceshipPlanner:
         Define optimisation variables for SCvx.
         """
         variables = {
-            "X": cvx.Variable((self.spaceship.n_x, self.params.K)),
-            "U": cvx.Variable((self.spaceship.n_u, self.params.K)),
-            "p": cvx.Variable(self.spaceship.n_p),
+            "X": cvx.Variable((self.n_x, self.params.K)),
+            "U": cvx.Variable((self.n_u, self.params.K)),
+            "p": cvx.Variable(self.n_p),
         }
 
         return variables
@@ -174,10 +201,11 @@ class SpaceshipPlanner:
         """
         Define problem parameters for SCvx.
         """
-        problem_parameters = {
-            "init_state": cvx.Parameter(self.spaceship.n_x)
+        roblem_parameters = {
+            "init_state": cvx.Parameter(self.n_x)
             # ...
         }
+
         return problem_parameters
 
     def _get_constraints(self) -> list[cvx.constraints]:
@@ -185,7 +213,7 @@ class SpaceshipPlanner:
         Define constraints for SCvx.
         """
         constraints = [
-            self.variables['X'][:, 0] == self.problem_parameters['init_state'],
+            self.variables["X"][:, 0] == self.problem_parameters["init_state"],
             # ...
         ]
         return constraints
@@ -195,7 +223,7 @@ class SpaceshipPlanner:
         Define objective for SCvx.
         """
         # Example objective
-        objective =  self.params.weight_p@self.variables['p']
+        objective = self.params.weight_p @ self.variables["p"]
 
         return cvx.Minimize(objective)
 
@@ -207,18 +235,21 @@ class SpaceshipPlanner:
         # ZOH
         # A_bar, B_bar, F_bar, r_bar = self.integrator.calculate_discretization(self.X_bar, self.U_bar, self.p_bar)
         # FOH
-        A_bar, B_plus_bar, B_minus_bar, F_bar, r_bar = self.integrator.calculate_discretization(self.X_bar, self.U_bar, self.p_bar)
+        A_bar, B_plus_bar, B_minus_bar, F_bar, r_bar = self.integrator.calculate_discretization(
+            self.X_bar, self.U_bar, self.p_bar
+        )
 
-        self.problem_parameters['init_state'].value = self.X_bar[:, 0]
+        self.problem_parameters["init_state"].value = self.X_bar[:, 0]
         # ...
 
     def _check_convergence(self) -> bool:
         """
         Check convergence of SCvx.
         """
+
         pass
 
-    def _update_trust_region(self) -> float:
+    def _update_trust_region(self):
         """
         Update trust region radius.
         """
@@ -229,11 +260,11 @@ class SpaceshipPlanner:
         """
         Example of how to create a DgSampledSequence from numpy arrays and timestamps.
         """
-        ts = (0, 1, 2, 3, 4, 5)
+        ts = (0, 1, 2, 3, 4)
         # in case my planner returns 3 numpy arrays
-        thrust = np.array([0, 1, 2, 3, 4, 0])
-        ddelta = np.array([0, -5, 5, 5, -5, 0])
-        cmds_list = [SpaceshipCommands(thrust, ddelta) for thrust, ddelta in zip(thrust, ddelta)]
+        F = np.array([0, 1, 2, 3, 4])
+        ddelta = np.array([0, 0, 0, 0, 0])
+        cmds_list = [SpaceshipCommands(f, dd) for f, dd in zip(F, ddelta)]
         mycmds = DgSampledSequence[SpaceshipCommands](timestamps=ts, values=cmds_list)
 
         # in case my state trajectory is in a 2d array

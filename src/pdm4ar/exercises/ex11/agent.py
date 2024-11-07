@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from re import S
 from typing import Sequence
 import numpy as np
+from IPython import embed
 
 from dg_commons import DgSampledSequence, PlayerName
 from dg_commons.sim import SimObservations, InitSimObservations
@@ -14,14 +15,16 @@ from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, Spaces
 
 from pdm4ar.exercises.ex11.planner import SpaceshipPlanner
 from pdm4ar.exercises.ex11.spaceship import Spaceship
-from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget, DockingTarget
 from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
+
 
 @dataclass(frozen=True)
 class Pdm4arAgentParams:
     """
     Definition space for additional agent parameters.
     """
+
     pos_tol: 0.5
     dir_tol: 0.5
     vel_tol: 1.0
@@ -33,6 +36,7 @@ class SpaceshipAgent(Agent):
     Do *NOT* modify this class name
     Do *NOT* modify the naming of the existing methods and input/output types.
     """
+
     init_state: SpaceshipState
     satellites: dict[PlayerName, SatelliteParams]
     planets: dict[PlayerName, PlanetParams]
@@ -72,17 +76,14 @@ class SpaceshipAgent(Agent):
         self.sp = init_sim_obs.model_params
         self.planner = SpaceshipPlanner(planets=self.planets, satellites=self.satellites, sg=self.sg, sp=self.sp)
 
-        # Get goal from Targets (either moving (SatelliteTarget) or static (SpaceshipTarget))
-        if isinstance(init_sim_obs.goal, SatelliteTarget):
+        if isinstance(init_sim_obs.goal, SpaceshipTarget):
             self.goal_state = init_sim_obs.goal.get_target_state_at(0.0)
-        elif isinstance(init_sim_obs.goal, SpaceshipTarget):
-            self.goal_state = init_sim_obs.goal.target
 
         #
         # TODO: Implement Compute Trajectory
         #
 
-        self.cmds_plan, self.state_traj = self.planner.compute_trajectory(self.init_state, self.goal_state)        
+        self.cmds_plan, self.state_traj = self.planner.compute_trajectory(self.init_state, self.goal_state)
 
     def get_commands(self, sim_obs: SimObservations) -> SpaceshipCommands:
         """
@@ -97,8 +98,8 @@ class SpaceshipAgent(Agent):
         #
 
         # ZeroOrderHold
-        cmds = self.cmds_plan.at_or_previous(sim_obs.time)
+        # cmds = self.cmds_plan.at_or_previous(sim_obs.time)
         # FirstOrderHold
-        # cmds = self.cmds_plan.at_interp(sim_obs.time)
+        cmds = self.cmds_plan.at_interp(sim_obs.time)
 
         return cmds
