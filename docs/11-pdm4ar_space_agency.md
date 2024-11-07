@@ -72,8 +72,9 @@ The rocket you have the control over has one central thruster where you are able
 produce $F_{thrust}$ and the angle of the thruster with respect to the rocket $\delta$. The thruster is mounted centrally on the rocket
 with an offset of $l_r$ to the CoG of the rocket. The velocity $v_x$ and $v_y$ are the velocities in the x and y
 direction of the rocket frame respectively. The angle $\psi$ is the angle of the rocket with respect to the x-axis. The length of the rocket is $l$.
+377128230-92d9b410-3804-42fb-8a2c-952b3a3a20b6
 
-![Rocket Dynamics](https://github.com/PDM4AR/exercises/assets/91316303/86052460-b0d7-4436-b4fa-6d12e913f931)
+![Rocket Dynamics](https://github.com/PDM4AR/exercises/img/spaceship.png)
 
 ## Constraints
 
