@@ -1,11 +1,9 @@
-from re import S
 import sympy as spy
 
 from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
 
-class Spaceship:
-
+class SpaceshipDyn:
     sg: SpaceshipGeometry
     sp: SpaceshipParameters
 
@@ -23,17 +21,16 @@ class Spaceship:
     F: spy.Function
 
     def __init__(self, sg: SpaceshipGeometry, sp: SpaceshipParameters):
-
         self.sg = sg
         self.sp = sp
 
         self.x = spy.Matrix(spy.symbols("x y psi vx vy ddelta delta m", real=True))  # states
         self.u = spy.Matrix(spy.symbols("thrust ddelta", real=True))  # inputs
-        self.p = spy.Matrix([spy.symbols('t_f', positive=True)])                            # final time    
+        self.p = spy.Matrix([spy.symbols('t_f', positive=True)])  # final time
 
-        self.n_x = self.x.shape[0]                                                          # number of states                                        
-        self.n_u = self.u.shape[0]                                                          # number of inputs
-        self.n_p = self.p.shape[0]     
+        self.n_x = self.x.shape[0]  # number of states
+        self.n_u = self.u.shape[0]  # number of inputs
+        self.n_p = self.p.shape[0]
 
     def get_dynamics(self) -> tuple[spy.Function, spy.Function, spy.Function, spy.Function]:
         """

@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from re import S
 from typing import Sequence
-import numpy as np
 
 from dg_commons import DgSampledSequence, PlayerName
 from dg_commons.sim import SimObservations, InitSimObservations
@@ -13,18 +11,16 @@ from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
 from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
 from pdm4ar.exercises.ex11.planner import SpaceshipPlanner
-from pdm4ar.exercises.ex11.spaceship import Spaceship
 from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget
 from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
 
+
 @dataclass(frozen=True)
-class Pdm4arAgentParams:
+class MyAgentParams:
     """
-    Definition space for additional agent parameters.
+    You can for example define some agent parameters.
     """
-    pos_tol: 0.5
-    dir_tol: 0.5
-    vel_tol: 1.0
+    my_tol: float = 0.1
 
 
 class SpaceshipAgent(Agent):
@@ -48,14 +44,14 @@ class SpaceshipAgent(Agent):
     sp: SpaceshipParameters
 
     def __init__(
-        self,
-        init_state: SpaceshipState,
-        satellites: dict[PlayerName, SatelliteParams],
-        planets: dict[PlayerName, PlanetParams],
+            self,
+            init_state: SpaceshipState,
+            satellites: dict[PlayerName, SatelliteParams],
+            planets: dict[PlayerName, PlanetParams],
     ):
         """
         Initializes the agent.
-        This method is called by the simulator only at the beginning of each simulation.
+        This method is called by the simulator only before the beginning of each simulation.
         Provides the SpaceshipAgent with information about its environment, i.e. planet and satellite parameters and its initial position.
         """
         self.init_state = init_state
@@ -65,7 +61,9 @@ class SpaceshipAgent(Agent):
     def on_episode_init(self, init_sim_obs: InitSimObservations):
         """
         This method is called by the simulator only at the beginning of each simulation.
-        Feel free to add additional methods, objects and functions that help you to solve the task
+        We suggest to compute here an initial trajectory/node graph/path, used by your planner to navigate the environment.
+
+        Do **not** modify the signature of this method.
         """
         self.myname = init_sim_obs.my_name
         self.sg = init_sim_obs.model_geometry
@@ -79,15 +77,21 @@ class SpaceshipAgent(Agent):
             self.goal_state = init_sim_obs.goal.target
 
         #
-        # TODO: Implement Compute Trajectory
+        # TODO: Implement Compute Initial Trajectory
         #
 
-        self.cmds_plan, self.state_traj = self.planner.compute_trajectory(self.init_state, self.goal_state)        
+        self.cmds_plan, self.state_traj = self.planner.compute_trajectory(self.init_state, self.goal_state)
 
     def get_commands(self, sim_obs: SimObservations) -> SpaceshipCommands:
         """
-        This is called by the simulator at every time step. (0.1 sec)
-        Do not modify the signature of this method.
+        This method is called by the simulator at every simulation time step. (0.1 sec)
+        We suggest to perform two tasks here:
+         - Track the computed trajectory (open or closed loop)
+         - Plan a new trajectory if necessary
+         (e.g., our tracking is deviating from the desired trajectory, the obstacles are moving, etc.)
+
+
+        Do **not** modify the signature of this method.
         """
         current_state = sim_obs.players[self.myname].state
         expected_state = self.state_traj.at_interp(sim_obs.time)
