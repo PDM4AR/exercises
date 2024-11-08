@@ -46,6 +46,8 @@ def _ex11_vis(sim_context: SimContext) -> Report:
         )
     # state/commands plots
     for pn in sim_context.log.keys():
+        if 'PDM4AR' not in pn:
+            continue
         with r.subsection(f"Player-{pn}-log") as sub:
             with sub.plot(f"{pn}-log", figsize=(20, 15)) as pylab:
                 plot_player_log(log=sim_context.log[pn], fig=pylab.gcf())
@@ -69,7 +71,7 @@ def get_exercise11():
         test_values.append(sim_context)
 
     return Exercise[SimContext, None](
-        desc="PDM4ASpaceship(ex11)",
+        desc="PDM4ARSpaceship(ex11)",
         evaluation_fun=ex11_evaluation,
         perf_aggregator=lambda x: ex11_performance_aggregator(x),
         test_values=test_values,
