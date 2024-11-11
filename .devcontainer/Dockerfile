@@ -39,11 +39,11 @@ ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 USER vscode
 
 
-# Install Suite sparse for arm64 to be used by cvxopt
-RUN mkdir SuiteSparse \
-   && curl -fsSL https://api.github.com/repos/DrTimothyAldenDavis/SuiteSparse/tarball/v5.8.1 \
-    | tar xzvpf - --no-same-owner --strip-components=1 -C SuiteSparse
-ENV CVXOPT_SUITESPARSE_SRC_DIR=${WORKDIR_PATH}/SuiteSparse
+## Install Suite sparse for arm64 to be used by cvxopt
+#RUN mkdir SuiteSparse \
+#   && curl -fsSL https://api.github.com/repos/DrTimothyAldenDavis/SuiteSparse/tarball/v5.8.1 \
+#    | tar xzvpf - --no-same-owner --strip-components=1 -C SuiteSparse
+#ENV CVXOPT_SUITESPARSE_SRC_DIR=${WORKDIR_PATH}/SuiteSparse
 
 # Install poetry
 RUN pipx install poetry==${POETRY_VERSION}
