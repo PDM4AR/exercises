@@ -5,6 +5,7 @@ from typing import Tuple, List, Mapping
 import numpy as np
 import yaml
 from dg_commons import fd
+from dg_commons.sim.log_visualisation import plot_player_log
 from dg_commons.sim.simulator import SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from dg_commons.sim.utils import run_simulation
@@ -43,6 +44,13 @@ def _ex11_vis(sim_context: SimContext) -> Report:
         create_animation(
             file_path=fn, sim_context=sim_context, figsize=(16, 16), dt=50, dpi=120, plot_limits=[[-12, 27], [-12, 12]]
         )
+    # state/commands plots
+    for pn in sim_context.log.keys():
+        if 'PDM4AR' not in pn:
+            continue
+        with r.subsection(f"Player-{pn}-log") as sub:
+            with sub.plot(f"{pn}-log", figsize=(20, 15)) as pylab:
+                plot_player_log(log=sim_context.log[pn], fig=pylab.gcf())
     return r
 
 
@@ -63,7 +71,7 @@ def get_exercise11():
         test_values.append(sim_context)
 
     return Exercise[SimContext, None](
-        desc="PDM4ASpaceship(ex11)",
+        desc="PDM4ARSpaceship(ex11)",
         evaluation_fun=ex11_evaluation,
         perf_aggregator=lambda x: ex11_performance_aggregator(x),
         test_values=test_values,

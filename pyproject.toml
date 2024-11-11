@@ -41,11 +41,11 @@ typing_extensions = "*"
 decorator = "*"
 
 # dg
-# dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar2024/fix-arm64" }
+dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar2024/fix-arm64" }
 # dg-commonroad-drivability-checker = "2024.1"
 
 # dg
-dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar/2024_rocket_new_dynamics" }
+#dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar/2024_rocket_new_dynamics" }
 dg-commonroad-drivability-checker = "2024.1"
 
 # mpc
@@ -55,7 +55,6 @@ do-mpc = "4.6.5"
 scipy = "1.14.0"
 pulp = ">=2.7.0"
 cvxpy = { version = "1.5.3", extras = ["CVXOPT", "CBC", ] }
-# CVXOPT "1.3.2" NOT BUILDING ON ARM64
 casadi = "3.6.5"
 sympy = "1.13.0"
 

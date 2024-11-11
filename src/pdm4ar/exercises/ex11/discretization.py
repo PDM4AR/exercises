@@ -1,21 +1,17 @@
 import numpy as np
-from pdm4ar.exercises.ex11 import spaceship
 import sympy as spy
+from numpy.typing import NDArray
 from scipy.integrate import odeint
 
-from typing import Any
-from numpy.typing import NDArray
-
-from pdm4ar.exercises.ex11.spaceship import Spaceship
+from pdm4ar.exercises.ex11.spaceship import SpaceshipDyn
 
 
 class DiscretizationMethod:
-
     K: int  # number of discretization points
     N_sub: int  # number of substeps to approximate the ode
     range_t: tuple  # range of discretization points
 
-    spaceship: Spaceship
+    spaceship: SpaceshipDyn
 
     n_x: int
     n_u: int
@@ -26,8 +22,7 @@ class DiscretizationMethod:
     B: spy.Function
     F: spy.Function
 
-    def __init__(self, spaceship: Spaceship, K: int, N_sub: int):
-
+    def __init__(self, spaceship: SpaceshipDyn, K: int, N_sub: int):
         # number of discretization points
         self.K = K
 
@@ -50,7 +45,6 @@ class DiscretizationMethod:
 
 
 class ZeroOrderHold(DiscretizationMethod):
-
     A_bar: NDArray
     B_bar: NDArray
     F_bar: NDArray
@@ -64,7 +58,7 @@ class ZeroOrderHold(DiscretizationMethod):
 
     P0: NDArray
 
-    def __init__(self, spaceship: Spaceship, K: int, N_sub: int):
+    def __init__(self, spaceship: SpaceshipDyn, K: int, N_sub: int):
 
         super().__init__(spaceship, K, N_sub)
 
@@ -102,12 +96,15 @@ class ZeroOrderHold(DiscretizationMethod):
 
         for k in range(self.K - 1):
             self.P0[self.x_ind] = X[:, k]
-            P = np.array(odeint(self._ode_dPdt, self.P0, self.range_t, args=(U[:, k], p))[-1, :])
+            P = np.array(odeint(self._ode_dPdt,
+                                self.P0,
+                                self.range_t,
+                                args=(U[:, k], p))[-1, :])
 
             Phi = P[self.A_bar_ind].reshape((self.n_x, self.n_x))
-            self.A_bar[:, k] = Phi.flatten(order="F")
-            self.B_bar[:, k] = (Phi @ P[self.B_bar_ind].reshape((self.n_x, self.n_u))).flatten(order="F")
-            self.F_bar[:, k] = (Phi @ P[self.F_bar_ind]).reshape((self.n_x, self.n_p)).flatten(order="F")
+            self.A_bar[:, k] = Phi.flatten(order='F')
+            self.B_bar[:, k] = (Phi @ P[self.B_bar_ind].reshape((self.n_x, self.n_u))).flatten(order='F')
+            self.F_bar[:, k] = (Phi @ P[self.F_bar_ind]).reshape((self.n_x, self.n_p)).flatten(order='F')
             self.r_bar[:, k] = Phi @ P[self.r_bar_ind]
 
         return self.A_bar, self.B_bar, self.F_bar, self.r_bar
@@ -149,7 +146,10 @@ class ZeroOrderHold(DiscretizationMethod):
         X_nl[:, 0] = X_l[:, 0]
 
         for k in range(self.K - 1):
-            X_nl[:, k + 1] = odeint(self._dxdt, X_l[:, k], self.range_t, args=(U[:, k], p))[-1, :]
+            X_nl[:, k + 1] = odeint(self._dxdt,
+                                    X_l[:, k],
+                                    self.range_t,
+                                    args=(U[:, k], p))[-1, :]
 
         return X_nl
 
@@ -167,7 +167,10 @@ class ZeroOrderHold(DiscretizationMethod):
         X_nl[:, 0] = x0
 
         for k in range(self.K - 1):
-            X_nl[:, k + 1] = odeint(self._dxdt, X_nl[:, k], self.range_t, args=(U[:, k], p))[-1, :]
+            X_nl[:, k + 1] = odeint(self._dxdt,
+                                    X_nl[:, k],
+                                    self.range_t,
+                                    args=(U[:, k], p))[-1, :]
 
         return X_nl
 
@@ -187,9 +190,12 @@ class ZeroOrderHold(DiscretizationMethod):
         X_nl_dense[:, 0] = x0
 
         for k in range(U.shape[1] - 1):
-            x = odeint(self._dxdt, X_nl[:, k], self.range_t, args=(U[:, k], p))
+            x = odeint(self._dxdt,
+                       X_nl[:, k],
+                       self.range_t,
+                       args=(U[:, k], p))
             X_nl[:, k + 1] = x[-1, :]
-            X_nl_dense[:, k * (self.N_sub - 1) + 1 : (k + 1) * (self.N_sub - 1) + 1] = np.array(x)[1:, :].T
+            X_nl_dense[:, k * (self.N_sub - 1) + 1:(k + 1) * (self.N_sub - 1) + 1] = np.array(x)[1:, :].T
 
         return X_nl_dense
 
@@ -198,7 +204,6 @@ class ZeroOrderHold(DiscretizationMethod):
 
 
 class FirstOrderHold(DiscretizationMethod):
-
     A_bar: NDArray
     B_plus_bar: NDArray
     B_minus_bar: NDArray
@@ -214,7 +219,7 @@ class FirstOrderHold(DiscretizationMethod):
 
     P0: NDArray
 
-    def __init__(self, spaceship: Spaceship, K: int, N_sub: int):
+    def __init__(self, spaceship: SpaceshipDyn, K: int, N_sub: int):
 
         super().__init__(spaceship, K, N_sub)
 
@@ -243,9 +248,8 @@ class FirstOrderHold(DiscretizationMethod):
         self.P0 = np.zeros((self.n_x * (1 + self.n_x + self.n_u + self.n_u + self.n_p + 1),))
         self.P0[self.A_bar_ind] = np.eye(self.n_x).reshape(-1)
 
-    def calculate_discretization(
-        self, X: NDArray, U: NDArray, p: NDArray
-    ) -> tuple[NDArray, NDArray, NDArray, NDArray, NDArray]:
+    def calculate_discretization(self, X: NDArray, U: NDArray, p: NDArray) -> tuple[
+        NDArray, NDArray, NDArray, NDArray, NDArray]:
         """
         Calculate discretization for given states, inputs and parameter matrices.
 
@@ -257,15 +261,18 @@ class FirstOrderHold(DiscretizationMethod):
 
         for k in range(self.K - 1):
             self.P0[self.x_ind] = X[:, k]
-            P = np.array(odeint(self._ode_dPdt, self.P0, self.range_t, args=(U[:, k], U[:, k + 1], p))[-1, :])
+            P = np.array(odeint(self._ode_dPdt,
+                                self.P0,
+                                self.range_t,
+                                args=(U[:, k], U[:, k + 1], p))[-1, :])
 
             # using \Phi_A(\tau_{k+1},\xi) = \Phi_A(\tau_{k+1},\tau_k)\Phi_A(\xi,\tau_k)^{-1}
             # flatten matrices in column-major (Fortran) order for CVXPY
             Phi = P[self.A_bar_ind].reshape((self.n_x, self.n_x))
-            self.A_bar[:, k] = Phi.flatten(order="F")
-            self.B_plus_bar[:, k] = (Phi @ P[self.B_plus_bar_ind].reshape((self.n_x, self.n_u))).flatten(order="F")
-            self.B_minus_bar[:, k] = (Phi @ P[self.B_minus_bar_ind].reshape((self.n_x, self.n_u))).flatten(order="F")
-            self.F_bar[:, k] = (Phi @ P[self.F_bar_ind].reshape((self.n_x, self.n_p))).flatten(order="F")
+            self.A_bar[:, k] = Phi.flatten(order='F')
+            self.B_plus_bar[:, k] = (Phi @ P[self.B_plus_bar_ind].reshape((self.n_x, self.n_u))).flatten(order='F')
+            self.B_minus_bar[:, k] = (Phi @ P[self.B_minus_bar_ind].reshape((self.n_x, self.n_u))).flatten(order='F')
+            self.F_bar[:, k] = (Phi @ P[self.F_bar_ind].reshape((self.n_x, self.n_p))).flatten(order='F')
             self.r_bar[:, k] = Phi @ P[self.r_bar_ind]
 
         return self.A_bar, self.B_plus_bar, self.B_minus_bar, self.F_bar, self.r_bar
@@ -313,7 +320,10 @@ class FirstOrderHold(DiscretizationMethod):
         X_nl[:, 0] = X_l[:, 0]
 
         for k in range(self.K - 1):
-            X_nl[:, k + 1] = odeint(self._dxdt, X_l[:, k], self.range_t, args=(U[:, k], U[:, k + 1], p))[-1, :]
+            X_nl[:, k + 1] = odeint(self._dxdt,
+                                    X_l[:, k],
+                                    self.range_t,
+                                    args=(U[:, k], U[:, k + 1], p))[-1, :]
 
         return X_nl
 
@@ -331,7 +341,9 @@ class FirstOrderHold(DiscretizationMethod):
         X_nl[:, 0] = x0
 
         for k in range(U.shape[1] - 1):
-            X_nl[:, k + 1] = odeint(self._dxdt, X_nl[:, k], self.range_t, args=(U[:, k], U[:, k + 1], p))[-1, :]
+            X_nl[:, k + 1] = odeint(self._dxdt, X_nl[:, k],
+                                    self.range_t,
+                                    args=(U[:, k], U[:, k + 1], p))[-1, :]
 
         return X_nl
 
@@ -351,9 +363,12 @@ class FirstOrderHold(DiscretizationMethod):
         X_nl_dense[:, 0] = x0
 
         for k in range(U.shape[1] - 1):
-            x = odeint(self._dxdt, X_nl[:, k], self.range_t, args=(U[:, k], U[:, k + 1], p))
+            x = odeint(self._dxdt,
+                       X_nl[:, k],
+                       self.range_t,
+                       args=(U[:, k], U[:, k + 1], p))
             X_nl[:, k + 1] = x[-1, :]
-            X_nl_dense[:, k * (self.N_sub - 1) + 1 : (k + 1) * (self.N_sub - 1) + 1] = np.array(x)[1:, :].T
+            X_nl_dense[:, k * (self.N_sub - 1) + 1:(k + 1) * (self.N_sub - 1) + 1] = np.array(x)[1:, :].T
 
         return X_nl_dense
 

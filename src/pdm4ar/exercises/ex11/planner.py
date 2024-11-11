@@ -1,10 +1,7 @@
-import numpy as np
-import cvxpy as cvx
-import sympy as spy
 from dataclasses import dataclass, field
+from typing import Union
 
-from numpy.typing import NDArray
-
+import cvxpy as cvx
 from dg_commons import PlayerName
 from dg_commons.seq import DgSampledSequence
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
@@ -14,22 +11,8 @@ from dg_commons.sim.models.spaceship_structures import (
     SpaceshipParameters,
 )
 
+from pdm4ar.exercises.ex11.discretization import *
 from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
-
-from pdm4ar.exercises.ex11.spaceship import Spaceship
-from pdm4ar.exercises.ex11.discretization import (
-    DiscretizationMethod,
-    FirstOrderHold,
-    ZeroOrderHold,
-)
-
-import math
-from dg_commons.sim.goals import PlanningGoal
-from pdm4ar.exercises_def.ex11.goal import (
-    SpaceshipTarget,
-    SatelliteTarget,
-    DockingTarget,
-)
 
 
 @dataclass(frozen=True)
@@ -40,9 +23,9 @@ class SolverParameters:
     """
 
     # Cvxpy solver parameters
-    solver: str = "ECOS"  # specify solver to use
+    solver: str = 'ECOS'  # specify solver to use
     verbose_solver: bool = False  # if True, the optimization steps are shown
-    max_iterations: int = 200  # max algorithm iterations
+    max_iterations: int = 100  # max algorithm iterations
 
     # SCVX parameters (Add paper reference)
     lambda_nu: float = 1e5  # slack variable weight
@@ -68,9 +51,9 @@ class SpaceshipPlanner:
     Feel free to change anything in this class.
     """
 
-    planets: list[PlanetParams]
-    satellites: list[SatelliteParams]
-    spaceship: Spaceship
+    planets: dict[PlayerName, PlanetParams]
+    satellites: dict[PlayerName, SatelliteParams]
+    spaceship: SpaceshipDyn
     sg: SpaceshipGeometry
     sp: SpaceshipParameters
     params: SolverParameters
@@ -94,11 +77,11 @@ class SpaceshipPlanner:
     dock: bool
 
     def __init__(
-        self,
-        planets: dict[PlayerName, PlanetParams],
-        satellites: dict[PlayerName, SatelliteParams],
-        sg: SpaceshipGeometry,
-        sp: SpaceshipParameters,
+            self,
+            planets: dict[PlayerName, PlanetParams],
+            satellites: dict[PlayerName, SatelliteParams],
+            sg: SpaceshipGeometry,
+            sp: SpaceshipParameters,
     ):
         """
         Pass environment information to the planner.
@@ -115,13 +98,7 @@ class SpaceshipPlanner:
         self.toggle_params = ToggleParams()
 
         # Spaceship Dynamics
-        self.spaceship = Spaceship(self.sg, self.sp)
-
-        self.n_x = self.spaceship.n_x
-        self.n_u = self.spaceship.n_u
-        self.n_p = self.spaceship.n_p
-
-        self.dock = False
+        self.spaceship = SpaceshipDyn(self.sg, self.sp)
 
         # Discretization Method
         # self.integrator = ZeroOrderHold(self.Spaceship, self.params.K, self.params.N_sub)
@@ -143,7 +120,7 @@ class SpaceshipPlanner:
         self.problem = cvx.Problem(objective, constraints)
 
     def compute_trajectory(
-        self, init_state: SpaceshipState, goal: PlanningGoal
+            self, init_state: SpaceshipState, goal_state: DynObstacleState
     ) -> tuple[DgSampledSequence[SpaceshipCommands], DgSampledSequence[SpaceshipState]]:
         """
         Compute a trajectory from init_state to goal_state.
@@ -218,12 +195,12 @@ class SpaceshipPlanner:
         ]
         return constraints
 
-    def _get_objective(self) -> cvx.Problem:
+    def _get_objective(self) -> Union[cvx.Minimize, cvx.Maximize]:
         """
         Define objective for SCvx.
         """
         # Example objective
-        objective = self.params.weight_p @ self.variables["p"]
+        objective = self.params.weight_p @ self.variables['p']
 
         return cvx.Minimize(objective)
 
@@ -235,9 +212,8 @@ class SpaceshipPlanner:
         # ZOH
         # A_bar, B_bar, F_bar, r_bar = self.integrator.calculate_discretization(self.X_bar, self.U_bar, self.p_bar)
         # FOH
-        A_bar, B_plus_bar, B_minus_bar, F_bar, r_bar = self.integrator.calculate_discretization(
-            self.X_bar, self.U_bar, self.p_bar
-        )
+        A_bar, B_plus_bar, B_minus_bar, F_bar, r_bar = self.integrator.calculate_discretization(self.X_bar, self.U_bar,
+                                                                                                self.p_bar)
 
         self.problem_parameters["init_state"].value = self.X_bar[:, 0]
         # ...
