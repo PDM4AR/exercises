@@ -42,8 +42,6 @@ class SpaceshipTarget(PlanningGoal):
         line_thickness = 0.05  # Adjust the thickness of the line if needed
         line_buffer = line.buffer(line_thickness, cap_style=2)
 
-        # Combine the goal shape and the line into a single geometry (using union)
-        # combined_shape = goal_shape.union(line_buffer)
         return line_buffer
 
     @staticmethod
@@ -63,10 +61,12 @@ class SpaceshipTarget(PlanningGoal):
 
 @dataclass(frozen=True)
 class DockingTarget(SpaceshipTarget):
+        # This class defines the goal dock station
     # add_land_space together with pos_tol defines the lenght of the landing base
     add_land_space: float
     # length of the arms
     arms_length: float
+    #offset of the landing base from the center of the goal
     offset: float
 
     @cached_property
@@ -155,6 +155,17 @@ class DockingTarget(SpaceshipTarget):
         return line_dock_buffer
 
     def get_landing_constraint_points(self):
+        '''
+        Returns some useful points to create constraints for the landing scenario.
+        In particular:
+                -A: a point with offset of 0.1 (closer to the landing base) 
+                from the pinpoint goal position.
+                -B: end of arm 1.
+                -C: end of arm 2.
+                -A1: starting point of landing base.
+                -A2: ending point of landing base.
+                -p: (angular aperture of the dock)/2..
+        '''
         offset_y = 0.3
         sinpsi = sin(self.target.psi)
         cospsi = cos(self.target.psi)

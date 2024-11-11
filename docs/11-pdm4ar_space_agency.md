@@ -144,7 +144,7 @@ and [A Real-Time Algorithm  for Non-Convex Powered Descent Guidance](https://dep
 
 <!-- In the paper "A Real-Time Algorithm for Non-Convex Powered Descent Guidance" (https://depts.washington.edu/uwrainlab/wordpress/wp-content/uploads/2020/01/AIAA_SciTech_2020.pdf), you will find the use of \textit{Scaling Matrices} to scale states, inputs and parameters to produce numerically well-conditioned optimization problems. Our solution implementation only made use of scaling the parameters, not touching on states and inputs, and converged reliably. We recommend to use the same approach and  only introducing the normalization of states and inputs if you are facing numerical issues. -->
 
-In addition, the docker goal class has a method to return notable points. Try to think how you can use them to create a valid constraints. (We suggest to activate the landing constraints only on the final [5-7] steps).
+In addition, the docker goal class has a method to return notable points (get_landing_constraint_points). Try to think how you can use them to create a valid constraints. (We suggest to activate the landing constraints only on the final [5-7] steps).
 
 As a general and final advice try to understand the method **before** starting to code.
 
