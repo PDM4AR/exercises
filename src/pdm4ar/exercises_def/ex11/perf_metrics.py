@@ -9,7 +9,7 @@ from dg_commons.sim.simulator import SimContext
 from shapely.geometry import Point, Polygon
 
 from pdm4ar.exercises_def import PerformanceResults
-from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget
 
 
 @dataclass(frozen=True)
@@ -103,10 +103,7 @@ def ex11_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         last_point = Point(last_state.x, last_state.y)
         goal = sim_context.missions[player_name]
 
-        if isinstance(goal, SatelliteTarget):
-            end_target_state = goal.get_target_state_at(states.get_end())
-            goal_poly: Point = Point(end_target_state.x, end_target_state.y)
-        elif isinstance(goal, SpaceshipTarget):
+        if isinstance(goal, SpaceshipTarget):
             goal_poly: Point = Point(goal.target.x, goal.target.y)
         else:
             raise RuntimeError

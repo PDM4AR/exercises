@@ -11,7 +11,7 @@ from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
 from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
 from pdm4ar.exercises.ex11.planner import SpaceshipPlanner
-from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget
+from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, DockingTarget
 from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
 
 
@@ -70,9 +70,8 @@ class SpaceshipAgent(Agent):
         self.sg = init_sim_obs.model_geometry
         self.sp = init_sim_obs.model_params
         self.planner = SpaceshipPlanner(planets=self.planets, satellites=self.satellites, sg=self.sg, sp=self.sp)
-
-        if isinstance(init_sim_obs.goal, SpaceshipTarget):
-            self.goal_state = init_sim_obs.goal.get_target_state_at(0.0)
+        assert isinstance(init_sim_obs.goal, SpaceshipTarget | DockingTarget)
+        self.goal_state = init_sim_obs.goal.target
 
         #
         # TODO: Implement Compute Initial Trajectory
