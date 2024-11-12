@@ -23,7 +23,7 @@ class SolverParameters:
     """
 
     # Cvxpy solver parameters
-    solver: str = 'ECOS'  # specify solver to use
+    solver: str = "ECOS"  # specify solver to use
     verbose_solver: bool = False  # if True, the optimization steps are shown
     max_iterations: int = 100  # max algorithm iterations
 
@@ -71,17 +71,12 @@ class SpaceshipPlanner:
     U_bar: NDArray
     p_bar: NDArray
 
-    Al: NDArray
-    bl: NDArray
-
-    dock: bool
-
     def __init__(
-            self,
-            planets: dict[PlayerName, PlanetParams],
-            satellites: dict[PlayerName, SatelliteParams],
-            sg: SpaceshipGeometry,
-            sp: SpaceshipParameters,
+        self,
+        planets: dict[PlayerName, PlanetParams],
+        satellites: dict[PlayerName, SatelliteParams],
+        sg: SpaceshipGeometry,
+        sp: SpaceshipParameters,
     ):
         """
         Pass environment information to the planner.
@@ -96,9 +91,6 @@ class SpaceshipPlanner:
 
         # Spaceship Dynamics
         self.spaceship = SpaceshipDyn(self.sg, self.sp)
-        self.n_x = self.spaceship.n_x
-        self.n_u = self.spaceship.n_u
-        self.n_p = self.spaceship.n_p
 
         # Discretization Method
         # self.integrator = ZeroOrderHold(self.Spaceship, self.params.K, self.params.N_sub)
@@ -110,6 +102,8 @@ class SpaceshipPlanner:
         # Problem Parameters
         self.problem_parameters = self._get_problem_parameters()
 
+        self.X_bar, self.U_bar, self.p_bar = self.initial_guess()
+
         # Constraints
         constraints = self._get_constraints()
 
@@ -120,7 +114,7 @@ class SpaceshipPlanner:
         self.problem = cvx.Problem(objective, constraints)
 
     def compute_trajectory(
-            self, init_state: SpaceshipState, goal_state: DynObstacleState
+        self, init_state: SpaceshipState, goal_state: DynObstacleState
     ) -> tuple[DgSampledSequence[SpaceshipCommands], DgSampledSequence[SpaceshipState]]:
         """
         Compute a trajectory from init_state to goal_state.
@@ -143,15 +137,15 @@ class SpaceshipPlanner:
 
         return mycmds, mystates
 
-    def intial_guess(self, start, goal) -> tuple[NDArray, NDArray, NDArray]:
+    def initial_guess(self) -> tuple[NDArray, NDArray, NDArray]:
         """
         Define initial guess for SCvx.
         """
         K = self.params.K
-        print("n_u ", self.n_u)
-        X = np.zeros((self.n_x, K))
-        U = np.zeros((self.n_u, K))
-        p = np.zeros((self.n_p))
+
+        X = np.zeros((self.spaceship.n_x, K))
+        U = np.zeros((self.spaceship.n_u, K))
+        p = np.zeros((self.spaceship.n_p))
 
         return X, U, p
 
@@ -167,9 +161,9 @@ class SpaceshipPlanner:
         Define optimisation variables for SCvx.
         """
         variables = {
-            "X": cvx.Variable((self.n_x, self.params.K)),
-            "U": cvx.Variable((self.n_u, self.params.K)),
-            "p": cvx.Variable(self.n_p),
+            "X": cvx.Variable((self.spaceship.n_x, self.params.K)),
+            "U": cvx.Variable((self.spaceship.n_u, self.params.K)),
+            "p": cvx.Variable(self.spaceship.n_p),
         }
 
         return variables
@@ -179,7 +173,7 @@ class SpaceshipPlanner:
         Define problem parameters for SCvx.
         """
         problem_parameters = {
-            "init_state": cvx.Parameter(self.n_x)
+            "init_state": cvx.Parameter(self.spaceship.n_x)
             # ...
         }
 
@@ -200,7 +194,7 @@ class SpaceshipPlanner:
         Define objective for SCvx.
         """
         # Example objective
-        objective = self.params.weight_p @ self.variables['p']
+        objective = self.params.weight_p @ self.variables["p"]
 
         return cvx.Minimize(objective)
 
@@ -213,7 +207,8 @@ class SpaceshipPlanner:
         # A_bar, B_bar, F_bar, r_bar = self.integrator.calculate_discretization(self.X_bar, self.U_bar, self.p_bar)
         # FOH
         A_bar, B_plus_bar, B_minus_bar, F_bar, r_bar = self.integrator.calculate_discretization(
-            self.X_bar, self.U_bar, self.p_bar)
+            self.X_bar, self.U_bar, self.p_bar
+        )
 
         self.problem_parameters["init_state"].value = self.X_bar[:, 0]
         # ...
