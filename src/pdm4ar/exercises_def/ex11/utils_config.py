@@ -25,7 +25,7 @@ from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
 from pdm4ar.exercises.ex11.agent import SpaceshipAgent
-from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget, DockingTarget
+from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, DockingTarget
 from pdm4ar.exercises_def.ex11.utils_params import SatelliteParams, PlanetParams
 
 
@@ -150,35 +150,6 @@ def sim_context_from_yaml(file_path: str):
         landing_shape = goal.get_landing_base()
         obsgeo = ObstacleGeometry.default_static(color="blue")
         static_obstacles += [StaticObstacle(shape=landing_shape, geometry=obsgeo)]
-    elif conf_goal_type == "satellite":
-        satellite_name = conf_goal["name"]
-        target_x0 = satellites[satellite_name].get_state()
-
-        planetx = config["planets"][satellite_name.split("/")[0]]["center"][0]
-        planety = config["planets"][satellite_name.split("/")[0]]["center"][1]
-
-        # Extract first target
-        satellite_config = config["planets"][satellite_name.split("/")[0]]["satellites"][satellite_name.split("/")[1]]
-        d_shift = satellite_config["radius"] + conf_goal["pos_tolerance"]
-        x_shift = cos(satellite_config["tau"]) * d_shift
-        y_shift = sin(satellite_config["tau"]) * d_shift  # slightly increase tolerance
-        state_shift: DynObstacleState = DynObstacleState(x=x_shift, y=y_shift, psi=0, vx=0, vy=0, dpsi=0)
-        target_x0 += state_shift
-
-        goal = SatelliteTarget(
-            target=target_x0,
-            planet_x=planetx,
-            planet_y=planety,
-            omega=satellite_config["omega"],
-            tau=satellite_config["tau"],
-            orbit_r=satellite_config["orbit_r"],
-            radius=satellite_config["radius"],
-            offset_r=satellite_config["radius"] + conf_goal["pos_tolerance"],
-            pos_tol=conf_goal["pos_tolerance"],
-            vel_tol=conf_goal["vel_tolerance"],
-            dir_tol=conf_goal["dir_tolerance"],
-        )
-
     else:
         raise ValueError(f"Unrecognized goal type: {conf_goal_type}")
     missions = {playername: goal}

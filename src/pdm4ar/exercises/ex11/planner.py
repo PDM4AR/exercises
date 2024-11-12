@@ -94,11 +94,11 @@ class SpaceshipPlanner:
         # Solver Parameters
         self.params = SolverParameters()
 
-        # Tunable Parameters
-        self.toggle_params = ToggleParams()
-
         # Spaceship Dynamics
         self.spaceship = SpaceshipDyn(self.sg, self.sp)
+        self.n_x = self.spaceship.n_x
+        self.n_u = self.spaceship.n_u
+        self.n_p = self.spaceship.n_p
 
         # Discretization Method
         # self.integrator = ZeroOrderHold(self.Spaceship, self.params.K, self.params.N_sub)
@@ -126,7 +126,7 @@ class SpaceshipPlanner:
         Compute a trajectory from init_state to goal_state.
         """
         self.init_state = init_state
-        self.goal_state = goal
+        self.goal_state = goal_state
 
         #
         # TODO: Implement SCvx algorithm or comparable
@@ -178,14 +178,14 @@ class SpaceshipPlanner:
         """
         Define problem parameters for SCvx.
         """
-        roblem_parameters = {
+        problem_parameters = {
             "init_state": cvx.Parameter(self.n_x)
             # ...
         }
 
         return problem_parameters
 
-    def _get_constraints(self) -> list[cvx.constraints]:
+    def _get_constraints(self) -> list[cvx.Constraint]:
         """
         Define constraints for SCvx.
         """
@@ -212,8 +212,8 @@ class SpaceshipPlanner:
         # ZOH
         # A_bar, B_bar, F_bar, r_bar = self.integrator.calculate_discretization(self.X_bar, self.U_bar, self.p_bar)
         # FOH
-        A_bar, B_plus_bar, B_minus_bar, F_bar, r_bar = self.integrator.calculate_discretization(self.X_bar, self.U_bar,
-                                                                                                self.p_bar)
+        A_bar, B_plus_bar, B_minus_bar, F_bar, r_bar = self.integrator.calculate_discretization(
+            self.X_bar, self.U_bar, self.p_bar)
 
         self.problem_parameters["init_state"].value = self.X_bar[:, 0]
         # ...
