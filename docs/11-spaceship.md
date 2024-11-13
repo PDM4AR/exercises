@@ -72,7 +72,7 @@ produce $F_{thrust}$ and the angle of the thruster with respect to the spaceship
 with an offset of $l_r$ to the CoG of the spaceship. The velocity $v_x$ and $v_y$ are the velocities in the x and y
 direction of the spaceship frame respectively. The angle $\psi$ is the angle of the spaceship with respect to the x-axis. The length of the spaceship is $l$.
 
-![Spaceship Dynamics](https://github.com/PDM4AR/exercises/img/spaceship.png)
+![Spaceship Dynamics](img/spaceship.png)
 
 ## Constraints
 
