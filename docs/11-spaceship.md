@@ -59,7 +59,7 @@ Note that the pose is expressed in global frame, while the velocities are expres
 
 5. **Angular Velocity Dynamics:**
     - $\frac{d\dot{\psi}}{dt} = - \frac{l_r}{I}\sin(\delta)F_{thrust}$
-    - $\frac{d\psi}{dt} = v_{\delta}$
+    - $\frac{d\dot{\delta}}{dt} = v_{\delta}$
 
 If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}, \delta, m]'$, and the control inputs 
 are $U = [F_{thrust}, \dot{\delta}]$, we obtain the following dynamics equations:
@@ -95,7 +95,7 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
 - The thrust angle is limited: $\delta
   \in [-\delta_{\text{max}}, \delta_{\text{max}}]$.
 - You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
-- The rate of change of $\phi$ is limited: $v_\phi \in [-v^{max}_ϕ ,v^{max}_ϕ ]$
+- The rate of change of $\delta$ is limited: $v_\delta \in [-v^{max}_{\delta} ,v^{max}_{\delta}]$
 
 ## Evaluation Metrics
 
