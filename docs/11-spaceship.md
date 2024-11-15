@@ -95,7 +95,7 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
 - The thrust angle is limited: $\delta
   \in [-\delta_{\text{max}}, \delta_{\text{max}}]$.
 - You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
-- The rate of change of $\delta$ is limited: $v_\delta \in [-v^{max}_{\delta} ,v^{max}_{\delta}]$
+- The rate of change of $\delta$ is limited: $v_{\delta} \in [-v^{max}_{\delta} ,v^{max}_{\delta}]$
 
 ## Evaluation Metrics
 
