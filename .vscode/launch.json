@@ -255,6 +255,30 @@
             "justMyCode": true
         },
         {
+            "name": "Exercise11 - Run",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": [
+                "--exercise",
+                "11"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "noDebug": true
+        },
+        {
+            "name": "Exercise11 - Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pdm4ar/main.py",
+            "args": [
+                "--exercise",
+                "11"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }{
             "name": "Exercise12 - Run",
             "type": "debugpy",
             "request": "launch",

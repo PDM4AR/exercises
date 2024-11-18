@@ -13,6 +13,7 @@ available_exercises: Mapping[str, Callable[[], Exercise]] = frozendict(
         "08": get_exercise8,
         "09": get_exercise09,
         "10": get_exercise10,
-        "12": get_exercise12,
+        "11": get_exercise11,
+        "12": get_exercise12
     }
 )

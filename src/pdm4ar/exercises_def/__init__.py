@@ -1,3 +1,4 @@
+from matplotlib.pylab import f
 from zuper_commons.logs import ZLogger
 
 logger = ZLogger(__name__)
@@ -13,4 +14,5 @@ from .ex07 import *
 from .ex08 import *
 from .ex09 import *
 from .ex10 import *
+from .ex11 import *
 from .ex12 import *

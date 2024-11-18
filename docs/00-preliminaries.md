@@ -73,8 +73,8 @@ Instructions on the group forming modality are provided via Piazza.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
 |-----------------|-----------|----------------------|------------------------------|---------------------|-----------------------|
-| 11              | mistery 1 | 13th of November     | 3rd of December (23:59 CET)  | tentative           | 15                    |
-| 12              | mistery 2 | 27th of November     | 23rd of December (23:59 CET) | tentative           | 15                    |
+| 11              | Spaceship | 13th of November     | 3rd of December (23:59 CET)  | confirmed           | 10                    |
+| 12              | mistery 2 | 27th of November     | 23rd of December (23:59 CET) | tentative           | 10                    |
 
 #### **Extra** exercises from previous years, not graded.
 
