@@ -20,8 +20,6 @@ class PlayerMetrics(PerformanceResults):
     """How difficult is the task?(1:simple, 2:moderate, 3: challenging)"""
     collided: bool
     """Has the player collided?"""
-    collided_players: List[PlayerName]
-    """List of players that are involved in at least one collision"""
     goal_reached: bool
     """Has the player reached the goal?"""
     min_ttc: float
@@ -163,7 +161,7 @@ def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:
     ego_commands = ego_log.commands
 
     # collision
-    collided, collided_players = has_collision(collision_reports)
+    collided = has_collision(collision_reports)
 
     # efficiency metrics
     time_to_reach = time_goal_lane_reached(lanelet_network, ego_goal_lane, ego_states, pos_tol=0.8, heading_tol=0.08)
@@ -220,7 +218,6 @@ def ex12_metrics(sim_context: SimContext) -> PlayerMetrics:
     player_metrics = PlayerMetrics(
         task_level=task_level,
         collided=collided,
-        collided_players=list(collided_players),
         goal_reached=has_reached_the_goal,
         min_ttc=min_ttc,
         lane_changing_time=time_to_reach,
