@@ -7,12 +7,11 @@ from dg_commons import fd
 from dg_commons.sim.simulator import Simulator, SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from reprep import MIME_MP4, Report
-
+import pprint
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex12.perf_metrics import (
     PlayerMetrics,
     ex12_metrics,
-    HighwayTaskPerformance,
     HighwayFinalPerformance,
     get_task_performance,
 )
@@ -32,10 +31,11 @@ def ex12_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[PlayerMetrics
     # report evaluation
     score: float = player_metrics.reduce_to_score()
     score_str = f"{score:.2f}\n" + str(player_metrics)
-    r.text("Evaluation: ", score_str)
+    r.text("Evaluation: ", text=pprint.pformat(player_metrics))
     r.add_child(report)
-    collision_report = get_collision_reports(sim_context, skip_collision_viz=True)
-    r.add_child(collision_report)
+    if player_metrics.collided:
+        collision_report = get_collision_reports(sim_context, skip_collision_viz=True)
+        r.add_child(collision_report)
     return player_metrics, r
 
 
