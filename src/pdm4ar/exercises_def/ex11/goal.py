@@ -180,10 +180,10 @@ class DockingTarget(SpaceshipTarget):
         center_of_landing_x = self.target.x - 0.1 * cospsi
         center_of_landing_y = self.target.y - 0.1 * sinpsi
 
-        line_dock_x_start = self.target.x - offset_y * cospsi - (self.pos_tol - 0.2) * sinpsi
-        line_dock_y_start = self.target.y - offset_y * sinpsi + (self.pos_tol - 0.2) * cospsi
-        line_dock_x_end = self.target.x - offset_y * cospsi + (self.pos_tol - 0.2) * sinpsi
-        line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol - 0.2) * cospsi
+        line_dock_x_start = self.target.x - offset_y * cospsi - (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_start = self.target.y - offset_y * sinpsi + (self.pos_tol + self.add_land_space) * cospsi
+        line_dock_x_end = self.target.x - offset_y * cospsi + (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol + self.add_land_space) * cospsi
 
         t1_x = line_dock_x_start + (self.pos_tol + self.arms_length) * cospsi
         t1_y = line_dock_y_start + (self.pos_tol + self.arms_length) * sinpsi
