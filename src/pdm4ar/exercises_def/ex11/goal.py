@@ -128,10 +128,10 @@ class DockingTarget(SpaceshipTarget):
         In particular:
                 -A: a point with offset of 0.1 (closer to the landing base)
                 from the pinpoint goal position.
-                -B: end of arm 1.
-                -C: end of arm 2.
-                -A1: starting point of landing base.
-                -A2: ending point of landing base.
+                -B: end of arm 1 + offset.
+                -C: end of arm 2 + offset.
+                -A1: point aligned with the starting point of the landing base.
+                -A2: point aligned with the ending point of landing base.
                 -p: (angular aperture of the dock)/2..
         """
         offset_y = 0.3
@@ -145,6 +145,45 @@ class DockingTarget(SpaceshipTarget):
         line_dock_y_start = self.target.y - offset_y * sinpsi + (self.pos_tol - 0.2) * cospsi
         line_dock_x_end = self.target.x - offset_y * cospsi + (self.pos_tol - 0.2) * sinpsi
         line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol - 0.2) * cospsi
+
+        t1_x = line_dock_x_start + (self.pos_tol + self.arms_length) * cospsi
+        t1_y = line_dock_y_start + (self.pos_tol + self.arms_length) * sinpsi
+
+        t2_x = line_dock_x_end + (self.pos_tol + self.arms_length) * cospsi
+        t2_y = line_dock_y_end + (self.pos_tol + self.arms_length) * sinpsi
+
+        A = np.array([center_of_landing_x, center_of_landing_y])
+
+        C = np.array([t1_x, t1_y])
+        B = np.array([t2_x, t2_y])
+        A1 = np.array([line_dock_x_start, line_dock_y_start])
+        A2 = np.array([line_dock_x_end, line_dock_y_end])
+
+        return A, B, C, A1, A2, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
+    
+    def get_landing_constraint_points_fix(self):
+        """
+        Returns some useful points to create constraints for the landing scenario.
+        In particular:
+                -A: a point with offset of 0.1 (closer to the landing base)
+                from the pinpoint goal position.
+                -B: end of arm 1.
+                -C: end of arm 2.
+                -A1: starting point of landing base.
+                -A2: ending point of landing base.
+                -p: (angular aperture of the dock)/2..
+        """
+        offset_y = self.offset
+        sinpsi = sin(self.target.psi)
+        cospsi = cos(self.target.psi)
+
+        center_of_landing_x = self.target.x - 0.1 * cospsi
+        center_of_landing_y = self.target.y - 0.1 * sinpsi
+
+        line_dock_x_start = self.target.x - offset_y * cospsi - (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_start = self.target.y - offset_y * sinpsi + (self.pos_tol + self.add_land_space) * cospsi
+        line_dock_x_end = self.target.x - offset_y * cospsi + (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol + self.add_land_space) * cospsi
 
         t1_x = line_dock_x_start + (self.pos_tol + self.arms_length) * cospsi
         t1_y = line_dock_y_start + (self.pos_tol + self.arms_length) * sinpsi
