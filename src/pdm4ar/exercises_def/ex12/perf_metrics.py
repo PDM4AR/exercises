@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Set
-
+import json
+from dataclasses import asdict
 import numpy as np
 from dg_commons import PlayerName
 from dg_commons.maps import DgLanelet, DgLanePose
@@ -18,6 +19,8 @@ from pdm4ar.exercises_def import PerformanceResults
 class PlayerMetrics(PerformanceResults):
     task_level: int
     """How difficult is the task?(1:simple, 2:moderate, 3: challenging)"""
+    score: float = field(init=False)
+    """Score of this task"""
     collided: bool
     """Has the player collided?"""
     goal_reached: bool
@@ -43,7 +46,6 @@ class PlayerMetrics(PerformanceResults):
     _discomfort_penalty: float = field(init=False)
     _heading_penalty: float = field(init=False)
     _velocity_penalty: float = field(init=False)
-    _score: float = field(init=False)
 
     def __post_init__(self):
         """compute and store the score"""
@@ -89,20 +91,13 @@ class PlayerMetrics(PerformanceResults):
         object.__setattr__(self, "_discomfort_penalty", discomfort_penalty)
         object.__setattr__(self, "_heading_penalty", heading_penalty)
         object.__setattr__(self, "_velocity_penalty", velocity_penalty)
-        object.__setattr__(self, "_score", np.maximum(0.0, score))
+        object.__setattr__(self, "score", np.maximum(0.0, score))
 
-    def __repr__(self):
-        repr: str = ""
-        for k, v in self.__dict__.items():
-            if k.startswith("_"):
-                continue
-            value = f"{v:>5.2f}" if isinstance(v, float) else f"{v:>5}"
-            repr += f"\t{k:<20}=\t" + value + ",\n"
-
-        return f"EpisodeOutcome(\n" + repr + "\n)"
+    def __str__(self):
+        return json.dumps(asdict(self))
 
     def reduce_to_score(self) -> float:
-        return self._score
+        return self.score
 
 
 @dataclass(frozen=True)
@@ -126,7 +121,7 @@ def get_task_performance(metrics_all: list[PlayerMetrics]) -> HighwayTaskPerform
     avg_velocity_penalty = 0.0
 
     for metrics in metrics_all:
-        avg_score += metrics._score
+        avg_score += metrics.score
         collision_rate += 1 if metrics.collided else 0
         success_rate += 1 if metrics.goal_reached else 0
         avg_lc_time_penalty += metrics._lc_time_penalty

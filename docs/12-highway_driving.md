@@ -6,9 +6,9 @@ This exercise is the final graded exercise issued for the Fall semester of 2024.
 Your task is to implement a planning (and control) stack for an autonomous vehicle, so that it can navigate safely and efficiently on highways with mixed traffic(i.e. you are surrounded by human drivers).
 
 Specifically, given a desired lane, your planning stack needs to perform the lane changing maneuver without colliding with other road users. 
-Note that, just like driving in real life, you can sense the current states of other vehicles, but you do **not** know what the exact action or policy others plan to take. Nonetheless, it is safe to assume that others obey the social conventions just as you do. For example, they will not intentionally crash on you and will try their best to avoid collisions.
+Note that, just like driving in real life, you can observe the current states of other vehicles, but you do **NOT** know the exact action or policy others plan to take. Nonetheless, it is safe to assume that others obey the social conventions just as you do. For example, they will not intentionally crash on you and will try their best to avoid collisions.
 
-An example of the highway scenarios is shown as follows. You will drive one of the vehicle and help it to change the lane.
+An example of the highway scenarios is shown as follows. You will drive one of the vehicle and help it to move to the desired lane.
 
 ![image](img/USA_US101-16_2_T-1.gif)
 
@@ -52,13 +52,13 @@ If the actuation limits are violated, the simulator will clip the actuation to t
 If state constraints are violated, the simulator will set the commands to zero (unless they help to return within the physical constraints).
 
 ### Map Structure
-Your planning stack will be tested with real traffic scenarios from the [commonroad](https://commonroad.in.tum.de/) dataset. Please have a look at the definition and supported methods of the [lanelet](https://cps.pages.gitlab.lrz.de/commonroad/commonroad-io/api/scenario.html#commonroad.scenario.lanelet.Lanelet) and the [lanelet network](https://cps.pages.gitlab.lrz.de/commonroad/commonroad-io/api/scenario.html#laneletnetwork-class). 
+Your planning stack will be tested on real traffic scenarios from the [commonroad](https://commonroad.in.tum.de/) dataset. Please have a look at the definition and supported methods of the [lanelet](https://cps.pages.gitlab.lrz.de/commonroad/commonroad-io/api/scenario.html#commonroad.scenario.lanelet.Lanelet) and the [lanelet network](https://cps.pages.gitlab.lrz.de/commonroad/commonroad-io/api/scenario.html#laneletnetwork-class). 
 
 Your agent can access the current lanelet network from the input of `on_episode_init` with `init_sim_obs.dg_scenario.lanelet_network`. You might use the method `lanelet_network.find_lanelet_by_position` to locate the agent on the lanelet network, and extract a specific lanelet with method `lanelet_network.find_lanelet_by_id`. 
 
 For all test cases, you are safe to assume the lane width is constant and the road is approximately straight.
 
-You can also access the goal lane from the imput of `on_episode_init` with `init_sim_obs.goal.ref_lane`. You can either access the lane centerline and the lane width from `init_sim_obs.goal.ref_lane.control_points` or find the corresponding CommonRoad lanelet with `lanelet_id = lanelet_network.find_lanelet_by_position([control_points[1].q.p])[0][0]`. 
+You can also access the goal lane from the input of `on_episode_init` with `init_sim_obs.goal.ref_lane`. You can either access the lane centerline and the lane width from `init_sim_obs.goal.ref_lane.control_points` or find the corresponding CommonRoad lanelet with `lanelet_id = lanelet_network.find_lanelet_by_position([control_points[1].q.p])[0][0]`. 
 
 Please note that, although different [goal types](src/dg_commons/sim/goals.py) are supported by the simulator, we make sure the goal type is `RefLaneGoal` in all test cases. The `goal_progress` specified in `RefGoalLane` is irrelevant to this exercise. 
 
@@ -120,8 +120,7 @@ An example of how to visualise the initial configuration is provided in `exercis
 
 **Test on different instances**:
 To avoid hard-coded solutions we will test your submissions on different instances of the environment.
-You can make sure that your solution can deal with different instances of the world by changing the parameters in the config files or by creating new ones in the folder `exercises_def/ex12/*`.
-If you create new configs, make sure to add them to the `exercises_def/ex12/ex12.py` file in the `get_exercise12` method.
+You can make sure that your solution can deal with different instances of the world by changing the parameters in the config files(e.g. add/remove a surrounding vehicle, change the ego vehicle and the goal lane id, etc.). Note that by setting the names of other vehicle to `['all']` and plot the scenario, you can find all vehicles that can be added to the scenario.
 
 **Test faster**:
 To speed up the testing you can reduce the animation resolution by modifying the `dt` and the `dpi` parameters in `exercise_def/ex12/ex12.py`.
