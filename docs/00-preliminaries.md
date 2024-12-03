@@ -73,7 +73,7 @@ Instructions on the group forming modality are provided via Piazza.
 
 | Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
 |-----------------|-----------|----------------------|------------------------------|---------------------|-----------------------|
-| 11              | Spaceship | 13th of November     | ~~3rd of December (23:59 CET)~~ 8rd of December (23:59 CET) | confirmed           | 10                    |
+| 11              | Spaceship | 13th of November     | ~~3rd of December (23:59 CET)~~ 10th of December (23:59 CET) | confirmed           | 10                    |
 | 12              | Highway Driving | 4th of December     | 23rd of December (23:59 CET) | confirmed           | 10                    |
 
 #### **Extra** exercises from previous years, not graded.
