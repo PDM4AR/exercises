@@ -14,3 +14,6 @@ Path = Optional[List[X]]
 
 OpenedNodes = Optional[List[X]]
 """Also the opened nodes is a list of nodes"""
+
+Grid = List[List[int]]
+"""A grid represented as a list of lists of integers, where 0 is free space and 1 is an obstacle."""
