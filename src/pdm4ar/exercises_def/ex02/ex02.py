@@ -441,7 +441,6 @@ def ex2_perf_aggregator(perf: Sequence[Ex02PerformanceResult], algo_name=None) -
             "IterativeDeepening": 0,
         }
 
-        print(perf)
         valid_acc = {"DepthFirst": [], "BreadthFirst": [], "IterativeDeepening": []}
         valid_time = {"DepthFirst": [], "BreadthFirst": [], "IterativeDeepening": []}
         for p in perf:
@@ -457,9 +456,6 @@ def ex2_perf_aggregator(perf: Sequence[Ex02PerformanceResult], algo_name=None) -
             accuracy_score[algo] = avg_acc
             avg_time = sum(valid_time[algo]) / float(len(valid_time[algo])) if valid_time[algo] else 0
             solve_time[algo] = avg_time
-
-        print(f"Valid Accuracy: {valid_acc}")
-        print(f"Accuracy: {accuracy_score}")
     else:
         accuracy_score = {algo_name: 0}
         solve_time = {algo_name: 0}
