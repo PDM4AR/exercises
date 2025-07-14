@@ -42,6 +42,38 @@ def queries_from_adjacency(adj_list: AdjacencyList, n: int, n_seed=None) -> set[
     return graph_queries
 
 
+def grid_to_adjacency_list(grid: Grid) -> AdjacencyList:
+    """
+    Converts a grid to an adjacency list.
+    :param grid: A square matrix representing the grid.
+    :return: An adjacency list representation of the graph.
+    """
+    adjacency_list: AdjacencyList = {}
+    n = len(grid)
+    for i in range(n):
+        if len(grid[i]) != n:
+            raise ValueError("Grid must be square.")
+
+    def idx2id(r: int, c: int) -> int:
+        return r * n + c + 1
+
+    for r in range(n):
+        for c in range(n):
+            node_id = idx2id(r, c)
+            neighbors = set()
+            if grid[r][c] == 1:
+                continue
+            # Check all 4 possible directions (up, down, left, right)
+            possible_directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+            for dr, dc in possible_directions:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < n and 0 <= nc < n and grid[nr][nc] != 1:
+                    neighbor_id = idx2id(nr, nc)
+                    neighbors.add(neighbor_id)
+            adjacency_list[node_id] = set(sorted(neighbors))
+    return adjacency_list
+
+
 def generate_random_grid(n: int, d: float, seed: int = None) -> Grid:
     """
     Generate an n x n grid with density d of 1s, placed randomly.
