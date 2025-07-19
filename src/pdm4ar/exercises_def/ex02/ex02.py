@@ -339,11 +339,11 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceR
         rfig = r.figure(cols=2)
 
         # Your algo
-        search_algo = graph_search_algo[algo_name]()
-        start_time = process_time()
         if isinstance(graph_search_prob, GridSearchProblem):
             # convert grid to adjacency list
             test_graph = grid_to_adjacency_list(test_grid)
+        search_algo = graph_search_algo[algo_name]()
+        start_time = process_time()
         path, opened = search_algo.search(test_graph, query[0], query[1])
         solve_time = process_time() - start_time
         # check path
