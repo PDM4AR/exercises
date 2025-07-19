@@ -193,8 +193,8 @@ def get_graph_search_problems(
 
     # test grid 2
     grid_id = "grid02"
-    grid02: Grid = generate_random_grid(20, 0.25, 3)
-    grid02_queries = generate_queries_grid(grid02, 3, 4)
+    grid02: Grid = generate_random_grid(20, 0.25, seed=3)
+    grid02_queries = generate_queries_grid(grid02, 3, seed=n_seed)
     graphsearch_prob.append(GridSearchProblem(graph=None, grid=grid02, queries=grid02_queries, graph_id=grid_id))
 
     for extra_problem in extra_test_graph_problems:
