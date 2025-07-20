@@ -99,6 +99,9 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Poli
                     optimal_actions = [policy[i, j]]
                 else:
                     raise ValueError("Invalid policy type")
+                # Put X in the wonderland cell
+                if optimal_actions is None:
+                    optimal_actions = [Action.ABANDON]
 
                 for action in optimal_actions:
                     if action == Action.ABANDON:
@@ -139,6 +142,9 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceResults
         elif policy_gt.dtype == object:  # policy_gt contains all optimal actions per state
             correct_policy = 0
             for user_policy, gt_policy in zip(policy[all_states_mask], policy_gt[all_states_mask]):
+                # Put X in the wonderland cell
+                if gt_policy is None:
+                    gt_policy = [Action.ABANDON]
                 correct_policy += 1 if user_policy in gt_policy else 0
             policy_accuracy = float(correct_policy) / policy_gt[all_states_mask].size
         else:

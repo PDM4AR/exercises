@@ -6,7 +6,9 @@ from pdm4ar.exercises.ex04.structures import Cell
 from pdm4ar.exercises_def.ex04.utils import cell2color
 
 
-def generate_map(shape: tuple[int, int], swamp_percentage: float, n_wonderland: int, n_cliff: int, n_seed) -> np.ndarray:
+def generate_map(
+    shape: tuple[int, int], swamp_percentage: float, n_wonderland: int, n_cliff: int, n_seed
+) -> np.ndarray:
     # map dimensions should be at least 5x5
     assert shape[0] >= 5 and shape[1] >= 5, "Map dimensions should be at least 5x5"
 
@@ -51,7 +53,7 @@ def generate_map(shape: tuple[int, int], swamp_percentage: float, n_wonderland: 
 
     # Check if 2 wonderlands are not one next to another, if they are, put one of them back to grass
     for i, coord1 in enumerate(wonderland_coords):
-        for coord2 in wonderland_coords[i + 1:]:
+        for coord2 in wonderland_coords[i + 1 :]:
             if _are_states_adjacent(coord1, coord2):
                 grid_map[coord2] = Cell.GRASS
 
@@ -94,18 +96,18 @@ def is_too_close_to_rift_or_border(coord: tuple[int, int], grid_map: np.ndarray)
     # Check if the cell is within the border
     if row < 2 or row >= grid_map.shape[0] - 2 or col < 2 or col >= grid_map.shape[1] - 2:
         return True
-    # Check if the cell is near the rift
-    if grid_map[row - 1:row + 2, col - 1:col + 2].max() == Cell.RIFT:
+    # Check if the cell is near the cliff
+    if grid_map[row - 1 : row + 2, col - 1 : col + 2].max() == Cell.CLIFF:
         return True
-    return False        
+    return False
 
 
 def _are_states_adjacent(state1, state2) -> bool:
-        return (abs(state1[0] - state2[0]) == 1 and state1[1] == state2[1]) or (
-            abs(state1[1] - state2[1]) == 1 and state1[0] == state2[0]
-        ) or (
-            abs(state1[0] - state2[0]) == 1 and abs(state1[1] - state2[1]) == 1
-        )
+    return (
+        (abs(state1[0] - state2[0]) == 1 and state1[1] == state2[1])
+        or (abs(state1[1] - state2[1]) == 1 and state1[0] == state2[0])
+        or (abs(state1[0] - state2[0]) == 1 and abs(state1[1] - state2[1]) == 1)
+    )
 
 
 def map2image(map: np.ndarray) -> np.ndarray:
