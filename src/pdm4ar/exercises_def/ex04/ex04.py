@@ -73,6 +73,8 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
             for j in range(MAP_SHAPE[1]):
                 if grid_mdp.grid[i, j] == Cell.CLIFF:
                     ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="k"))
+                elif grid_mdp.grid[i, j] == Cell.WONDERLAND:
+                    ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="purple"))
                 else:
                     ax.text(j, i, f"{value_func[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
 
@@ -99,12 +101,14 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Poli
                     optimal_actions = [policy[i, j]]
                 else:
                     raise ValueError("Invalid policy type")
-                # Put X in the wonderland cell
+                # Put a random action to put O in the wonderland cell
                 if optimal_actions is None:
                     optimal_actions = [Action.ABANDON]
 
                 for action in optimal_actions:
-                    if action == Action.ABANDON:
+                    if grid_mdp.grid[i, j] == Cell.WONDERLAND:
+                        ax.text(j, i, "O", size=2.5 * font_size, ha="center", va="center", color="k", weight="bold")
+                    elif action == Action.ABANDON:
                         ax.text(j, i, "X", size=2.5 * font_size, ha="center", va="center", color="k", weight="bold")
                     else:
                         arrow = action2arrow[action]
@@ -131,7 +135,7 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceResults
     plot_report_figure(r, grid_mdp, value_func, policy, algo_name)
 
     if ex_out is not None:
-        all_states_mask = grid_mdp.grid != Cell.CLIFF
+        all_states_mask = (grid_mdp.grid != Cell.CLIFF) & (grid_mdp.grid != Cell.WONDERLAND)
         # ground truth
         value_func_gt, policy_gt = ex_out
         # evaluate accuracy
@@ -142,9 +146,11 @@ def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceResults
         elif policy_gt.dtype == object:  # policy_gt contains all optimal actions per state
             correct_policy = 0
             for user_policy, gt_policy in zip(policy[all_states_mask], policy_gt[all_states_mask]):
-                # Put X in the wonderland cell
+                # Put a random action to put O in the wonderland cell
                 if gt_policy is None:
                     gt_policy = [Action.ABANDON]
+                if user_policy is None:
+                    user_policy = [Action.ABANDON]
                 correct_policy += 1 if user_policy in gt_policy else 0
             policy_accuracy = float(correct_policy) / policy_gt[all_states_mask].size
         else:
