@@ -158,9 +158,9 @@ If you do not have already a GitHub account create a new one [here](https://gith
 
 #### Setting up Git
 
-Download git for your OS from [this site](https://git-scm.com/downloads). Then set up git and authenticate with GitHub following [this link](https://docs.github.com/en/get-started/git-basics/set-up-git).
+(Linux, Mac)Download git for your OS from [this site](https://git-scm.com/downloads). Then set up git and authenticate with GitHub following the instruction [here](https://docs.github.com/en/get-started/git-basics/set-up-git).
 
-For Windows users, it is recommended to connect over HTTPS and store your Git credentials with git credential manager(GCM) in WSL. Simply follow [this section](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended) to configure GCM in your WSL terminal. Later on, you are supposed to clone the GitHub repository in WSL using HTTPS. 
+(Windows)Install and set up git on both Windows and WSL following the instruction [here](https://docs.github.com/en/get-started/git-basics/set-up-git). We recommend connecting to GitHub over HTTPS and use git credential manager(GCM) to store your Git credentials. Simply follow [this section](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git#git-credential-manager) to get GCM for Windows and [this section](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended) for WSL. Later on, you may clone the GitHub repository using HTTPS either on WSL(recommanded) or Windows. 
 
 #### _Resources_
 
