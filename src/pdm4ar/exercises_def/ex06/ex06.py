@@ -86,16 +86,9 @@ class CollisionCheckPerformance(PerformanceResults):
         if len(eval_list) == 0:
             return CollisionCheckWeightedPerformance(0.0, np.inf, {})
 
-        total_acccuracy = np.sum(
-            [eval.accuracy * eval.weights[0] for eval in eval_list]
-        )
-        total_solve_time = np.sum(
-            [eval.solve_time * eval.weights[1] for eval in eval_list]
-        )
-        performances = {
-            eval.step_id: {"accuracy": eval.accuracy, "solve_time": eval.solve_time}
-            for eval in eval_list
-        }
+        total_acccuracy = np.sum([eval.accuracy * eval.weights[0] for eval in eval_list])
+        total_solve_time = np.sum([eval.solve_time * eval.weights[1] for eval in eval_list])
+        performances = {eval.step_id: {"accuracy": eval.accuracy, "solve_time": eval.solve_time} for eval in eval_list}
 
         return CollisionCheckWeightedPerformance(
             total_acccuracy / total_weights[0],
@@ -104,9 +97,7 @@ class CollisionCheckPerformance(PerformanceResults):
         )
 
 
-def _collision_check_rep(
-    algo_in: TestCollisionCheck, alg_out: Any
-) -> tuple[CollisionCheckPerformance, Report]:
+def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[CollisionCheckPerformance, Report]:
 
     # Set Random Seed
     set_random_seed(RANDOM_SEED)
@@ -128,9 +119,7 @@ def _collision_check_rep(
             # print("Estimate is a tuple!")
             accuracy_list.append(algo_in.eval_function(data, estimate[0]))
             try:
-                algo_in.visualizer(
-                    r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1]
-                )
+                algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1])
             except:
                 algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
             r.text(
@@ -151,10 +140,7 @@ def _collision_check_rep(
     r.text(
         f"{algo_in.str_id()}-results",
         "\n".join(
-            [
-                f"Accuracy #{ex_num}: {ex_perf}"
-                for ex_num, ex_perf in enumerate(accuracy_list)
-            ]
+            [f"Accuracy #{ex_num}: {ex_perf}" for ex_num, ex_perf in enumerate(accuracy_list)]
             + [f"Total Accuracy = {np.mean(accuracy_list)}"]
             + [f"Average Solving Time = {np.mean(solve_times)}"]
         ),
@@ -241,12 +227,8 @@ def collision_check_robot_frame_loop(
     collision_checker = CollisionChecker()
     # Iterate Over Path
     result = []
-    for i, (pose, next_pose, observed_obstacles) in enumerate(
-        zip(poses[:-1], poses[1:], observed_obstacles_list)
-    ):
-        if collision_checker.collision_check_robot_frame(
-            r, pose, next_pose, observed_obstacles
-        ):
+    for i, (pose, next_pose, observed_obstacles) in enumerate(zip(poses[:-1], poses[1:], observed_obstacles_list)):
+        if collision_checker.collision_check_robot_frame(r, pose, next_pose, observed_obstacles):
             result.append(i)
     return result
 
@@ -345,9 +327,7 @@ def get_exercise6() -> Exercise:
     return Exercise[TestCollisionCheck, Any](
         desc="This exercise is about the collision checking methods.",
         evaluation_fun=_collision_check_rep,
-        perf_aggregator=lambda x: CollisionCheckPerformance.perf_aggregator(
-            x, total_weights
-        ),
+        perf_aggregator=lambda x: CollisionCheckPerformance.perf_aggregator(x, total_weights),
         test_values=test_values,
         expected_results=None,
     )

@@ -22,9 +22,7 @@ from .map_config import EXERCISE_MAP_CONFIGS
 
 class DataGenerator:
     @staticmethod
-    def generate_random_point(
-        min_dist: float, max_dist: float, center: Point = Point(0, 0)
-    ) -> Point:
+    def generate_random_point(min_dist: float, max_dist: float, center: Point = Point(0, 0)) -> Point:
         # Distance of point to given center
         dist = np.random.uniform(min_dist, max_dist)
         # Angle in Polar Coordinates
@@ -193,9 +191,7 @@ class DataGenerator:
             point = DataGenerator.generate_random_point(0, circle.radius, circle.center)
             return (circle, point, True)
         else:
-            point = DataGenerator.generate_random_point(
-                circle.radius, 2 * circle.radius, circle.center
-            )
+            point = DataGenerator.generate_random_point(circle.radius, 2 * circle.radius, circle.center)
             return (circle, point, False)
 
     @staticmethod  # New method.
@@ -272,16 +268,10 @@ class DataGenerator:
             randflag = False
 
         if randflag:
-            poly1 = DataGenerator.generate_random_polygon(
-                center=centerpt1, avg_radius=r1
-            )
-            poly2 = DataGenerator.generate_random_polygon(
-                center=centerpt2, avg_radius=r2
-            )
+            poly1 = DataGenerator.generate_random_polygon(center=centerpt1, avg_radius=r1)
+            poly2 = DataGenerator.generate_random_polygon(center=centerpt2, avg_radius=r2)
         else:
-            poly1 = DataGenerator.generate_random_polygon(
-                center=Point(3, 3), avg_radius=3
-            )
+            poly1 = DataGenerator.generate_random_polygon(center=Point(3, 3), avg_radius=3)
             vertices_poly2 = poly1.vertices[0:2]
 
             vertices_poly2.append(
@@ -376,12 +366,8 @@ class DataGenerator:
         p1 = DataGenerator.generate_random_point(0, 2 * circle.radius, circle.center)
         p2 = DataGenerator.generate_random_point(0, 2 * circle.radius, circle.center)
         # Check Collision via Shapely
-        circle_shapely = geometry.Point(circle.center.x, circle.center.y).buffer(
-            circle.radius
-        )
-        segment_shapely = geometry.LineString(
-            [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
-        )
+        circle_shapely = geometry.Point(circle.center.x, circle.center.y).buffer(circle.radius)
+        segment_shapely = geometry.LineString([geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)])
 
         return (
             circle,
@@ -400,12 +386,9 @@ class DataGenerator:
         # Calculate Max Distance to Corners
         max_dist = max(
             [
-                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
-                ** 0.5,
-                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
-                ** 0.5,
-                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2)
-                ** 0.5,
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2) ** 0.5,
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2) ** 0.5,
+                ((center.x - triangle.v1.x) ** 2 + (center.y - triangle.v1.y) ** 2) ** 0.5,
             ]
         )
         # Generate Points
@@ -419,9 +402,7 @@ class DataGenerator:
                 [triangle.v3.x, triangle.v3.y],
             ]
         )
-        segment_shapely = geometry.LineString(
-            [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
-        )
+        segment_shapely = geometry.LineString([geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)])
 
         return (
             triangle,
@@ -438,20 +419,13 @@ class DataGenerator:
         # Calculate Center of the Corners
         center = poly.center()
         # Calculate Max Distance to Corners
-        max_dist = max(
-            [
-                ((center.x - c.x) ** 2 + (center.y - c.y) ** 2) ** 0.5
-                for c in poly.vertices
-            ]
-        )
+        max_dist = max([((center.x - c.x) ** 2 + (center.y - c.y) ** 2) ** 0.5 for c in poly.vertices])
         # Generate Points
         p1 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
         p2 = DataGenerator.generate_random_point(0, 2 * max_dist, center)
         # Check Collisions via Shapely
         poly_shapely = geometry.Polygon([[v.x, v.y] for v in poly.vertices])
-        segment_shapely = geometry.LineString(
-            [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
-        )
+        segment_shapely = geometry.LineString([geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)])
 
         return (
             poly,
@@ -470,15 +444,11 @@ class DataGenerator:
         r = float(np.random.randint(3, 7))
 
         # Generate Path
-        path = Path(
-            [Point(x, y) for (x, y) in map_config[index % len(map_config)]["path"]]
-        )
+        path = Path([Point(x, y) for (x, y) in map_config[index % len(map_config)]["path"]])
         # Generate Obstacles
         obstacles = []
         for obs in map_config[index % len(map_config)]["obstacles"]:
-            obs_generation_func = getattr(
-                DataGenerator, f"generate_random_{obs['type']}"
-            )
+            obs_generation_func = getattr(DataGenerator, f"generate_random_{obs['type']}")
             obstacles.append(obs_generation_func(**obs["params"]))
 
         # Check collision for ground truth
@@ -487,9 +457,7 @@ class DataGenerator:
         shapely_obstacles = []
         for obs in obstacles:
             if isinstance(obs, Polygon):
-                shapely_obstacles.append(
-                    geometry.Polygon([[p.x, p.y] for p in obs.vertices])
-                )
+                shapely_obstacles.append(geometry.Polygon([[p.x, p.y] for p in obs.vertices]))
             elif isinstance(obs, Triangle):
                 shapely_obstacles.append(
                     geometry.Polygon(
@@ -501,17 +469,13 @@ class DataGenerator:
                     )
                 )
             elif isinstance(obs, Circle):
-                shapely_obstacles.append(
-                    geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius)
-                )
+                shapely_obstacles.append(geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius))
             else:
                 raise Exception("Obstacle must be Polygon, Triangle, or Circle")
 
         # Check distance between each line segment with each polygon
         for i, (p1, p2) in enumerate(zip(path.waypoints[:-1], path.waypoints[1:])):
-            ls_shapely = geometry.LineString(
-                [geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)]
-            )
+            ls_shapely = geometry.LineString([geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)])
             for obs in shapely_obstacles:
                 if ls_shapely.distance(obs) < r:
                     ground_truth.append(i)
@@ -554,9 +518,7 @@ class DataGenerator:
         shapely_obstacles = []
         for obs in obstacles:
             if isinstance(obs, Polygon):
-                shapely_obstacles.append(
-                    geometry.Polygon([[p.x, p.y] for p in obs.vertices])
-                )
+                shapely_obstacles.append(geometry.Polygon([[p.x, p.y] for p in obs.vertices]))
             elif isinstance(obs, Triangle):
                 shapely_obstacles.append(
                     geometry.Polygon(
@@ -568,9 +530,7 @@ class DataGenerator:
                     )
                 )
             elif isinstance(obs, Circle):
-                shapely_obstacles.append(
-                    geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius)
-                )
+                shapely_obstacles.append(geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius))
             else:
                 raise Exception("Obstacle must be Polygon, Triangle, or Circle")
         observations = []

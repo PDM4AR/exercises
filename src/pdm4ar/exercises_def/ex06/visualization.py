@@ -8,9 +8,7 @@ from typing import Optional
 def visualize_circle_point(r: Report, ex_num: str, data: tuple[Circle, Point, bool]):
     c, p, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(
-        nid=f"point-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
-    ) as _:
+    with rfig.plot(nid=f"point-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -128,9 +126,7 @@ def viusalize_SAT_poly_circle(
         )
 
 
-def visualize_triangle_point(
-    r: Report, ex_num: str, data: tuple[Triangle, Point, bool]
-):
+def visualize_triangle_point(r: Report, ex_num: str, data: tuple[Triangle, Point, bool]):
     t, p, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -187,9 +183,7 @@ def visualize_polygon_point(r: Report, ex_num: str, data: tuple[Polygon, Point, 
 def visualize_circle_line(r: Report, ex_num: str, data: tuple[Circle, Segment, bool]):
     c, l, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(
-        nid=f"segment-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
-    ) as _:
+    with rfig.plot(nid=f"segment-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -209,14 +203,10 @@ def visualize_circle_line(r: Report, ex_num: str, data: tuple[Circle, Segment, b
         )
 
 
-def visualize_triangle_line(
-    r: Report, ex_num: str, data: tuple[Triangle, Segment, bool]
-):
+def visualize_triangle_line(r: Report, ex_num: str, data: tuple[Triangle, Segment, bool]):
     t, l, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(
-        nid=f"segment-triangle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
-    ) as _:
+    with rfig.plot(nid=f"segment-triangle-primitive-{ex_num}", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -239,9 +229,7 @@ def visualize_triangle_line(
 def visualize_polygon_line(r: Report, ex_num: str, data: tuple[Polygon, Segment, bool]):
     poly, l, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(
-        nid=f"segment-polygon-primitive-{ex_num}", mime=MIME_PDF, figsize=None
-    ) as _:
+    with rfig.plot(nid=f"segment-polygon-primitive-{ex_num}", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -268,9 +256,7 @@ def visualize_map_path(
 ):
     path, radius, obstacles, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(
-        nid=f"map-path-collision-{ex_num}", mime=MIME_PDF, figsize=None
-    ) as _:
+    with rfig.plot(nid=f"map-path-collision-{ex_num}", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -281,9 +267,7 @@ def visualize_map_path(
             obs.visualize(ax)
         ax.set_aspect(1)
 
-        boundaries = [path.get_boundaries()] + [
-            obs.get_boundaries() for obs in obstacles
-        ]
+        boundaries = [path.get_boundaries()] + [obs.get_boundaries() for obs in obstacles]
 
         ax.set_xlim(
             min([p_min.x for p_min, _ in boundaries]) - 1,
@@ -366,9 +350,7 @@ def visualize_robot_frame_map(
             segment.visualize(ax)
             ax.set_aspect(1)
 
-            boundaries = [segment.get_boundaries()] + [
-                obs.get_boundaries() for obs in observation
-            ]
+            boundaries = [segment.get_boundaries()] + [obs.get_boundaries() for obs in observation]
 
             ax.set_xlim(
                 min([p_min.x for p_min, _ in boundaries]) - 1,

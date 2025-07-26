@@ -262,9 +262,7 @@ class Segment_3D(GeoPrimitive):
         return replace(self, p1=p1, p2=p2)
 
     def visualize(self, ax: Any):
-        ax.plot(
-            [self.p1.x, self.p2.x], [self.p1.y, self.p2.y], marker="x", markersize=10
-        )
+        ax.plot([self.p1.x, self.p2.x], [self.p1.y, self.p2.y], marker="x", markersize=10)
 
     def get_boundaries(self) -> tuple["Point", "Point"]:
         p_min = Point(min(self.p1.x, self.p2.x), min(self.p1.y, self.p2.y))
