@@ -50,7 +50,7 @@ def visualize_axis_poly(r: Report, ex_num: str, data: tuple[Polygon, Segment, Se
         ax.set_ylim(0, 10)
 
 
-def viusalize_SAT_poly(
+def visualize_SAT_poly(
     r: Report,
     ex_num: str,
     data: tuple[Polygon, Polygon, bool],
@@ -88,7 +88,7 @@ def viusalize_SAT_poly(
         )
 
 
-def viusalize_SAT_poly_circle(
+def visualize_SAT_poly_circle(
     r: Report,
     ex_num: str,
     data: tuple[Polygon, Circle, bool],
