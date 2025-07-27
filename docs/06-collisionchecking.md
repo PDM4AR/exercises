@@ -18,13 +18,13 @@ The Separating Axis Theorem asserts that if two sets are closed and at least one
 By leveraging SAT, we can efficiently determine whether simple geometric shapes such as circles or polygons intersect, thereby facilitating reliable collision checks for our robot's path planning needs. 
 These will come in handy later on. 
 
-#### Step 1: Project A Polygon onto an Segment
+#### Step 1: Project A Polygon onto a Segment
 The first step is to implement the functions inside the `CollisionPrimitives_SeparateAxis` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
 
 In this section, we suggest the use of linear algebra modules like `numpy`. 
 However, you are **not** allowed to use modules that implement collision checking directly such as `shapely`. We will be checking solutions for correct implementation without usage of `shapely`.
 
-Implement a function that Projects a Polygon onto a Segment (the segment will later represent the Axis when implementing the theorem). Accuracy of the projection is checked by length of the section of the segment onto which the polygon is projected on, as well as having the endpoints of the projected segment be within some epsilon. 
+Implement a function that projects a polygon onto a segment (the segment will later represent the axis when implementing the theorem). Accuracy of the projection is checked by the length of the section of the segment onto which the polygon is projected, as well as having the endpoints of the projected segment be within some epsilon. 
 
 To represent a Polygon and Segment, the following data structures (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
@@ -40,17 +40,17 @@ class Polygon(GeoPrimitive):
 
 ```
 
-In this part, you will implement the   `proj_polygon` function of the `CollisionPrimitives_SeparateAxis` class. 
+In this part, you will implement the `proj_polygon` function of the `CollisionPrimitives_SeparateAxis` class. 
 
 As arguments, the function takes in a Polygon and a Segment, and returns a Segment type. You are to project the Polygon onto the Segment, and return a shorter Segment that represents the resulting projection. 
 
-Note: For this step, you will only be checked on projecting a N-sided polygon. However note that the function also accepts a Circle as an input argument. You may need to modify your implementation of the `proj_polygon` function to also accept circles, when you get to Task 3. 
+Note: For this step, you will only be checked on projecting an N-sided polygon. However, note that the function also accepts a Circle as an input argument. You may need to modify your implementation of the `proj_polygon` function to also accept circles when you get to Task 3. 
 
 
-#### Step 2a: Determine if Two Segments overlap or not
-In this step, you will implement a function that determines wether two Segments overlap or not. 
+#### Step 2a: Determine if Two Segments Overlap or Not
+In this step, you will implement a function that determines whether two segments overlap or not. 
 
-The segment datatype on (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+The segment datatype (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
 @dataclass(frozen=True)
@@ -59,42 +59,42 @@ class Segment(GeoPrimitive):
     p2: Point
 ```
 
-You will implement the `overlap` function, taht takes in two `Segment` *s1* and *s2* as arguments and return *True* if they overlap (intersect) or *False* if they do not. 
+You will implement the `overlap` function that takes in two `Segment`s *s1* and *s2* as arguments and returns *True* if they overlap (intersect) or *False* if they do not. 
 
 The checker will not verify your implementation for this step, so we encourage that you do your own testing. 
 
 
-#### Step 2b: Return a list of Candidate Separating Axes
-In this step, you will implement a function that gets candidate separating axes if given two Polygons. 
+#### Step 2b: Return a List of Candidate Separating Axes
+In this step, you will implement a function that gets candidate separating axes given two polygons. 
 
-The polygon datatype on (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+The polygon datatype (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
 @dataclass(frozen=True)
 class Polygon(GeoPrimitive):
     vertices: list[Point]
 ```
-Note that if two polygons do not intersect, there are potentially infinite separating axes that can be computed. As a hint, return one axis per EdgePoly1-EdgePoly2 pairing. We also recommed returning axes that are orthogonal to the edges of each polygon only. 
+Note that if two polygons do not intersect, there are potentially infinite separating axes that can be computed. As a hint, return one axis per EdgePoly1-EdgePoly2 pairing. We also recommend returning axes that are orthogonal to the edges of each polygon only. 
 
-You will implement the `get_axes` function, which returns takes in two `Polygon`: *p1* and *p2*.
+You will implement the `get_axes` function, which takes in two `Polygon`s: *p1* and *p2*.
 
-You will output a list of Segments, each representing a Separating Axis. We recommend constructing each segment as the same length and long enough to cover both polygons. (A common heuristic is to make each segment of length 10)
+You will output a list of segments, each representing a separating axis. We recommend constructing each segment with the same length and long enough to cover both polygons. (A common heuristic is to make each segment of length 10)
 
 The checker will not verify your implementation for this step, so we encourage that you do your own testing. 
 
 #### Step 2c: Separating Axis Theorem for Two Polygons
 
-In this step, we bring it all together and implement the Separating Axis Theorem for two polygons. We will be working 
+In this step, we bring it all together and implement the Separating Axis Theorem for two polygons.
 
 We will be modifying the FIRST case in the `separating_axis_thm` function. 
 
 Using the methods you have previously implemented: `get_axes`, `proj_polygon`, and `overlap`, determine using the Separating Axis Theorem if two polygons intersect with each other or not. 
 
-The `separating_axis_thm` function takes in two Polygons as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
+The `separating_axis_thm` function takes in two polygons as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
 
-The first argument is a `bool` that is *True* if the Polygons collide, and *False* if they do not. 
+The first argument is a `bool` that is *True* if the polygons collide, and *False* if they do not. 
 
-The second argument is an optional `Segment` which you can use to verify which Segment you are projecting against in your implementation of the Separating Axis Theorem. 
+The second argument is an optional `Segment` which you can use to verify which segment you are projecting against in your implementation of the Separating Axis Theorem. 
 
 Note: In the instructor solution, most of the code is written in the previously implemented methods, and we only use the `separating_axis_thm` function to put all the pieces together. 
 
@@ -102,10 +102,10 @@ Note: In the instructor solution, most of the code is written in the previously 
 Test cases are provided in the online checker for this exercise. 
 
 
-#### Step 3a: Return a list of Candiadate Separating Axes for a Polygon and a Circle
-We now move to computing separating axes for a Polygon and a Circle. 
+#### Step 3a: Return a List of Candidate Separating Axes for a Polygon and a Circle
+We now move to computing separating axes for a polygon and a circle. 
 
-We will use the Circle GeoPrimitive in (`src/pdm4ar/exercises_def/ex06/structures.py`):
+We will use the Circle GeoPrimitive (`src/pdm4ar/exercises_def/ex06/structures.py`):
 
 ```python
 @dataclass(frozen=True)
@@ -114,10 +114,10 @@ class Circle(GeoPrimitive):
     radius: float
 ```
 
-You will implement the function `get_axes_cp` that takes as inputs a `Circle` *circ* and a `Polygon` *poly* and returns a list of Segments, which will represent the Axes.  
+You will implement the function `get_axes_cp` that takes as inputs a `Circle` *circ* and a `Polygon` *poly* and returns a list of segments, which will represent the axes.  
 
-Hint: Notice that the circle is a polygon with infinite number of edges. Fortunately we do not need to check all axes normal to the edges.
-It's sufficient to check the axes normal to the polygon edges plus ONE axis formed by the circle center and the closest vertice of the polygon.
+Hint: Notice that the circle is a polygon with an infinite number of edges. Fortunately we do not need to check all axes normal to the edges.
+It's sufficient to check the axes normal to the polygon edges plus ONE axis formed by the circle center and the closest vertex of the polygon.
 
 
 The checker will not verify your implementation for this step, so we encourage that you do your own testing. 
@@ -127,20 +127,16 @@ The checker will not verify your implementation for this step, so we encourage t
 
 We will be modifying the SECOND case in the `separating_axis_thm` function. 
 
-The `separating_axis_thm` function takes in a Polygon and a Circle as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
+The `separating_axis_thm` function takes in a polygon and a circle as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
 
 The first argument is a `bool` that is *True* if the shapes collide, and *False* if they do not. 
 
-The second argument is an optional `Segment` which you can use to verify which Segment you are projecting against in your implementation of the Separating Axis Theorem. 
+The second argument is an optional `Segment` which you can use to verify which segment you are projecting against in your implementation of the Separating Axis Theorem. 
 
 Note: In the instructor solution, most of the code is written in the previously implemented methods, and we only use the `separating_axis_thm` function to put all the pieces together. 
 
 
 Test cases are provided in the online checker for this exercise. 
-
-
-
-
 
 ### Collision Check Module
 
@@ -165,7 +161,7 @@ The context for this part of the exercise assumes a circle-shaped differential d
 You will implement various methods to check for collisions along the possible path of our robot in the following steps. It is important to note that each method you implement should adopt a unique approach to solving the collision-checking problem. As such, the code for each collision-checking function should be distinct from one another.
 
 By employing different strategies, you will gain a comprehensive understanding of the strengths and limitations of various collision detection methods, ultimately enhancing the robustness of the collision-checking module for path planning.
-To represent the path of robot, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+To represent the path of the robot, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
 
 ```python
 @dataclass(frozen=True)
@@ -173,11 +169,11 @@ class Path:
     waypoints: List[Point]
 ```
 
-Please note that the definition of `Path` and `Polygons` are similar. 
-`Polygon` class connects the first and last vertices by default. 
-However, there isn't any connection between first and last waypoints in `Path` objects. 
-For the remaining part of the exercise, you are free to use or modify `check_collision` function. You may also not use it.
-This functions takes two `GeoPrimitives` and check the collision between them by using the primitives implemented in the first part of this exercise.
+Please note that the definitions of `Path` and `Polygons` are similar. 
+The `Polygon` class connects the first and last vertices by default. 
+However, there isn't any connection between the first and last waypoints in `Path` objects. 
+For the remaining part of the exercise, you are free to use or modify the `check_collision` function. You may also not use it.
+This function takes two `GeoPrimitives` and checks the collision between them by using the primitives implemented in the first part of this exercise.
 
 The task is to implement the functions in the `CollisionChecker` class in `src/pdm4ar/exercises/ex06/collision_checker.py`.
 
@@ -186,35 +182,35 @@ The task is to implement the functions in the `CollisionChecker` class in `src/p
 In this step, you will implement a baseline version for collision checking by using the primitives implemented before. You should not use `shapely` here. (We will check!)
 The aim of this part is to check if a candidate path for our circular robot is collision-free. 
 
-You will implement `path_collision_check` function which returns the `Segment` indices of the given `Path` which are in collision with the given obstacles. 
+You will implement the `path_collision_check` function which returns the `Segment` indices of the given `Path` which are in collision with the given obstacles. 
 This function takes a `Path` *t*, the radius of the robot's occupancy *r*, and a list of obstacles as arguments. 
 It returns the list of indices which represents the `Segment`s of the `Path` which are in collision with any of the obstacles.
 
 #### Step 5: Collision Checking via Occupancy Grid
 
-The aim and all the assumptions are same as `Step 8`. 
-However, in this step, you will use different approach for collision checking. 
+The aim and all of the assumptions are the same as Step 4. 
+However, in this step, you will use a different approach for collision checking. 
 You are asked to implement collision checking via occupancy grids. 
 You will initially create an occupancy grid of the given environment. 
 Then using the occupancy grid, you will find the segments of the path in which our robot will collide. You may use the functionalities of `shapely` here. Note that you will have to convert the `GeoPrimitives` to `shapely` geometries in order to work with `shapely`.
 
-In this step, you will implement `path_collision_check_occupancy_grid` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
-This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
-It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles. Note that due to the discrete nature of an occupancy grid, it is completely reasonable that the method might not result in a perfect accuracy of 1.0.
+In this step, you will implement the `path_collision_check_occupancy_grid` function which returns the `Segment` indices of the given `Path` which collide with any of the given obstacles. 
+This function takes a `Path` *t*, the radius of the robot *r*, and a list of obstacles as arguments. 
+It returns the list of indices which represents the `Segment`s of the `Path` which collide with any of the obstacles. Note that due to the discrete nature of an occupancy grid, it is completely reasonable that the method might not result in perfect accuracy of 1.0.
 
 #### Step 6: Collision Checking using R-Trees
 
-The aim and all of the assumptions are same as `Step 8`. 
+The aim and all of the assumptions are the same as Step 4. 
 Like previous steps, the aim is to find the segments of the path in which our circular robot will collide. 
 However, in this step you will use R-Tree to increase the execution time performance of your collision check module. 
 R-Tree is an important optimization approach that is used in collision checking. 
-For environments with high number of obstacles, it provides us an execution time decrease via its bounding box volume hierarchy structure. 
+For environments with a high number of obstacles, it provides us an execution time decrease via its bounding box volume hierarchy structure. 
 In this method, you will build an R-Tree of the given obstacles. You may use the functionalities of `shapely` here, including `STRTree`.
 You are also free to implement your own R-Tree if you wish.
 
-In this step, you will implement `path_collision_check_r_tree` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
-This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
-It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
+In this step, you will implement the `path_collision_check_r_tree` function which returns the `Segment` indices of the given `Path` which collide with any of the given obstacles. 
+This function takes a `Path` *t*, the radius of the robot *r*, and a list of obstacles as arguments. 
+It returns the list of indices which represents the `Segment`s of the `Path` which collide with any of the obstacles.
 
 #### Step 7: Collision Checking in Robot Frame
 
@@ -229,31 +225,39 @@ The function needs to check if there is a collision during the movement of the r
     <em>Sensor frame diagram</em>
 </p>
 
-In this step, you will implement `collision_check_robot_frame` function which returns the *True* if robot will collide with any of the fixed obstacles during its movement until its next pose. 
-This function takes radius of the robot *r*, current pose `SE2transform`, next pose `SE2transform`, and list of observed obstacles in robot frame as arguments. 
+In this step, you will implement the `collision_check_robot_frame` function which returns *True* if the robot will collide with any of the fixed obstacles during its movement until its next pose. 
+This function takes the radius of the robot *r*, current pose `SE2transform`, next pose `SE2transform`, and list of observed obstacles in robot frame as arguments. 
 
 #### Step 8: Collision Checking via Safety Certificates
 
-The aim and all the assumptions are the same as in `Step 8`. 
+The aim and all the assumptions are the same as in Step 4. 
 Like the previous steps, the aim is to find the segments of the path in which our circular robot will collide. 
 However, in this step you will use a different optimization method called Safety Certificates. 
-For environments with small number of obstacles but high number of points to be checked, it provides us an execution time decrease via the approach it uses on collision check. 
+For environments with a small number of obstacles but high number of points to be checked, it provides us an execution time decrease via the approach it uses for collision checking. 
 To obtain detailed information about the algorithm, you can check the part that is related to the safety certificates from the [given paper](https://journals.sagepub.com/doi/full/10.1177/0278364915625345) (`Algorithm 1`). You may use the functionalities of `shapely` here (the distance between a point and an obstacle can be easily calculated in `shapely` via the `distance` function).
 
-In this step, you will implement `path_collision_check_safety_certificate` function which returns the `Segment` indices of the given `Path` which collides with any of the given obstacles. 
-This function takes `Path` *t*, radius of the robot *r*, and list of obstacles as arguments. 
-It returns the list of indices which represents the `Segment`s of the `Path` which collides with any of the obstacles.
+In this step, you will implement the `path_collision_check_safety_certificate` function which returns the `Segment` indices of the given `Path` which collide with any of the given obstacles. 
+This function takes a `Path` *t*, the radius of the robot *r*, and a list of obstacles as arguments. 
+It returns the list of indices which represents the `Segment`s of the `Path` which collide with any of the obstacles.
 
 ### Evaluation
 
 For this exercise our performance metric is accuracy and execution time.
-As test data, for each step random inputs are generated with the algorithm provided in `src/pdm4ar/exercises_def/ex06/data.py`. 
-For each step, there are multiple test cases. 
-The accuracies of steps 1-6 are calculated by the ratio of the correct answers. 
-For the steps 6-11, List of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path.
-The accuracies of steps 6-11 are calculated by the average of the accuracy of test cases. 
-Execution time of each step is calculated as an average of its test cases.
-Lastly, accuracies and execution times of each step are aggregated as weighted average. 
+
+**Test Data Generation:**
+- For each step, random inputs are generated with the algorithm provided in `src/pdm4ar/exercises_def/ex06/data.py`
+- Each step contains multiple test cases
+
+**Accuracy Calculation:**
+- **Steps 1-3:** Accuracies are calculated by the ratio of correct answers
+- **Steps 4-8:** Lists of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path
+- **Steps 4-8:** Accuracies are calculated by the average of the accuracy of test cases
+
+**Execution Time:**
+- Execution time of each step is calculated as an average of its test cases
+
+**Final Scoring:**
+- Accuracies and execution times of each step are aggregated as a weighted average
 
 | Step **ID** | **Number of Test Cases** | *Accuracy Weight* | *Solving Time Weight* |
 |-------------|--------------------------|-------------------|-----------------------|
