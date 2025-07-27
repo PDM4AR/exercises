@@ -54,7 +54,18 @@ If a successor of the expanded node is already in the queue, it should not be ad
 The algorithms are going to be tested on different graphs, each containing randomly generated queries (start &
 goal node).
 You'll be able to test your algorithms on some test cases with given solution, both the `Path` and `OpenedNodes` will be compared to the solution. 
-After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution. These test cases aren't graded but serve as a guideline for how the exercise will be graded overall.
+After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution.These test cases aren't graded but serve as a guideline for how the exercise will be graded overall.
+
+The first local tests are graph search problems that tests if your code is robust to basic edge cases. Then other local tests are in the form of grid search problem. A grid could be represented as a graph considering the square as nodes and the adjacemt squares as their direct neighbours. Thus a grid search problem can be converted in a regular graph search with adjacency list. This step is alread done for you, so in the end the grid representation is just a way to visualize better the functioning of the algorithms.
+
+Here is an example of a grid where the start is in orange  and the goal in blue, the black squares being obstacles.
+
+
+
+#### develop your own test cases
+
+It is probable that you want to test our code on other local tests. In that case, ...
+
 
 The final evaluation will combine 3 metrics lexicographically <number of solved test cases, accuracy, time>:
 * **Accuracy**: The problem has been formulated to allow for 1 unique solution to both `Path` and `OpenedNodes`. 

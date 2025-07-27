@@ -46,10 +46,10 @@ def result_to_matrix(opened: OpenedNodes, path: Path, start: int, goal: int, gri
             grid[r][c] = 3
 
     r, c = id2idx(start)
-    grid[r][c] = 4
+    grid[r][c] = 4  # orange
 
     r, c = id2idx(goal)
-    grid[r][c] = 5
+    grid[r][c] = 5  # blue
 
     return grid
 
