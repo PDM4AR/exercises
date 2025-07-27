@@ -100,28 +100,17 @@ The second argument is an optional `Segment` which you can use to visualize whic
 
 ## Part 2: Collision Check Module
 
-In the second part of this exercise, we will explore an alternative method for detecting collisions using shape intersections and triangulation. Although triangulation is less commonly employed than the Separating Axis Theorem (SAT), it offers an intuitive approach for decomposing large polygons into manageable triangular shapes.
+In this part, you will implement a collision checking module for a circle-shaped differential drive robot navigating through obstacles.
 
-For this exercise, the `CollisionPrimitives` class located in `src/pdm4ar/exercises/ex06/collision_primitives.py` is provided to you. This class includes the following functions:
+**Context:** A circular robot moves along predefined paths in a 2D world with fixed obstacles (circles, triangles, polygons).
 
-- `circle_point_collision`
-- `triangle_point_collision`
-- `polygon_point_collision`
-- `circle_segment_collision`
-- `sample_segment`
-- `triangle_segment_collision`
-- `polygon_segment_collision`
-- `polygon_segment_collision_aabb`
-- `_poly_to_aabb`
+**Goal:** Implement different collision detection methods to check if robot paths are collision-free. Each method should use a unique approach to solve the collision-checking problem.
 
-We recommend that you thoroughly review these functions, as they will be crucial for the subsequent steps of the exercise.
+**Available Tools:** 
+- All collision check primitives implemented in `Part 1`
+- Collision check primitives between [circle, polygon, triangle] and [point, segment] provided in the `CollisionPrimitives` class (`src/pdm4ar/exercises/ex06/collision_primitives.py`).
 
-The context for this part of the exercise assumes a circle-shaped differential drive robot navigating a 2D world populated with fixed obstacles arranged along a predefined path. These obstacles can be circular, triangular, or polygonal in shape.
-
-You will implement various methods to check for collisions along the possible path of our robot in the following steps. It is important to note that each method you implement should adopt a unique approach to solving the collision-checking problem. As such, the code for each collision-checking function should be distinct from one another.
-
-By employing different strategies, you will gain a comprehensive understanding of the strengths and limitations of various collision detection methods, ultimately enhancing the robustness of the collision-checking module for path planning.
-To represent the path of the robot, the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+**Path Representation:** Robot paths use this data structure (`src/pdm4ar/exercises_def/ex06/structures.py`):
 
 ```python
 @dataclass(frozen=True)
@@ -129,48 +118,50 @@ class Path:
     waypoints: List[Point]
 ```
 
-Please note that the definitions of `Path` and `Polygons` are similar. 
-The `Polygon` class connects the first and last vertices by default. 
-However, there isn't any connection between the first and last waypoints in `Path` objects. 
-For the remaining part of the exercise, you are free to use or modify the `check_collision` function. You may also not use it.
-This function takes two `GeoPrimitives` and checks the collision between them by using the primitives implemented in the first part of this exercise.
+Unlike `Polygon` which connects first and last vertices, `Path` does not connect first and last waypoints.
 
-The task is to implement the functions in the `CollisionChecker` class in `src/pdm4ar/exercises/ex06/collision_checker.py`.
+You will implement functions in the `CollisionChecker` class (`src/pdm4ar/exercises/ex06/collision_checker.py`) using different collision detection strategies.
 
 #### Step 4: Collision Checking Procedure for Circle-shaped Robot
 
-In this step, you will implement a baseline version for collision checking by using the primitives implemented before. You should not use `shapely` here. (We will check!)
-The aim of this part is to check if a candidate path for our circular robot is collision-free. 
+In this step, you will implement a baseline version for collision checking by using the available primitives. You should not use `shapely` here. (We will check!)
 
 You will implement the `path_collision_check` function which returns the `Segment` indices of the given `Path` which are in collision with the given obstacles. 
 This function takes a `Path` *t*, the radius of the robot's occupancy *r*, and a list of obstacles as arguments. 
 It returns the list of indices which represents the `Segment`s of the `Path` which are in collision with any of the obstacles.
 
+**Hint:** To account for the robot's radius, you can either 
+1. inflate the obstacles by the robot's radius (making a larger "danger zone") and convert a robot-vs-obstacle collision check into a point-vs-inflated-obstacle check.
+2. or inflate path segments by the robot's radius and reuse the poly-poly and poly-circle collision check primitives implemented in `Part 1`.
+
 #### Step 5: Collision Checking via Occupancy Grid
 
-The aim and all of the assumptions are the same as Step 4. 
-However, in this step, you will use a different approach for collision checking. 
-You are asked to implement collision checking via occupancy grids. 
-You will initially create an occupancy grid of the given environment. 
-Then using the occupancy grid, you will find the segments of the path in which our robot will collide. You may use the functionalities of `shapely` here. Note that you will have to convert the `GeoPrimitives` to `shapely` geometries in order to work with `shapely`.
+The aim and all of the assumptions are the same as `Step 4`.
 
-In this step, you will implement the `path_collision_check_occupancy_grid` function which returns the `Segment` indices of the given `Path` which collide with any of the given obstacles. 
-This function takes a `Path` *t*, the radius of the robot *r*, and a list of obstacles as arguments. 
-It returns the list of indices which represents the `Segment`s of the `Path` which collide with any of the obstacles. Note that due to the discrete nature of an occupancy grid, it is completely reasonable that the method might not result in perfect accuracy of 1.0.
+Implement collision checking using an occupancy grid approach. You may use `shapely` here.
+
+**Method:**
+1. Create an occupancy grid representing the environment
+2. Mark obstacle cells as occupied
+3. Check which path segments pass through occupied cells
+
+You will implement the `path_collision_check_occupancy_grid` function which returns the `Segment` indices of colliding path segments.
+
+**Note:** Due to the discrete nature of occupancy grids, perfect accuracy of 1.0 is not expected.
 
 #### Step 6: Collision Checking using R-Trees
 
-The aim and all of the assumptions are the same as Step 4. 
-Like previous steps, the aim is to find the segments of the path in which our circular robot will collide. 
-However, in this step you will use R-Tree to increase the execution time performance of your collision check module. 
-R-Tree is an important optimization approach that is used in collision checking. 
-For environments with a high number of obstacles, it provides us an execution time decrease via its bounding box volume hierarchy structure. 
+The aim and all of the assumptions are the same as `Step 4`.
+
+However, in this step you will use R-Tree to increase the execution time performance of your collision check module.
+
+R-Tree is an important optimization approach that is used in collision checking.
+For environments with a high number of obstacles, it provides us an execution time decrease via its bounding box volume hierarchy structure.
+
 In this method, you will build an R-Tree of the given obstacles. You may use the functionalities of `shapely` here, including `STRTree`.
 You are also free to implement your own R-Tree if you wish.
 
-In this step, you will implement the `path_collision_check_r_tree` function which returns the `Segment` indices of the given `Path` which collide with any of the given obstacles. 
-This function takes a `Path` *t*, the radius of the robot *r*, and a list of obstacles as arguments. 
-It returns the list of indices which represents the `Segment`s of the `Path` which collide with any of the obstacles.
+In this step, you will implement the `path_collision_check_r_tree` function which returns the `Segment` indices of colliding path segments.
 
 #### Step 7: Collision Checking in Robot Frame
 
