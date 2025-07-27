@@ -1,4 +1,4 @@
-# Collision Checking :computer:
+# Collision Checking :collision:
 
 <table>
   <tr>
@@ -6,87 +6,65 @@
   </tr>
 </table>
 
-## Exercise
+## Exercise Overview
 
-Collision checking is an indispensable feature of any effective planning system. In this exercise, you will design and implement a basic collision checking module tailored for a circle-shaped differential drive robot. The primary goal is to create a module capable of performing collision checks between fundamental geometric primitives, thereby enabling the evaluation of whether a robot's candidate (sub-)paths are collision-free.
+In this exercise, you will implement a collision checking module for a circle-shaped differential drive robot. The module will:
 
-### Collision Check Primitives
-To kick off, we will develop collision check primitives for elementary geometric shapes. For this purpose, we'll employ the Separating Axis Theorem (SAT) for 2D primitives. SAT is a robust method for collision checking between any convex n-polygon, frequently used in path planning, robotic navigation, and game development.
+- **Check collisions** between geometric primitives (circles, polygons, segments)
+- **Evaluate path safety** by determining if robot paths are collision-free
+- **Use multiple approaches** including SAT, occupancy grids, R-trees, and safety certificates
 
-#### Separating Axis Theorem (SAT) Recap
-The Separating Axis Theorem asserts that if two sets are closed and at least one set is compact, there exists a hyperplane separating them. Essentially, this implies the existence of two parallel hyperplanes with a gap in between. An axis orthogonal to such a separating hyperplane is referred to as a Separating Axis. The orthogonal projections of the convex bodies onto this axis are disjoint, ensuring no overlap and thus no collision.
-By leveraging SAT, we can efficiently determine whether simple geometric shapes such as circles or polygons intersect, thereby facilitating reliable collision checks for our robot's path planning needs. 
-These will come in handy later on. 
+Unless otherwise specified, you are **NOT allowed** to use any geometry libraries like `shapely` for geometric operations and collision detection. :warning: We will check your implementation for this. :warning:
+
+## Part 1: Collision Check Primitives
+
+### Recap: Separating Axis Theorem (SAT)
+
+**Key Concept:** Two convex shapes do not collide if there exists a separating axis where their projections do not overlap.
+
+**How it works:**
+1. **Find candidate axes** - typically perpendicular to edges of the shapes
+2. **Project both shapes** onto each axis
+3. **Check for overlap** - if any axis shows no overlap, shapes don't collide
+4. **Collision occurs** only if projections overlap on ALL axes
 
 #### Step 1: Project A Polygon onto a Segment
-The first step is to implement the functions inside the `CollisionPrimitives_SeparateAxis` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
 
-In this section, we suggest the use of linear algebra modules like `numpy`. 
-However, you are **not** allowed to use modules that implement collision checking directly such as `shapely`. We will be checking solutions for correct implementation without usage of `shapely`.
+First, implement the `proj_polygon` function inside the `CollisionPrimitives_SeparateAxis` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
 
-Implement a function that projects a polygon onto a segment (the segment will later represent the axis when implementing the theorem). Accuracy of the projection is checked by the length of the section of the segment onto which the polygon is projected, as well as having the endpoints of the projected segment be within some epsilon. 
+It projects a polygon onto an axis and returns the projection segment.
 
-To represent a Polygon and Segment, the following data structures (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+You can use the `numpy` library for linear algebra operations, but you should not use any geometry libraries like `shapely` in this step. 
 
-```python
-@dataclass(frozen=True)
-class Segment(GeoPrimitive):
-    p1: Point
-    p2: Point
-
-@dataclass(frozen=True)
-class Polygon(GeoPrimitive):
-    vertices: list[Point]
-
-```
-
-In this part, you will implement the `proj_polygon` function of the `CollisionPrimitives_SeparateAxis` class. 
-
-As arguments, the function takes in a Polygon and a Segment, and returns a Segment type. You are to project the Polygon onto the Segment, and return a shorter Segment that represents the resulting projection. 
-
-Note: For this step, you will only be checked on projecting an N-sided polygon. However, note that the function also accepts a Circle as an input argument. You may need to modify your implementation of the `proj_polygon` function to also accept circles when you get to Task 3. 
-
+**Notes:**
+- We use a line segment (bounded by two points) to represent an straight-line/axis (extending infinitely in both directions) containing the segment
+- The axis does not necessarily pass through the origin
+- The projection is a segment bounded by two endpoints on the axis
+- Projection accuracy is verified by segment length and endpoint precision
+- Function signature also accepts `Circle` input for later use in Step 3
 
 #### Step 2a: Determine if Two Segments Overlap or Not
-In this step, you will implement a function that determines whether two segments overlap or not. 
 
-The segment datatype (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+Implement the `overlap` function inside the `CollisionPrimitives_SeparateAxis` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
 
-```python
-@dataclass(frozen=True)
-class Segment(GeoPrimitive):
-    p1: Point
-    p2: Point
-```
+It checks if two line segments overlap (intersect).
 
-You will implement the `overlap` function that takes in two `Segment`s *s1* and *s2* as arguments and returns *True* if they overlap (intersect) or *False* if they do not. 
-
-The checker will not verify your implementation for this step, so we encourage that you do your own testing. 
-
+**Note:** This function will be used in later steps for SAT implementation, but is not directly tested by the checker
 
 #### Step 2b: Return a List of Candidate Separating Axes
-In this step, you will implement a function that gets candidate separating axes given two polygons. 
+Implement a function that gets candidate separating axes given two polygons.
 
-The polygon datatype (`src/pdm4ar/exercises_def/ex06/structures.py`) will be used:
+You will implement the `get_axes` function inside the `CollisionPrimitives_SeparateAxis` class in `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
 
-```python
-@dataclass(frozen=True)
-class Polygon(GeoPrimitive):
-    vertices: list[Point]
-```
-Note that if two polygons do not intersect, there are potentially infinite separating axes that can be computed. As a hint, return one axis per EdgePoly1-EdgePoly2 pairing. We also recommend returning axes that are orthogonal to the edges of each polygon only. 
+If two polygons do not intersect, there are potentially infinite separating axes that can be computed. As a hint, we recommend returning axes that are orthogonal to the edges of each polygon only. 
 
-You will implement the `get_axes` function, which takes in two `Polygon`s: *p1* and *p2*.
-
-You will output a list of segments, each representing a separating axis. We recommend constructing each segment with the same length and long enough to cover both polygons. (A common heuristic is to make each segment of length 10)
-
-The checker will not verify your implementation for this step, so we encourage that you do your own testing. 
+**Note:** The checker will not verify your implementation for this step, so we encourage that you do your own testing. 
 
 #### Step 2c: Separating Axis Theorem for Two Polygons
 
 In this step, we bring it all together and implement the Separating Axis Theorem for two polygons.
 
-We will be modifying the FIRST case in the `separating_axis_thm` function. 
+We will be modifying the **first** case in the `separating_axis_thm` function.
 
 Using the methods you have previously implemented: `get_axes`, `proj_polygon`, and `overlap`, determine using the Separating Axis Theorem if two polygons intersect with each other or not. 
 
@@ -94,51 +72,33 @@ The `separating_axis_thm` function takes in two polygons as inputs: *p1* and *p2
 
 The first argument is a `bool` that is *True* if the polygons collide, and *False* if they do not. 
 
-The second argument is an optional `Segment` which you can use to verify which segment you are projecting against in your implementation of the Separating Axis Theorem. 
-
-Note: In the instructor solution, most of the code is written in the previously implemented methods, and we only use the `separating_axis_thm` function to put all the pieces together. 
-
-
-Test cases are provided in the online checker for this exercise. 
-
+The second argument is an optional `Segment` which you can use to visualize which segment you are projecting against in your implementation of the Separating Axis Theorem. 
 
 #### Step 3a: Return a List of Candidate Separating Axes for a Polygon and a Circle
 We now move to computing separating axes for a polygon and a circle. 
 
-We will use the Circle GeoPrimitive (`src/pdm4ar/exercises_def/ex06/structures.py`):
-
-```python
-@dataclass(frozen=True)
-class Circle(GeoPrimitive):
-    center: Point
-    radius: float
-```
 
 You will implement the function `get_axes_cp` that takes as inputs a `Circle` *circ* and a `Polygon` *poly* and returns a list of segments, which will represent the axes.  
 
-Hint: Notice that the circle is a polygon with an infinite number of edges. Fortunately we do not need to check all axes normal to the edges.
+**Hint**: Notice that the circle is a polygon with an infinite number of edges. Fortunately we do not need to check all axes normal to the edges.
 It's sufficient to check the axes normal to the polygon edges plus ONE axis formed by the circle center and the closest vertex of the polygon.
 
 
-The checker will not verify your implementation for this step, so we encourage that you do your own testing. 
+**Note**: The checker will not verify your implementation for this step, so we encourage that you do your own testing.
 
 
 #### Step 3b: Separating Axis Theorem for a Polygon and a Circle
 
-We will be modifying the SECOND case in the `separating_axis_thm` function. 
+We will be modifying the **second** case in the `separating_axis_thm` function. 
 
 The `separating_axis_thm` function takes in a polygon and a circle as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
 
 The first argument is a `bool` that is *True* if the shapes collide, and *False* if they do not. 
 
-The second argument is an optional `Segment` which you can use to verify which segment you are projecting against in your implementation of the Separating Axis Theorem. 
-
-Note: In the instructor solution, most of the code is written in the previously implemented methods, and we only use the `separating_axis_thm` function to put all the pieces together. 
+The second argument is an optional `Segment` which you can use to visualize which segment you are projecting against in your implementation of the Separating Axis Theorem. 
 
 
-Test cases are provided in the online checker for this exercise. 
-
-### Collision Check Module
+## Part 2: Collision Check Module
 
 In the second part of this exercise, we will explore an alternative method for detecting collisions using shape intersections and triangulation. Although triangulation is less commonly employed than the Separating Axis Theorem (SAT), it offers an intuitive approach for decomposing large polygons into manageable triangular shapes.
 
