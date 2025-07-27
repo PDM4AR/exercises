@@ -1,19 +1,20 @@
 from typing import List
+
+import shapely
 from dg_commons import SE2Transform
 from pdm4ar.exercises.ex06.collision_primitives import (
     CollisionPrimitives,
     CollisionPrimitives_SeparateAxis,
 )
 from pdm4ar.exercises_def.ex06.structures import (
-    Polygon,
-    GeoPrimitive,
-    Point,
-    Segment,
     Circle,
-    Triangle,
+    GeoPrimitive,
     Path,
+    Point,
+    Polygon,
+    Segment,
+    Triangle,
 )
-import shapely
 
 ##############################################################################################
 ############################# This is a helper function. #####################################
@@ -47,16 +48,19 @@ COLLISION_PRIMITIVES = {
 
 def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
     """
-    Checks collision between 2 geometric primitives
-    Note that this function only uses the functions that you implemented in CollisionPrimitives class.
-        Parameters:
-                p_1 (GeoPrimitive): Geometric Primitive
-                p_w (GeoPrimitive): Geometric Primitive
+    Check collision between two geometric primitives.
+
+    Uses the collision detection functions from CollisionPrimitives class.
+
+    Args:
+        p_1: First geometric primitive
+        p_2: Second geometric primitive
+
+    Returns:
+        True if primitives collide, False otherwise
     """
     assert type(p_1) in COLLISION_PRIMITIVES, "Collision primitive does not exist."
-    assert (
-        type(p_2) in COLLISION_PRIMITIVES[type(p_1)]
-    ), "Collision primitive does not exist."
+    assert type(p_2) in COLLISION_PRIMITIVES[type(p_1)], "Collision primitive does not exist."
 
     collision_func = COLLISION_PRIMITIVES[type(p_1)][type(p_2)]
 
@@ -70,10 +74,13 @@ def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
 
 def geo_primitive_to_shapely(p: GeoPrimitive):
     """
-    Given function.
+    Convert geometric primitive to Shapely object.
 
-    Casts a geometric primitive into a Shapely object. Feel free to use this function or not
-    for the later tasks.
+    Args:
+        p: Geometric primitive to convert
+
+    Returns:
+        Corresponding Shapely geometry object
     """
     if isinstance(p, Point):
         return shapely.Point(p.x, p.y)
@@ -92,63 +99,60 @@ def geo_primitive_to_shapely(p: GeoPrimitive):
 
 class CollisionChecker:
     """
-    This class implements the collision check ability of a simple planner for a circular differential drive robot.
+    Collision detection for a circular differential drive robot.
 
-    Note that check_collision could be used to check collision between given GeoPrimitives
-    check_collision function uses the functions that you implemented in CollisionPrimitives class.
+    Implements various collision checking methods including basic collision detection,
+    occupancy grids, R-trees, and safety certificates.
     """
 
     def __init__(self):
         pass
 
-    def path_collision_check(
-        self, t: Path, r: float, obstacles: list[GeoPrimitive]
-    ) -> list[int]:
+    def path_collision_check(self, t: Path, r: float, obstacles: list[GeoPrimitive]) -> list[int]:
         """
-        Returns the indices of collided line segments.
-        Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1.
+        Check path for collisions using basic collision detection.
 
-            Parameters:
-                    t (Path): Path of circular differential drive robot
-                    r (float): Radius of circular differential drive robot
-                    obstacles (list[GeoPrimitive]): list of obstacles as GeoPrimitives
-                    Please note that only Triangle, Circle and Polygon exist in this list
-        """
-        return []
+        Args:
+            t: Robot path with waypoints
+            r: Robot radius
+            obstacles: List of obstacle primitives (Triangle, Circle, Polygon)
 
-    def path_collision_check_occupancy_grid(
-        self, t: Path, r: float, obstacles: list[GeoPrimitive]
-    ) -> list[int]:
-        """
-        Returns the indices of collided line segments.
-        Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1
-
-        In this method, you will generate an occupancy grid of the given map.
-        Then, occupancy grid will be used to check collisions.
-
-            Parameters:
-                    t (Path): Path of circular differential drive robot
-                    r (float): Radius of circular differential drive robot
-                    obstacles (list[GeoPrimitive]): list of obstacles as GeoPrimitives
-                    Please note that only Triangle, Circle and Polygon exist in this list
+        Returns:
+            List of indices of collided line segments (0-indexed)
         """
         return []
 
-    def path_collision_check_r_tree(
-        self, t: Path, r: float, obstacles: list[GeoPrimitive]
-    ) -> list[int]:
+    def path_collision_check_occupancy_grid(self, t: Path, r: float, obstacles: list[GeoPrimitive]) -> list[int]:
         """
-        Returns the indices of collided line segments.
-        Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1
+        Check path for collisions using occupancy grid method.
 
-        In this method, you will build an R-Tree of the given obstacles.
-        You are free to implement your own R-Tree or you could use STRTree of shapely module.
+        Generates an occupancy grid representation of the map for efficient
+        collision checking.
 
-            Parameters:
-                    t (Path): Path of circular differential drive robot
-                    r (float): Radius of circular differential drive robot
-                    obstacles (List[GeoPrimitive]): List of obstacles as GeoPrimitives
-                    Please note that only Triangle, Circle and Polygon exist in this list
+        Args:
+            t: Robot path with waypoints
+            r: Robot radius
+            obstacles: List of obstacle primitives (Triangle, Circle, Polygon)
+
+        Returns:
+            List of indices of collided line segments (0-indexed)
+        """
+        return []
+
+    def path_collision_check_r_tree(self, t: Path, r: float, obstacles: list[GeoPrimitive]) -> list[int]:
+        """
+        Check path for collisions using R-tree spatial indexing.
+
+        Builds an R-tree of obstacles for efficient spatial queries.
+        Can use custom implementation or Shapely's STRTree.
+
+        Args:
+            t: Robot path with waypoints
+            r: Robot radius
+            obstacles: List of obstacle primitives (Triangle, Circle, Polygon)
+
+        Returns:
+            List of indices of collided line segments (0-indexed)
         """
         return []
 
@@ -160,33 +164,32 @@ class CollisionChecker:
         observed_obstacles: list[GeoPrimitive],
     ) -> bool:
         """
-        Returns there exists a collision or not during the movement of a circular differential drive robot until its next pose.
+        Check for collisions during robot movement in robot frame.
 
-            Parameters:
-                    r (float): Radius of circular differential drive robot
-                    current_pose (SE2Transform): Current pose of the circular differential drive robot
-                    next_pose (SE2Transform): Next pose of the circular differential drive robot
-                    observed_obstacles (List[GeoPrimitive]): List of obstacles as GeoPrimitives in robot frame
-                    Please note that only Triangle, Circle and Polygon exist in this list
+        Args:
+            r: Robot radius
+            current_pose: Current robot pose
+            next_pose: Target robot pose
+            observed_obstacles: Obstacles in robot coordinate frame
+
+        Returns:
+            True if collision detected during movement, False otherwise
         """
         return False
 
-    def path_collision_check_safety_certificate(
-        self, t: Path, r: float, obstacles: list[GeoPrimitive]
-    ) -> list[int]:
+    def path_collision_check_safety_certificate(self, t: Path, r: float, obstacles: list[GeoPrimitive]) -> list[int]:
         """
-        Returns the indices of collided line segments.
-        Note that index of first line segment is 0 and last line segment is len(t.waypoints)-1
+        Check path for collisions using safety certificates method.
 
-        In this method, you will implement the safety certificates procedure for collision checking.
-        You are free to use shapely to calculate distance between a point and a GoePrimitive.
-        For more information, please check Algorithm 1 inside the following paper:
-        https://journals.sagepub.com/doi/full/10.1177/0278364915625345.
+        Implements the safety certificates procedure as described in:
+        https://journals.sagepub.com/doi/full/10.1177/0278364915625345
 
-            Parameters:
-                    t (Path): Path of circular differential drive robot
-                    r (float): Radius of circular differential drive robot
-                    obstacles (list[GeoPrimitive]): list of obstacles as GeoPrimitives
-                    Please note that only Triangle, Circle and Polygon exist in this list
+        Args:
+            t: Robot path with waypoints
+            r: Robot radius
+            obstacles: List of obstacle primitives (Triangle, Circle, Polygon)
+
+        Returns:
+            List of indices of collided line segments (0-indexed)
         """
         return []
