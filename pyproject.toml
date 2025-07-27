@@ -54,6 +54,8 @@ do-mpc = "4.6.5"
 # optimization
 scipy = "1.14.0"
 pulp = ">=2.7.0"
+qdldl = "0.1.7.post5" # later versions do not work for M chips
+osqp = "0.6.3"
 cvxpy = { version = "1.5.3", extras = ["CVXOPT", "CBC", ] }
 casadi = "3.6.5"
 sympy = "1.13.0"
