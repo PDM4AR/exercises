@@ -56,16 +56,59 @@ goal node).
 You'll be able to test your algorithms on some test cases with given solution, both the `Path` and `OpenedNodes` will be compared to the solution. 
 After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution.These test cases aren't graded but serve as a guideline for how the exercise will be graded overall.
 
-The first local tests are graph search problems that tests if your code is robust to basic edge cases. Then other local tests are in the form of grid search problem. A grid could be represented as a graph considering the square as nodes and the adjacemt squares as their direct neighbours. Thus a grid search problem can be converted in a regular graph search with adjacency list. This step is alread done for you, so in the end the grid representation is just a way to visualize better the functioning of the algorithms.
+The first set of local tests are graph search problems designed to check whether your code handles basic edge cases correctly. Later tests take the form of grid search problems. A grid can be interpreted as a graph, where each square is a node connected to its adjacent squares with those directly above, below, left, or right as neighbors.
 
-Here is an example of a grid where the start is in orange  and the goal in blue, the black squares being obstacles.
+This means a grid search problem can be transformed into a standard graph search problem using an adjacency list. This transformation has already been done for you; the grid is simply used to provide a more intuitive visual representation of how the algorithms operate.
 
+Below is an example of a grid: the start node is shown in orange, the goal in blue, and the black squares represent obstacles. Movement is restricted to one step at a time, either vertically or horizontally.
+
+![image](https://github.com/user-attachments/assets/ea1fd09a-0068-409f-b12d-1040a60cebba)
 
 
 #### develop your own test cases
 
-It is probable that you want to test our code on other local tests. In that case, ...
+You may want to test your code on additional local cases. To do so, you can create your own tests by modifying the local test data in the `get_graph_search_problems` function located in `src/pdm4ar/exercises_def/ex02/data.py`. You can either define a custom graph or grid manually, or use the `random_geometric_graph` or `generate_random_grid` functions with a fixed seed to ensure reproducibility.
 
+```python
+# test graph 1
+easy01_id = "easy01"
+easy01: AdjacencyList = {1: {2, 3}, 2: {3, 4}, 3: {4}, 4: {3}, 5: {6}, 6: {3}}
+easy01_queries = {(1, 4), (2, 6), (6, 1), (6, 6), (5, 4)}
+graphsearch_prob.append(GraphSearchProblem(graph=easy01, queries=easy01_queries, graph_id=easy01_id))
+
+# test graph 2
+size_g2 = 10
+graph02_id = "graph02"
+graph02_nx = random_geometric_graph(size_g2, 0.5, seed=9)
+graph02: AdjacencyList = networkx_2_adjacencylist(graph02_nx)
+graph02_queries = queries_from_adjacency(graph02, 3, n_seed)
+graphsearch_prob.append(GraphSearchProblem(graph=graph02, queries=graph02_queries, graph_id=graph02_id))
+
+# test grid 1
+grid_id = "grid01"
+grid01: Grid = [[1, 1, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0]]
+grid01_queries = {(5, 16), (4, 5), (10, 3)}
+graphsearch_prob.append(GridSearchProblem(graph=None, grid=grid01, queries=grid01_queries, graph_id=grid_id))
+
+# test grid 2
+grid_id = "grid02"
+grid02: Grid = generate_random_grid(20, 0.25, seed=3)
+grid02_queries = generate_queries_grid(grid02, 3, seed=n_seed)
+graphsearch_prob.append(GridSearchProblem(graph=None, grid=grid02, queries=grid02_queries, graph_id=grid_id))
+```
+
+If you add or remove local test cases, don’t forget to update the ex2_get_expected_results function accordingly. Specifically, if you're adding a custom test for debugging purposes, it’s recommended to insert an empty list as a placeholder for its expected results. For example, if you add a new test case with one query at the end, you should append an empty list to the returned structure.
+
+```python
+# custom test dfs
+expected_results[12] = [([], [])]
+# custom test bfs
+expected_results[13] = [([], [])]
+# custom test id
+expected_results[14] = [([], [])]
+```
+
+### final evaluation
 
 The final evaluation will combine 3 metrics lexicographically <number of solved test cases, accuracy, time>:
 * **Accuracy**: The problem has been formulated to allow for 1 unique solution to both `Path` and `OpenedNodes`. 
