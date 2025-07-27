@@ -23,13 +23,12 @@ from pdm4ar.exercises_def.ex02.data import *
 from pdm4ar.exercises_def.structures import PerformanceResults
 from pdm4ar.exercises_def.structures import out_dir
 
-from pdm4ar.exercises.ex02.structures import AdjacencyList, Path, OpenedNodes, Query, Grid
-from typing import Optional, TypeVar, Set, Mapping, Tuple, List
+from pdm4ar.exercises.ex02.structures import Path, OpenedNodes, Grid
 
 
 def result_to_matrix(opened: OpenedNodes, path: Path, start: int, goal: int, grid: Grid) -> Grid:
 
-    def id2idx(node_id: int) -> Tuple[int, int]:
+    def id2idx(node_id: int) -> tuple[int, int]:
         n = len(grid)
         r = (node_id - 1) // n
         c = (node_id - 1) % n
@@ -261,8 +260,8 @@ class GraphImageCache:
 
 @dataclass(frozen=True)
 class Ex02PerformanceResult(PerformanceResults):
-    accuracy: dict[str, List[float]]
-    solve_time: dict[str, List[float]]
+    accuracy: dict[str, list[float]]
+    solve_time: dict[str, list[float]]
 
     def __post__init__(self):
         for algo, acc in self.accuracy.items():
