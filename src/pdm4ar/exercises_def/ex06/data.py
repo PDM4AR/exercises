@@ -201,46 +201,30 @@ class DataGenerator:
 
         # Generate random polygon
         poly = DataGenerator.generate_random_polygon(center=Point(5, 5), avg_radius=3.0)
-        # Generate the segment for the rand polygon
-        pt1 = Point(x=0.0, y=0.0)
+        # Generate 2 points for a random segment. These 2 points are not end points of the segment.
+        pt1 = np.array([0.0, np.random.uniform(0, 8)])
+        pt2 = np.array([10.0, np.random.uniform(0, 8)])
+        diff = pt2 - pt1
 
-        rand_num = np.random.uniform()
+        # Make the segment long enough to ensure the projection falls within the bounds of the segment. 20 is arbitrary big enough number.
+        extended_p1 = Point(pt1[0] - 20 * diff[0], pt1[1] - 20 * diff[1])
+        extended_p2 = Point(pt2[0] + 20 * diff[0], pt2[1] + 20 * diff[1])
 
-        if rand_num < 0.25:
-            y_coord_pt2 = 2.0
-        elif rand_num >= 0.25 and rand_num < 0.5:
-            y_coord_pt2 = 4.0
-        elif rand_num >= 0.5 and rand_num < 0.75:
-            y_coord_pt2 = 1.0
-        else:
-            y_coord_pt2 = 3.0
+        # Final project segment
+        seg = Segment(p1=extended_p1, p2=extended_p2)
 
-        pt2 = Point(x=40.0, y=y_coord_pt2)
-
-        seg = Segment(p1=pt1, p2=pt2)
-
-        # TODO: move to private repo from here till the end.
         # Project the polygon onto the segment.
         seg_shapely = geometry.LineString([[seg.p1.x, seg.p1.y], [seg.p2.x, seg.p2.y]])
-        min_dist = np.inf
-        min_proj_pt = None
-        max_dist = -np.inf
-        max_proj_pt = None
-        for vertice in poly.vertices:
-            vertice_shapely = geometry.Point(vertice.x, vertice.y)
-            dist = seg_shapely.project(vertice_shapely)
-            if dist < min_dist:
-                min_dist = dist
-                min_proj_pt = seg_shapely.interpolate(dist)
-            if dist > max_dist:
-                max_dist = dist
-                max_proj_pt = seg_shapely.interpolate(dist)
-        if min_proj_pt is not None and max_proj_pt is not None:
-            pt1_proj = Point(x=min_proj_pt.x, y=min_proj_pt.y)
-            pt2_proj = Point(x=max_proj_pt.x, y=max_proj_pt.y)
-            proj_seg = Segment(pt1_proj, pt2_proj)
+        projected_dists = []
+        for vertex in poly.vertices:
+            vertex_shapely = geometry.Point(vertex.x, vertex.y)
+            dist = seg_shapely.project(vertex_shapely)
+            assert 0 < dist < seg_shapely.length, "Projection distance is out of bounds."
+            projected_dists.append(dist)
 
-        # Create the 'true' segment, first project the polygon onto that segment. Can use shapely
+        min_proj_pt = seg_shapely.interpolate(min(projected_dists))
+        max_proj_pt = seg_shapely.interpolate(max(projected_dists))
+        proj_seg = Segment(min_proj_pt, max_proj_pt)
 
         return (poly, seg, proj_seg)
 

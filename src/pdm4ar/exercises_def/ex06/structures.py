@@ -93,7 +93,7 @@ class Circle(GeoPrimitive):
             self.radius,
             color="r",
             fill=False,
-            linewidth=5,
+            linewidth=2,
         )
         ax.set_aspect(1)
         ax.add_artist(draw_circle)
@@ -126,7 +126,7 @@ class Triangle(GeoPrimitive):
             [[self.v1.x, self.v1.y], [self.v2.x, self.v2.y], [self.v3.x, self.v3.y]],
             color="r",
             fill=False,
-            linewidth=5,
+            linewidth=2,
         )
         ax.set_aspect(1)
         ax.add_artist(draw_triangle)
@@ -179,7 +179,7 @@ class Polygon(GeoPrimitive):
             [[p.x, p.y] for p in self.vertices],
             color="r",
             fill=False,
-            linewidth=5,
+            linewidth=2,
         )
         ax.set_aspect(1)
         ax.add_artist(draw_poly)
@@ -292,7 +292,7 @@ class Polygon_3D(GeoPrimitive):
             [[p.x, p.y] for p in self.vertices],
             color="r",
             fill=False,
-            linewidth=5,
+            linewidth=2,
         )
         ax.set_aspect(1)
         ax.add_artist(draw_poly)

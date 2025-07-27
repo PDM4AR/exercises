@@ -42,9 +42,9 @@ def visualize_axis_poly(r: Report, ex_num: str, data: tuple[Polygon, Segment, Se
         # Draw Polygon
         poly.visualize(ax)
         # Draw original segment
-        seg.visualize(ax)
+        seg.visualize(ax, colour="green")
         # Draw projected Segment
-        proj_seg.visualize(ax, colour="b")
+        proj_seg.visualize(ax, colour="blue")
 
         ax.set_xlim(0, 10)
         ax.set_ylim(0, 10)
