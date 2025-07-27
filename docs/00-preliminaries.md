@@ -154,7 +154,7 @@ You will need Git on your computer and a GitHub account.
 
 #### Creating a GitHub account
 
-If you do not have already a GitHub account create a new one [here](https://github.com/join)
+If you do not have already a GitHub account create a new one [here](https://github.com/join).
 
 #### Setting up Git
 
@@ -179,7 +179,7 @@ Using an [IDE](https://en.wikipedia.org/wiki/Integrated_development_environment)
 But it provides a good set of tools that speed up the development (code navigation, debugging,...).
 Moreover, we will provide environment configurations that will make your life easier.
 
-We recommand using VS code. You can find installation instructions [here](https://code.visualstudio.com/). 
+We recommand using VS code. You can find installation instructions [here](https://code.visualstudio.com/docs/setup/setup-overview). 
 
 There are many other good IDEs for python (PyCharm, Atom, Spyder,...), they should work just fine if you know how to
 replicate exactly the development environment in `.devcontainer/` but we won't support them officially.
