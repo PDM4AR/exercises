@@ -1,23 +1,14 @@
 import math
 import random
 
-
 import numpy as np
+from dg_commons import SE2Transform
 from geometry.poses import SE2_from_translation_angle
 from numpy.linalg import inv
 from shapely import geometry, line_locate_point
-from dg_commons import SE2Transform
 
-from .structures import (
-    GeoPrimitive,
-    Point,
-    Path,
-    Polygon,
-    Circle,
-    Segment,
-    Triangle,
-)
 from .map_config import EXERCISE_MAP_CONFIGS
+from .structures import Circle, GeoPrimitive, Path, Point, Polygon, Segment, Triangle
 
 
 class DataGenerator:
@@ -461,7 +452,7 @@ class DataGenerator:
         for i, (p1, p2) in enumerate(zip(path.waypoints[:-1], path.waypoints[1:])):
             ls_shapely = geometry.LineString([geometry.Point(p1.x, p1.y), geometry.Point(p2.x, p2.y)])
             for obs in shapely_obstacles:
-                if ls_shapely.distance(obs) < r:
+                if ls_shapely.distance(obs) <= r:
                     ground_truth.append(i)
                     break
 

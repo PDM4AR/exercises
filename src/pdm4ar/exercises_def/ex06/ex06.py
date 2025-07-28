@@ -338,7 +338,7 @@ def get_exercise6() -> Exercise:
             (20, 20),
             impl_validate_func_wrapper=validate_impl_wrapper,
             disallowed_dependencies=disallowed_dependencies,
-        ),  # Task 4
+        ),  # Task 4 - Path Collision Check
         TestCollisionCheck(
             5,
             5,
@@ -348,7 +348,7 @@ def get_exercise6() -> Exercise:
             CollisionChecker().path_collision_check_occupancy_grid,
             idx_list_eval_function,
             (20, 20),
-        ),  # Task 5
+        ),  # Task 5 - Path Collision Check - Occupancy Grid
         TestCollisionCheck(
             5,
             6,
@@ -358,7 +358,7 @@ def get_exercise6() -> Exercise:
             CollisionChecker().path_collision_check_r_tree,
             idx_list_eval_function,
             (30, 30),
-        ),  # Task 6
+        ),  # Task 6 - Path Collision Check - R-Tree
         TestCollisionCheck(
             5,
             7,
@@ -368,7 +368,7 @@ def get_exercise6() -> Exercise:
             collision_check_robot_frame_loop,
             idx_list_eval_function,
             (20, 20),
-        ),  # Task 7
+        ),  # Task 7 - Collision Check - Rigid Body Transformation
         TestCollisionCheck(
             5,
             8,
@@ -378,7 +378,7 @@ def get_exercise6() -> Exercise:
             CollisionChecker().path_collision_check_safety_certificate,
             idx_list_eval_function,
             (30, 30),
-        ),  # Task 8
+        ),  # Task 8 - Path Collision Check - Safety Certificates
     ]
 
     total_weights = (
