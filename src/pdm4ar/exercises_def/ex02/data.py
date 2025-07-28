@@ -20,7 +20,6 @@ class GraphSearchProblem:
 
 @dataclass
 class GridSearchProblem(GraphSearchProblem):
-    graph: Optional[AdjacencyList]
     grid: Grid
 
 
@@ -189,13 +188,18 @@ def get_graph_search_problems(
     grid_id = "grid01"
     grid01: Grid = [[1, 1, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0]]
     grid01_queries = {(5, 16), (4, 5), (10, 3)}
-    graphsearch_prob.append(GridSearchProblem(graph=None, grid=grid01, queries=grid01_queries, graph_id=grid_id))
+
+    graphsearch_prob.append(
+        GridSearchProblem(graph=grid_to_adjacency_list(grid01), grid=grid01, queries=grid01_queries, graph_id=grid_id)
+    )
 
     # test grid 2
     grid_id = "grid02"
     grid02: Grid = generate_random_grid(20, 0.25, seed=3)
     grid02_queries = generate_queries_grid(grid02, 3, seed=n_seed)
-    graphsearch_prob.append(GridSearchProblem(graph=None, grid=grid02, queries=grid02_queries, graph_id=grid_id))
+    graphsearch_prob.append(
+        GridSearchProblem(graph=grid_to_adjacency_list(grid02), grid=grid02, queries=grid02_queries, graph_id=grid_id)
+    )
 
     for extra_problem in extra_test_graph_problems:
         graphsearch_prob.append(extra_problem)

@@ -279,11 +279,10 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceR
     graph_search_prob, algo_name = ex_in
 
     # check if graph_search_prob is GraphSearchProblem or GridSearchProblem
+    test_graph = graph_search_prob.graph
     if isinstance(graph_search_prob, GridSearchProblem):
         test_grid = graph_search_prob.grid
-    elif isinstance(graph_search_prob, GraphSearchProblem):
-        test_graph = graph_search_prob.graph
-    else:
+    elif not isinstance(graph_search_prob, (GraphSearchProblem, GridSearchProblem)):
         raise TypeError("graph_search_prob must be GraphSearchProblem or GridSearchProblem")
 
     test_queries = graph_search_prob.queries
@@ -338,9 +337,6 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceR
         rfig = r.figure(cols=2)
 
         # Your algo
-        if isinstance(graph_search_prob, GridSearchProblem):
-            # convert grid to adjacency list
-            test_graph = grid_to_adjacency_list(test_grid)
         search_algo = graph_search_algo[algo_name]()
         start_time = process_time()
         path, opened = search_algo.search(test_graph, query[0], query[1])
