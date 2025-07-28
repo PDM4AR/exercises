@@ -62,7 +62,7 @@ This means a grid search problem can be transformed into a standard graph search
 
 Below is an example of a grid: the start node is shown in orange, the goal in blue, and the black squares represent obstacles. Movement is restricted to one step at a time, either vertically or horizontally.
 
-![image](https://github.com/user-attachments/assets/ea1fd09a-0068-409f-b12d-1040a60cebba)
+![image](img/ex02_grid-search-example.png)
 
 
 #### develop your own test cases
