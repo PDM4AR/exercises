@@ -20,6 +20,7 @@ from pdm4ar.exercises_def.ex02 import str_from_path
 from pdm4ar.exercises.ex02.structures import X
 from pdm4ar.exercises_def.ex03.data import (
     ex3_get_expected_results,
+    ex3_compute_expected_results,
     get_test_informed_gsproblem,
     graph_dimensions,
     find_center_of_cities,
@@ -380,7 +381,7 @@ def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03Performanc
 
 def get_exercise3() -> Exercise:
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
-    expected_results = ex3_get_expected_results()
+    # expected_results = ex3_get_expected_results()
     test_values = list()
 
     def uniform_cost_heuristic_counter(
@@ -399,6 +400,8 @@ def get_exercise3() -> Exercise:
 
     for ab in product(test_wgraphs, algos):
         test_values.append(TestValueEx3(ab))
+
+    expected_results = ex3_compute_expected_results(test_values)
 
     return Exercise[TestValueEx3, Any](
         desc="This exercise is about graph search",

@@ -1,17 +1,20 @@
 from dataclasses import dataclass
 import pathlib
 import pickle
+from threading import local
 
 import osmnx as ox
+from requests import get
 from sklearn.cluster import KMeans
 import pandas as pd
 from frozendict import frozendict
-from networkx import MultiDiGraph, compose
+from networkx import MultiDiGraph, compose, astar_path, NetworkXNoPath
 import random
 from collections import defaultdict
 
 from pdm4ar.exercises.ex02.structures import Query, Path
 from pdm4ar.exercises.ex03.structures import WeightedGraph, TravelSpeed
+from pdm4ar.exercises.ex03.local_queries import get_local_queries
 from pdm4ar.exercises_def import networkx_2_adjacencylist, queries_from_adjacency
 
 _fast = (
@@ -122,11 +125,14 @@ def get_test_informed_gsproblem(
     # convert graph to InformedGraphSearchProblem
     data_in: list[InformedGraphSearchProblem] = []
     for i, G in enumerate(test_wgraphs):
-        q = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)
+        id_graph = graph_ids[i]
+        default_queries = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)  # set of queries
+        local_queries = get_local_queries(G, id_graph)
+        q = default_queries | local_queries
         p = InformedGraphSearchProblem(
             graph=G,
             queries=q,
-            graph_id=graph_ids[i],
+            graph_id=id_graph,
         )
         data_in.append(p)
     # add InformedGraphSearchProblem for evaluation
@@ -313,4 +319,29 @@ def ex3_get_expected_results() -> list[list[tuple[Path, int]]]:
         [(milan_path, 0)],  # astar milan
     ]
 
+    return expected_results
+
+
+def ex3_compute_expected_results(test_values: list[InformedGraphSearchProblem]) -> list[list[tuple[Path, int]]]:
+    expected_results = []
+    # loop over test cases
+    for prob, _ in test_values:
+        # get graph and queries
+        wG = prob.graph
+        test_queries = prob.queries
+        result = []
+        # loop over queries
+        for query in test_queries:
+            try:
+                path = astar_path(
+                    G=wG._G,
+                    source=query[0],
+                    target=query[1],
+                    heuristic=lambda v, u: 0,  # effectively Dijkstra
+                    weight='travel_time'
+                )
+            except NetworkXNoPath:
+                path = []
+            result.append((path, 0))
+        expected_results.append(result)
     return expected_results
