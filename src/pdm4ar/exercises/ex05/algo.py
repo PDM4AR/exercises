@@ -17,7 +17,7 @@ class Dubins(PathPlanner):
         self.params = params
 
     def compute_path(self, start: SE2Transform, end: SE2Transform) -> list[SE2Transform]:
-        """ Generates an optimal Dubins path between start and end configuration
+        """Generates an optimal Dubins path between start and end configuration
 
         :param start: the start configuration of the car (x,y,theta)
         :param end: the end configuration of the car (x,y,theta)
@@ -53,8 +53,12 @@ def calculate_car_turning_radius(wheel_base: float, max_steering_angle: float) -
 
 def calculate_turning_circles(current_config: SE2Transform, radius: float) -> TurningCircle:
     # TODO implement here your solution
-    dummy_circle = Curve.create_circle(center=SE2Transform.identity(), config_on_circle=SE2Transform.identity(),
-                                       radius=0.1, curve_type=DubinsSegmentType.LEFT)  # TODO remove
+    dummy_circle = Curve.create_circle(
+        center=SE2Transform.identity(),
+        config_on_circle=SE2Transform.identity(),
+        radius=0.1,
+        curve_type=DubinsSegmentType.LEFT,
+    )  # TODO remove
     return TurningCircle(left=dummy_circle, right=dummy_circle)
 
 
@@ -73,3 +77,35 @@ def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transf
     # TODO implement here your solution
     # Please keep segments with zero length in the return list & return a valid dubins/reeds path!
     return []  # e.g., [Curve(..,gear=Gear.REVERSE), Curve(),..]
+
+
+def compare_spline_to_dubins(
+    start_config: SE2Transform, end_config: SE2Transform, radius: float
+) -> tuple[float, float, bool, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Compare the Dubins path and a cubic Hermite spline between two configurations.
+
+    Returns:
+        dubins_length: optimal Dubins path length
+        spline_length: numerical length of the Hermite spline
+        is_feasible: True if spline curvature ≤ 1 / radius everywhere
+    """
+    # TODO implement here your solution
+    dubins_length = 0.0  # Replace with actual Dubins path length calculation
+    # Generate a cubic Hermite spline between start and end configurations (find the parameters)
+    p0 = 0
+    p1 = 0
+    t0 = 0
+    t1 = 0
+
+    # Hermite basis (parameter t ∈ [0, 1])
+    def hermite(t):
+        h00 = 2 * t**3 - 3 * t**2 + 1
+        h10 = t**3 - 2 * t**2 + t
+        h01 = -2 * t**3 + 3 * t**2
+        h11 = t**3 - t**2
+        return h00 * p0 + h10 * t0 + h01 * p1 + h11 * t1
+
+    spline_length = 0.0  # Replace with actual spline length calculation
+    is_feasible = True  # Replace with actual feasibility check
+    return dubins_length, spline_length, is_feasible, t0, t1, p0, p1
