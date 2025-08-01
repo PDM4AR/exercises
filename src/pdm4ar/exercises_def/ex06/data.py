@@ -1,11 +1,12 @@
 import math
 import random
+import warnings
+from typing import Union
 
 import numpy as np
 from dg_commons import SE2Transform
-from geometry.poses import SE2_from_translation_angle
 from numpy.linalg import inv
-from shapely import geometry, line_locate_point
+from shapely import geometry
 
 from .map_config import EXERCISE_MAP_CONFIGS
 from .structures import Circle, GeoPrimitive, Path, Point, Polygon, Segment, Triangle
@@ -46,7 +47,7 @@ class DataGenerator:
         spikiness: float = 0.5,
     ) -> Triangle:
         # Generate 3 Points Randomly
-        triangle_vertices = DataGenerator.generate_polygon(
+        triangle_vertices = DataGenerator.generate_polygon_vertices(
             (center.x, center.y),
             avg_radius,
             irregularity,
@@ -61,13 +62,13 @@ class DataGenerator:
         )
 
     @staticmethod
-    def generate_polygon(
+    def generate_polygon_vertices(
         center: tuple[float, float],
         avg_radius: float,
         irregularity: float,
         spikiness: float,
         num_vertices: int,
-    ) -> Polygon:
+    ) -> list[tuple[float, float]]:
         """
         This code is taken from here => https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
 
@@ -93,7 +94,7 @@ class DataGenerator:
             num_vertices (int):
                 the number of vertices of the polygon.
         Returns:
-            Polygon: polygon, in CCW order.
+            vertices: the list of points representing the vertices of the polygon.
         """
         # Parameter check
         if irregularity < 0 or irregularity > 1:
@@ -155,13 +156,13 @@ class DataGenerator:
         avg_radius: float = 3.0,
         irregularity: float = 0.5,
         spikiness: float = 0,
-        num_vertices: int = (4, 9),
+        num_vertices: Union[int, tuple[int, int]] = (4, 9),
     ) -> Polygon:
         # Randomly Select Number of Corners
-        if type(num_vertices) is tuple:
+        if isinstance(num_vertices, tuple):
             num_vertices = np.random.randint(*num_vertices)
 
-        poly_points = DataGenerator.generate_polygon(
+        poly_points = DataGenerator.generate_polygon_vertices(
             (center.x, center.y),
             avg_radius,
             irregularity,
@@ -169,11 +170,29 @@ class DataGenerator:
             num_vertices,
         )
 
-        return Polygon([Point(x, y) for (x, y) in poly_points])
+        def _is_valid_polygon(polygon: Polygon) -> bool:
+            # Check if the polygon is valid (convex, no colliding points, at least 3 vertices, and vertices are in CCW order)
+            if len(polygon.vertices) < 3:
+                return False
+            for i in range(len(polygon.vertices)):  # pylint: disable=consider-using-enumerate
+                p1 = polygon.vertices[i]
+                p2 = polygon.vertices[(i + 1) % len(polygon.vertices)]
+                p3 = polygon.vertices[(i + 2) % len(polygon.vertices)]
+                cross_product = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)
+                if cross_product < 0:
+                    return False
+            return True
+
+        polygon = Polygon([Point(x, y) for (x, y) in poly_points])
+
+        if not _is_valid_polygon(polygon):
+            warnings.warn("Generated polygon is not valid. Please try again.")
+
+        return polygon
 
     @staticmethod
     def generate_circle_point_collision_data(
-        index: int,
+        index: int,  # pylint: disable=unused-argument
     ) -> tuple[Circle, Point, bool]:
         # Generate Random Circle
         circle = DataGenerator.generate_random_circle()
@@ -187,7 +206,7 @@ class DataGenerator:
 
     @staticmethod  # New method.
     def generate_axis_polygon(
-        index: int,
+        index: int,  # pylint: disable=unused-argument
     ) -> tuple[Polygon, Segment, Segment]:  # 2nd segment is the expected result.
 
         # Generate random polygon
@@ -220,7 +239,7 @@ class DataGenerator:
         return (poly, seg, proj_seg)
 
     @staticmethod
-    def generate_SAT_poly(index: int) -> tuple[Polygon, Polygon, bool]:
+    def generate_SAT_poly(index: int) -> tuple[Polygon, Polygon, bool]:  # pylint: disable=unused-argument,invalid-name
         # Generate polygons
         randflag = True
         randnum = np.random.uniform()
@@ -240,13 +259,17 @@ class DataGenerator:
             r1 = 3.0
             r2 = 3.0
         else:
+            centerpt1 = Point(3, 3)
+            centerpt2 = Point(3, 3)
+            r1 = 3.0
+            r2 = 3.0
             randflag = False
 
         if randflag:
             poly1 = DataGenerator.generate_random_polygon(center=centerpt1, avg_radius=r1)
             poly2 = DataGenerator.generate_random_polygon(center=centerpt2, avg_radius=r2)
         else:
-            poly1 = DataGenerator.generate_random_polygon(center=Point(3, 3), avg_radius=3)
+            poly1 = DataGenerator.generate_random_polygon(center=centerpt1, avg_radius=r1)
             vertices_poly2 = poly1.vertices[0:2]
 
             vertices_poly2.append(
@@ -259,13 +282,13 @@ class DataGenerator:
             poly2 = Polygon(vertices_poly2)
         poly1_shapely = geometry.Polygon([[p.x, p.y] for p in poly1.vertices])
         poly2_shapely = geometry.Polygon([[p.x, p.y] for p in poly2.vertices])
-        ans = poly1_shapely.intersects(
-            poly2_shapely
-        )  # sorry students, we WILL be checkig if you used shapely for this exercise :(
-        return [poly1, poly2, ans]
+        ans = poly1_shapely.intersects(poly2_shapely)
+        return poly1, poly2, ans
 
     @staticmethod
-    def generate_SAT_poly_circle(index: int) -> tuple[Polygon, Circle, bool]:
+    def generate_SAT_poly_circle(  # pylint: disable=invalid-name
+        index: int,  # pylint: disable=unused-argument
+    ) -> tuple[Polygon, Circle, bool]:
         # Generate polygons
         randnum = np.random.uniform()
         if randnum < 0.5:
@@ -287,11 +310,11 @@ class DataGenerator:
         ans = poly1_shapely.intersects(
             circ_shapely
         )  # sorry students, we WILL be checkig if you used shapely for this exercise :(
-        return [poly1, circ, ans]
+        return poly1, circ, ans
 
     @staticmethod
     def generate_triangle_point_collision_data(
-        index: int,
+        index: int,  # pylint: disable=unused-argument
     ) -> tuple[Triangle, Point, bool]:
         # Generate Random Triangle
         triangle = DataGenerator.generate_random_triangle()
@@ -317,7 +340,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_polygon_point_collision_data(
-        index: int,
+        index: int,  # pylint: disable=unused-argument
     ) -> tuple[Polygon, Point, bool]:
         # Generate Random Polygon
         poly = DataGenerator.generate_random_polygon()
@@ -333,7 +356,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_circle_segment_collision_data(
-        index: int,
+        index: int,  # pylint: disable=unused-argument
     ) -> tuple[Circle, Segment, bool]:
         # Generate Random Circle
         circle = DataGenerator.generate_random_circle()
@@ -352,7 +375,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_tringle_segment_collision_data(
-        index: int,
+        index: int,  # pylint: disable=unused-argument
     ) -> tuple[Triangle, Segment, bool]:
         # Generate Random Polygon
         triangle = DataGenerator.generate_random_triangle()
@@ -387,7 +410,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_polygon_segment_collision_data(
-        index: int,
+        index: int,  # pylint: disable=unused-argument
     ) -> tuple[Polygon, Segment, bool]:
         # Generate Random Polygon
         poly = DataGenerator.generate_random_polygon()
@@ -446,7 +469,7 @@ class DataGenerator:
             elif isinstance(obs, Circle):
                 shapely_obstacles.append(geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius))
             else:
-                raise Exception("Obstacle must be Polygon, Triangle, or Circle")
+                raise ValueError("Obstacle must be Polygon, Triangle, or Circle")
 
         # Check distance between each line segment with each polygon
         for i, (p1, p2) in enumerate(zip(path.waypoints[:-1], path.waypoints[1:])):
@@ -507,7 +530,7 @@ class DataGenerator:
             elif isinstance(obs, Circle):
                 shapely_obstacles.append(geometry.Point(obs.center.x, obs.center.y).buffer(obs.radius))
             else:
-                raise Exception("Obstacle must be Polygon, Triangle, or Circle")
+                raise ValueError("Obstacle must be Polygon, Triangle, or Circle")
         observations = []
         for pose in poses:
             observations.append([])
