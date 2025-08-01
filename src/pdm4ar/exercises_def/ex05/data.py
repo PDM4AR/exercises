@@ -111,7 +111,7 @@ def get_ex4_start_end_test_values() -> DubinsProblem:
     )
 
 
-def get_ex6_spline_comparison_values() -> DubinsProblem:
+def get_ex5_spline_comparison_values() -> DubinsProblem:
     config_list = []
     queries = []
     radius = 3.5
@@ -144,17 +144,17 @@ def get_ex6_spline_comparison_values() -> DubinsProblem:
 
     return DubinsProblem(
         queries=queries,
-        id_num=6,
+        id_num=5,
         id_str="Spline vs Dubins Comparison",
         algo_fun=algo.compare_spline_to_dubins,  # To be implemented in algo_sol.py
-        eval_fun=ex6_spline_eval,  # To be implemented in evaluation05.py
+        eval_fun=ex5_spline_eval,  # To be implemented in evaluation05.py
         eval_weight=EX_6_SPLINE_WEIGHT,  # Adjust weight as needed
-        plot_fun=ex6_spline_plot_fun,
-        pre_tf_fun=ex6_pre_tf_fun,
+        plot_fun=ex5_spline_plot_fun,
+        pre_tf_fun=ex5_pre_tf_fun,
     )
 
 
-def get_ex5_start_end_test_values() -> DubinsProblem:
+def get_ex6_start_end_test_values() -> DubinsProblem:
     config_list = []
     queries = []
     radius = 3.5
@@ -167,7 +167,7 @@ def get_ex5_start_end_test_values() -> DubinsProblem:
         queries += [(*config, radius)]
     return DubinsProblem(
         queries=queries,
-        id_num=5,
+        id_num=6,
         id_str="Reeds' Path Test",
         algo_fun=algo.calculate_reeds_shepp_path,
         eval_fun=ex4_path_eval,
@@ -183,7 +183,7 @@ def get_example_test_values() -> List[DubinsProblem]:
         get_ex2_turning_circles_test_values(),
         get_ex3_tangent_start_end_test_values(),
         get_ex4_start_end_test_values(),
-        get_ex5_start_end_test_values(),
-        get_ex6_spline_comparison_values(),
+        get_ex5_spline_comparison_values(),
+        get_ex6_start_end_test_values(),
     ]
     return test_values

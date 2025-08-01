@@ -108,9 +108,9 @@ def exercise_dubins_perf_aggregator(perf_outs: List[DubinsPerformance]) -> Dubin
         elif el.id_ == 4:
             accuracy_dict["accuracy_dubins"] = el.accuracy
         elif el.id_ == 5:
-            accuracy_dict["accuracy_reeds"] = el.accuracy
-        elif el.id_ == 6:
             accuracy_dict["accuracy_spline"] = el.accuracy
+        elif el.id_ == 6:
+            accuracy_dict["accuracy_reeds"] = el.accuracy
     return DubinsFinalPerformance(accuracy_combined=accuracy_combined, individual_accuracies=accuracy_dict)
 
 

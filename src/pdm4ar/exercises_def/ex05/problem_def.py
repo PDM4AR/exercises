@@ -105,7 +105,7 @@ def ex4_path_eval(algo_out, algo_out_tf, expected):
     return correct_answers, result_str
 
 
-def ex6_spline_eval(algo_out, algo_out_tf, expected):
+def ex5_spline_eval(algo_out, algo_out_tf, expected):
     correct = 0
     result_str = ""
 
@@ -167,7 +167,7 @@ def ex4_path_plot_fun(rfig, query, algo_out, algo_out_tf, expected, sucess):
         ax.axis("equal")
 
 
-def ex6_pre_tf_fun(algo_out):
+def ex5_pre_tf_fun(algo_out):
     try:
         # Extract Dubins path again to plot
         _, _, _, t0, t1, p0, p1 = algo_out
@@ -189,7 +189,7 @@ def ex6_pre_tf_fun(algo_out):
         return False, None, f"{FAILED_STR}, exception in pre_tf_fun: {e}\n"
 
 
-def ex6_spline_plot_fun(rfig, query, algo_out, algo_out_tf, expected, success):
+def ex5_spline_plot_fun(rfig, query, algo_out, algo_out_tf, expected, success):
     with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
 

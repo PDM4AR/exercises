@@ -73,12 +73,6 @@ def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, 
     return []  # e.g., [Curve(), Line(),..]
 
 
-def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
-    # TODO implement here your solution
-    # Please keep segments with zero length in the return list & return a valid dubins/reeds path!
-    return []  # e.g., [Curve(..,gear=Gear.REVERSE), Curve(),..]
-
-
 def compare_spline_to_dubins(
     start_config: SE2Transform, end_config: SE2Transform, radius: float
 ) -> tuple[float, float, bool, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -109,3 +103,9 @@ def compare_spline_to_dubins(
     spline_length = 0.0  # Replace with actual spline length calculation
     is_feasible = True  # Replace with actual feasibility check
     return dubins_length, spline_length, is_feasible, t0, t1, p0, p1
+
+
+def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
+    # TODO implement here your solution
+    # Please keep segments with zero length in the return list & return a valid dubins/reeds path!
+    return []  # e.g., [Curve(..,gear=Gear.REVERSE), Curve(),..]
