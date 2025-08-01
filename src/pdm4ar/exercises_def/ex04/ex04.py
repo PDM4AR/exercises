@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from time import process_time
-from typing import Any, Sequence, Type, Union, Optional
+from typing import Any, Sequence, Type, Union, Optional, TYPE_CHECKING, cast
 from zuper_commons.text import remove_escapes
 
 import numpy as np
@@ -12,11 +12,14 @@ from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
 from pdm4ar.exercises.ex04.structures import Action, OptimalActions, Cell, Policy, State
 from pdm4ar.exercises_def import Exercise, ExIn
-from pdm4ar.exercises_def.ex04.data import get_expected_results, get_test_grids
+from pdm4ar.exercises_def.ex04.data import get_expected_results_algo, get_expected_results_transition, get_test_grids
 from pdm4ar.exercises_def.ex04.map import map2image
 from pdm4ar.exercises_def.ex04.utils import action2arrow, head_width
 from pdm4ar.exercises_def.structures import PerformanceResults
 from reprep import MIME_PDF, Report
+
+if TYPE_CHECKING:
+    from pdm4ar_sol.exercises.ex04.solution_ex04 import LinearProgramming
 
 
 @dataclass
@@ -147,7 +150,16 @@ def plot_report_figure(
     plot_grid_policy(rfig, grid_mdp, policy, algo_name)
 
 
-def ex4_evaluation(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceResults, Report]:
+def ex4_evaluation(ex_in: Union[TestValueEx4, TestTransitionProbEx4], ex_out=None) -> tuple[PerformanceResults, Report]:
+    if isinstance(ex_in, TestValueEx4):
+        return ex4_evaluation_algo(ex_in, ex_out)
+    elif isinstance(ex_in, TestTransitionProbEx4):
+        return ex4_transition_prob_evaluation(ex_in, ex_out)
+    else:
+        raise ValueError(f"Unknown test type: {type(ex_in)}")
+
+
+def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceResults, Report]:
     grid_mdp = ex_in.grid
     solver: GridMdpSolver = ex_in.algo()
     algo_name = ex_in.str_id()
@@ -212,7 +224,7 @@ def ex4_transition_prob_evaluation(ex_in: TestTransitionProbEx4, ex_out=None) ->
     # Get the transition probability from the implemented method
     try:
         transition_prob = grid_mdp.get_transition_prob(ex_in.state, ex_in.action, ex_in.next_state)
-    except Exception as e:
+    except Exception:
         # Handle case where method is not implemented or throws an error
         transition_prob = None
 
@@ -277,10 +289,20 @@ def ex4_transition_prob_perf_aggregator(perf: Sequence[Ex04TransitionProbPerform
 
 
 def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
-    perf_result = [p.perf_result for p in perf]
-    policy_iteration = [p.policy_iteration for p in perf if p.policy_iteration is not None]
-    value_iteration = [p.value_iteration for p in perf if p.value_iteration is not None]
-    transition_prob = [p.transition_prob for p in perf if p.transition_prob is not None]
+    ex04_results = []
+
+    for result in perf:
+        if isinstance(result, Ex04PerformanceResult):
+            ex04_results.append(result)
+        elif isinstance(result, Ex04TransitionProbPerformance):
+            # Convert to Ex04PerformanceResult format
+            dummy_perf = Ex04Performance(policy_accuracy=0.0, value_func_r2=0.0, solve_time=0.0)
+            ex04_results.append(Ex04PerformanceResult(perf_result=dummy_perf, transition_prob=result))
+
+    perf_result = [p.perf_result for p in ex04_results]
+    policy_iteration = [p.policy_iteration for p in ex04_results if p.policy_iteration is not None]
+    value_iteration = [p.value_iteration for p in ex04_results if p.value_iteration is not None]
+    transition_prob = [p.transition_prob for p in ex04_results if p.transition_prob is not None]
 
     return Ex04PerformanceResult(
         perf_result=ex4_single_perf_aggregator(perf_result),
@@ -317,6 +339,7 @@ def get_transition_prob_test_cases(grid_mdps: list[GridMdp]) -> list[TestTransit
                 ((2, 2), Action.SOUTH, (3, 2)),
                 ((2, 2), Action.EAST, (2, 3)),  # Should move to WONDERLAND
                 ((2, 2), Action.WEST, (2, 1)),
+                ((2, 2), Action.EAST, (1, 3)),
                 # Movements from other valid positions (avoid STAY unless from GOAL)
                 ((2, 1), Action.NORTH, (1, 1)),  # From GRASS to WONDERLAND
                 ((2, 1), Action.SOUTH, (3, 1)),  # From GRASS to WONDERLAND
@@ -386,48 +409,26 @@ def get_transition_prob_test_cases(grid_mdps: list[GridMdp]) -> list[TestTransit
     return test_cases
 
 
-def get_exercise4_with_transition_prob() -> Exercise:
-    """Get exercise 4 including transition probability tests"""
-    from typing import cast
-
+def get_exercise4() -> Exercise:
     algos = [ValueIteration, PolicyIteration]
     grid_mdps = get_test_grids()
-
-    # Original algorithm tests
-    test_values = [
+    test_values_algo = [
         TestValueEx4(algo=algo, grid=grid_mdp, testId=i) for algo in algos for i, grid_mdp in enumerate(grid_mdps)
     ]
-    expected_results = get_expected_results()
+    expected_results_algo = get_expected_results_algo()
 
     # Transition probability tests
-    transition_test_cases = get_transition_prob_test_cases(grid_mdps[:1])  # Test on first grid only
+    transition_test_cases = get_transition_prob_test_cases(grid_mdps[:1])  # Test on first grid
+    transition_expected_results = get_expected_results_transition(transition_test_cases)
 
-    # Combine test cases - this is a simplified approach
-    # In practice, you might want separate exercises or a more sophisticated combination
+    # Create a combined test that handles both types of tests
+    all_test_values: list[Union[TestTransitionProbEx4, TestValueEx4]] = transition_test_cases + test_values_algo
+    all_expected_results = transition_expected_results + expected_results_algo
 
-    return Exercise[TestValueEx4, Any](
-        desc="This exercise is about dynamic programming and transition probabilities",
-        evaluation_fun=ex4_evaluation,
-        perf_aggregator=cast(Any, ex4_perf_aggregator),
-        test_values=test_values,
-        expected_results=expected_results,
-    )
-
-
-def get_exercise4() -> Exercise:
-    from typing import cast
-
-    algos = [ValueIteration, PolicyIteration]
-    grid_mdps = get_test_grids()
-    test_values = [
-        TestValueEx4(algo=algo, grid=grid_mdp, testId=i) for algo in algos for i, grid_mdp in enumerate(grid_mdps)
-    ]
-    expected_results = get_expected_results()
-
-    return Exercise[TestValueEx4, Any](
+    return Exercise[Union[TestTransitionProbEx4, TestValueEx4], Any](
         desc="This exercise is about dynamic programming",
         evaluation_fun=ex4_evaluation,
         perf_aggregator=cast(Any, ex4_perf_aggregator),
-        test_values=test_values,
-        expected_results=expected_results,
+        test_values=all_test_values,
+        expected_results=all_expected_results,
     )

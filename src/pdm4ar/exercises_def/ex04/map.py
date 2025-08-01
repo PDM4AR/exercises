@@ -83,11 +83,6 @@ def generate_map(
     for coord in cliff_coords:
         grid_map[coord] = Cell.CLIFF
 
-    # Check that the wonderland are not close to the rift or the border, if it is, put it back to grass
-    for coord in wonderland_coords:
-        if is_too_close_to_rift_or_border(coord, grid_map):
-            grid_map[coord] = Cell.GRASS
-
     return grid_map
 
 

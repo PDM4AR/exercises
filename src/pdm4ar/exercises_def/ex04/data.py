@@ -1,9 +1,13 @@
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
 from pdm4ar.exercises.ex04.structures import OptimalActions, ValueFunc, Cell
 from pdm4ar.exercises_def.ex04.map import generate_map
+
+if TYPE_CHECKING:
+    from pdm4ar.exercises_def.ex04.ex04 import TestTransitionProbEx4
 
 
 def get_simple_test_grid() -> np.ndarray:
@@ -44,7 +48,21 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]]
     return data_in
 
 
-def get_expected_results() -> list[tuple[ValueFunc, OptimalActions]]:
+def get_expected_results_transition(test_cases: list["TestTransitionProbEx4"]) -> list[float]:
+    """Load pre-computed transition probability results for the given test cases"""
+    data_dir = Path(__file__).parent
+    all_data = np.load(data_dir / "data/expected_transition_results.npz", allow_pickle=True)
+    
+    # Get the results array - this should contain all transition probability results
+    # in the same order as the test cases are generated
+    transition_probs = all_data["transition_probs"].tolist()
+    
+    # Return the first len(test_cases) results 
+    # (assuming test cases are generated in the same order as when we computed the ground truth)
+    return transition_probs[:len(test_cases)]
+
+
+def get_expected_results_algo() -> list[tuple[ValueFunc, OptimalActions]]:
     data_dir = Path(__file__).parent
     all_data = np.load(data_dir / "data/expected_results.npz", allow_pickle=True)
 
