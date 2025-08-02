@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Tuple, Any, Sequence
+from typing import Tuple, Any, Sequence, Callable
 from dataclasses import dataclass
 
 import osmnx as ox
@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from reprep import Report, MIME_PDF, Node
 from zuper_commons.text import remove_escapes
 
-from pdm4ar.exercises_def import Exercise, NodeColors, EdgeColors, ExIn
+from pdm4ar.exercises_def import Exercise, NodeColors, EdgeColors
 from pdm4ar.exercises_def.structures import PerformanceResults
 from pdm4ar.exercises.ex03 import (
     informed_graph_search_algo,
@@ -19,18 +19,12 @@ from pdm4ar.exercises.ex03 import (
 from pdm4ar.exercises_def.ex02 import str_from_path
 from pdm4ar.exercises.ex02.structures import X
 from pdm4ar.exercises_def.ex03.data import (
-    ex3_get_expected_results,
     ex3_compute_expected_results,
     get_test_informed_gsproblem,
     graph_dimensions,
     find_center_of_cities,
-    InformedGraphSearchProblem,
+    TestValueEx3
 )
-
-
-class TestValueEx3(ExIn, Tuple[InformedGraphSearchProblem, str]):
-    def str_id(self) -> str:
-        return str(self[1])
 
 
 @dataclass(frozen=True)
@@ -45,11 +39,11 @@ class Ex03PerformanceResult(PerformanceResults):
         assert 0 <= self.heuristic_efficiency, self.heuristic_efficiency
 
 
-def ex3_evaluation(
-    ex_in: TestValueEx3, ex_out=None, plotGraph=True
-) -> Tuple[Ex03PerformanceResult, Report]:
+def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex03PerformanceResult, Report]:
     # ex properties
-    prob, (algo_name, heuristic_count_fn) = ex_in
+    prob = ex_in.problem
+    algo_name = ex_in.algo_name
+    heuristic_count_fn = ex_in.h_count_fn
     wG = prob.graph
     test_queries = prob.queries
     ec = [EdgeColors.default for uv in wG._G.edges]
@@ -69,23 +63,38 @@ def ex3_evaluation(
             show=False,
         )
 
-    # run algo
+    # initialisation of performance
     r.section(f"{algo_name}")
     solve_times = []
     accuracy = []
     heuristic_performance = []
+    search_algo = informed_graph_search_algo[algo_name](wG)
+    # Validate implementation
+    validation_wrapper = ex_in.impl_validate_func_wrapper
+    disallowed_deps = ex_in.disallowed_dependencies
+    if validation_wrapper is not None and disallowed_deps is not None:
+        data = next(iter(test_queries))                                     # Use one of the available queries for validation
+        check = validation_wrapper(search_algo.path, disallowed_deps)
+        called_funcs = check(*data)
+        if called_funcs:
+            validation_details = []
+            validation_details.append("Implementation validation failed. Disallowed dependencies detected:")
+            for record in called_funcs:
+                validation_details.append(
+                    f"  - Library: {record['library']}, "
+                    f"Function: {record['func_name']}, Line: {record['lineno']}, File: {record['filename']}"
+                )
+            r.text(f"{algo_name}-validation", "\n".join(validation_details))
+            return Ex03PerformanceResult(accuracy=0.0, solve_time=0.0, heuristic_efficiency=float("inf")), r
+    # run algo
     for i, query in enumerate(test_queries):
         nc = [
-            (
-                NodeColors.start
-                if n == query[0]
-                else (NodeColors.goal if n == query[1] else NodeColors.default)
-            )
+            (NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default))
             for n in wG._G
         ]
         # Ground truth
         msg = f"Start: {query[0]},\tGoal: {query[1]}\n"
-        search_algo = informed_graph_search_algo[algo_name](wG)
+        search_algo = informed_graph_search_algo[algo_name](wG)             # new instance for each query
         rfig = r.figure(cols=2)
         # Your algo
         start = process_time()
@@ -102,15 +111,11 @@ def ex3_evaluation(
                     # print("printing double")
                     centers = find_center_of_cities(wG._G)
                     print(f"center city {centers[0]}")
-                    with rfig.plot(
-                        nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize
-                    ) as _:
+                    with rfig.plot(nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
                         ax = plt.gca()
                         # function needed to display one of the combined
                         # city around its center
-                        bbox = ox.utils_geo.bbox_from_point(
-                            centers[0], 1500, project_utm=False, return_crs=False
-                        )
+                        bbox = ox.utils_geo.bbox_from_point(centers[0], 1500, project_utm=False, return_crs=False)
                         ox.plot_graph(
                             wG._G,
                             ax=ax,
@@ -166,9 +171,7 @@ def ex3_evaluation(
                             )
                 else:
                     # standard case
-                    with rfig.plot(
-                        nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize
-                    ) as _:
+                    with rfig.plot(nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
                         ax = plt.gca()
                         ox.plot_graph(
                             wG._G,
@@ -194,6 +197,7 @@ def ex3_evaluation(
             path = []
         # ground truths
         gt_path, trivial_heuristic_count = ex_out[i]
+        print(f"Ground truth path: {gt_path}")
         # compare to ground truth only for admissible heuristic
         if gt_path is not None:
             # Compute gt path cost
@@ -210,9 +214,7 @@ def ex3_evaluation(
                         figsize=figsize,
                     ) as _:
                         ax = plt.gca()
-                        bbox = ox.utils_geo.bbox_from_point(
-                            centers[0], 1500, project_utm=False, return_crs=False
-                        )
+                        bbox = ox.utils_geo.bbox_from_point(centers[0], 1500, project_utm=False, return_crs=False)
                         ox.plot_graph(
                             wG._G,
                             ax=ax,
@@ -319,17 +321,15 @@ def ex3_evaluation(
                     search_algo.use_trivial_heuristic = True
                     # Rerun Astar, counting how many times the heuristic was invoked
                     search_algo.path(query[0], query[1])
-                    trivial_heuristic_count = heuristic_count_fn(
-                        search_algo, query[0], query[1]
-                    )
-
-                if trivial_heuristic_count == 0:
+                    trivial_heuristic_count = heuristic_count_fn(search_algo, query[0], query[1])
+                if len(gt_path) == 1:
+                    # Case when start = goal
+                    heuristic_performance.append(0.0)
+                elif trivial_heuristic_count == 0:
                     # This case is only hit of the student never calls the heuristic.
                     heuristic_performance.append(float("inf"))
                 else:
-                    heuristic_performance.append(
-                        heuristic_count / trivial_heuristic_count
-                    )
+                    heuristic_performance.append(heuristic_count / trivial_heuristic_count)
             else:
                 heuristic_performance.append(0.0)
         else:
@@ -349,9 +349,7 @@ def ex3_evaluation(
         r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
 
     # aggregate performance of each query
-    query_perf = list(
-        map(Ex03PerformanceResult, accuracy, solve_times, heuristic_performance)
-    )
+    query_perf = list(map(Ex03PerformanceResult, accuracy, solve_times, heuristic_performance))
     perf = ex3_perf_aggregator(query_perf)
     return perf, r
 
@@ -362,9 +360,7 @@ def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03Performanc
     # perfomance for valid results
     valid_acc = [p.accuracy for p in perf]
     valid_time = [p.solve_time for p in perf]
-    valid_heuristic_efficiency = [
-        p.heuristic_efficiency for p in perf if p.heuristic_efficiency != 0
-    ]
+    valid_heuristic_efficiency = [p.heuristic_efficiency for p in perf if p.heuristic_efficiency != 0]
 
     avgs = []
     for valid_result in [valid_acc, valid_time, valid_heuristic_efficiency]:
@@ -374,19 +370,58 @@ def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03Performanc
             avg_result = 0.0
         avgs.append(avg_result)
 
-    return Ex03PerformanceResult(
-        accuracy=avgs[0], solve_time=avgs[1], heuristic_efficiency=avgs[2]
-    )
+    return Ex03PerformanceResult(accuracy=avgs[0], solve_time=avgs[1], heuristic_efficiency=avgs[2])
+
+
+def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> Callable:
+    called_funcs = []
+    detected_libs = set()  # Track already detected libraries
+
+    def trace_calls(frame, event, arg):  # pylint: disable=unused-argument
+        import traceback  # pylint: disable=import-outside-toplevel
+
+        if event != "call":
+            return
+        module = frame.f_globals.get("__name__", "")
+        for lib in disallowed_dependencies:
+            if module.startswith(lib) and lib not in detected_libs:
+                # Only record each library once
+                detected_libs.add(lib)
+
+                traces = traceback.extract_stack(frame)
+                for trace in reversed(traces):
+                    if trace.name == func.__name__:
+                        called_funcs.append(
+                            {
+                                "library": lib,
+                                "func_name": trace.name,
+                                "lineno": trace.lineno,
+                                "filename": trace.filename.split("/")[-1],  # Get the filename only
+                            }
+                        )
+                        break
+        return trace_calls
+
+    def wrapper(*args, **kwargs):
+        import sys  # pylint: disable=import-outside-toplevel
+
+        sys.setprofile(trace_calls)
+        try:
+            func(*args, **kwargs)
+        finally:
+            sys.setprofile(None)
+        return called_funcs
+
+    return wrapper
 
 
 def get_exercise3() -> Exercise:
+    disallowed_dependencies = {"networkx"}
+
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
-    # expected_results = ex3_get_expected_results()
     test_values = list()
 
-    def uniform_cost_heuristic_counter(
-        search_algo: UniformCostSearch, start: X, goal: X
-    ) -> int:
+    def uniform_cost_heuristic_counter(search_algo: UniformCostSearch, start: X, goal: X) -> int:
         # There is no heuristic in UCS, so we just return 0
         return 0
 
@@ -398,8 +433,15 @@ def get_exercise3() -> Exercise:
         (Astar.__name__, astar_heuristic_counter),
     ]
 
-    for ab in product(test_wgraphs, algos):
-        test_values.append(TestValueEx3(ab))
+    for prob, (algo_name, algo_func) in product(test_wgraphs, algos):
+        test_values.append(TestValueEx3(
+            problem=prob,
+            algo_name=algo_name,
+            h_count_fn=algo_func,
+            impl_validate_func_wrapper=None,    # IF VALIDATION WORKS: validate_impl_wrapper,
+            disallowed_dependencies=None       # IF VALIDATION WORKS:disallowed_dependencies
+    ))
+
 
     expected_results = ex3_compute_expected_results(test_values)
 

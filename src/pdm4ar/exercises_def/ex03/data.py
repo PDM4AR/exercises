@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import pathlib
 import pickle
 from threading import local
+from typing import Callable, Optional, Set
 
 import osmnx as ox
 from requests import get
@@ -15,7 +16,7 @@ from collections import defaultdict
 from pdm4ar.exercises.ex02.structures import Query, Path
 from pdm4ar.exercises.ex03.structures import WeightedGraph, TravelSpeed
 from pdm4ar.exercises.ex03.local_queries import get_local_queries
-from pdm4ar.exercises_def import networkx_2_adjacencylist, queries_from_adjacency
+from pdm4ar.exercises_def import networkx_2_adjacencylist, queries_from_adjacency, ExIn
 
 _fast = (
     "motorway",
@@ -38,6 +39,17 @@ class InformedGraphSearchProblem:
     graph: WeightedGraph
     queries: set[Query]
     graph_id: str
+
+
+@dataclass
+class TestValueEx3(ExIn):
+    problem: InformedGraphSearchProblem
+    algo_name: str
+    h_count_fn: Callable
+    impl_validate_func_wrapper: Optional[Callable] = None
+    disallowed_dependencies: Optional[Set[str]] = None
+    def str_id(self) -> str:
+        return str(self.algo_name)
 
 
 def _find_speed(row) -> float:
@@ -322,10 +334,11 @@ def ex3_get_expected_results() -> list[list[tuple[Path, int]]]:
     return expected_results
 
 
-def ex3_compute_expected_results(test_values: list[InformedGraphSearchProblem]) -> list[list[tuple[Path, int]]]:
+def ex3_compute_expected_results(test_values: list[TestValueEx3]) -> list[list[tuple[Path, int]]]:
     expected_results = []
     # loop over test cases
-    for prob, _ in test_values:
+    for test in test_values:
+        prob = test.problem
         # get graph and queries
         wG = prob.graph
         test_queries = prob.queries
