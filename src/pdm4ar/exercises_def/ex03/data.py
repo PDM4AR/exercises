@@ -139,8 +139,10 @@ def get_test_informed_gsproblem(
     for i, G in enumerate(test_wgraphs):
         id_graph = graph_ids[i]
         default_queries = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)  # set of queries
-        local_queries = get_local_queries(G, id_graph)
-        q = default_queries | local_queries
+        q = default_queries
+        if n_queries == 1 and n_seed == 4:          # local testing
+            local_queries = get_local_queries(G, id_graph)
+            q = default_queries | local_queries
         p = InformedGraphSearchProblem(
             graph=G,
             queries=q,

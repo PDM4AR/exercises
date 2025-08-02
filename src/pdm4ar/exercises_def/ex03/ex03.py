@@ -101,7 +101,8 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         path = search_algo.path(query[0], query[1])
         solve_time = process_time() - start
         heuristic_count = heuristic_count_fn(search_algo, query[0], query[1])
-
+        # ground truths
+        gt_path, trivial_heuristic_count = ex_out[i]
         if path:
             path_str = str_from_path(path)
             path_cost = compute_path_cost(wG, path)
@@ -191,15 +192,17 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                             show=False,
                             close=False,
                         )
+        elif not gt_path:                  # No ground truth path found, so it doesn't exist --> set default values
+            path_str = "Your algo did not find any path, because it does not exist."
+            gt_path_str = "Solution not given"
+            path_cost = 0.0
+            gt_path_cost = 0.0
         else:
             path_str = "Your algo did not find any path."
             path_cost = float("inf")
             path = []
-        # ground truths
-        gt_path, trivial_heuristic_count = ex_out[i]
-        print(f"Ground truth path: {gt_path}")
         # compare to ground truth only for admissible heuristic
-        if gt_path is not None:
+        if gt_path:                 # if gt_path is not empty
             # Compute gt path cost
             gt_path_cost = compute_path_cost(wG, gt_path)
             gt_path_str = str_from_path(gt_path)
@@ -332,8 +335,6 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                     heuristic_performance.append(heuristic_count / trivial_heuristic_count)
             else:
                 heuristic_performance.append(0.0)
-        else:
-            gt_path_str = "Solution not given"
 
         # output path to report
         msg += f"Ground truth path: {gt_path_str}\n"
