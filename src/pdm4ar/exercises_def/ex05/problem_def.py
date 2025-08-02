@@ -190,23 +190,36 @@ def ex5_pre_tf_fun(algo_out):
 
 
 def ex5_spline_plot_fun(rfig, query, algo_out, algo_out_tf, expected, success):
-    with rfig.plot(nid="Graph", mime=MIME_PDF, figsize=None) as _:
+    with rfig.plot(nid="Graph", mime=MIME_PDF) as _:
         ax = plt.gca()
-
         start, end, radius = query
 
-        # Recompute Dubins path for visualization
-        dubins_path = calculate_dubins_path(start, end, radius=radius)
-        if not dubins_path or not isinstance(dubins_path, list):
-            ax.set_title("No valid Dubins path")
+        # --- Always plot GT Dubins path from expected ---
+        if expected and isinstance(expected, dict) and "opt_np_points_list" in expected:
+            for gt_opt_path_np in expected["opt_np_points_list"]:
+                plot_2d_path(gt_opt_path_np, ax=ax)
+        else:
+            ax.set_title("No GT Dubins path in expected")
             return
-        dubins_pts = extract_path_points(dubins_path)
-        dubins_np = np.array([[p.p[0], p.p[1], p.theta] for p in dubins_pts])
 
-        plot_2d_path(dubins_np, ax=ax)
+        # --- Choose spline source ---
+        if isinstance(algo_out, tuple) and len(algo_out) == 7 and all(val is not None for val in algo_out[3:]):
+            _, _, _, t0, t1, p0, p1 = algo_out
+        elif isinstance(expected, tuple) and len(expected) >= 7:
+            _, _, _, t0, t1, p0, p1 = expected
+        else:
+            plot_configuration(start, ax=ax, color="blue")
+            plot_configuration(end, ax=ax)
+            ax.axis("equal")
+            ax.legend()
+            ax.set_title("Dubins only - no spline available")
+            return
 
-        # Recompute spline for plotting
-        _, _, _, t0, t1, p0, p1 = algo_out
+        # --- Force arrays for Hermite ---
+        p0 = expected["p0"]
+        p1 = expected["p1"]
+        t0 = expected["t0"]
+        t1 = expected["t1"]
 
         def hermite(t):
             h00 = 2 * t**3 - 3 * t**2 + 1
@@ -216,11 +229,11 @@ def ex5_spline_plot_fun(rfig, query, algo_out, algo_out_tf, expected, success):
             return h00 * p0 + h10 * t0 + h01 * p1 + h11 * t1
 
         ts = np.linspace(0, 1, 100)
-        spline_pts = np.array([hermite(t) for t in ts])
+        spline_pts = np.vstack([hermite(t) for t in ts])
         ax.plot(spline_pts[:, 0], spline_pts[:, 1], "r--", label="Spline")
 
         plot_configuration(start, ax=ax, color="blue")
         plot_configuration(end, ax=ax)
         ax.axis("equal")
         ax.legend()
-        ax.set_title("Spline vs Dubins")
+        ax.set_title("Spline vs Dubins (GT fallback)")
