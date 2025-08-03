@@ -372,13 +372,13 @@ def get_exercise6() -> Exercise:
         TestCollisionCheck(
             5,
             8,
-            "Path Collision Check - Safety Certificates",
+            "Path Collision Check - Optimization-based Collision Detection",
             lambda x: DataGenerator().generate_random_robot_map_and_path(12, x),
             visualize_map_path,
-            CollisionChecker().path_collision_check_safety_certificate,
+            CollisionChecker().path_collision_check_opt,
             idx_list_eval_function,
             (30, 30),
-        ),  # Task 8 - Path Collision Check - Safety Certificates
+        ),  # Task 8 - Path Collision Check - Optimization-based Collision Detection
     ]
 
     total_weights = (

@@ -1,8 +1,8 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import numpy as np
+import triangle as tr
 from pdm4ar.exercises_def.ex06.structures import *
-from triangle import triangulate
 
 
 class CollisionPrimitives_SeparateAxis:
@@ -17,14 +17,14 @@ class CollisionPrimitives_SeparateAxis:
     @staticmethod
     def proj_polygon(p: Union[Polygon, Circle], ax: Segment) -> Segment:
         """
-        Project a polygon onto an axis.
+        Project a polygon or circle onto an axis.
 
         Args:
-            p: Polygon or Circle to project
-            ax: Axis (as a Segment) to project onto
+            p (Union[Polygon, Circle]): Polygon or Circle to project
+            ax (Segment): Axis (as a Segment) to project onto
 
         Returns:
-            Segment representing the projection interval
+            Segment: Segment representing the projection interval
         """
         start_1 = 0  # placeholder
         end_1 = 0  # placeholder
@@ -42,11 +42,11 @@ class CollisionPrimitives_SeparateAxis:
         Check if two segments overlap.
 
         Args:
-            s1: First segment
-            s2: Second segment
+            s1 (Segment): First segment
+            s2 (Segment): Second segment
 
         Returns:
-            True if segments overlap, False otherwise
+            bool: True if segments overlap, False otherwise
         """
         placeholder = True  # placeholder
 
@@ -63,11 +63,11 @@ class CollisionPrimitives_SeparateAxis:
         For 2D polygons, we only need to check axes orthogonal to the edges.
 
         Args:
-            p1: First polygon
-            p2: Second polygon
+            p1 (Polygon): First polygon
+            p2 (Polygon): Second polygon
 
         Returns:
-            List of segments representing separating axes
+            list[Segment]: List of segments representing separating axes
         """
         axes = []  # Populate with Segment types
 
@@ -75,7 +75,6 @@ class CollisionPrimitives_SeparateAxis:
         raise NotImplementedError  # remove when you have written your code
         return axes
 
-    # Task 2.c
     @staticmethod
     def separating_axis_thm(
         p1: Polygon,
@@ -88,31 +87,31 @@ class CollisionPrimitives_SeparateAxis:
         Handles both polygon-polygon and polygon-circle cases.
 
         Args:
-            p1: First polygon
-            p2: Second polygon or circle
+            p1 (Polygon): First polygon
+            p2 (Union[Polygon, Circle]): Second polygon or circle
 
         Returns:
-            Tuple of (collision_detected, separating_axis)
-            - collision_detected: True if objects collide
-            - separating_axis: Optional axis for visualization
+            tuple[bool, Optional[Segment]]: Tuple of (collision_detected, separating_axis)
+                - collision_detected: True if objects collide
+                - separating_axis: Optional axis for visualization
         """
 
         if isinstance(p2, Polygon):  # Task 2c
 
             # TODO: Implement your solution for if polygon here. Exercise 2
             raise NotImplementedError  # remove when you have written your code
-            # return (bool, axis)
+            # return False, axis
 
         elif isinstance(p2, Circle):  # Task 3b
 
             # TODO: Implement your solution for SAT for circles here. Exercise 3
             # raise NotImplementedError
             raise NotImplementedError  # remove when you have written your code
-            # return (bool, axis)
+            # return False, axis
 
         else:
             print("If we get here we have done a big mistake.")
-            return (bool, axis)
+            return False, None
 
     # Task 3
     @staticmethod
@@ -125,11 +124,11 @@ class CollisionPrimitives_SeparateAxis:
         - Axis from circle center to closest polygon vertex
 
         Args:
-            circ: Circle primitive
-            poly: Polygon primitive
+            circ (Circle): Circle primitive
+            poly (Polygon): Polygon primitive
 
         Returns:
-            List of segments representing separating axes
+            list[Segment]: List of segments representing separating axes
         """
         axes = []
 
@@ -151,11 +150,11 @@ class CollisionPrimitives:
         Check collision between circle and point.
 
         Args:
-            c: Circle primitive
-            p: Point primitive
+            c (Circle): Circle primitive
+            p (Point): Point primitive
 
         Returns:
-            True if point is inside circle
+            bool: True if point is inside circle, False otherwise
         """
         return (p.x - c.center.x) ** 2 + (p.y - c.center.y) ** 2 < c.radius**2
 
@@ -165,11 +164,11 @@ class CollisionPrimitives:
         Check collision between triangle and point using barycentric coordinates.
 
         Args:
-            t: Triangle primitive
-            p: Point primitive
+            t (Triangle): Triangle primitive
+            p (Point): Point primitive
 
         Returns:
-            True if point is inside triangle
+            bool: True if point is inside triangle, False otherwise
         """
         area_orig = np.abs((t.v2.x - t.v1.x) * (t.v3.y - t.v1.y) - (t.v3.x - t.v1.x) * (t.v2.y - t.v1.y))
 
@@ -188,11 +187,11 @@ class CollisionPrimitives:
         Check collision between polygon and point using triangulation.
 
         Args:
-            poly: Polygon primitive
-            p: Point primitive
+            poly (Polygon): Polygon primitive
+            p (Point): Point primitive
 
         Returns:
-            True if point is inside polygon
+            bool: True if point is inside polygon, False otherwise
         """
         triangulation_result = tr.triangulate(dict(vertices=np.array([[v.x, v.y] for v in poly.vertices])))
 
@@ -217,11 +216,11 @@ class CollisionPrimitives:
         Check collision between circle and line segment.
 
         Args:
-            c: Circle primitive
-            segment: Segment primitive
+            c (Circle): Circle primitive
+            segment (Segment): Segment primitive
 
         Returns:
-            True if circle intersects with segment
+            bool: True if circle intersects with segment, False otherwise
         """
         inside_1 = CollisionPrimitives.circle_point_collision(c, segment.p1)
         inside_2 = CollisionPrimitives.circle_point_collision(c, segment.p2)
@@ -263,10 +262,10 @@ class CollisionPrimitives:
         Sample points along a segment for collision testing.
 
         Args:
-            segment: Segment to sample
+            segment (Segment): Segment to sample
 
         Returns:
-            List of sampled points
+            list[Point]: List of sampled points along the segment
         """
 
         x_diff = (segment.p1.x - segment.p2.x) / CollisionPrimitives.NUMBER_OF_SAMPLES
@@ -283,11 +282,11 @@ class CollisionPrimitives:
         Check collision between triangle and segment using point sampling.
 
         Args:
-            t: Triangle primitive
-            segment: Segment primitive
+            t (Triangle): Triangle primitive
+            segment (Segment): Segment primitive
 
         Returns:
-            True if triangle intersects with segment
+            bool: True if triangle intersects with segment, False otherwise
         """
         sampled_points = CollisionPrimitives.sample_segment(segment)
 
@@ -303,11 +302,11 @@ class CollisionPrimitives:
         Check collision between polygon and segment using point sampling.
 
         Args:
-            p: Polygon primitive
-            segment: Segment primitive
+            p (Polygon): Polygon primitive
+            segment (Segment): Segment primitive
 
         Returns:
-            True if polygon intersects with segment
+            bool: True if polygon intersects with segment, False otherwise
         """
         sampled_points = CollisionPrimitives.sample_segment(segment)
 
@@ -326,11 +325,11 @@ class CollisionPrimitives:
         then performs detailed collision detection.
 
         Args:
-            p: Polygon primitive
-            segment: Segment primitive
+            p (Polygon): Polygon primitive
+            segment (Segment): Segment primitive
 
         Returns:
-            True if polygon intersects with segment
+            bool: True if polygon intersects with segment, False otherwise
         """
         aabb = CollisionPrimitives._poly_to_aabb(p)
         sampled_points = CollisionPrimitives.sample_segment(segment)
@@ -354,10 +353,10 @@ class CollisionPrimitives:
         Convert polygon to axis-aligned bounding box.
 
         Args:
-            g: Polygon to convert
+            g (Polygon): Polygon to convert
 
         Returns:
-            AABB bounding box for the polygon
+            AABB: AABB bounding box for the polygon
         """
         x_values = [v.x for v in g.vertices]
         y_values = [v.y for v in g.vertices]
