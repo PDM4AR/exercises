@@ -125,6 +125,7 @@ def compare_spline_to_dubins(
     """
     # TODO implement here your solution
     return 0.0, 0.0, True, np.zeros(2), np.zeros(2), np.zeros(2), np.zeros(2)
+```
 
 Hint: Be careful when start and end position are the same:
     Same heading → feasible
