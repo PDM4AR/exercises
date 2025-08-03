@@ -94,6 +94,8 @@ class CollisionChecker:
             List[int]: Indices of colliding path segments (0-indexed, where 0 is first segment)
         """
 
+        # TODO: Task 4
+
         return []
 
     @staticmethod
@@ -111,6 +113,8 @@ class CollisionChecker:
         Returns:
             List[int]: Indices of colliding path segments
         """
+
+        # TODO: Task 5
 
         return []
 
@@ -133,6 +137,8 @@ class CollisionChecker:
             List[int]: Indices of colliding path segments
 
         """
+
+        # TODO: Task 6
 
         return []
 
@@ -158,6 +164,9 @@ class CollisionChecker:
         Returns:
             bool: True if collision detected during movement, False if path is clear
         """
+
+        # TODO: Task 7
+
         return False
 
     @staticmethod
@@ -186,5 +195,7 @@ class CollisionChecker:
         References:
             [1] https://arxiv.org/abs/2207.00669 - DCOL: Differentiable Collision Detection
         """
+
+        # TODO: Task 8
 
         return []
