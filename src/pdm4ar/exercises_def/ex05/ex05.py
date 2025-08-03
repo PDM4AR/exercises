@@ -59,14 +59,18 @@ def exercise_dubins_eval(
         if expected is not None:
             one_of_many = False
             if isinstance(expected[i], dict):
-                exp_out = ""
-                exp_paths = expected[i]["opt_paths"]
-                if len(exp_paths) > 1:
-                    one_of_many = True
-                for p in exp_paths:
-                    exp_out += str(p[1])
+                if "eval_tuple" in expected[i]:  # This is a special case for the spline case
+                    exp_out = str(expected[i]["eval_tuple"])
+                    one_of_many = False
+                else:
+                    exp_out = ""
+                    exp_paths = expected[i]["opt_paths"]
                     if len(exp_paths) > 1:
-                        exp_out += ", "
+                        one_of_many = True
+                    for p in exp_paths:
+                        exp_out += str(p[1])
+                        if len(exp_paths) > 1:
+                            exp_out += ", "
             else:
                 exp_out = (
                     [

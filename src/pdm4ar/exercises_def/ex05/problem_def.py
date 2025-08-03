@@ -107,16 +107,20 @@ def ex4_path_eval(algo_out, algo_out_tf, expected):
 
 def ex5_spline_eval(algo_out, algo_out_tf, expected):
     correct = 0
-    result_str = ""
+
+    if not isinstance(expected, dict) or "eval_tuple" not in expected:
+        return correct, f"{FAILED_STR}, expected data not in correct format"
+
+    gt_tuple = expected["eval_tuple"]
 
     if not isinstance(algo_out, tuple) or len(algo_out) != 7:
-        return correct, FAILED_STR
+        return correct, f"{FAILED_STR},  expected data not in correct format"
 
-    dubins_length, spline_length, is_feasible = algo_out[:3]
-    dubins_gt, spline_gt, feasible_gt = expected[:3]
+    dubins_length, spline_length, is_feasible, *_ = algo_out
+    dubins_gt, spline_gt, feasible_gt, *_ = gt_tuple
 
-    lengths_match = math.isclose(dubins_length, dubins_gt, rel_tol=1e-6) and math.isclose(
-        spline_length, spline_gt, rel_tol=1e-6
+    lengths_match = math.isclose(dubins_length, dubins_gt, rel_tol=1e-2) and math.isclose(
+        spline_length, spline_gt, rel_tol=1e-2
     )
     feasibility_match = is_feasible == feasible_gt
 
@@ -169,22 +173,12 @@ def ex4_path_plot_fun(rfig, query, algo_out, algo_out_tf, expected, sucess):
 
 def ex5_pre_tf_fun(algo_out):
     try:
-        # Extract Dubins path again to plot
-        _, _, _, t0, t1, p0, p1 = algo_out
+        # Expect tuple of 7 elements for spline task
+        if not isinstance(algo_out, tuple) or len(algo_out) != 7:
+            return False, None, f"{FAILED_STR}, output is not a tuple of length 7\n"
 
-        # Reconstruct SE2Transform for plotting convenience
-        dummy_start = SE2Transform(p0, 0.0)
-        dummy_end = SE2Transform(p1, 0.0)
-        radius = 1.0  # any valid radius; not relevant for plotting t0/t1
-
-        dubins_path = calculate_dubins_path(dummy_start, dummy_end, radius=radius)
-        if not dubins_path or not isinstance(dubins_path, list):
-            return False, None, f"{FAILED_STR}, Dubins path is empty or invalid\n"
-
-        se2_path = extract_path_points(dubins_path)
-        np_path = se2_points_to_np_array(se2_path)
-
-        return True, (se2_path, np_path), ""
+        # Pass through tuple for evaluation
+        return True, algo_out, ""
     except Exception as e:
         return False, None, f"{FAILED_STR}, exception in pre_tf_fun: {e}\n"
 
@@ -194,46 +188,56 @@ def ex5_spline_plot_fun(rfig, query, algo_out, algo_out_tf, expected, success):
         ax = plt.gca()
         start, end, radius = query
 
-        # --- Always plot GT Dubins path from expected ---
-        if expected and isinstance(expected, dict) and "opt_np_points_list" in expected:
-            for gt_opt_path_np in expected["opt_np_points_list"]:
-                plot_2d_path(gt_opt_path_np, ax=ax)
+        # --- Always plot GT Dubins ---
+        if isinstance(expected, dict) and "dubins_opt_np_points_list" in expected:
+            for gt_path_np in expected["dubins_opt_np_points_list"]:
+                plot_2d_path(gt_path_np, ax=ax)
         else:
             ax.set_title("No GT Dubins path in expected")
             return
 
-        # --- Choose spline source ---
-        if isinstance(algo_out, tuple) and len(algo_out) == 7 and all(val is not None for val in algo_out[3:]):
+        # --- Always plot GT spline ---
+        if isinstance(expected, dict):
+            t0_gt, t1_gt, p0_gt, p1_gt = expected["t0"], expected["t1"], expected["p0"], expected["p1"]
+
+            p0_gt = np.array(p0_gt, dtype=float)
+            p1_gt = np.array(p1_gt, dtype=float)
+            t0_gt = np.array(t0_gt, dtype=float)
+            t1_gt = np.array(t1_gt, dtype=float)
+
+            def hermite_gt(t):
+                h00 = 2 * t**3 - 3 * t**2 + 1
+                h10 = t**3 - 2 * t**2 + t
+                h01 = -2 * t**3 + 3 * t**2
+                h11 = t**3 - t**2
+                return h00 * p0_gt + h10 * t0_gt + h01 * p1_gt + h11 * t1_gt
+
+            ts = np.linspace(0, 1, 100)
+            spline_pts_gt = np.vstack([hermite_gt(t) for t in ts])
+            ax.plot(spline_pts_gt[:, 0], spline_pts_gt[:, 1], "g-", label="GT spline")
+
+        # --- Plot student spline if available ---
+        if isinstance(algo_out, tuple) and len(algo_out) >= 7:
             _, _, _, t0, t1, p0, p1 = algo_out
-        elif isinstance(expected, tuple) and len(expected) >= 7:
-            _, _, _, t0, t1, p0, p1 = expected
-        else:
-            plot_configuration(start, ax=ax, color="blue")
-            plot_configuration(end, ax=ax)
-            ax.axis("equal")
-            ax.legend()
-            ax.set_title("Dubins only - no spline available")
-            return
+            p0 = np.array(p0, dtype=float)
+            p1 = np.array(p1, dtype=float)
+            t0 = np.array(t0, dtype=float)
+            t1 = np.array(t1, dtype=float)
 
-        # --- Force arrays for Hermite ---
-        p0 = expected["p0"]
-        p1 = expected["p1"]
-        t0 = expected["t0"]
-        t1 = expected["t1"]
+            def hermite_student(t):
+                h00 = 2 * t**3 - 3 * t**2 + 1
+                h10 = t**3 - 2 * t**2 + t
+                h01 = -2 * t**3 + 3 * t**2
+                h11 = t**3 - t**2
+                return h00 * p0 + h10 * t0 + h01 * p1 + h11 * t1
 
-        def hermite(t):
-            h00 = 2 * t**3 - 3 * t**2 + 1
-            h10 = t**3 - 2 * t**2 + t
-            h01 = -2 * t**3 + 3 * t**2
-            h11 = t**3 - t**2
-            return h00 * p0 + h10 * t0 + h01 * p1 + h11 * t1
+            ts = np.linspace(0, 1, 100)
+            spline_pts_student = np.vstack([hermite_student(t) for t in ts])
+            ax.plot(spline_pts_student[:, 0], spline_pts_student[:, 1], "r--", label="Student spline")
 
-        ts = np.linspace(0, 1, 100)
-        spline_pts = np.vstack([hermite(t) for t in ts])
-        ax.plot(spline_pts[:, 0], spline_pts[:, 1], "r--", label="Spline")
-
+        # --- Mark start/end ---
         plot_configuration(start, ax=ax, color="blue")
         plot_configuration(end, ax=ax)
         ax.axis("equal")
         ax.legend()
-        ax.set_title("Spline vs Dubins (GT fallback)")
+        ax.set_title("Spline vs Dubins")

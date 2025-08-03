@@ -87,10 +87,10 @@ def compare_spline_to_dubins(
     # TODO implement here your solution
     dubins_length = 0.0  # Replace with actual Dubins path length calculation
     # Generate a cubic Hermite spline between start and end configurations (find the parameters)
-    p0 = 0
-    p1 = 0
-    t0 = 0
-    t1 = 0
+    p0 = np.zeros(2, dtype=float)
+    p1 = np.zeros(2, dtype=float)
+    t0 = np.zeros(2, dtype=float)
+    t1 = np.zeros(2, dtype=float)
 
     # Hermite basis (parameter t ∈ [0, 1])
     def hermite(t):

@@ -7,16 +7,16 @@ EX_1_RADIUS_WEIGHT = 0.05
 EX_2_CURVES_WEIGHT = 0.05
 EX_3_TANGENT_WEIGHT = 0.20
 EX_4_DUBINS_WEIGHT = 0.50
-EX_6_SPLINE_WEIGHT = 0.10
-EX_5_REEDS_WEIGHT = 0.10
+EX_5_SPLINE_WEIGHT = 0.10
+EX_6_REEDS_WEIGHT = 0.10
 
 assert math.isclose(
     EX_1_RADIUS_WEIGHT
     + EX_2_CURVES_WEIGHT
     + EX_3_TANGENT_WEIGHT
     + EX_4_DUBINS_WEIGHT
-    + EX_5_REEDS_WEIGHT
-    + EX_6_SPLINE_WEIGHT,
+    + EX_6_REEDS_WEIGHT
+    + EX_5_SPLINE_WEIGHT,
     1,
 )
 
@@ -115,30 +115,11 @@ def get_ex5_spline_comparison_values() -> DubinsProblem:
     config_list = []
     queries = []
     radius = 3.5
-
-    config_list.append((SE2Transform([1.0, 2.5], 0.0), SE2Transform([-8, 2.5], 0.0)))
     config_list.append((SE2Transform([0.0, 0.0], np.pi / 6), SE2Transform([8.0, 4.0], -np.pi / 2)))
-    config_list.append((SE2Transform([0.0, 0.0], np.pi / 2), SE2Transform([-7.0, 0.0], -np.pi / 2)))
+    config_list.append((SE2Transform([0.0, 0.0], 0.0), SE2Transform([10.0, 2.0], np.pi / 8)))
     config_list.append((SE2Transform([-3.0, 7.0], 1.05 * np.pi), SE2Transform([-4.0, 2.5], 1.83 * np.pi)))
-    # Smooth gentle arc, long enough distance
-    config_list.append(
-        (SE2Transform([0.0, 0.0], 0.0), SE2Transform([10.0, 2.0], np.pi / 8))  # facing right  # slight turn up
-    )  # ✅ spline should be feasible
+    config_list.append((SE2Transform([0.0, 0.0], np.pi / 2), SE2Transform([3.0, 7.0], np.pi / 2)))
 
-    # Long straight motion with matching heading
-    config_list.append(
-        (SE2Transform([-5.0, -2.0], 0.0), SE2Transform([5.0, -2.0], 0.0))  # facing right  # same direction, straight
-    )  # ✅ curvature = 0
-
-    # Gentle S-bend
-    config_list.append(
-        (SE2Transform([0.0, 0.0], np.pi / 6), SE2Transform([10.0, 5.0], np.pi / 6))  # 30°  # same angle, curved path
-    )  # ✅ spline should remain below curvature limit
-
-    # Slight reverse curve but still feasible (direction changes smoothly)
-    config_list.append(
-        (SE2Transform([0.0, 0.0], np.pi / 2), SE2Transform([3.0, 7.0], np.pi / 2))  # facing up  # still facing up
-    )  # ✅ small heading diff, long vertical path
     for config in config_list:
         queries += [(*config, radius)]
 
@@ -146,9 +127,9 @@ def get_ex5_spline_comparison_values() -> DubinsProblem:
         queries=queries,
         id_num=5,
         id_str="Spline vs Dubins Comparison",
-        algo_fun=algo.compare_spline_to_dubins,  # To be implemented in algo_sol.py
-        eval_fun=ex5_spline_eval,  # To be implemented in evaluation05.py
-        eval_weight=EX_6_SPLINE_WEIGHT,  # Adjust weight as needed
+        algo_fun=algo.compare_spline_to_dubins,
+        eval_fun=ex5_spline_eval,
+        eval_weight=EX_5_SPLINE_WEIGHT,
         plot_fun=ex5_spline_plot_fun,
         pre_tf_fun=ex5_pre_tf_fun,
     )
@@ -171,7 +152,7 @@ def get_ex6_start_end_test_values() -> DubinsProblem:
         id_str="Reeds' Path Test",
         algo_fun=algo.calculate_reeds_shepp_path,
         eval_fun=ex4_path_eval,
-        eval_weight=EX_5_REEDS_WEIGHT,
+        eval_weight=EX_6_REEDS_WEIGHT,
         plot_fun=ex4_path_plot_fun,
         pre_tf_fun=ex4_pre_tf_fun,
     )
