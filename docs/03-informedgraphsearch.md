@@ -114,6 +114,29 @@ Under which condition will the time metric be admissible?
 
 (HINT 3) For UCS and Astar, you may find Python's `heapq` module useful.
 
+(HINT 4) You might want to organise your queue as `queue = [ (<priority>, <i = insertion order>, <node>, <cost-to-reach>, <parent_node>) ]`
+
+In addition, we provide you with a script to allow you to increase and personalise your local test cases on the existing graphs. You can choose the `(start_node, goal_node)` tuples of int as query for your search algorithm without worrying they actually exist, as they will be checked and filtered. Moreover, a predefined function will generate existing random queries if you set a positive integer in the `n_random_queries` dict. Edit `src/pdm4ar/exercises/ex03/local_queries.py` in the apposite window:
+
+```python
+def get_local_queries(G: WeightedGraph, id: str) -> set[Query]:
+    """
+    Generate local queries for the given graph.
+    Local queries are manually specified node pairs.
+    Random queries are sampled from adjacent node pairs in the graph.
+    """
+
+    # === STUDENT-EDITABLE SECTION ===
+
+    my_queries = {"ny": set(), 
+                  "eth": set(), 
+                  "milan": set()}                           # Replace set() with e.g.{(1, 2), (3, 4)}
+    n_random_queries = {"ny": 0, "eth": 0, "milan": 0}      # Replace 0 with another int
+    random_seed = None                                      # Set an integer if you want deterministic results
+
+    # === END STUDENT-EDITABLE SECTION ===
+```
+
 ### Test cases and performance criteria
 
 The algorithms are going to be tested on different graphs, each containing randomly generated queries (start & goal node).
@@ -124,6 +147,28 @@ These test cases are not graded but serve as a guideline for how the exercise wi
 The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, efficiency>:
 * **Accuracy**: Both UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
 * **Efficiency**: Your efficiency score will incorporate both the solve time and the heuristic efficiency. The precise weighting of these metrics has not been determined. However, a simple heuristic should suffice. After all, choosing a computationally complex heuristic might affect the solve time.
+
+### Baselines
+
+For each metric, the thresholds are listed in the order: **PASSING – GOOD – EXCELLENT**.
+* Students are expected to meet at least the **PASSING** threshold for the task to be considered complete.
+* Meeting the **GOOD** threshold may be sufficient for a full mark, but since many students may achieve this level,
+* We also provide an **EXCELLENT** threshold to encourage further optimization. Achieving the EXCELLENT level will most likely secure the full grade.
+
+
+| Metric              | Values      | PASSING | GOOD   | EXCELLENT |
+|---------------------|-------------|---------|--------|-----------|
+| Completion rate     | [0, 1.0]    | 1.0     | 1.0    | 1.0       |
+| Accuracy            | [0, 1.0]    | 1.0     | 1.0    | 1.0       |
+| Heuristic efficiency| [0, 1.0]    | < 0.8   | < 0.7  | < 0.6     |
+| Solve time [s]      |             | < 0.05  | < 0.01 | < 0.005   |
+
+### Useful remarks from last year Q&A
+* Please, use the provided templates to implement your functions, without modifying the arguments and output numbers and types, unless stated otherwise.
+* If not explicitly instructed otherwise, you may use anything included in the Docker environment to simplify your calculations.
+* Since Uniform Cost Search is a special case of the A* algorithm, it is allowed to use A* implementation for UCS too, writing the code in the correct place and setting heuristic function = 0.
+* **BE CAREFUL**: in the A* algorithm, the heuristic is summed to the cost-to-reach only for the ranking step in the queue, but you must **not** update the cost-to-reach with the heuristic estimate!
+* For debugging, please keep in mind that your code has to work in all possible scenarios. Find them all!
 
 ### Update your repo and run exercise
 
