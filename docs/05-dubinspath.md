@@ -86,8 +86,51 @@ def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, 
     # Please keep segments with zero length in the return list & return a valid dubins path!
     return [] # e.g. [Curve(), Line(),..]
 ```
+5. [10%] Even though your Dubins planner from Task 4 generates physically valid paths, the navigation team now wants to experiment with smoother alternatives for short‑range maneuvers and parking. In particular, they are curious to know how a **cubic Hermite spline** would compare to the optimal Dubins path in terms of:
 
-5. [10%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
+- **Path length**
+- **Feasibility** with respect to the same curvature constraint used for Dubins
+- **Qualitative difference in shape**
+
+Your task is to **implement a function** that:
+1. Computes the optimal Dubins path between two given configurations using your `calculate_dubins_path` from Task 4.
+2. Constructs a **cubic Hermite spline** between the same start and end configurations, using the vehicle headings to define the spline tangents.
+3. Computes:
+   - The length of the Dubins path
+   - The length of the spline
+   - Whether the spline is **feasible** (i.e., its curvature never exceeds `1/radius`).
+4. Returns the above quantities **together with** the spline parameters:
+   - Tangent vector at the start (`t0`)
+   - Tangent vector at the end (`t1`)
+   - Start position (`p0`)
+   - End position (`p1`)
+
+We provide the method signature below. You must implement it in:
+
+```python
+def compare_spline_to_dubins(
+    start_config: SE2Transform, end_config: SE2Transform, radius: float
+) -> tuple[float, float, bool, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Compare the Dubins path and a cubic Hermite spline between two configurations.
+
+    Returns:
+        dubins_length: length of optimal Dubins path
+        spline_length: length of Hermite spline
+        is_feasible: True if spline curvature <= 1/radius everywhere
+        t0: tangent vector at start (scaled for plotting)
+        t1: tangent vector at end (scaled for plotting)
+        p0: start position (2D)
+        p1: end position (2D)
+    """
+    # TODO implement here your solution
+    return 0.0, 0.0, True, np.zeros(2), np.zeros(2), np.zeros(2), np.zeros(2)
+
+Hint: Be careful when start and end position are the same:
+    Same heading → feasible
+    Different heading → infeasible (turn in place is not allowed for Dubins motion)
+
+6. [10%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
 park backwards and sidewards when they should pick them up. Instead, they wait in the middle of the street...
 In the following, extend the code implemented in task 4 to allow also for situation when the car needs to drive backwards. For simplicity, we will **only** consider cases with **three** path segments all completed in reverse (i.e. $C^{-}S^{-}C^{-}$ and $C^{-}C^{-}C^{-}$ type paths) + all optimal forward dubins paths coming from ```calculate_dubins_path``` (don't forget to call this function in the new method). Use the `Gear.REVERSE` enum value to indicate that the car drives backwards. For example, the following reverse path is a $R^{-}S^{-}L^{-}$ path (i.e. the direction of steering wheel input) with the `start_config.theta` and `end_config.theta` values corresponding to the direction that the car is facing towards.
 
@@ -110,7 +153,8 @@ def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transf
 All of the described subtasks are individually graded on different test cases. For each task, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases, i.e. for task $i$: $\frac{N_{correct,i}}{N_{task,i}}$. We define a test case to be computed *correctly*, if:
 
 - For task 1,2,3: The computed return values match the ones of the solution up to some numerical tolerance. 
-- For task 4,5: The computed `Path` is in the set of **optimal** (i.e.minimum distance) paths and follows the specification made in the problem description. 
+- For task 4,6: The computed `Path` is in the set of **optimal** (i.e.minimum distance) paths and follows the specification made in the problem description. 
+- For task 5: The computed values for Dubins length, spline length, and feasibility must match the reference solution within a given numerical tolerance.
 
 
 We provide some example test cases for each subtask. After running the exercise locally, you will find the report in the folder `out/ex05`. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g. by modifying the existing ones in `src/pdm4ar/exercises_def/ex05/data.py`.
