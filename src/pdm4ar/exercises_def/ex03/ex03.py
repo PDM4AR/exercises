@@ -86,7 +86,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                 )
             r.text(f"{algo_name}-validation", "\n".join(validation_details))
             return Ex03PerformanceResult(accuracy=0.0, solve_time=0.0, heuristic_efficiency=float("inf")), r
-    # run algo
+    # run algo looping over all queries
     for i, query in enumerate(test_queries):
         nc = [
             (NodeColors.start if n == query[0] else (NodeColors.goal if n == query[1] else NodeColors.default))
@@ -100,7 +100,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         start = process_time()
         path = search_algo.path(query[0], query[1])
         solve_time = process_time() - start
-        heuristic_count = heuristic_count_fn(search_algo, query[0], query[1])
+        heuristic_count, path_heuristic_val = heuristic_count_fn(search_algo, query[0], query[1])
         # ground truths
         gt_path, trivial_heuristic_count = ex_out[i]
         if path:
@@ -299,6 +299,26 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                         )
             # Compare your algo to ground truth
             if gt_path_cost == path_cost:
+                # Validate student's heuristic
+                if path_heuristic_val is not None:
+                    if path_heuristic_val:  # non-empty
+                        cross_path_cost = compute_path_cost(wG, path_heuristic_val)
+                    else:  # empty path
+                        cross_path_cost = 0.0
+
+                    if cross_path_cost != gt_path_cost:
+                        msg += (
+                            "CORRECT solution but heuristic function is NOT ADMISSIBLE outside local astar: "
+                            f"astar + local heuristic cost {cross_path_cost} != astar + admissible heuristic cost {gt_path_cost}\n"
+                        )
+                        r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
+                        return Ex03PerformanceResult(
+                            accuracy=0.0,
+                            solve_time=solve_time,
+                            heuristic_efficiency=float("inf"),
+                        ), r
+
+                # validated
                 accuracy.append(1.0)
                 msg += "Student solution : CORRECT\n"
             else:
@@ -324,7 +344,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                     search_algo.use_trivial_heuristic = True
                     # Rerun Astar, counting how many times the heuristic was invoked
                     search_algo.path(query[0], query[1])
-                    trivial_heuristic_count = heuristic_count_fn(search_algo, query[0], query[1])
+                    trivial_heuristic_count, _ = heuristic_count_fn(search_algo, query[0], query[1])
                 if len(gt_path) == 1:
                     # Case when start = goal
                     heuristic_performance.append(0.0)
@@ -422,12 +442,12 @@ def get_exercise3() -> Exercise:
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
     test_values = list()
 
-    def uniform_cost_heuristic_counter(search_algo: UniformCostSearch, start: X, goal: X) -> int:
+    def uniform_cost_heuristic_counter(search_algo: UniformCostSearch, start: X, goal: X) -> Tuple[int, list]:
         # There is no heuristic in UCS, so we just return 0
-        return 0
+        return 0, None
 
-    def astar_heuristic_counter(search_algo: Astar, start: X, goal: X) -> int:
-        return search_algo.heuristic_counter
+    def astar_heuristic_counter(search_algo: Astar, start: X, goal: X) -> Tuple[int, list]:
+        return search_algo.heuristic_counter, None
 
     algos = [
         (UniformCostSearch.__name__, uniform_cost_heuristic_counter),
