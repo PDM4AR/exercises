@@ -12,12 +12,13 @@ def get_local_queries(G: WeightedGraph, id: str) -> set[Query]:
     """
 
     # === STUDENT-EDITABLE SECTION ===
+
     my_queries = {"ny": set(), 
-                  "eth": {(131923881, 131923881)}, 
-                  # DEBUGGING: for "eth", the query (89010597, 1552985925) has no solution
-                  "milan": set()}                   # e.g., {(1, 2), (3, 4)}
-    n_random_queries = {"ny": 1, "eth": 1, "milan": 1}
-    random_seed = None  # Set an integer if you want deterministic results
+                  "eth": set(), 
+                  "milan": set() }                          # Replace set() with e.g., {(1, 2), (3, 4)}
+    n_random_queries = {"ny": 0, "eth": 0, "milan": 0}      # Replace 0 with another positive int
+    random_seed = None                                      # Set an integer if you want deterministic results
+
     # === END STUDENT-EDITABLE SECTION ===
 
     if id not in my_queries:

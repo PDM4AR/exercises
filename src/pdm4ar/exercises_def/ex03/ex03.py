@@ -84,7 +84,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                     f"  - Library: {record['library']}, "
                     f"Function: {record['func_name']}, Line: {record['lineno']}, File: {record['filename']}"
                 )
-            r.text(f"{algo_name}-validation", "\n".join(validation_details))
+            r.text(f"{algo_name}-validation-query{data}", "\n".join(validation_details))
             return Ex03PerformanceResult(accuracy=0.0, solve_time=0.0, heuristic_efficiency=float("inf")), r
     # run algo looping over all queries
     for i, query in enumerate(test_queries):
@@ -396,7 +396,7 @@ def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03Performanc
 
 def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> Callable:
     called_funcs = []
-    detected_libs = set()  # Track already detected libraries
+    detected_funcs = set()  # Track already detected libraries
 
     def trace_calls(frame, event, arg):  # pylint: disable=unused-argument
         import traceback  # pylint: disable=import-outside-toplevel
@@ -404,23 +404,26 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> 
         if event != "call":
             return
         module = frame.f_globals.get("__name__", "")
+        func_name = frame.f_code.co_name
         for lib in disallowed_dependencies:
-            if module.startswith(lib) and lib not in detected_libs:
-                # Only record each library once
-                detected_libs.add(lib)
+            if module.startswith(lib) and func_name == "astar_path":
+                identifier = (lib, func_name)
+                if identifier not in detected_funcs:
+                    # Only record each function once
+                    detected_funcs.add(identifier)
 
-                traces = traceback.extract_stack(frame)
-                for trace in reversed(traces):
-                    if trace.name == func.__name__:
-                        called_funcs.append(
-                            {
-                                "library": lib,
-                                "func_name": trace.name,
-                                "lineno": trace.lineno,
-                                "filename": trace.filename.split("/")[-1],  # Get the filename only
-                            }
-                        )
-                        break
+                    traces = traceback.extract_stack(frame)
+                    for trace in reversed(traces):
+                        if trace.name == func.__name__:
+                            called_funcs.append(
+                                {
+                                    "library": lib,
+                                    "func_name": trace.name,
+                                    "lineno": trace.lineno,
+                                    "filename": trace.filename.split("/")[-1],  # Get the filename only
+                                }
+                            )
+                            break
         return trace_calls
 
     def wrapper(*args, **kwargs):
@@ -459,8 +462,8 @@ def get_exercise3() -> Exercise:
             problem=prob,
             algo_name=algo_name,
             h_count_fn=algo_func,
-            impl_validate_func_wrapper=None,    # IF VALIDATION WORKS: validate_impl_wrapper,
-            disallowed_dependencies=None       # IF VALIDATION WORKS:disallowed_dependencies
+            impl_validate_func_wrapper=validate_impl_wrapper,     # else None
+            disallowed_dependencies=disallowed_dependencies       # else None
     ))
 
 
