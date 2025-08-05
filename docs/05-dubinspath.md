@@ -78,7 +78,7 @@ The order of the lines in the List is not important. Write your code in:
     return [] # i.e. [Line(),]
  ``` 
 
-4. [60%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g. line with length = 0) in the returned list.
+4. [50%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g. line with length = 0) in the returned list.
 Implement it in:
 ```python
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
@@ -86,11 +86,11 @@ def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, 
     # Please keep segments with zero length in the return list & return a valid dubins path!
     return [] # e.g. [Curve(), Line(),..]
 ```
-5. [10%] Even though your Dubins planner from Task 4 generates physically valid paths, the navigation team now wants to experiment with smoother alternatives for short‑range maneuvers and parking. In particular, they are curious to know how a **cubic Hermite spline** would compare to the optimal Dubins path in terms of:
+5. [10%] Even though your Dubins planner from Task 4 generates physically valid paths, the navigation team now wants to experiment smoother alternatives for short‑range maneuvers and parking. In particular, they are curious to know how a **cubic Hermite spline** would compare to the optimal Dubins path in terms of:
 
-- **Path length**
-- **Feasibility** with respect to the same curvature constraint used for Dubins
-- **Qualitative difference in shape**
+   - The path length
+   - The feasibility with respect to the same curvature constraint used for Dubins
+   - The qualitative difference in shape
 
 Your task is to **implement a function** that:
 1. Computes the optimal Dubins path between two given configurations using your `calculate_dubins_path` from Task 4.
