@@ -58,7 +58,10 @@ After running the exercise, you'll find reports in `out/[exercise]/` for each te
 
 The first set of local tests are graph search problems designed to check whether your code handles basic edge cases correctly. Later tests take the form of grid search problems. A grid can be interpreted as a graph, where each square is a node connected to its adjacent squares with those directly above, below, left, or right as neighbors.
 
-This means a grid search problem can be transformed into a standard graph search problem using an adjacency list. This transformation has already been done for you; the grid is simply used to provide a more intuitive visual representation of how the algorithms operate.
+This means a grid search problem can be transformed into a standard graph search problem using an adjacency list. This transformation has already been done for you; the grid is simply used to provide a more intuitive visual representation of how the algorithms operate. 
+
+Note: In the transformation from grid to adjacency mentioned above, squares become nodes numbered according to their position on the grid, starting at 1 in the top-left corner. Numbering proceeds left to right across each row, and then continues row by row from top to bottom, up to n*n (where n is the grid size).
+
 
 Below is an example of a grid: the start node is shown in orange, the goal in blue, and the black squares represent obstacles. Movement is restricted to one step at a time, either vertically or horizontally.
 
@@ -116,6 +119,18 @@ A `Path`/`OpenedNodes` to be considered correct has to **fully** match the corre
 Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths).Thus, accuracy will be in the interval [0, 1].
 * **Solve time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required.
 
+For reference, the TA’s solution achieves the following average solving times on the private test cases:
+
+DepthFirst:         0.000485 s  
+BreadthFirst:       0.000239 s  
+IterativeDeepening: 0.000867 s
+
+Use these numbers as a guideline to understand the order of magnitude of expected performance for a descently optimized solution.
+
+Keep in mind:
+- These times are for reference only, your implementation does not need to match them exactly.
+- Small variations in solving time between runs of the same algorithm may be observed.
+
 #### Update & Run
 
 Please refer to [Hello World](01-helloworld.md) for instructions.
@@ -125,3 +140,4 @@ Please refer to [Hello World](01-helloworld.md) for instructions.
 * Which of the graph search algorithms you implemented are better suited for different topologies of graphs?
 * Does the presence of cycles in the graph affects any of the algorithms? If yes, why? Which modifications would you do to improve?
 * Are the paths that you found the _shortest_ path?
+* When running Depth-First Search (DFS) with a depth limit `k`, does the algorithm always explore all nodes at depth `k`?
