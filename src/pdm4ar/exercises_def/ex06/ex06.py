@@ -266,7 +266,7 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> 
                             }
                         )
                         break
-        return trace_calls
+        return None
 
     def wrapper(*args, **kwargs):
         import sys  # pylint: disable=import-outside-toplevel

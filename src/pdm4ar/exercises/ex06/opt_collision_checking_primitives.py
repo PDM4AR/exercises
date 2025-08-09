@@ -36,7 +36,10 @@ class OptCollisionCheckingPrimitives:
 
         # TODO: Construct collision constraints based on primitive types and solve the optimization problem
 
-        return False, 1.0  # Placeholder return value
+        # Placeholder return value: returns True (have collision) and 1.0 (default scaling factor)
+        # The scaling factor of 1.0 here means two primitives are just touching at their boundaries.
+        # You need to implement the actual collision checking logic.
+        return True, 1.0
 
     @staticmethod
     def _add_collision_constraints_polygon(polygon: Polygon, x: cp.Variable, scale: cp.Variable) -> List[cp.Constraint]:

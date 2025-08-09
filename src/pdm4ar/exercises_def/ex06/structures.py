@@ -16,6 +16,7 @@ __all__ = [
     "AABB",
     "Polygon",
     "Path",
+    "Capsule",
 ]
 
 
@@ -78,6 +79,14 @@ class Segment(GeoPrimitive):
 
 @dataclass(frozen=True)
 class Capsule(GeoPrimitive):
+    """
+    Represents a capsule, which is a line segment inflated by a given radius.
+    Geometrically, a capsule consists of a segment (the central axis) and all points within
+    a specified radius from that segment, forming a shape with rounded ends.
+    - segment: the central line segment of the capsule
+    - radius: the radius by which the segment is inflated
+    """
+
     segment: Segment
     radius: float
 

@@ -234,7 +234,7 @@ class DataGenerator:
 
         min_proj_pt = seg_shapely.interpolate(min(projected_dists))
         max_proj_pt = seg_shapely.interpolate(max(projected_dists))
-        proj_seg = Segment(min_proj_pt, max_proj_pt)
+        proj_seg = Segment(Point(min_proj_pt.x, min_proj_pt.y), Point(max_proj_pt.x, max_proj_pt.y))
 
         return (poly, seg, proj_seg)
 
