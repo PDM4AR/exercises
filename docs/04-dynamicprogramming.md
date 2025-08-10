@@ -26,7 +26,7 @@ Rows and columns represent the $i$ and $j$ coordinates of the robot, respectivel
 The area around you is a tropical rainforest, which can be modeled in the grid with the following types of cells:
 - ``GRASS`` (green) - it will take the robot 1 hour to cross this cell.
 - ``SWAMP`` (light blue) - it will take the robot 2 hours to cross this cell.
-- ``WONDERLAND`` (purple) - it is a random cell and can be considered a ``GRASS`` cell. In addition, when the robot moves to a wonderland, it will be teleported instantly (without any time cost) to one of the adjacent cells, excluded the one where the robot was before the move. If the ``WONDERLAND`` is close to a border, it will be teleported only in feasible cells. Moreover, there are never 2 close cells that are both ``WONDERLAND``. This means that if, given 2 cells $(i_1, j_1)$ and $(i_2, j_2)$, $\sqrt{(i_2 - i_1)^2 + (j_2 - j_1)^2} \leq \sqrt{2}$, the 2 cells can't be both ``WONDERLAND``.
+- ``WONDERLAND`` (purple) - it is a random cell and can be considered a ``GRASS`` cell. In addition, when the robot moves to a wonderland, it will be teleported instantly (without any time cost) to one of the adjacent cells, excluded the one where the robot was before the move. Moreover, there are never 2 close cells that are both ``WONDERLAND``. This means that if, given 2 cells $(i_1, j_1)$ and $(i_2, j_2)$, $\sqrt{(i_2 - i_1)^2 + (j_2 - j_1)^2} \leq \sqrt{2}$, the 2 cells can't be both ``WONDERLAND``.
 - ``CLIFF`` (black) - untraversable cell. If the robot tries to move in this cell, it will break down and you will need to deploy a new robot from the base.
 - ``GOAL`` (red) - the goal location you need to survey.
 - ``START`` (yellow) - the location of your base, it can be considered a ``GRASS`` cell. The 8 cells close to the ``START`` cell are always ``GRASS``, ``SWAMP`` or ``GOAL`` cells and are not on the edge of the map nor adjacent to ``CLIFF`` cells. **(``START`` is always at least 2 cells away from the edge of the map or a ``CLIFF`` cell)**. In other word, the robot will never break down in the ``START`` cell and the four neighboring cells. Moreover ``WONDERLAND`` cells are always at least 3 cells away from the ``START`` cell in a single direction. This means that if, given the ``START`` cell $(i_1, j_1)$ and a ``WONDERLAND`` cell $(i_2, j_2)$, it should be $\sqrt{(i_2 - i_1)^2 + (j_2 - j_1)^2} > 2$.
@@ -56,8 +56,8 @@ The planet's atmosphere is very foggy and when the robot decides to move in a sp
   With probability 0.05 the robot will break down and will need to ``ABANDON`` its mission.
   - If the robot chooses to give up, it will ``ABANDON`` its mission with probability 1.0.
 - In ``WONDERLAND``:
-  - The robot will be teleported instantly to one of the feasible adjacent cells, excluded the one where the robot was before the move with equal probability. For example, if there are 4 feasible cells close to the ``WONDERLAND``, the robot will be teleported to one of them with probability 1/3 because it can't go back to the previous cell.
-  - The robot will not break down during teleportation.
+  - The robot will be teleported instantly to one of the adjacent cells, excluded the one where the robot was before the move, with equal probability. 
+  - The robot will not break down during teleportation, unless it ends up in a cliff or outside the map.
 - In ``CLIFF``:
   - The robot will break down with probability 1.0.
 - When in the ``GOAL`` the robot will ``STAY``  with probability of 1.0.
@@ -229,11 +229,11 @@ The coordinates of the cells are given in the format `(row, column)` starting fr
 ```(<current state>, <action>): (<next state>, <probability>, <reward>)```
 
 ```
-- ((0, 1), SOUTH):   ((1, 1), 0.75, -1), ((2, 2), 0.125, -11), ((0,2), 0.125, -1)
+- ((0, 1), SOUTH):   ((1, 1), 0.75, -1), ((2, 2), 0.1667, -11), ((0,2), 0.0833, -1)
 - ((0, 1), ABANDON): ((2, 2), 1.0, -10)
 - ((1, 2), WEST):    ((1, 1), 0.75, -1), ((0, 2), 0.0833, -1), ((2, 2), 0.0833, -1), ((1, 3), 0.0833, -1)
-- ((2, 0), SOUTH):   ((2, 1), 0.125, -1), ((1, 1), 0.0625, 2), ((3, 1), 0.375, 2), ((2, 2), 0.4375, -11)
-- ((3, 3), WEST):    ((3, 2), 0.5, -2), ((4, 3), 0.0833, -2), ((2, 4), 0.04167, 1), ((2, 3), 0.0833, -2) ((2, 2), 0.09167, -12), ((3, 3), 0.2, -2)
+- ((2, 0), SOUTH):   ((2, 1), 0.0833, -1), ((1, 1), 0.0278, 2), ((3, 1), 0.25, 2), ((2, 2), 0.6389, -11)
+- ((3, 3), WEST):    ((3, 2), 0.5, -2), ((4, 3), 0.0833, -2), ((2, 4), 0.0278, 1), ((2, 3), 0.0833, -2) ((2, 2), 0.1055, -12), ((3, 3), 0.2, -2)
 ```
 
 

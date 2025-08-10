@@ -93,7 +93,7 @@ def get_transition_prob_test_cases(grid_mdps: list[GridMdp]) -> list[TestTransit
                 ((2, 2), Action.EAST, (1, 2)),
                 ((1, 2), Action.SOUTH, (2, 2)),
                 ((3, 2), Action.NORTH, (2, 2)),
-                ((2, 2), Action.NORTH, (1, 3)),
+                ((2, 0), Action.NORTH, (1, 1)),
             ]
 
             # Add STAY action only from GOAL position if we have one
