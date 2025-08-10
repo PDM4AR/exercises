@@ -1,23 +1,33 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
 
 import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
-from pdm4ar.exercises.ex04.structures import OptimalActions, ValueFunc, Cell
+from pdm4ar.exercises.ex04.structures import OptimalActions, ValueFunc, Cell, Action, State
 from pdm4ar.exercises_def.ex04.map import generate_map
+from pdm4ar.exercises_def import ExIn
 
-if TYPE_CHECKING:
-    from pdm4ar.exercises_def.ex04.ex04 import TestTransitionProbEx4
+
+@dataclass
+class TestTransitionProbEx4(ExIn):
+    grid: GridMdp
+    state: State
+    action: Action
+    next_state: State
+    testId: int = 0
+
+    def str_id(self) -> str:
+        return f"TransitionProb{self.testId}_s{self.state}_a{self.action.name}_ns{self.next_state}"
 
 
 def get_simple_test_grid() -> np.ndarray:
     simple_map = np.array(
         [
-            [Cell.CLIFF, Cell.CLIFF, Cell.GRASS, Cell.CLIFF, Cell.CLIFF],
-            [Cell.CLIFF, Cell.WONDERLAND, Cell.GRASS, Cell.SWAMP, Cell.CLIFF],
-            [Cell.GRASS, Cell.GRASS, Cell.START, Cell.WONDERLAND, Cell.GOAL],
-            [Cell.CLIFF, Cell.WONDERLAND, Cell.GRASS, Cell.SWAMP, Cell.CLIFF],
-            [Cell.CLIFF, Cell.CLIFF, Cell.GRASS, Cell.CLIFF, Cell.CLIFF],
+            [Cell.CLIFF, Cell.GRASS, Cell.GRASS, Cell.GRASS, Cell.CLIFF],
+            [Cell.WONDERLAND, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.WONDERLAND],
+            [Cell.GRASS, Cell.GRASS, Cell.START, Cell.GRASS, Cell.GOAL],
+            [Cell.WONDERLAND, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.WONDERLAND],
+            [Cell.CLIFF, Cell.GRASS, Cell.GRASS, Cell.GRASS, Cell.CLIFF],
         ]
     )
     return simple_map
@@ -48,18 +58,106 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]]
     return data_in
 
 
-def get_expected_results_transition(test_cases: list["TestTransitionProbEx4"]) -> list[float]:
+def get_transition_prob_test_cases(grid_mdps: list[GridMdp]) -> list[TestTransitionProbEx4]:
+    """Generate test cases for transition probability evaluation"""
+    test_cases = []
+    test_id = 0
+
+    for grid_idx, grid_mdp in enumerate(grid_mdps):
+        rows, cols = grid_mdp.grid.shape
+
+        # Find special cells
+        start_pos = None
+        goal_pos = None
+        for i in range(rows):
+            for j in range(cols):
+                if grid_mdp.grid[i, j] == Cell.START:
+                    start_pos = (i, j)
+                elif grid_mdp.grid[i, j] == Cell.GOAL:
+                    goal_pos = (i, j)
+
+        # Generate comprehensive test cases for the first grid
+        if grid_idx == 0:  # Simple 5x5 test grid
+            # Test cases for different scenarios on the simple grid
+            test_scenarios = [
+                ((2, 2), Action.NORTH, (1, 2)),
+                ((2, 2), Action.SOUTH, (3, 2)),
+                ((2, 2), Action.EAST, (2, 3)),
+                ((2, 2), Action.WEST, (2, 1)),
+                ((2, 2), Action.EAST, (1, 3)),
+                ((2, 1), Action.SOUTH, (3, 1)),
+                ((2, 1), Action.EAST, (2, 2)),
+                ((2, 1), Action.WEST, (2, 0)),
+                ((2, 1), Action.ABANDON, start_pos),
+                ((2, 2), Action.NORTH, (2, 3)),
+                ((2, 2), Action.EAST, (1, 2)),
+                ((1, 2), Action.SOUTH, (2, 2)),
+                ((3, 2), Action.NORTH, (2, 2)),
+                ((2, 2), Action.NORTH, (1, 3)),
+            ]
+
+            # Add STAY action only from GOAL position if we have one
+            if goal_pos:
+                test_scenarios.append((goal_pos, Action.STAY, goal_pos))
+
+        else:
+            # For larger grids, test some representative cases
+            test_scenarios = [
+                # Test from center positions (avoid STAY unless from GOAL)
+                ((rows // 2, cols // 2), Action.NORTH, (rows // 2 - 1, cols // 2)),
+                ((rows // 2, cols // 2), Action.SOUTH, (rows // 2 + 1, cols // 2)),
+                ((rows // 2, cols // 2), Action.EAST, (rows // 2, cols // 2 + 1)),
+                ((rows // 2, cols // 2), Action.WEST, (rows // 2, cols // 2 - 1)),
+                # Test boundary conditions
+                ((0, cols // 2), Action.NORTH, (0, cols // 2)),
+                ((rows - 1, cols // 2), Action.SOUTH, (rows - 1, cols // 2)),
+                ((rows // 2, 0), Action.WEST, (rows // 2, 0)),
+                ((rows // 2, cols - 1), Action.EAST, (rows // 2, cols - 1)),
+                # Test ABANDON from a few positions
+                ((rows // 2, cols // 2), Action.ABANDON, start_pos),
+            ]
+
+            # Add STAY action only from GOAL position if we have one
+            if goal_pos:
+                test_scenarios.append((goal_pos, Action.STAY, goal_pos))
+
+        for state, action, next_state in test_scenarios:
+            # Only test valid states (within grid bounds and not cliffs)
+            if (
+                state
+                and next_state  # Make sure positions are valid
+                and 0 <= state[0] < rows
+                and 0 <= state[1] < cols
+                and 0 <= next_state[0] < rows
+                and 0 <= next_state[1] < cols
+            ):
+                # Check if states are not cliffs
+                if (
+                    grid_mdp.grid[state[0], state[1]] != Cell.CLIFF
+                    and grid_mdp.grid[next_state[0], next_state[1]] != Cell.CLIFF
+                ):
+                    test_cases.append(
+                        TestTransitionProbEx4(
+                            grid=grid_mdp, state=state, action=action, next_state=next_state, testId=test_id
+                        )
+                    )
+                    test_id += 1
+
+    return test_cases
+
+
+def get_expected_results_transition(test_cases: list[TestTransitionProbEx4]) -> list[float]:
     """Load pre-computed transition probability results for the given test cases"""
     data_dir = Path(__file__).parent
     all_data = np.load(data_dir / "data/expected_transition_results.npz", allow_pickle=True)
-    
+
     # Get the results array - this should contain all transition probability results
     # in the same order as the test cases are generated
     transition_probs = all_data["transition_probs"].tolist()
-    
-    # Return the first len(test_cases) results 
+
+    # Return the first len(test_cases) results
     # (assuming test cases are generated in the same order as when we computed the ground truth)
-    return transition_probs[:len(test_cases)]
+    return transition_probs[: len(test_cases)]
 
 
 def get_expected_results_algo() -> list[tuple[ValueFunc, OptimalActions]]:

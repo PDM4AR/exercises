@@ -10,9 +10,15 @@ from matplotlib.ticker import MaxNLocator
 from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
-from pdm4ar.exercises.ex04.structures import Action, OptimalActions, Cell, Policy, State
+from pdm4ar.exercises.ex04.structures import Action, OptimalActions, Cell, Policy
 from pdm4ar.exercises_def import Exercise, ExIn
-from pdm4ar.exercises_def.ex04.data import get_expected_results_algo, get_expected_results_transition, get_test_grids
+from pdm4ar.exercises_def.ex04.data import (
+    get_expected_results_algo,
+    get_expected_results_transition,
+    get_test_grids,
+    get_transition_prob_test_cases,
+    TestTransitionProbEx4,
+)
 from pdm4ar.exercises_def.ex04.map import map2image
 from pdm4ar.exercises_def.ex04.utils import action2arrow, head_width
 from pdm4ar.exercises_def.structures import PerformanceResults
@@ -32,18 +38,6 @@ class TestValueEx4(ExIn):
         return str(self.algo.__name__) + str(self.testId)
 
 
-@dataclass
-class TestTransitionProbEx4(ExIn):
-    grid: GridMdp
-    state: State
-    action: Action
-    next_state: State
-    testId: int = 0
-
-    def str_id(self) -> str:
-        return f"TransitionProb{self.testId}_s{self.state}_a{self.action.name}_ns{self.next_state}"
-
-
 @dataclass(frozen=True)
 class Ex04Performance(PerformanceResults):
     policy_accuracy: float
@@ -58,11 +52,9 @@ class Ex04Performance(PerformanceResults):
 @dataclass(frozen=True)
 class Ex04TransitionProbPerformance(PerformanceResults):
     transition_prob_accuracy: float
-    test_count: int
 
     def __post__init__(self):
         assert self.transition_prob_accuracy <= 1, self.transition_prob_accuracy
-        assert self.test_count >= 0, self.test_count
 
 
 @dataclass(frozen=True)
@@ -250,7 +242,7 @@ def ex4_transition_prob_evaluation(ex_in: TestTransitionProbEx4, ex_out=None) ->
     else:
         accuracy = 0.0
 
-    result = Ex04TransitionProbPerformance(transition_prob_accuracy=accuracy, test_count=1)
+    result = Ex04TransitionProbPerformance(transition_prob_accuracy=accuracy)
     return result, r
 
 
@@ -279,13 +271,12 @@ def ex4_single_perf_aggregator(perf: Sequence[Ex04Performance]) -> Ex04Performan
 
 def ex4_transition_prob_perf_aggregator(perf: Sequence[Ex04TransitionProbPerformance]) -> Ex04TransitionProbPerformance:
     if not perf:
-        return Ex04TransitionProbPerformance(transition_prob_accuracy=0.0, test_count=0)
+        return Ex04TransitionProbPerformance(transition_prob_accuracy=0.0)
 
     accuracy_sum = sum(p.transition_prob_accuracy for p in perf)
-    total_tests = sum(p.test_count for p in perf)
     avg_accuracy = accuracy_sum / len(perf) if perf else 0.0
 
-    return Ex04TransitionProbPerformance(transition_prob_accuracy=round(avg_accuracy, 3), test_count=total_tests)
+    return Ex04TransitionProbPerformance(transition_prob_accuracy=round(avg_accuracy, 3))
 
 
 def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
@@ -312,103 +303,6 @@ def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04Performanc
     )
 
 
-def get_transition_prob_test_cases(grid_mdps: list[GridMdp]) -> list[TestTransitionProbEx4]:
-    """Generate test cases for transition probability evaluation"""
-    test_cases = []
-    test_id = 0
-
-    for grid_idx, grid_mdp in enumerate(grid_mdps):
-        rows, cols = grid_mdp.grid.shape
-
-        # Find special cells
-        start_pos = None
-        goal_pos = None
-        for i in range(rows):
-            for j in range(cols):
-                if grid_mdp.grid[i, j] == Cell.START:
-                    start_pos = (i, j)
-                elif grid_mdp.grid[i, j] == Cell.GOAL:
-                    goal_pos = (i, j)
-
-        # Generate comprehensive test cases for the first grid
-        if grid_idx == 0:  # Simple 5x5 test grid
-            # Test cases for different scenarios on the simple grid
-            test_scenarios = [
-                # Normal movements within bounds from START position (2,2)
-                ((2, 2), Action.NORTH, (1, 2)),
-                ((2, 2), Action.SOUTH, (3, 2)),
-                ((2, 2), Action.EAST, (2, 3)),  # Should move to WONDERLAND
-                ((2, 2), Action.WEST, (2, 1)),
-                ((2, 2), Action.EAST, (1, 3)),
-                # Movements from other valid positions (avoid STAY unless from GOAL)
-                ((2, 1), Action.NORTH, (1, 1)),  # From GRASS to WONDERLAND
-                ((2, 1), Action.SOUTH, (3, 1)),  # From GRASS to WONDERLAND
-                ((2, 1), Action.EAST, (2, 2)),  # From GRASS to START
-                ((2, 1), Action.WEST, (2, 0)),  # From GRASS to GRASS
-                # Edge cases - trying to move out of bounds
-                ((0, 2), Action.NORTH, (0, 2)),  # Already at top edge, should stay
-                ((4, 2), Action.SOUTH, (4, 2)),  # Already at bottom edge, should stay
-                ((2, 0), Action.WEST, (2, 0)),  # Already at left edge, should stay
-                # Test ABANDON action from non-GOAL cells
-                ((2, 1), Action.ABANDON, start_pos),  # ABANDON from GRASS should go to START
-                # Test invalid transitions (should have 0 probability)
-                ((2, 2), Action.NORTH, (2, 3)),  # Wrong direction
-                ((2, 2), Action.EAST, (1, 2)),  # Wrong direction
-                # Test transitions involving special cells
-                ((1, 2), Action.SOUTH, (2, 2)),  # From GRASS to START
-                ((3, 2), Action.NORTH, (2, 2)),  # From GRASS to START
-            ]
-
-            # Add STAY action only from GOAL position if we have one
-            if goal_pos:
-                test_scenarios.append((goal_pos, Action.STAY, goal_pos))
-
-        else:
-            # For larger grids, test some representative cases
-            test_scenarios = [
-                # Test from center positions (avoid STAY unless from GOAL)
-                ((rows // 2, cols // 2), Action.NORTH, (rows // 2 - 1, cols // 2)),
-                ((rows // 2, cols // 2), Action.SOUTH, (rows // 2 + 1, cols // 2)),
-                ((rows // 2, cols // 2), Action.EAST, (rows // 2, cols // 2 + 1)),
-                ((rows // 2, cols // 2), Action.WEST, (rows // 2, cols // 2 - 1)),
-                # Test boundary conditions
-                ((0, cols // 2), Action.NORTH, (0, cols // 2)),
-                ((rows - 1, cols // 2), Action.SOUTH, (rows - 1, cols // 2)),
-                ((rows // 2, 0), Action.WEST, (rows // 2, 0)),
-                ((rows // 2, cols - 1), Action.EAST, (rows // 2, cols - 1)),
-                # Test ABANDON from a few positions
-                ((rows // 2, cols // 2), Action.ABANDON, start_pos),
-            ]
-
-            # Add STAY action only from GOAL position if we have one
-            if goal_pos:
-                test_scenarios.append((goal_pos, Action.STAY, goal_pos))
-
-        for state, action, next_state in test_scenarios:
-            # Only test valid states (within grid bounds and not cliffs)
-            if (
-                state
-                and next_state  # Make sure positions are valid
-                and 0 <= state[0] < rows
-                and 0 <= state[1] < cols
-                and 0 <= next_state[0] < rows
-                and 0 <= next_state[1] < cols
-            ):
-                # Check if states are not cliffs
-                if (
-                    grid_mdp.grid[state[0], state[1]] != Cell.CLIFF
-                    and grid_mdp.grid[next_state[0], next_state[1]] != Cell.CLIFF
-                ):
-                    test_cases.append(
-                        TestTransitionProbEx4(
-                            grid=grid_mdp, state=state, action=action, next_state=next_state, testId=test_id
-                        )
-                    )
-                    test_id += 1
-
-    return test_cases
-
-
 def get_exercise4() -> Exercise:
     algos = [ValueIteration, PolicyIteration]
     grid_mdps = get_test_grids()
@@ -418,7 +312,7 @@ def get_exercise4() -> Exercise:
     expected_results_algo = get_expected_results_algo()
 
     # Transition probability tests
-    transition_test_cases = get_transition_prob_test_cases(grid_mdps[:1])  # Test on first grid
+    transition_test_cases = get_transition_prob_test_cases(grid_mdps[:1])  # Test on first grid only
     transition_expected_results = get_expected_results_transition(transition_test_cases)
 
     # Create a combined test that handles both types of tests

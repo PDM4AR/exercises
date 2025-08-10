@@ -57,6 +57,11 @@ def generate_map(
             if _are_states_adjacent(coord1, coord2):
                 grid_map[coord2] = Cell.GRASS
 
+    # Check that a wonderland is at least 3 cells away from the start
+    for coord in wonderland_coords:
+        if np.sqrt((coord[0] - start_coords[0]) ** 2 + (coord[1] - start_coords[1]) ** 2) <= 2:
+            grid_map[coord] = Cell.GRASS
+
     # Select n_cliff of cliffs from all grass & swamp cells except the 3 by 3 grid centered at the start
     # and four cells exactly 2 cells away from the start.
     grass_swamp_cells = np.where((grid_map == Cell.GRASS) | (grid_map == Cell.SWAMP))

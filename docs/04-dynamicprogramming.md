@@ -26,10 +26,10 @@ Rows and columns represent the $i$ and $j$ coordinates of the robot, respectivel
 The area around you is a tropical rainforest, which can be modeled in the grid with the following types of cells:
 - ``GRASS`` (green) - it will take the robot 1 hour to cross this cell.
 - ``SWAMP`` (light blue) - it will take the robot 2 hours to cross this cell.
-- ``WORMHOLE`` (purple) - it is a teleportation cell and can be considered a ``GRASS`` cell. In addition, when the robot moves to a wormhole, it will be teleported instantly (without any time cost) to other ``WORMHOLE`` including the one it is currently in.
+- ``WONDERLAND`` (purple) - it is a random cell and can be considered a ``GRASS`` cell. In addition, when the robot moves to a wonderland, it will be teleported instantly (without any time cost) to one of the adjacent cells, excluded the one where the robot was before the move. If the ``WONDERLAND`` is close to a border, it will be teleported only in feasible cells. Moreover, there are never 2 close cells that are both ``WONDERLAND``. This means that if, given 2 cells $(i_1, j_1)$ and $(i_2, j_2)$, $\sqrt{(i_2 - i_1)^2 + (j_2 - j_1)^2} \leq \sqrt{2}$, the 2 cells can't be both ``WONDERLAND``.
 - ``CLIFF`` (black) - untraversable cell. If the robot tries to move in this cell, it will break down and you will need to deploy a new robot from the base.
 - ``GOAL`` (red) - the goal location you need to survey.
-- ``START`` (yellow) - the location of your base, it can be considered a ``GRASS`` cell. The 4 neighbors of the ``START`` cell are always ``GRASS-type`` cells ``(GRASS, WORMHOLE and GOAL)`` and are not on the edge of the map nor adjacent to ``CLIFF`` cells. **(``START`` is always at least 2 cells away from the edge of the map or a ``CLIFF`` cell)**. In other word, the robot will never break down in the ``START`` cell and the four neighboring cells.
+- ``START`` (yellow) - the location of your base, it can be considered a ``GRASS`` cell. The 8 cells close to the ``START`` cell are always ``GRASS``, ``SWAMP`` or ``GOAL`` cells and are not on the edge of the map nor adjacent to ``CLIFF`` cells. **(``START`` is always at least 2 cells away from the edge of the map or a ``CLIFF`` cell)**. In other word, the robot will never break down in the ``START`` cell and the four neighboring cells. Moreover ``WONDERLAND`` cells are always at least 3 cells away from the ``START`` cell in a single direction. This means that if, given the ``START`` cell $(i_1, j_1)$ and a ``WONDERLAND`` cell $(i_2, j_2)$, it should be $\sqrt{(i_2 - i_1)^2 + (j_2 - j_1)^2} > 2$.
 
 
 The time required to cross each cell corresponds to the time a robot needs to leave this cell (e.g. leaving the ``START`` cell takes 1 hour).
@@ -42,6 +42,7 @@ The goal of your policy is to maximize profit (use 1k USD as the default unit):
 - You keep receiving a bonus of 50k USD for your robot surveying(staying at) the goal location.
 - For each hour of the time it takes you to fulfill the contract, your client is entitled to a compensation of 1k USD. No compensation is paid if the robot is already at the goal location.
 - The deployment of each new robot costs you 10k USD (the first robot is covered by the client).
+- You get a positive reward of 3k USD if you pass through a ``WONDERLAND`` only if it does not move you to a ``CLIFF`` cell (if you pass through a ``WONDERLAND`` but you end in a ``CLIFF``, it will only cost you 10k USD to build a new robot without any reward).
 
 
 The planet's atmosphere is very foggy and when the robot decides to move in a specific direction, it may not end up where initially planned. Sometimes, when trying to move, it might also break down and be forced to abandon its mission. In fact, for all transitions, the following probabilities are given:
@@ -54,8 +55,8 @@ The planet's atmosphere is very foggy and when the robot decides to move in a sp
   With probability 0.2, the robot will not be able to move out of the cell (it will stay in the cell).
   With probability 0.05 the robot will break down and will need to ``ABANDON`` its mission.
   - If the robot chooses to give up, it will ``ABANDON`` its mission with probability 1.0.
-- In ``WORMHOLE``:
-  - The robot will be teleported instantly to other ``WORMHOLE`` including the one it is currently in with equal probability. For example, if there are 4 ``WORMHOLE`` cells on the map, the robot will be teleported to one of them with probability 0.25.
+- In ``WONDERLAND``:
+  - The robot will be teleported instantly to one of the feasible adjacent cells, excluded the one where the robot was before the move with equal probability. For example, if there are 4 feasible cells close to the ``WONDERLAND``, the robot will be teleported to one of them with probability 1/3 because it can't go back to the previous cell.
   - The robot will not break down during teleportation.
 - In ``CLIFF``:
   - The robot will break down with probability 1.0.
@@ -66,8 +67,9 @@ If the robot breaks down or chooses to ``ABANDON`` the mission, a new robot is d
 
 ### Hints
 - You can model the ``ABANDON`` action transition as a transition in your MDP from the current cell to the ``START`` cell with the cost of deploying a new robot.
-- You can model the teleportation as a transition in your MDP from the current cell to one of the ``WORMHOLE`` cells with a probability $P(x_{k+1} \mid x_k, u_k)=P(x_{k+1} \mid x^-)P(x^- \mid x_k, u_k)$, where $x^-$ is the state of the adjacent ``WORMHOLE`` after applying the action $u_k$ in the current state $x_k$, $x_{k+1}$ is the state after the teleportation. As the teleportation is instantaneous, you can model __moving to the adjacent ``WORMHOLE``__ and then __being teleported to the next state__ as a single transition.
+- You can model the teleportation as a transition in your MDP from the current cell to one close to the ``WONDERLAND`` cell with a probability $P(x_{k+1} \mid x_k, u_k)=P(x_{k+1} \mid x^-)P(x^- \mid x_k, u_k)$, where $x^-$ is the state of the adjacent ``WONDERLAND`` after applying the action $u_k$ in the current state $x_k$, $x_{k+1}$ is the state after the teleportation. As the teleportation is instantaneous, you can model __moving to the adjacent ``WONDERLAND``__ and then __being teleported to the next state__ as a single transition.
 - If the robot chooses a movement action in any cell, it will take it the time specified for this cell type to try to perform this action. An attempt to move out of the ``SWAMP`` cell always takes 2 hours, even if the robot ends up staying in the cell or breaking down.
+- If the robot passes through a ``WONDERLAND``, you need to consider both the reward given by the ``WONDERLAND`` and the cost to move from the current cell.
 - Note that the robot will never break down in the ``START`` cell or in its four neighboring cells because of the assumptions on their type and location on the map.
 
 ## Tasks
@@ -104,7 +106,7 @@ class Cell(IntEnum):
     START = 1
     GRASS = 2
     SWAMP = 3
-    WORMHOLE = 4
+    WONDERLAND = 4
     CLIFF = 5
 
 
@@ -141,7 +143,7 @@ class GridMdp:
 ```
 
 Feel free to add more methods in case you need to.
-The method ``get_transition_prob`` returns the probability of transitioning from a state to another given an action. 
+The method ``get_transition_prob`` returns the probability of transitioning from a state to another given an action - you must not change the name of this function! 
 The method ``stage_reward``returns the reward that corresponds to transitioning from the current state to the next after choosing the given action.
 
 #### Value Iteration
@@ -185,7 +187,7 @@ For both _Value_ and _Policy iterations_, you need to return the optimal `ValueF
 
 > **Note**: The optimal value function is unique, but the optimal policy is not. You can return any optimal policy that satisfies the Bellman optimality equation.
 
-To keep the format consistent, the value function and policy should be returned as _MxN_ matrices (numpy arrays) where each cell corresponds to the value of the state or the action to be taken in the state, respectively. The value function and policy of `CLIFF` cells will be excluded for evaluation.
+To keep the format consistent, the value function and policy should be returned as _MxN_ matrices (numpy arrays) where each cell corresponds to the value of the state or the action to be taken in the state, respectively. The value function and policy of `CLIFF` and `WONDERLAND` cells will be excluded for evaluation. This is because you are never in `CLIFF` and you can only pass from `WONDERLAND` without choosing any action.
 
 If your algorithm works, in the report you should find some results similar to this:
 
@@ -199,10 +201,11 @@ Figure 1: Visualization of the optimal value function and policy for a 5x5 examp
 
 On the left the Value function is visualized as a heatmap.
 On the right you can see the map with the original cells and the corresponding optimal policy (arrows for movement actions, X for the ``ABANDON`` action).
+In both the images, the `WONDERLAND` cells are purple cell because we can't attribute a value or a policy considering that we don't have any control when we are there. For this reason in the Policy plot there is a circle where there are `WONDERLAND` cells.
 
 ### Help for modeling the MDP
 
-Correctly modeling the MDP is crucial for the success of your algorithms. To help you with this, we provide you with the admissible action set, the ground truth transition probabilities and rewards for selected cells of the [5x5 example](#example-picture) above. You can use these to validate your implementation. 
+Correctly modeling the MDP is crucial for the success of your algorithms. To help you with this, we provide you with the admissible action set, the ground truth transition probabilities and rewards for selected cells of the [5x5 example](#example-picture) above. You can use these to validate your implementation. Moreover, the function `get_transition_prob()` is evaluated independently to help you understanding if this crucial part is correctly implemented.
 
 The coordinates of the cells are given in the format `(row, column)` starting from the top left corner of the grid. All axes are 0-indexed.
 
@@ -213,10 +216,10 @@ The coordinates of the cells are given in the format `(row, column)` starting fr
 ```<current state>: [list of admissible actions]```
 
 ```
-- (0, 2): [SOUTH, ABANDON]  
-- (1, 2): [WEST,EAST ,NORTH, SOUTH, ABANDON]
-- (1, 1): [SOUTH, EAST, ABANDON]
-- (3, 3): [WEST, NORTH, ABANDON]
+- (0, 1): [SOUTH, EAST, ABANDON]  
+- (1, 2): [WEST, EAST, NORTH, SOUTH, ABANDON]
+- (2, 0): [EAST, NORTH, SOUTH, ABANDON]
+- (4, 3): [WEST, NORTH, ABANDON]
 ```
 
 #### Ground truth transition probabilities and rewards
@@ -226,11 +229,11 @@ The coordinates of the cells are given in the format `(row, column)` starting fr
 ```(<current state>, <action>): (<next state>, <probability>, <reward>)```
 
 ```
-- ((0, 2), SOUTH):   ((1, 2), 0.75, -1), ((2, 2), 0.25, -11)
-- ((0, 2), ABANDON): ((2, 2), 1.0, -10)
-- ((1, 2), WEST):    ((3, 1), 0.25, -1), ((1, 1), 0.25, -1), ((2, 3), 0.25, -1), ((0, 2), 0.0833, -1), ((2, 2), 0.0833, -1), ((1, 3), 0.0833, -1)
-- ((1, 1), SOUTH):   ((1, 2), 0.0833, -1), ((2, 1), 0.75, -1), ((2, 2), 0.1667, -11)
-- ((3, 3), WEST):    ((3, 1), 0.02778, -2), ((1, 1), 0.02778, -2), ((2, 3), 0.02778, -2), ((2, 2), 0.21667, -12), ((3, 2), 0.5, -2), ((3, 3), 0.2, -2)
+- ((0, 1), SOUTH):   ((1, 1), 0.75, -1), ((2, 2), 0.125, -11), ((0,2), 0.125, -1)
+- ((0, 1), ABANDON): ((2, 2), 1.0, -10)
+- ((1, 2), WEST):    ((1, 1), 0.75, -1), ((0, 2), 0.0833, -1), ((2, 2), 0.0833, -1), ((1, 3), 0.0833, -1)
+- ((2, 0), SOUTH):   ((2, 1), 0.125, -1), ((1, 1), 0.0625, 2), ((3, 1), 0.375, 2), ((2, 2), 0.4375, -11)
+- ((3, 3), WEST):    ((3, 2), 0.5, -2), ((4, 3), 0.0833, -2), ((2, 4), 0.04167, 1), ((2, 3), 0.0833, -2) ((2, 2), 0.09167, -12), ((3, 3), 0.2, -2)
 ```
 
 
@@ -242,16 +245,17 @@ After running the exercise, you will find the reports in `out/04/` for each test
 There you will be able to visualize the MDPs, your output and the expected solution.
 These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
 
-The final evaluation will combine the following metrics: ratio of completed cases, average policy_accuracy, average value_func_R2, and average solve_time:
+The final evaluation will combine the following metrics: ratio of completed cases, transition_prob_accuracy, average policy_accuracy, average value_func_R2, and average solve_time:
 * **ratio of completed cases**: $\frac{N_{completed}}{N}$
+* **transition_prob_accuracy**: This metric will evaluate the accuracy of your transition probability, in particular, for different cases (state, action, next_state), it considers 1.0 if the probability is equal (up to numerical errors) to the ground truth, 0.0 otherwise. Then it averages the results.
 * **policy_accuracy**: This metric will evaluate the accuracy of your `Policy`, in particular, it averages for each state of the MDP the number of correct actions (# of correct actions)/(# of states). Thus, policy_accuracy will be in the interval [0, 1].
 * **value_func_R2**: This metric will evaluate the accuracy of your `ValueFunc`. It is a measure of how well your `ValueFunc` approximates the ground truth `ValueFunc`. It is computed as $R^2 = 1 - \frac{\sum_{s \in S} (VF^{gt}(s) - VF(s))^2}{\sum_{s \in S} (VF^{gt}(s) - \bar{VF^{gt}})^2}$ where $VF^{gt}$ is the ground truth `ValueFunc`, $VF$ is your `ValueFunc`, and $\bar{VF^{gt}}$ is the mean of the ground truth `ValueFunc`. With negative values being clipped to 0, this metric will be in the interval [0, 1].
 * **solve_time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required (in seconds).
 
-The final score will be computed as follows: $score = \frac{N_{completed}}{N} \cdot (\frac{policy\_accuracy + value\_func\_R2}{2} - 0.0025 \cdot solve\_time)$
+The final score will be computed as follows: $score = \frac{N_{completed}}{N} \cdot (\frac{policy_accuracy + value_func_R2}{2} - 0.0025 \cdot solve_time) * 0.8 + transition_prob_accuracy * 0.2$
 
-In the report you will find the average of each metric for all the test cases (`perf_result`), value iteration test cases (`value_iteration`) and policy iteration test cases (`policy_iteration`).
-The score is calculated based on all the test cases (`perf_result`).
+In the report you will find the average of each metric for all the test cases (`perf_result`), value iteration test cases (`value_iteration`), policy iteration test cases (`policy_iteration`) and transition probability test cases (`transition_prob`).
+The score is calculated based on all the test cases (`perf_result`) plus (`transition_prob`).
 
 
 ### Update your repo and run exercise
