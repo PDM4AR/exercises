@@ -23,7 +23,7 @@ With a few clicks  you will associate your Github account to your _Legi_ number 
 Once your repository is created, clone it on your local computer and open it in VS Code:
 
 - Run `git clone <>` where `<>` is either HTTPS or SSH depending on how you set up git. 
-- Navigate to the `\exercise` folder. Open VS Code in the repository by running `code .` in the terminal.
+- Navigate to the `exercise` folder, where the exercise repo is cloned locally. Open VS Code in the repository by running `code .` in the terminal.
 - Alternatively, open VS code then click select File -> Open and select *the entire folder*.
 - VS Code will propose to install "Dev Container". Click "install".
 - VS Code will give you a message similar to:
