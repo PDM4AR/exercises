@@ -23,7 +23,7 @@ With a few clicks  you will associate your Github account to your _Legi_ number 
 Once your repository is created, clone it on your local computer and open it in VS Code:
 
 - Run `git clone <>` where `<>` is either HTTPS or SSH depending on how you set up git. 
-- Navigate to the `\exercise` folder. Open VS Code in the repository by running `code .` in the terminal.
+- Navigate to the `exercise` folder, where the exercise repo is cloned locally. Open VS Code in the repository by running `code .` in the terminal.
 - Alternatively, open VS code then click select File -> Open and select *the entire folder*.
 - VS Code will propose to install "Dev Container". Click "install".
 - VS Code will give you a message similar to:
@@ -84,7 +84,7 @@ Here is an example for the lexi comparison:
 
 ### Creating local test cases
 
-You might have noticed that the expected outputs in the above report are always `None` instead of the true answers. This is appearently not very helpful for debugging your algorithm. How can you fix this? Take a look at the function `get_exercise1()` in the file `src/pdm4ar/exercises_def/ex01/ex01.py`. In this function, an `Exercise` object is constructed with a description(`desc`), the evaluation functions(`evaluation_fun` and `perf_aggregator`), the test cases(`test_values`) and the expected results(`expected_results`). The last two arguments are relevant for creating the local test cases. Notice that in line 71, the expected results are declared as a list of `none`. This is why you see it in the report. Try to play around with it and observe the change in the generated report.
+You might have noticed that the expected outputs in the above report are always `None` instead of the true answers. This is apparently not very helpful for debugging your algorithm. How can you fix this? Take a look at the function `get_exercise1()` in the file `src/pdm4ar/exercises_def/ex01/ex01.py`. In this function, an `Exercise` object is constructed with a description(`desc`), the evaluation functions(`evaluation_fun` and `perf_aggregator`), the test cases(`test_values`) and the expected results(`expected_results`). The last two arguments are relevant for creating the local test cases. Notice that in line 71, the expected results are declared as a list of `None`. This is why you see it in the report. Try to play around with it and observe the change in the generated report.
 
 In all the following exercises, we will provide you with some local test cases and the true answers to them. Nonetheless, feel free to create your own test cases in the same function of other exercises(e.g.`get_exercise2()` in `src/pdm4ar/exercises_def/ex02/ex02.py`). 
 
