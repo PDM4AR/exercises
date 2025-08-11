@@ -110,8 +110,8 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Poli
         ax.tick_params(axis="both", labelsize=font_size + 3)
         for i in range(MAP_SHAPE[0]):
             for j in range(MAP_SHAPE[1]):
-                # Skip cliff
-                if grid_mdp.grid[i, j] == Cell.CLIFF:
+                # Skip cliff and wonderlands
+                if grid_mdp.grid[i, j] == Cell.CLIFF or grid_mdp.grid[i, j] == Cell.WONDERLAND:
                     continue
                 # Get optimal actions. If policy is a single action, convert it to a list
                 if policy.dtype == object:
@@ -120,9 +120,6 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Poli
                     optimal_actions = [policy[i, j]]
                 else:
                     raise ValueError("Invalid policy type")
-                # Put a random action to put O in the wonderland cell
-                if optimal_actions is None:
-                    optimal_actions = [Action.ABANDON]
 
                 for action in optimal_actions:
                     if grid_mdp.grid[i, j] == Cell.WONDERLAND:
