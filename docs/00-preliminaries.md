@@ -179,7 +179,7 @@ Using an [IDE](https://en.wikipedia.org/wiki/Integrated_development_environment)
 But it provides a good set of tools that speed up the development (code navigation, debugging,...).
 Moreover, we will provide environment configurations that will make your life easier.
 
-We recommand using VS code. You can find installation instructions [here](https://code.visualstudio.com/docs/setup/setup-overview). 
+We recommend using VS code. You can find installation instructions [here](https://code.visualstudio.com/docs/setup/setup-overview). After having VSCode installed, also install the DevContainer extension in VSCode or from [here](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 
 There are many other good IDEs for python (PyCharm, Atom, Spyder,...), they should work just fine if you know how to
 replicate exactly the development environment in `.devcontainer/` but we won't support them officially.
