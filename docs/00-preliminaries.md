@@ -116,7 +116,7 @@ Windows and Mac can give some more hiccups in the setup, but they are supported 
 
 ### Python
 
-Python will be the programming language adopted in this course. You don't have to install python on your local machine as you will work with the docker contrainer that has python installed (more information below).
+Python will be the programming language adopted in this course. You don't have to install python on your local machine as you will work with the docker container that has python installed (more information below).
 
 #### _Resources_
 
