@@ -406,7 +406,7 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> 
         module = frame.f_globals.get("__name__", "")
         func_name = frame.f_code.co_name
         for lib in disallowed_dependencies:
-            if module.startswith(lib) and func_name == "astar_path":
+            if module.startswith(lib) and func_name == "astar_path" or func_name == "shortest_path":
                 identifier = (lib, func_name)
                 if identifier not in detected_funcs:
                     # Only record each function once

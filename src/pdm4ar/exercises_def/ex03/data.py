@@ -137,16 +137,15 @@ def get_test_informed_gsproblem(
     # convert graph to InformedGraphSearchProblem
     data_in: list[InformedGraphSearchProblem] = []
     for i, G in enumerate(test_wgraphs):
-        id_graph = graph_ids[i]
+        id = graph_ids[i]
         default_queries = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)  # set of queries
         q = default_queries
-        if n_queries == 1 and n_seed == 4:          # local testing
-            local_queries = get_local_queries(G, id_graph)
-            q = default_queries | local_queries
+        local_queries = get_local_queries(G, id)
+        q = default_queries | local_queries
         p = InformedGraphSearchProblem(
             graph=G,
             queries=q,
-            graph_id=id_graph,
+            graph_id=id,
         )
         data_in.append(p)
     # add InformedGraphSearchProblem for evaluation
@@ -167,8 +166,8 @@ def graph_dimensions(G: WeightedGraph):
     longitudes = [data["x"] for _, data in nodes]
     min_lat, max_lat = min(latitudes), max(latitudes)
     min_lon, max_lon = min(longitudes), max(longitudes)
-    width = ox.distance.euclidean_dist_vec(min_lat, min_lon, min_lat, max_lon)
-    height = ox.distance.euclidean_dist_vec(min_lat, min_lon, max_lat, min_lon)
+    width = ox.distance.euclidean(min_lat, min_lon, min_lat, max_lon)
+    height = ox.distance.euclidean(min_lat, min_lon, max_lat, min_lon)
     return width, height, min_lat, max_lat, min_lon, max_lon
 
 
@@ -199,7 +198,7 @@ def create_highway_between_cities(G1: MultiDiGraph, G2: MultiDiGraph, n_seed=0):
     G_combined = compose(G1, G2)
 
     # Add a highway (edge) between the two border nodes
-    highway_length = ox.distance.euclidean_dist_vec(
+    highway_length = ox.distance.euclidean(
         G1.nodes[node1]["y"],
         G1.nodes[node1]["x"],
         G2.nodes[node2]["y"],
@@ -252,88 +251,6 @@ def find_center_of_cities(G: WeightedGraph, n_clusters=2):
 
     return centroids
 
-
-def ex3_get_expected_results() -> list[list[tuple[Path, int]]]:
-
-    # The shortest path solutions for both UCS and Astar
-    ny_path = [
-        42436582,
-        42446925,
-        42448693,
-        4597668041,
-        42445867,
-        42436575,
-        42445879,
-        42429876,
-        42445885,
-        42445888,
-        42436746,
-        42445404,
-        42445896,
-        42445899,
-        42445903,
-        42445365,
-        42434948,
-        42445908,
-        42445909,
-        42445910,
-        42445651,
-        42445914,
-        42432438,
-        561042200,
-    ]
-    eth_path = [
-        131923881,
-        131984636,
-        1481512725,
-        1481512717,
-        1481512716,
-        34466208,
-        263683273,
-        263683272,
-    ]
-    milan_path = [
-        27653945,
-        1550365269,
-        1550365202,
-        1550365234,
-        1550365238,
-        1550365233,
-        249167226,
-        1828995193,
-        1476588224,
-        3832161562,
-        1514352941,
-        1942874551,
-        1942874549,
-        1942874545,
-        1942874539,
-        1942874538,
-        1942874527,
-        1942874524,
-        21226083,
-        2075241344,
-        480913573,
-        28848583,
-        28848589,
-    ]
-
-    # Each "expected result" contains the ideal path and the "trivial heuristic" count. For UCS, there is no
-    # heuristic, so the evaluator will ignore this value. For Astar, the student's heuristic should be invoked
-    # less often than the trivial heuristic -- the evaluator uses the trivial heuristic as a comparitor.
-    # Passing the value 0 tells the evaluator to compute the trivial heuristic count using the student's Astar
-    # implementation. Passing a non-zero value tells the evaluator to use this as the trivial heuristic count
-    # (as is done in the evaluation server)
-    expected_results = [
-        [(ny_path, 0)],  # ucs ny
-        [(ny_path, 0)],  # astar ny
-        [(eth_path, 0)],  # ucs eth
-        [(eth_path, 0)],  # astar eth
-        [(milan_path, 0)],  # ucs milan
-        [(milan_path, 0)],  # astar milan
-    ]
-
-    return expected_results
 
 
 def ex3_compute_expected_results(test_values: list[TestValueEx3]) -> list[list[tuple[Path, int]]]:
