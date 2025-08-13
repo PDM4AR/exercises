@@ -17,3 +17,5 @@ Welcome to PDM4AR programming exercises for autonomous robots :airplane: :helico
 * [Driving Games](08-driving_games.md)
 * [Rocket Explorer](09-pdm4arocket_explorer.md)
 * [Robot Runners](10-robot_runners.md)
+* [Spaceship](11-spaceship.md)
+* [Highway Driving](12-highway_driving.md)

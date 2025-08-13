@@ -26,26 +26,26 @@ Your agent will be tested in three different scenarios:
 1. **Scenario 1: Dodging Planets with a Docking Goal**
     - In this scenario, the spaceship needs to avoid planets while trying to arrive at a fixed final goal, $X_1$. 
 
-   ![Planets Image](https://github.com/PDM4AR/exercises/img/example1.png)
+   ![Planets Image](img/example1.png)
 
 
 2. **Scenario 2: Dodging a Planet and Its Satellites with a Static Goal**
     - The spaceship must navigate around a planet with multiple moving satellites to reach a certain goal position, $X_1$.
 
-   ![Satellites Image](https://github.com/PDM4AR/exercises/img/example2.png)
+   ![Satellites Image](img/example2.png)
 
 3. **Scenario 3: Dodging a Planet and Its Satellites with a Docking Goal**
     - Similar to Scenario 2, but the final goal is to dock like in Scenario 1.
 
-   ![Mov Satellites Image](https://github.com/PDM4AR/exercises/img/example3.png)
+   ![Mov Satellites Image](img/example3.png)
 
-## Rocket dynamics
+## Spaceship dynamics
 The spaceship's dynamics are represented by the following equations. 
 Note that the pose is expressed in global frame, while the velocities are expressed in the spaceship frame.
 
 1. **Position Dynamics:**
-    - $\frac{dx}{dt} = v_x cos(\psi) - v_y sin(\psi)$
-    - $\frac{dy}{dt} = v_x sin (\psi) + v_y cos(\psi)$
+    - $\frac{dx}{dt} = v_x \cos(\psi) - v_y \sin(\psi)$
+    - $\frac{dy}{dt} = v_x \sin (\psi) + v_y \cos(\psi)$
 
 2. **Orientation Dynamics:**
     - $\frac{d\psi}{dt} = \dot{\psi}$
@@ -54,12 +54,12 @@ Note that the pose is expressed in global frame, while the velocities are expres
     - $\frac{dm}{dt} = -C_T * F_{thrust}$
 
 4. **Velocity Dynamics:**
-    - $\frac{dv_x}{dt} = \frac{1}{m} cos(\delta)F_{thrust} + \dot{\psi} v_y$
-    - $\frac{dv_y}{dt} = \frac{1}{m}sin(\delta)F_{thrust} - \dot{\psi} v_x$
+    - $\frac{dv_x}{dt} = \frac{1}{m} \cos(\delta)F_{thrust} + \dot{\psi} v_y$
+    - $\frac{dv_y}{dt} = \frac{1}{m} \sin(\delta)F_{thrust} - \dot{\psi} v_x$
 
 5. **Angular Velocity Dynamics:**
-    - $\frac{d\dot{\psi}}{dt} = \- frac{l_r}{I}sin(\delta)F_{thrust}$
-    - $\frac{d\psi}{dt} = v_{\delta}$
+    - $\frac{d\dot{\psi}}{dt} = - \frac{l_r}{I}\sin(\delta)F_{thrust}$
+    - $\frac{d\dot{\delta}}{dt} = v_{\delta}$
 
 If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}, \delta, m]'$, and the control inputs 
 are $U = [F_{thrust}, \dot{\delta}]$, we obtain the following dynamics equations:
@@ -71,9 +71,8 @@ The spaceship you have the control over has one central thruster where you are a
 produce $F_{thrust}$ and the angle of the thruster with respect to the spaceship $\delta$. The thruster is mounted centrally on the spaceship
 with an offset of $l_r$ to the CoG of the spaceship. The velocity $v_x$ and $v_y$ are the velocities in the x and y
 direction of the spaceship frame respectively. The angle $\psi$ is the angle of the spaceship with respect to the x-axis. The length of the spaceship is $l$.
-377128230-92d9b410-3804-42fb-8a2c-952b3a3a20b6
 
-![Spaceship Dynamics](https://github.com/PDM4AR/exercises/img/spaceship.png)
+![Spaceship Dynamics](img/spaceship.png)
 
 ## Constraints
 
@@ -96,7 +95,7 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
 - The thrust angle is limited: $\delta
   \in [-\delta_{\text{max}}, \delta_{\text{max}}]$.
 - You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
-- The rate of change of $\phi$ is limited: $v_\phi \in [-v^{max}_ϕ ,v^{max}_ϕ ]$
+- The rate of change of $\delta$ is limited: $v_{\delta} \in [-v^{max}_{\delta} ,v^{max}_{\delta}]$
 
 ## Evaluation Metrics
 
@@ -111,7 +110,7 @@ The quality of the spaceship's trajectory is evaluated based on several key fact
 
 3. **Mass Consumption:** The amount of fuel used to reach the final goal.
 
-You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex09/perf_metrics.py`
+You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex11/perf_metrics.py`
 
 ## Data  Structures
 
@@ -134,7 +133,7 @@ The various data structures needed for the development of the exercise can be in
 
 We developed the exercises based on the following
 paper ([Convex Optimisation for Trajectory Generation](https://arxiv.org/pdf/2106.09125.pdf)) on SCvx, the planning
-method used in 2021 by spaceX to land their spaceship on a moving platform in the middle of the ocean. We recommend to use
+method used in 2021 by SpaceX to land their spaceship on a moving platform in the middle of the ocean. We recommend to use
 such a method to solve the problem, but you are free to come up with your own solution. We made available some basic
 skeleton structure to implement the SCvx pipeline in the **planner.py**. The **discretization.py** file provides an
 implementation of the ZeroOrderHold and FirstOrderHold that is used in the convexification step of the SCvx pipeline to

@@ -15,3 +15,4 @@ from .ex08 import *
 from .ex09 import *
 from .ex10 import *
 from .ex11 import *
+from .ex12 import *

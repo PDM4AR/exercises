@@ -46,13 +46,13 @@ class SpaceshipTarget(PlanningGoal):
 
     @staticmethod
     def _is_fulfilled(
-            state: SpaceshipState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float
+        state: SpaceshipState, target: DynObstacleState, pos_tol: float, vel_tol: float, dir_tol: float
     ) -> bool:
         pose = extract_pose_from_state(state)
         is_within_position = np.linalg.norm(np.array([state.x, state.y]) - np.array([target.x, target.y])) < pos_tol
         state_psi = angle_from_SE2(pose)
         is_within_orientation = (
-                abs(state_psi - target.psi) < dir_tol or 2 * np.pi - abs(state_psi - target.psi) < dir_tol
+            abs(state_psi - target.psi) < dir_tol or 2 * np.pi - abs(state_psi - target.psi) < dir_tol
         )
         is_within_velocity = np.linalg.norm(np.array([state.vx, state.vy]) - np.array([target.vx, target.vy])) < vel_tol
 
@@ -61,12 +61,12 @@ class SpaceshipTarget(PlanningGoal):
 
 @dataclass(frozen=True)
 class DockingTarget(SpaceshipTarget):
-        # This class defines the goal dock station
+    # This class defines the goal dock station
     # add_land_space together with pos_tol defines the lenght of the landing base
     add_land_space: float
     # length of the arms
     arms_length: float
-    #offset of the landing base from the center of the goal
+    # offset of the landing base from the center of the goal
     offset: float
 
     @cached_property
@@ -78,26 +78,10 @@ class DockingTarget(SpaceshipTarget):
         sinpsi = sin(self.target.psi)
         cospsi = cos(self.target.psi)
 
-        line_dock_x_start = (
-                self.target.x
-                - offset_y * cospsi
-                - (self.pos_tol + self.add_land_space) * sinpsi
-        )
-        line_dock_y_start = (
-                self.target.y
-                - offset_y * sinpsi
-                + (self.pos_tol + self.add_land_space) * cospsi
-        )
-        line_dock_x_end = (
-                self.target.x
-                - offset_y * cospsi
-                + (self.pos_tol + self.add_land_space) * sinpsi
-        )
-        line_dock_y_end = (
-                self.target.y
-                - offset_y * sinpsi
-                - (self.pos_tol + self.add_land_space) * cospsi
-        )
+        line_dock_x_start = self.target.x - offset_y * cospsi - (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_start = self.target.y - offset_y * sinpsi + (self.pos_tol + self.add_land_space) * cospsi
+        line_dock_x_end = self.target.x - offset_y * cospsi + (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol + self.add_land_space) * cospsi
 
         line_dock = LineString([(line_dock_x_start, line_dock_y_start), (line_dock_x_end, line_dock_y_end)])
         line_thickness = 0.05  # Adjust the thickness of the line if needed
@@ -128,26 +112,10 @@ class DockingTarget(SpaceshipTarget):
         sinpsi = sin(self.target.psi)
         cospsi = cos(self.target.psi)
 
-        line_dock_x_start = (
-                self.target.x
-                - offset_y * cospsi
-                - (self.pos_tol + self.add_land_space) * sinpsi
-        )
-        line_dock_y_start = (
-                self.target.y
-                - offset_y * sinpsi
-                + (self.pos_tol + self.add_land_space) * cospsi
-        )
-        line_dock_x_end = (
-                self.target.x
-                - offset_y * cospsi
-                + (self.pos_tol + self.add_land_space) * sinpsi
-        )
-        line_dock_y_end = (
-                self.target.y
-                - offset_y * sinpsi
-                - (self.pos_tol + self.add_land_space) * cospsi
-        )
+        line_dock_x_start = self.target.x - offset_y * cospsi - (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_start = self.target.y - offset_y * sinpsi + (self.pos_tol + self.add_land_space) * cospsi
+        line_dock_x_end = self.target.x - offset_y * cospsi + (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol + self.add_land_space) * cospsi
 
         line_dock = LineString([(line_dock_x_start, line_dock_y_start), (line_dock_x_end, line_dock_y_end)])
         line_thickness = 0.05  # Adjust the thickness of the line if needed
@@ -155,17 +123,17 @@ class DockingTarget(SpaceshipTarget):
         return line_dock_buffer
 
     def get_landing_constraint_points(self):
-        '''
+        """
         Returns some useful points to create constraints for the landing scenario.
         In particular:
-                -A: a point with offset of 0.1 (closer to the landing base) 
+                -A: a point with offset of 0.1 (closer to the landing base)
                 from the pinpoint goal position.
-                -B: end of arm 1.
-                -C: end of arm 2.
-                -A1: starting point of landing base.
-                -A2: ending point of landing base.
+                -B: end of arm 1 + offset.
+                -C: end of arm 2 + offset.
+                -A1: point aligned with the starting point of the landing base.
+                -A2: point aligned with the ending point of landing base.
                 -p: (angular aperture of the dock)/2..
-        '''
+        """
         offset_y = 0.3
         sinpsi = sin(self.target.psi)
         cospsi = cos(self.target.psi)
@@ -173,12 +141,8 @@ class DockingTarget(SpaceshipTarget):
         center_of_landing_x = self.target.x - 0.1 * cospsi
         center_of_landing_y = self.target.y - 0.1 * sinpsi
 
-        line_dock_x_start = (
-                self.target.x - offset_y * cospsi - (self.pos_tol - 0.2) * sinpsi
-        )
-        line_dock_y_start = (
-                self.target.y - offset_y * sinpsi + (self.pos_tol - 0.2) * cospsi
-        )
+        line_dock_x_start = self.target.x - offset_y * cospsi - (self.pos_tol - 0.2) * sinpsi
+        line_dock_y_start = self.target.y - offset_y * sinpsi + (self.pos_tol - 0.2) * cospsi
         line_dock_x_end = self.target.x - offset_y * cospsi + (self.pos_tol - 0.2) * sinpsi
         line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol - 0.2) * cospsi
 
@@ -196,42 +160,42 @@ class DockingTarget(SpaceshipTarget):
         A2 = np.array([line_dock_x_end, line_dock_y_end])
 
         return A, B, C, A1, A2, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
+    
+    def get_landing_constraint_points_fix(self):
+        """
+        Returns some useful points to create constraints for the landing scenario.
+        In particular:
+                -A: a point with offset of 0.1 (closer to the landing base)
+                from the pinpoint goal position.
+                -B: end of arm 1.
+                -C: end of arm 2.
+                -A1: starting point of landing base.
+                -A2: ending point of landing base.
+                -p: (angular aperture of the dock)/2..
+        """
+        offset_y = self.offset
+        sinpsi = sin(self.target.psi)
+        cospsi = cos(self.target.psi)
 
+        center_of_landing_x = self.target.x - 0.1 * cospsi
+        center_of_landing_y = self.target.y - 0.1 * sinpsi
 
-@dataclass(frozen=True)
-class SatelliteTarget(SpaceshipTarget):
-    planet_x: float
-    planet_y: float
-    omega: float
-    tau: float
-    orbit_r: float
-    radius: float
-    offset_r: float
+        line_dock_x_start = self.target.x - offset_y * cospsi - (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_start = self.target.y - offset_y * sinpsi + (self.pos_tol + self.add_land_space) * cospsi
+        line_dock_x_end = self.target.x - offset_y * cospsi + (self.pos_tol + self.add_land_space) * sinpsi
+        line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol + self.add_land_space) * cospsi
 
-    def is_fulfilled(self, state: SpaceshipState, at: SimTime = Decimal(0)) -> bool:
-        target_at = self.get_target_state_at(at)
-        return self._is_fulfilled(state, target_at, self.pos_tol, self.vel_tol, self.dir_tol)
+        t1_x = line_dock_x_start + (self.pos_tol + self.arms_length) * cospsi
+        t1_y = line_dock_y_start + (self.pos_tol + self.arms_length) * sinpsi
 
-    def get_plottable_geometry(self, at: SimTime | float = 0) -> Polygon:
-        # Make sure norm is aligned with is_fulfilled function
-        target_at = self.get_target_state_at(at)
-        goal_shape = Point(target_at.x, target_at.y).buffer(self.pos_tol)
-        return goal_shape
+        t2_x = line_dock_x_end + (self.pos_tol + self.arms_length) * cospsi
+        t2_y = line_dock_y_end + (self.pos_tol + self.arms_length) * sinpsi
 
-    def get_target_state_at(self, at: SimTime) -> DynObstacleState:
-        at_float = float(at)
-        cos_omega_t = (self.orbit_r + self.offset_r) * cos(self.omega * at_float + self.tau)
-        sin_omega_t = (self.orbit_r + self.offset_r) * sin(self.omega * at_float + self.tau)
-        x = cos_omega_t + self.planet_x
-        y = sin_omega_t + self.planet_y
-        v = self.omega * self.orbit_r
+        A = np.array([center_of_landing_x, center_of_landing_y])
 
-        psi = (np.pi / 2 + self.omega * at_float + self.tau) % (2 * np.pi)
-        vx = v * sin(psi)
-        vy = v * cos(psi)
+        C = np.array([t1_x, t1_y])
+        B = np.array([t2_x, t2_y])
+        A1 = np.array([line_dock_x_start, line_dock_y_start])
+        A2 = np.array([line_dock_x_end, line_dock_y_end])
 
-        return DynObstacleState(x=x, y=y, psi=psi, vx=vx, vy=vy, dpsi=self.omega)
-
-    @property
-    def is_static(self) -> bool:
-        return False
+        return A, B, C, A1, A2, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
