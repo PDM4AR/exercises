@@ -103,6 +103,8 @@ class TravelSpeed(float, Enum):
     PEDESTRIAN = 5.0 / 3.6
 ```
 
+You are **NOT allowed** to use any existing graph search function implemented in the libraries such as `networkx`.
+
 In addition to evaluating the correctness of your path, we will also evaluate your heuristic. If you choose a good heuristic, your algorithm will explore fewer nodes, and therefore your heuristic will be called less often. Therefore, the number of times your heuristic is called provides a good metric for your algorithm's efficiency. We will plug your heuristic function into our Astar solution and count how many times it is called. As a baseline, we will compare it with the "trivial" heuristic, which always returns 0 (this is algorithm is equivalent to UCS). We refer to the ratio of these values as the "heuristic efficiency". With a well chosen heuristic, your efficiency should be below 1.
 
 To get a sense of your heuristic efficiency, you can judge its performance on your own implementation of Astar. Every time you want to calculate the heuristic in `path`, make sure you call the `heuristic` function. Then, the evaluator will then run your Astar algorithm in two different modes. In the first run, the `heuristic` function will call the function that you implemented in `_INTERNAL_heuristic`. In the second mode, `heuristic` will simply return 0. The number of calls to the heuristic in each mode is printed in the tester output. Note that the heuristic efficiency calculation depends on the specific implementation of Astar. Therefore your local values might differ from the server's results. Nevertheless, this should tell you if you're on the right track.
@@ -150,10 +152,10 @@ The final evaluation will combine 3 metrics lexicographically <number of solved 
 
 ### Baselines
 
-For each metric, the thresholds are listed in the order: **PASSING – GOOD – EXCELLENT**.
-* Students are expected to meet at least the **PASSING** threshold for the task to be considered complete.
-* Meeting the **GOOD** threshold may be sufficient for a full mark, but since many students may achieve this level,
-* We also provide an **EXCELLENT** threshold to encourage further optimization. Achieving the EXCELLENT level will most likely secure the full grade.
+For each metric, we provide the following guidelines for your algorithm performance.
+* **PASSING** means your solution fulfills the essential requirements for the task.
+* **GOOD** means your solution is strong while,
+* **EXCELLENT** means your solution meets our highest expectation.
 
 
 | Metric              | Values      | PASSING | GOOD   | EXCELLENT |
@@ -169,9 +171,3 @@ For each metric, the thresholds are listed in the order: **PASSING – GOOD – 
 * Since Uniform Cost Search is a special case of the A* algorithm, it is allowed to use A* implementation for UCS too, writing the code in the correct place and setting heuristic function = 0.
 * **BE CAREFUL**: in the A* algorithm, the heuristic is summed to the cost-to-reach only for the ranking step in the queue, but you must **not** update the cost-to-reach with the heuristic estimate!
 * For debugging, please keep in mind that your code has to work in all possible scenarios. Find them all!
-
-### Update your repo and run exercise
-
-Make sure to update your repo before running the exercise.
-Please refer to [Hello World](01-helloworld.md) for instructions.
-
