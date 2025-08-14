@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from turtle import distance
 
 from dg_commons import SE2Transform
 
@@ -87,11 +88,11 @@ def compare_spline_to_dubins(
     # TODO implement here your solution
     dubins_length = 0.0  # Replace with actual Dubins path length calculation
     # Generate a cubic Hermite spline between start and end configurations (find the parameters)
-    # Important: Scale t0,t1 by the direction
+    # Important: Scale t0,t1 by the distance
     p0 = np.zeros(2, dtype=float)
     p1 = np.zeros(2, dtype=float)
-    direction = p1 - p0
-    scale = np.linalg.norm(direction)
+    distance = p1 - p0
+    scale = np.linalg.norm(distance)
     t0 = np.zeros(2, dtype=float)
     t1 = np.zeros(2, dtype=float)
 
