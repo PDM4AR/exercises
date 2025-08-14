@@ -92,12 +92,12 @@ def compare_spline_to_dubins(
     t0 = np.zeros(2, dtype=float)
     t1 = np.zeros(2, dtype=float)
 
-    # Hermite basis (parameter t ∈ [0, 1])
-    def hermite(t):
-        h00 = 2 * t**3 - 3 * t**2 + 1
-        h10 = t**3 - 2 * t**2 + t
-        h01 = -2 * t**3 + 3 * t**2
-        h11 = t**3 - t**2
+    # Hermite basis (parameter s ∈ [0, 1])
+    def hermite(s):
+        h00 = 2 * s**3 - 3 * s**2 + 1
+        h10 = s**3 - 2 * s**2 + s
+        h01 = -2 * s**3 + 3 * s**2
+        h11 = s**3 - s**2
         return h00 * p0 + h10 * t0 + h01 * p1 + h11 * t1
 
     spline_length = 0.0  # Replace with actual spline length calculation

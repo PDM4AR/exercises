@@ -127,9 +127,22 @@ def compare_spline_to_dubins(
     return 0.0, 0.0, True, np.zeros(2), np.zeros(2), np.zeros(2), np.zeros(2)
 ```
 
-Hint: Be careful when start and end position are the same:
-    Same heading → feasible
-    Different heading → infeasible (turn in place is not allowed for Dubins motion)
+- Hint: 
+    - A cubic Hermite spline is a piecewise polynomial interpolation method where each segment is defined by two endpoints and their corresponding tangents. Given two points $p_0, p_1 \in \mathbb{R}^2$ and their tangents $t_0, t_1\in \mathbb{R}^2$, the cubic Hermite spline for $s\in[0, 1]$ is:
+    $$
+    h(t)=h_{00}(s)p_0 + h_{10}(s)t_0+h_{01}(s)p_1+h_{11}(s)t_1,
+    $$
+    where the Hermite basis functions are:
+    $$h_{00}(s)=2s^3-3s^2+1,$$
+    $$h_{10}(s)=t^3-2s^2+s,$$
+    $$h_{01}(s)=-2s^3+3s^2,$$
+    $$h_{11}(s)=s^3-s^2.$$
+    - For a parametric spline (x(s), y(s)), curvature of the spline can be computed by
+    $$\kappa(s)=\frac{|x'(s)y''(s)-y'(s)x''(s)|}{(x'(s)^2+y'(s)^2)^{3/2}}$$
+    - Be careful when start and end position are the same:
+        - Same heading → feasible
+        - Different heading → infeasible (turn in place is not allowed for Dubins motion)
+
 
 6. [10%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
 park backwards and sidewards when they should pick them up. Instead, they wait in the middle of the street...
@@ -161,8 +174,4 @@ All of the described subtasks are individually graded on different test cases. F
 We provide some example test cases for each subtask. After running the exercise locally, you will find the report in the folder `out/ex05`. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g. by modifying the existing ones in `src/pdm4ar/exercises_def/ex05/data.py`.
 
 The final evaluation result is the normalized, weighted (see [%] in each description) sum of all the individual accuracy results of the subtasks and lies between [0,1]. 
-
-### Update & Run
-
-Please refer to [Hello World](01-helloworld.md) for instructions.
 
