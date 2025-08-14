@@ -118,7 +118,7 @@ Under which condition will the time metric be admissible?
 
 (HINT 4) You might want to organise your queue as `queue = [ (<priority>, <i = insertion order>, <node>, <cost-to-reach>, <parent_node>) ]`
 
-In addition, we provide you with a script to allow you to increase and personalise your local test cases on the existing graphs. You can choose the `(start_node, goal_node)` tuples of int as query for your search algorithm without worrying they actually exist, as they will be checked and filtered. Moreover, a predefined function will generate existing random queries if you set a positive integer in the `n_random_queries` dict. Edit `src/pdm4ar/exercises/ex03/local_queries.py` in the apposite window:
+In addition, we provide you with a script to allow you to increase and personalise your local test cases on the existing graphs. You can choose the `(start_node, goal_node)` tuples of int as query for your search algorithm without worrying they actually exist, as they will be checked and filtered. Moreover, a predefined function will generate existing random queries if you set a positive integer in the `n_random_queries` dict. Edit `src/pdm4ar/exercises_def/ex03/local_queries.py` in the apposite window:
 
 ```python
 def get_local_queries(G: WeightedGraph, id: str) -> set[Query]:

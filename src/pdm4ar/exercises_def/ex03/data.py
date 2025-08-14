@@ -15,7 +15,7 @@ from collections import defaultdict
 
 from pdm4ar.exercises.ex02.structures import Query, Path
 from pdm4ar.exercises.ex03.structures import WeightedGraph, TravelSpeed
-from pdm4ar.exercises.ex03.local_queries import get_local_queries
+from pdm4ar.exercises_def.ex03.local_queries import get_local_queries
 from pdm4ar.exercises_def import networkx_2_adjacencylist, queries_from_adjacency, ExIn
 
 _fast = (
