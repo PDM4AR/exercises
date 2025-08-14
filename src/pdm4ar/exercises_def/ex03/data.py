@@ -140,7 +140,7 @@ def get_test_informed_gsproblem(
         id = graph_ids[i]
         default_queries = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)  # set of queries
         q = default_queries
-        local_queries = get_local_queries(G, id)
+        local_queries = get_local_queries(G, id)  # generate more queries when students change the parameters in the function locally.
         q = default_queries | local_queries
         p = InformedGraphSearchProblem(
             graph=G,
