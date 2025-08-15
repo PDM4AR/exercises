@@ -34,12 +34,35 @@ class OptCollisionCheckingPrimitives:
         x = cp.Variable(2, name="x")  # Contact point in 2D space
         scale = cp.Variable(1, name="scale")  # Scaling factor for primitives
 
-        # TODO: Construct collision constraints based on primitive types and solve the optimization problem
+        # Map primitive types to their constraint generation functions
+        constraint_funcs = {
+            Triangle: OptCollisionCheckingPrimitives._add_collision_constraints_triangle,
+            Polygon: OptCollisionCheckingPrimitives._add_collision_constraints_polygon,
+            Circle: OptCollisionCheckingPrimitives._add_collision_constraints_circle,
+            Capsule: OptCollisionCheckingPrimitives._add_collision_constraints_capsule,
+        }
 
-        # Placeholder return value: returns True (have collision) and 1.0 (default scaling factor)
-        # The scaling factor of 1.0 here means two primitives are just touching at their boundaries.
-        # You need to implement the actual collision checking logic.
-        return True, 1.0
+        # Generate constraints for both geometric primitives
+        constraints = []
+        constraints.extend(constraint_funcs[type(obs1)](obs1, x, scale))
+        constraints.extend(constraint_funcs[type(obs2)](obs2, x, scale))
+
+        # Ensure scaling factor is non-negative
+        constraints.extend([scale >= 0])
+
+        # Minimize the scaling factor
+        objective = cp.Minimize(scale)
+
+        # Solve the convex optimization problem
+        problem = cp.Problem(objective, constraints)
+        problem.solve()
+
+        if problem.status == cp.OPTIMAL:
+            min_scale = problem.value
+            collision = min_scale <= 1.0
+            return collision, min_scale
+        else:
+            raise RuntimeError("Optimization failed to find a solution.")
 
     @staticmethod
     def _add_collision_constraints_polygon(polygon: Polygon, x: cp.Variable, scale: cp.Variable) -> List[cp.Constraint]:
