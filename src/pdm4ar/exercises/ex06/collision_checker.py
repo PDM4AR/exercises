@@ -14,6 +14,7 @@ from pdm4ar.exercises_def.ex06.structures import (
     Segment,
     Triangle,
 )
+from shapely import STRtree, geometry
 
 ##############################################################################################
 ############################# This is a helper function. #####################################
@@ -70,20 +71,29 @@ def check_collision(p_1: GeoPrimitive, p_2: GeoPrimitive) -> bool:
     return collision_func(p_1, p_2)
 
 
+##############################################################################################
+
+
 class CollisionChecker:
     """
     Collision detection system for a circular differential drive robot.
 
-    This class provides various collision checking methods including basic collision detection,
-    occupancy grid-based checking, R-tree spatial indexing, and optimization-based collision detection.
-    It handles path collision checking for circular robots moving through environments with
-    geometric obstacles (triangles, circles, and polygons).
+    This class provides multiple collision checking algorithms:
+    - Basic geometric collision detection using primitive-to-primitive checks
+    - Occupancy grid-based collision checking for discrete environment representation
+    - R-tree spatial indexing for efficient collision queries in complex environments
+    - Optimization-based collision detection using DCOL (Differentiable Collision Detection)
+
+    The system handles circular robots moving through 2D environments containing geometric
+    obstacles including triangles, circles, and polygons.
+
     """
 
     @staticmethod
     def path_collision_check(t: Path, r: float, obstacles: List[GeoPrimitive]) -> List[int]:
         """
-        Check for collisions along a robot path using basic collision detection.
+        Check for collisions along a robot path.
+        You are not allowed to use any geometry libraries like `shapely` in this task.
 
         Args:
             t (Path): Robot path in waypoints
