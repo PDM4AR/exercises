@@ -213,6 +213,16 @@ For this exercise our performance metric is accuracy and execution time.
 
 **Execution Time:**
 - Execution time of each task is calculated as an average of its test cases
+- Below is the table summarizing the execution times of reference implementations on the evaluation dataset.
+
+| Task **ID** | **Average Solving Time** |
+|-------------|---------------------------|
+| 04          | 0.0028s                      |
+| 05          | 1.0879s                      |
+| 06          | 0.0002s                      |
+| 07          | 0.0030s                      |
+| 08          | 0.1639s                      |
+
 
 **Final Scoring:**
 - Accuracies and execution times of each task are aggregated as a weighted average
