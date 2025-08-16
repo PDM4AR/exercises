@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from time import process_time
-from typing import Any, Sequence, Type, Union, Optional, TYPE_CHECKING, cast
+from typing import Any, Sequence, Type, Union, Optional, cast
 from zuper_commons.text import remove_escapes
 
 import numpy as np
@@ -23,10 +23,6 @@ from pdm4ar.exercises_def.ex04.map import map2image
 from pdm4ar.exercises_def.ex04.utils import action2arrow, head_width
 from pdm4ar.exercises_def.structures import PerformanceResults
 from reprep import MIME_PDF, Report
-
-if TYPE_CHECKING:
-    from pdm4ar_sol.exercises.ex04.solution_ex04 import LinearProgramming
-
 
 @dataclass
 class TestValueEx4(ExIn):
@@ -59,8 +55,6 @@ class Ex04TransitionProbPerformance(PerformanceResults):
 
 @dataclass(frozen=True)
 class Ex04PerformanceResult(PerformanceResults):
-    # All test cases
-    perf_result: Ex04Performance
     # Value Iteration test cases
     value_iteration: Optional[Ex04Performance] = None
     # Policy Iteration test cases
@@ -197,11 +191,12 @@ def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceRe
         r.text(f"{algo_name}", text=remove_escapes(msg))
 
     result = Ex04Performance(policy_accuracy=policy_accuracy, value_func_r2=value_func_r2, solve_time=solve_time)
-    perf = Ex04PerformanceResult(perf_result=result)
     if isinstance(solver, PolicyIteration):
-        perf = Ex04PerformanceResult(perf_result=result, policy_iteration=result)
+        perf = Ex04PerformanceResult(policy_iteration=result)
     elif isinstance(solver, ValueIteration):
-        perf = Ex04PerformanceResult(perf_result=result, value_iteration=result)
+        perf = Ex04PerformanceResult(value_iteration=result)
+    else:
+        raise ValueError(f"Unknown solver type: {type(solver)}")
     return perf, r
 
 
@@ -210,34 +205,18 @@ def ex4_transition_prob_evaluation(ex_in: TestTransitionProbEx4, ex_out=None) ->
     test_name = ex_in.str_id()
     r = Report(f"Ex4-{test_name}")
 
-    # Get the transition probability from the implemented method
-    try:
-        transition_prob = grid_mdp.get_transition_prob(ex_in.state, ex_in.action, ex_in.next_state)
-    except Exception:
-        # Handle case where method is not implemented or throws an error
-        transition_prob = None
-
-    # Compare with expected result if provided
-    if ex_out is not None and transition_prob is not None:
+    if ex_out is not None:
         expected_prob = ex_out
-        accuracy = 1.0 if abs(transition_prob - expected_prob) < 1e-6 else 0.0
-
         msg = f"State: {ex_in.state}, Action: {ex_in.action.name}, Next State: {ex_in.next_state}\n"
-        msg += f"Expected probability: {expected_prob:.6f}\n"
+        msg += f"Expected probability: {expected_prob}\n"
+        # Get the transition probability from the implemented method
+        transition_prob = grid_mdp.get_transition_prob(ex_in.state, ex_in.action, ex_in.next_state)
+        
+        accuracy = 1.0 if abs(transition_prob - expected_prob) < 1e-6 else 0.0
         msg += f"Computed probability: {transition_prob:.6f}\n"
         msg += f"Accuracy: {accuracy:.1f}\n"
 
         r.text(f"{test_name}", text=remove_escapes(msg))
-    elif transition_prob is None:
-        accuracy = 0.0
-        msg = f"State: {ex_in.state}, Action: {ex_in.action.name}, Next State: {ex_in.next_state}\n"
-        msg += f"Expected probability: {ex_out if ex_out is not None else 'N/A'}\n"
-        msg += f"Computed probability: None (method not implemented)\n"
-        msg += f"Accuracy: {accuracy:.1f}\n"
-
-        r.text(f"{test_name}", text=remove_escapes(msg))
-    else:
-        accuracy = 0.0
 
     result = Ex04TransitionProbPerformance(transition_prob_accuracy=accuracy)
     return result, r
@@ -276,27 +255,27 @@ def ex4_transition_prob_perf_aggregator(perf: Sequence[Ex04TransitionProbPerform
     return Ex04TransitionProbPerformance(transition_prob_accuracy=round(avg_accuracy, 3))
 
 
-def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult]) -> Ex04PerformanceResult:
-    ex04_results = []
+def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult | Ex04TransitionProbPerformance]) -> Ex04PerformanceResult:
+    algo_results = []
+    transition_prob_results = []
 
     for result in perf:
         if isinstance(result, Ex04PerformanceResult):
-            ex04_results.append(result)
+            algo_results.append(result)
         elif isinstance(result, Ex04TransitionProbPerformance):
-            # Convert to Ex04PerformanceResult format
-            dummy_perf = Ex04Performance(policy_accuracy=0.0, value_func_r2=0.0, solve_time=0.0)
-            ex04_results.append(Ex04PerformanceResult(perf_result=dummy_perf, transition_prob=result))
+            transition_prob_results.append(result)
 
-    perf_result = [p.perf_result for p in ex04_results]
-    policy_iteration = [p.policy_iteration for p in ex04_results if p.policy_iteration is not None]
-    value_iteration = [p.value_iteration for p in ex04_results if p.value_iteration is not None]
-    transition_prob = [p.transition_prob for p in ex04_results if p.transition_prob is not None]
+    policy_iteration_results = [p.policy_iteration for p in algo_results if p.policy_iteration is not None]
+    value_iteration_results = [p.value_iteration for p in algo_results if p.value_iteration is not None]
+
+    policy_iteration_aggregated = ex4_single_perf_aggregator(policy_iteration_results)
+    value_iteration_aggregated = ex4_single_perf_aggregator(value_iteration_results)
+    transition_prob_aggregated = ex4_transition_prob_perf_aggregator(transition_prob_results)
 
     return Ex04PerformanceResult(
-        perf_result=ex4_single_perf_aggregator(perf_result),
-        policy_iteration=ex4_single_perf_aggregator(policy_iteration),
-        value_iteration=ex4_single_perf_aggregator(value_iteration),
-        transition_prob=ex4_transition_prob_perf_aggregator(transition_prob) if transition_prob else None,
+        policy_iteration=policy_iteration_aggregated,
+        value_iteration=value_iteration_aggregated,
+        transition_prob=transition_prob_aggregated,
     )
 
 
