@@ -63,7 +63,7 @@ This means a grid search problem can be transformed into a standard graph search
 Note: In the transformation from grid to adjacency mentioned above, squares become nodes numbered according to their position on the grid, starting at 1 in the top-left corner. Numbering proceeds left to right across each row, and then continues row by row from top to bottom, up to n*n (where n is the grid size).
 
 
-Below is an example of a grid: the start node is shown in orange, the goal in blue, and the black squares represent obstacles. Movement is restricted to one step at a time, either vertically or horizontally.
+Below is an example of a grid: the start node is shown in orange, the goal in blue, the path in red, the opened nodes in green and the black squares represent obstacles. Movement is restricted to one step at a time, either vertically or horizontally.
 
 ![image](img/ex02_grid-search-example.png)
 
