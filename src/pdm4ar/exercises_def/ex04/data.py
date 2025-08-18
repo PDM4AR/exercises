@@ -160,7 +160,7 @@ def get_expected_results_transition(test_cases: list[TestTransitionProbEx4]) -> 
         state = test.state
         action = test.action
         next_state = test.next_state
-        res.append(transition_probs[state][(action, next_state)])
+        res.append(transition_probs[(state, action, next_state)])
 
     return res
 
