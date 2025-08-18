@@ -86,24 +86,26 @@ def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, 
     # Please keep segments with zero length in the return list & return a valid dubins path!
     return [] # e.g. [Curve(), Line(),..]
 ```
-5. [10%] Even though your Dubins planner from Task 4 generates physically valid paths, the navigation team now wants to experiment smoother alternatives for short‑range maneuvers and parking. In particular, they are curious to know how a **cubic Hermite spline** would compare to the optimal Dubins path in terms of:
+### 5. [10%] Spline vs. Dubins: Short-range Maneuver Comparison
 
-   - The path length
-   - The feasibility with respect to the same curvature constraint used for Dubins
-   - The qualitative difference in shape
+Even though your Dubins planner from Task 4 generates physically valid paths, the navigation team now wants to experiment with smoother alternatives for short‑range maneuvers and parking. In particular, they are curious to know how a **cubic Hermite spline** would compare to the optimal Dubins path in terms of:
 
-Your task is to **implement a function** that:
-1. Computes the optimal Dubins path between two given configurations using your `calculate_dubins_path` from Task 4.
-2. Constructs a **cubic Hermite spline** between the same start and end configurations, using the vehicle headings to define the spline tangents.
+- The path length  
+- The feasibility with respect to the same curvature constraint used for Dubins  
+- The qualitative difference in shape  
+
+Your task is to **implement a function** that:  
+1. Computes the optimal Dubins path between two given configurations using your `calculate_dubins_path` from Task 4.  
+2. Constructs a **cubic Hermite spline** between the same start and end configurations, using the vehicle headings to define the spline tangents.  
 3. Computes:
-   - The length of the Dubins path
-   - The length of the spline
-   - Whether the spline is **feasible** (i.e., its curvature never exceeds `1/radius`).
+   - The length of the Dubins path  
+   - The length of the spline  
+   - Whether the spline is **feasible** (i.e., its curvature never exceeds `1/radius`)  
 4. Returns the above quantities **together with** the spline parameters:
-   - Tangent vector at the start (`t0`)
-   - Tangent vector at the end (`t1`)
-   - Start position (`p0`)
-   - End position (`p1`)
+   - Tangent vector at the start (`t0`)  
+   - Tangent vector at the end (`t1`)  
+   - Start position (`p0`)  
+   - End position (`p1`)  
 
 We provide the method signature below. You must implement it in:
 
@@ -127,21 +129,34 @@ def compare_spline_to_dubins(
     return 0.0, 0.0, True, np.zeros(2), np.zeros(2), np.zeros(2), np.zeros(2)
 ```
 
-- Hint: 
-    - A cubic Hermite spline is a piecewise polynomial interpolation method where each segment is defined by two endpoints and their corresponding tangents. Given two points $p_0, p_1 \in \mathbb{R}^2$ and their tangents $t_0, t_1\in \mathbb{R}^2$, the cubic Hermite spline for $s\in[0, 1]$ is:
-    $$
-    h(t)=h_{00}(s)p_0 + h_{10}(s)t_0+h_{01}(s)p_1+h_{11}(s)t_1,
-    $$
-    where the Hermite basis functions are:
-    $$h_{00}(s)=2s^3-3s^2+1,$$
-    $$h_{10}(s)=t^3-2s^2+s,$$
-    $$h_{01}(s)=-2s^3+3s^2,$$
-    $$h_{11}(s)=s^3-s^2.$$
-    - For a parametric spline (x(s), y(s)), curvature of the spline can be computed by
-    $$\kappa(s)=\frac{|x'(s)y''(s)-y'(s)x''(s)|}{(x'(s)^2+y'(s)^2)^{3/2}}$$
-    - Be careful when start and end position are the same:
-        - Same heading → feasible
-        - Different heading → infeasible (turn in place is not allowed for Dubins motion)
+**Hint**  
+- A cubic Hermite spline is a piecewise polynomial interpolation method where each segment is defined by two endpoints and their corresponding tangents. Given two points \( p_0, p_1 \in \mathbb{R}^2 \) and their tangents \( t_0, t_1 \in \mathbb{R}^2 \), the cubic Hermite spline for \( s \in [0, 1] \) is:
+
+  \( h(s) = h_{00}(s) p_0 + h_{10}(s) t_0 + h_{01}(s) p_1 + h_{11}(s) t_1 \)
+
+  where the Hermite basis functions are:  
+  - \( h_{00}(s) = 2s^3 - 3s^2 + 1 \)  
+  - \( h_{10}(s) = s^3 - 2s^2 + s \)  
+  - \( h_{01}(s) = -2s^3 + 3s^2 \)  
+  - \( h_{11}(s) = s^3 - s^2 \)
+
+- To **approximate curvature geometrically**, sample a dense set of points along the spline. Then for each triplet of consecutive points \( a, b, c \):
+  - Compute \( \vec{ba} = b - a \), \( \vec{bc} = c - b \)
+  - Skip the triplet if any vector is near-zero (to avoid instability)
+  - Compute the angle \( \Delta\theta \) between \( \vec{ba} \) and \( \vec{bc} \)
+  - Estimate curvature locally using:
+
+    \( \kappa \approx \frac{\Delta\theta}{\|\vec{ba}\|} \)
+
+  - Keep track of the maximum curvature along the spline and mark the spline as **feasible** if \( \max \kappa \leq 1/\text{radius} \)
+
+- Special case: when the start and end **positions** are the same:
+  - Same heading → **feasible**  
+  - Different heading → **infeasible** (turn-in-place is not allowed for Dubins motion)
+
+**Note on tangent vector scale**
+
+The tangent vectors \( t_0 \) and \( t_1 \), which define the direction of the Hermite spline at the start and end points, must be **scaled by the distance between the start and end positions**. This ensures that the shape of the spline is consistent and comparable across different queries. The team has decided to use this distance as the standard scale for all tangent vectors.
 
 
 6. [10%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
