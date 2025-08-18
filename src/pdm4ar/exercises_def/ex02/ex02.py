@@ -1,21 +1,56 @@
 from typing import Any, Sequence
 from time import process_time
 import os
+from unittest import result
+from matplotlib.pylab import f
+import numpy as np
 import pathlib
 import pickle
 import shutil
+import copy
 from collections import OrderedDict
 
 from reprep import Report, MIME_PNG, DataNode
 from zuper_commons.text import remove_escapes
 from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap, BoundaryNorm
 from toolz import sliding_window
 
 from pdm4ar.exercises.ex02 import graph_search_algo
+from pdm4ar.exercises.ex02 import algo
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex02.data import *
 from pdm4ar.exercises_def.structures import PerformanceResults
 from pdm4ar.exercises_def.structures import out_dir
+
+from pdm4ar.exercises.ex02.structures import Path, OpenedNodes, Grid
+
+
+def result_to_matrix(opened: OpenedNodes, path: Path, start: int, goal: int, grid: Grid) -> Grid:
+
+    def id2idx(node_id: int) -> tuple[int, int]:
+        n = len(grid)
+        r = (node_id - 1) // n
+        c = (node_id - 1) % n
+        return r, c
+
+    for open_node in opened:
+        r, c = id2idx(open_node)
+        if grid[r][c] != 1:
+            grid[r][c] = 2
+
+    for path_node in path:
+        r, c = id2idx(path_node)
+        if grid[r][c] != 1:
+            grid[r][c] = 3
+
+    r, c = id2idx(start)
+    grid[r][c] = 4  # orange
+
+    r, c = id2idx(goal)
+    grid[r][c] = 5  # blue
+
+    return grid
 
 
 @dataclass(frozen=True)
@@ -91,9 +126,7 @@ class GraphImageCache:
         make this unlikely, by grouping these actions close together. However, if it does occur,
         we just delete the cache and start over :(
         """
-        image_file_names = sorted(os.listdir(cache_dir))[
-            :-1
-        ]  # everything except the pickle file
+        image_file_names = sorted(os.listdir(cache_dir))[:-1]  # everything except the pickle file
         if len(image_file_names) != len(self.cache):
             return False
         for image_id in self.cache.values():
@@ -101,9 +134,7 @@ class GraphImageCache:
                 return False
         return True
 
-    def create_graph_image_node(
-        self, graph: nx.Graph, name: str, pos, figsize
-    ) -> DataNode:
+    def create_graph_image_node(self, graph: nx.Graph, name: str, pos, figsize) -> DataNode:
         """
         Create an image node, containing the image of the graph. When creating
         the html report, a parent node can add this image node as a child.
@@ -120,6 +151,31 @@ class GraphImageCache:
 
         # Create the image node.
         # In order to do this, we have to read in the graph image data
+        image_id = self.cache[key]
+        image_file = self.cache_dir / self.image_file(image_id)
+        with open(image_file, "rb") as f:
+            image_bytes = f.read()
+
+        image_node = DataNode(nid=name, data=image_bytes, mime=MIME_PNG)
+        return image_node
+
+    def create_grid_image_node(self, grid: Grid, name: str, figsize) -> DataNode:
+        """
+        Create an image node, containing the image of the grid. When creating
+        the html report, a parent node can add this image node as a child.
+        """
+        key = GraphImageCache.graph_encoding(grid)
+        if key in self.cache:
+            self.cache.move_to_end(key, last=True)
+        else:
+            # Make room in the cache, if necessary
+            if len(self.cache) >= GraphImageCache.CACHE_SIZE:
+                self.remove_oldest_graph_from_cache()
+
+            self.add_grid_to_cache(grid, key, figsize)
+
+        # Create the image node.
+        # In order to do this, we have to read in the grid image data
         image_id = self.cache[key]
         image_file = self.cache_dir / self.image_file(image_id)
         with open(image_file, "rb") as f:
@@ -161,39 +217,74 @@ class GraphImageCache:
         self.counter += 1
         self.save()
 
+    def add_grid_to_cache(self, grid: Grid, grid_encoding: str, figsize):
+        matrix = np.array(grid)
+
+        # Define custom colors: index 0=white, 1=black, 2=green, 3=red
+        cmap = ListedColormap(["white", "black", "green", "red", "orange", "blue"])
+        norm = BoundaryNorm([0, 1, 2, 3, 4, 5, 6], cmap.N)
+
+        fig, ax = plt.subplots(figsize=(4, 4))
+        ax.imshow(matrix, cmap=cmap, norm=norm)
+
+        # Grid setup
+        ax.set_xticks(np.arange(matrix.shape[1] + 1) - 0.5)
+        ax.set_yticks(np.arange(matrix.shape[0] + 1) - 0.5)
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.set_aspect("equal")
+        ax.grid(color="black", linewidth=1)
+
+        # Remove ticks
+        plt.tick_params(left=False, bottom=False)
+
+        plt.savefig(self.image_file(self.counter), pil_kwargs={"figsize": figsize})
+
+        # add the graph data to our cache lookup
+        self.cache[grid_encoding] = self.counter
+        self.counter += 1
+        self.save()
+
     def image_file(self, image_id):
         return self.cache_dir / f"{image_id}.png"
 
     @staticmethod
-    def graph_encoding(graph: nx.Graph) -> str:
+    def graph_encoding(g) -> str:
         # We need a way to convert graphs to "keys", that we can use as lookups
         # for the cache. These encodings should encorporate all the data that
         # uniquely defines a graph, and keys should only be equal if their
         # graphs are equal. It turns out, we can use python's pickle encoding
         # for this purpose
-        return str(pickle.dumps(graph))
+        return str(pickle.dumps(g))
 
 
 @dataclass(frozen=True)
 class Ex02PerformanceResult(PerformanceResults):
-    accuracy: float
-    solve_time: float
+    accuracy: dict[str, list[float]]
+    solve_time: dict[str, list[float]]
 
     def __post__init__(self):
-        assert 0 <= self.accuracy <= 1, self.accuracy
-        assert self.solve_time >= 0, self.solve_time
+        for algo, acc in self.accuracy.items():
+            assert 0 <= acc <= 1, (algo, acc)
+        for algo, times in self.solve_time.items():
+            assert all(time >= 0 for time in times), (algo, times)
 
 
 def str_from_path(path: Path) -> str:
     return "".join(list(map(lambda u: f"{u}->", path)))[:-2]
 
 
-def ex2_evaluation(
-    ex_in, ex_out=None, plotGraph=True
-) -> tuple[Ex02PerformanceResult, Report]:
+def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceResult, Report]:
     # draw graph
     graph_search_prob, algo_name = ex_in
+
+    # check if graph_search_prob is GraphSearchProblem or GridSearchProblem
     test_graph = graph_search_prob.graph
+    if isinstance(graph_search_prob, GridSearchProblem):
+        test_grid = graph_search_prob.grid
+    elif not isinstance(graph_search_prob, (GraphSearchProblem, GridSearchProblem)):
+        raise TypeError("graph_search_prob must be GraphSearchProblem or GridSearchProblem")
+
     test_queries = graph_search_prob.queries
     graph_id = graph_search_prob.graph_id
 
@@ -201,31 +292,36 @@ def ex2_evaluation(
     r = Report(f"Exercise2-{algo_name}-{graph_id}")
     cache = GraphImageCache()
 
-    G = nx.DiGraph()
-    G.add_nodes_from(test_graph.keys())
-    pic_size = max(10, int(G.number_of_nodes() / 10))
-    figsize = (pic_size, pic_size)
-    for n, successors in test_graph.items():
-        G.add_edges_from(
-            product(
-                [
-                    n,
-                ],
-                successors,
+    if isinstance(graph_search_prob, GridSearchProblem):
+        rfig = r.figure(cols=1)
+        pic_size = max(10, int(len(test_grid) ** 2 / 10))
+        figsize = (pic_size, pic_size)
+        graph_image = cache.create_grid_image_node(test_grid, "Grid", figsize)
+    else:
+        G = nx.DiGraph()
+        G.add_nodes_from(test_graph.keys())
+        pic_size = max(10, int(G.number_of_nodes() / 10))
+        figsize = (pic_size, pic_size)
+        for n, successors in test_graph.items():
+            G.add_edges_from(
+                product(
+                    [
+                        n,
+                    ],
+                    successors,
+                )
             )
-        )
-    # draw graph
-    pos = nx.get_node_attributes(G, "pos")
-    if not pos:
-        pos = nx.spring_layout(G, seed=1)
-    rfig = r.figure(cols=1)
+        # draw graph
+        pos = nx.get_node_attributes(G, "pos")
+        if not pos:
+            pos = nx.spring_layout(G, seed=1)
+        rfig = r.figure(cols=1)
+        default_node_colors = {n: NodeColors.default for n in G}
+        default_edge_colors = {(u, v): EdgeColors.default for (u, v) in G.edges()}
+        nx.set_node_attributes(G, values=default_node_colors, name="node_color")
+        nx.set_edge_attributes(G, values=default_edge_colors, name="edge_color")
+        graph_image = cache.create_graph_image_node(G, "Graph", pos, figsize)
 
-    default_node_colors = {n: NodeColors.default for n in G}
-    default_edge_colors = {(u, v): EdgeColors.default for (u, v) in G.edges()}
-    nx.set_node_attributes(G, values=default_node_colors, name="node_color")
-    nx.set_edge_attributes(G, values=default_edge_colors, name="edge_color")
-
-    graph_image = cache.create_graph_image_node(G, "Graph", pos, figsize)
     rfig.add_child(graph_image)
 
     # run algo
@@ -234,8 +330,9 @@ def ex2_evaluation(
     solve_times = []
     for i, query in enumerate(test_queries):
         # Set all edge color attribute to black
-        for e in G.edges():
-            G[e[0]][e[1]]["color"] = EdgeColors.default
+        if not isinstance(graph_search_prob, GridSearchProblem):
+            for e in G.edges():
+                G[e[0]][e[1]]["color"] = EdgeColors.default
 
         rfig = r.figure(cols=2)
 
@@ -265,8 +362,8 @@ def ex2_evaluation(
         if expected_result is not None:
             gt_path, gt_opened = expected_result
             correct = (path == gt_path) + (opened == gt_opened)
-            accuracy.append(correct / 2)
-            solve_times.append(solve_time)
+            accuracy.append({algo_name: correct / 2})
+            solve_times.append({algo_name: solve_time})
             gt_path_str = str_from_path(gt_path) if len(gt_path) > 0 else "No path"
             gt_opened_str = str_from_path(gt_opened)
             gt_path_edges = list(sliding_window(2, gt_path))
@@ -290,53 +387,77 @@ def ex2_evaluation(
 
         # Plot graphs
         if plotGraph:
-            node_colors = default_node_colors.copy()
-            node_colors[query[0]] = NodeColors.start
-            node_colors[query[1]] = NodeColors.goal
-            edge_colors = {
-                (u, v): EdgeColors.path if (u, v) in path_edges else EdgeColors.default
-                for (u, v) in G.edges()
-            }
-            nx.set_node_attributes(G, values=node_colors, name="node_color")
-            nx.set_edge_attributes(G, values=edge_colors, name="edge_color")
-            image_node = cache.create_graph_image_node(G, f"Path{i}", pos, figsize)
-            rfig.add_child(image_node)
+            if isinstance(graph_search_prob, GridSearchProblem):
+                grid = result_to_matrix(opened, path, query[0], query[1], copy.deepcopy(test_grid))
+                image_node = cache.create_grid_image_node(grid, f"Path{i}", figsize)
+                rfig.add_child(image_node)
 
-            edge_colors = {
-                (u, v): (
-                    EdgeColors.path if (u, v) in gt_path_edges else EdgeColors.default
-                )
-                for (u, v) in G.edges()
-            }
-            nx.set_edge_attributes(G, values=edge_colors, name="edge_color")
-            image_node = cache.create_graph_image_node(
-                G, f"GroundTruth{i}", pos, figsize
-            )
-            rfig.add_child(image_node)
+                gt_grid = result_to_matrix(gt_opened, gt_path, query[0], query[1], copy.deepcopy(test_grid))
+                image_node = cache.create_grid_image_node(gt_grid, f"GroundTruth{i}", figsize)
+                rfig.add_child(image_node)
+            else:
+                node_colors = default_node_colors.copy()
+                node_colors[query[0]] = NodeColors.start
+                node_colors[query[1]] = NodeColors.goal
+                edge_colors = {
+                    (u, v): EdgeColors.path if (u, v) in path_edges else EdgeColors.default for (u, v) in G.edges()
+                }
+                nx.set_node_attributes(G, values=node_colors, name="node_color")
+                nx.set_edge_attributes(G, values=edge_colors, name="edge_color")
+                image_node = cache.create_graph_image_node(G, f"Path{i}", pos, figsize)
+                rfig.add_child(image_node)
+
+                edge_colors = {
+                    (u, v): (EdgeColors.path if (u, v) in gt_path_edges else EdgeColors.default) for (u, v) in G.edges()
+                }
+                nx.set_edge_attributes(G, values=edge_colors, name="edge_color")
+                image_node = cache.create_graph_image_node(G, f"GroundTruth{i}", pos, figsize)
+                rfig.add_child(image_node)
 
     cache.save()
 
     # aggregate performance of each query
     query_perf = list(map(Ex02PerformanceResult, accuracy, solve_times))
-    perf = ex2_perf_aggregator(query_perf)
+    perf = ex2_perf_aggregator(query_perf, algo_name=algo_name)
     return perf, r
 
 
-def ex2_perf_aggregator(perf: Sequence[Ex02PerformanceResult]) -> Ex02PerformanceResult:
+def ex2_perf_aggregator(perf: Sequence[Ex02PerformanceResult], algo_name=None) -> Ex02PerformanceResult:
     # perfomance for valid results
-    valid_acc = [p.accuracy for p in perf]
-    valid_time = [p.solve_time for p in perf]
-    try:
-        # average accuracy
-        avg_acc = sum(valid_acc) / float(len(valid_acc))
-        # average solve time
-        avg_time = sum(valid_time) / float(len(valid_time))
-    except ZeroDivisionError:
-        # None if gt wasn't provided
-        avg_acc = 0
-        avg_time = 0
+    if algo_name is None:
+        accuracy_score = {
+            "DepthFirst": 0,
+            "BreadthFirst": 0,
+            "IterativeDeepening": 0,
+        }
+        solve_time = {
+            "DepthFirst": 0,
+            "BreadthFirst": 0,
+            "IterativeDeepening": 0,
+        }
 
-    return Ex02PerformanceResult(accuracy=avg_acc, solve_time=avg_time)
+        valid_acc = {"DepthFirst": [], "BreadthFirst": [], "IterativeDeepening": []}
+        valid_time = {"DepthFirst": [], "BreadthFirst": [], "IterativeDeepening": []}
+        for p in perf:
+            for algo in valid_acc:
+                if algo in p.accuracy and p.accuracy[algo] is not None:
+                    valid_acc[algo].append(p.accuracy[algo])
+                if algo in p.solve_time and p.solve_time[algo] is not None:
+                    valid_time[algo].append(p.solve_time[algo])
+
+        # average accuracy
+        for algo in valid_acc:
+            avg_acc = sum(valid_acc[algo]) / float(len(valid_acc[algo])) if valid_acc[algo] else 0
+            accuracy_score[algo] = avg_acc
+            avg_time = sum(valid_time[algo]) / float(len(valid_time[algo])) if valid_time[algo] else 0
+            solve_time[algo] = avg_time
+    else:
+        accuracy_score = {algo_name: 0}
+        solve_time = {algo_name: 0}
+        # performance for a single algo
+        accuracy_score[algo_name] = sum(p.accuracy[algo_name] for p in perf) / float(len(perf)) if perf else 0
+        solve_time[algo_name] = sum(p.solve_time[algo_name] for p in perf) / float(len(perf)) if perf else 0
+    return Ex02PerformanceResult(accuracy=accuracy_score, solve_time=solve_time)
 
 
 def get_exercise2() -> Exercise:

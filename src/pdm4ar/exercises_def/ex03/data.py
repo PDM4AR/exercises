@@ -1,18 +1,22 @@
 from dataclasses import dataclass
 import pathlib
 import pickle
+from threading import local
+from typing import Callable, Optional, Set
 
 import osmnx as ox
+from requests import get
 from sklearn.cluster import KMeans
 import pandas as pd
 from frozendict import frozendict
-from networkx import MultiDiGraph, compose
+from networkx import MultiDiGraph, compose, astar_path, NetworkXNoPath
 import random
 from collections import defaultdict
 
 from pdm4ar.exercises.ex02.structures import Query, Path
 from pdm4ar.exercises.ex03.structures import WeightedGraph, TravelSpeed
-from pdm4ar.exercises_def import networkx_2_adjacencylist, queries_from_adjacency
+from pdm4ar.exercises_def.ex03.local_queries import get_local_queries
+from pdm4ar.exercises_def import networkx_2_adjacencylist, queries_from_adjacency, ExIn
 
 _fast = (
     "motorway",
@@ -35,6 +39,17 @@ class InformedGraphSearchProblem:
     graph: WeightedGraph
     queries: set[Query]
     graph_id: str
+
+
+@dataclass
+class TestValueEx3(ExIn):
+    problem: InformedGraphSearchProblem
+    algo_name: str
+    h_count_fn: Callable
+    impl_validate_func_wrapper: Optional[Callable] = None
+    disallowed_dependencies: Optional[Set[str]] = None
+    def str_id(self) -> str:
+        return str(self.algo_name)
 
 
 def _find_speed(row) -> float:
@@ -122,11 +137,15 @@ def get_test_informed_gsproblem(
     # convert graph to InformedGraphSearchProblem
     data_in: list[InformedGraphSearchProblem] = []
     for i, G in enumerate(test_wgraphs):
-        q = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)
+        id = graph_ids[i]
+        default_queries = queries_from_adjacency(G.adj_list, n=n_queries, n_seed=n_seed)  # set of queries
+        q = default_queries
+        local_queries = get_local_queries(G, id)  # generate more queries when students change the parameters in the function locally.
+        q = default_queries | local_queries
         p = InformedGraphSearchProblem(
             graph=G,
             queries=q,
-            graph_id=graph_ids[i],
+            graph_id=id,
         )
         data_in.append(p)
     # add InformedGraphSearchProblem for evaluation
@@ -147,8 +166,8 @@ def graph_dimensions(G: WeightedGraph):
     longitudes = [data["x"] for _, data in nodes]
     min_lat, max_lat = min(latitudes), max(latitudes)
     min_lon, max_lon = min(longitudes), max(longitudes)
-    width = ox.distance.euclidean_dist_vec(min_lat, min_lon, min_lat, max_lon)
-    height = ox.distance.euclidean_dist_vec(min_lat, min_lon, max_lat, min_lon)
+    width = ox.distance.euclidean(min_lat, min_lon, min_lat, max_lon)
+    height = ox.distance.euclidean(min_lat, min_lon, max_lat, min_lon)
     return width, height, min_lat, max_lat, min_lon, max_lon
 
 
@@ -179,7 +198,7 @@ def create_highway_between_cities(G1: MultiDiGraph, G2: MultiDiGraph, n_seed=0):
     G_combined = compose(G1, G2)
 
     # Add a highway (edge) between the two border nodes
-    highway_length = ox.distance.euclidean_dist_vec(
+    highway_length = ox.distance.euclidean(
         G1.nodes[node1]["y"],
         G1.nodes[node1]["x"],
         G2.nodes[node2]["y"],
@@ -233,84 +252,28 @@ def find_center_of_cities(G: WeightedGraph, n_clusters=2):
     return centroids
 
 
-def ex3_get_expected_results() -> list[list[tuple[Path, int]]]:
 
-    # The shortest path solutions for both UCS and Astar
-    ny_path = [
-        42436582,
-        42446925,
-        42448693,
-        4597668041,
-        42445867,
-        42436575,
-        42445879,
-        42429876,
-        42445885,
-        42445888,
-        42436746,
-        42445404,
-        42445896,
-        42445899,
-        42445903,
-        42445365,
-        42434948,
-        42445908,
-        42445909,
-        42445910,
-        42445651,
-        42445914,
-        42432438,
-        561042200,
-    ]
-    eth_path = [
-        131923881,
-        131984636,
-        1481512725,
-        1481512717,
-        1481512716,
-        34466208,
-        263683273,
-        263683272,
-    ]
-    milan_path = [
-        27653945,
-        1550365269,
-        1550365202,
-        1550365234,
-        1550365238,
-        1550365233,
-        249167226,
-        1828995193,
-        1476588224,
-        3832161562,
-        1514352941,
-        1942874551,
-        1942874549,
-        1942874545,
-        1942874539,
-        1942874538,
-        1942874527,
-        1942874524,
-        21226083,
-        2075241344,
-        480913573,
-        28848583,
-        28848589,
-    ]
-
-    # Each "expected result" contains the ideal path and the "trivial heuristic" count. For UCS, there is no
-    # heuristic, so the evaluator will ignore this value. For Astar, the student's heuristic should be invoked
-    # less often than the trivial heuristic -- the evaluator uses the trivial heuristic as a comparitor.
-    # Passing the value 0 tells the evaluator to compute the trivial heuristic count using the student's Astar
-    # implementation. Passing a non-zero value tells the evaluator to use this as the trivial heuristic count
-    # (as is done in the evaluation server)
-    expected_results = [
-        [(ny_path, 0)],  # ucs ny
-        [(ny_path, 0)],  # astar ny
-        [(eth_path, 0)],  # ucs eth
-        [(eth_path, 0)],  # astar eth
-        [(milan_path, 0)],  # ucs milan
-        [(milan_path, 0)],  # astar milan
-    ]
-
+def ex3_compute_expected_results(test_values: list[TestValueEx3]) -> list[list[tuple[Path, int]]]:
+    expected_results = []
+    # loop over test cases
+    for test in test_values:
+        prob = test.problem
+        # get graph and queries
+        wG = prob.graph
+        test_queries = prob.queries
+        result = []
+        # loop over queries
+        for query in test_queries:
+            try:
+                path = astar_path(
+                    G=wG._G,
+                    source=query[0],
+                    target=query[1],
+                    heuristic=lambda v, u: 0,  # effectively Dijkstra
+                    weight='travel_time'
+                )
+            except NetworkXNoPath:
+                path = []
+            result.append((path, 0))
+        expected_results.append(result)
     return expected_results

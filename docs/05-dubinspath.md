@@ -79,6 +79,7 @@ The order of the lines in the List is not important. Write your code in:
  ``` 
 
 4. [50%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g. line with length = 0) in the returned list.
+4. [50%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g. line with length = 0) in the returned list.
 Implement it in:
 ```python
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
@@ -120,8 +121,8 @@ def compare_spline_to_dubins(
         dubins_length: length of optimal Dubins path
         spline_length: length of Hermite spline
         is_feasible: True if spline curvature <= 1/radius everywhere
-        t0: tangent vector at start (scaled for plotting)
-        t1: tangent vector at end (scaled for plotting)
+        t0: tangent vector at start 
+        t1: tangent vector at end 
         p0: start position (2D)
         p1: end position (2D)
     """

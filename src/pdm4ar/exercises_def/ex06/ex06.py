@@ -1,36 +1,24 @@
-import timeit
-import numpy as np
 import random
-from typing import Any, Callable, Sequence
-from shapely.geometry import LineString
+import timeit
 from dataclasses import dataclass
+from typing import Any, Callable, Optional, Sequence
 
+import numpy as np
 from dg_commons import SE2Transform
-from reprep import Report
-
-from pdm4ar.exercises.ex06.collision_checker import (
-    CollisionChecker,
-)
-from pdm4ar.exercises.ex06.collision_primitives import (
-    CollisionPrimitives,
-    CollisionPrimitives_SeparateAxis,
-)
+from pdm4ar.exercises.ex06.collision_checker import CollisionChecker
+from pdm4ar.exercises.ex06.collision_primitives import CollisionPrimitives_SeparateAxis
+from pdm4ar.exercises_def.ex06.data import DataGenerator
 from pdm4ar.exercises_def.ex06.structures import Polygon
 from pdm4ar.exercises_def.ex06.visualization import (
-    visualize_circle_point,
-    visualize_triangle_point,
-    visualize_polygon_point,
-    visualize_circle_line,
-    visualize_triangle_line,
-    visualize_polygon_line,
+    visualize_axis_poly,
     visualize_map_path,
     visualize_robot_frame_map,
-    visualize_axis_poly,
-    viusalize_SAT_poly,
-    viusalize_SAT_poly_circle,
+    visualize_SAT_poly,
+    visualize_SAT_poly_circle,
 )
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
-from pdm4ar.exercises_def.ex06.data import DataGenerator
+from reprep import Report
+from shapely.geometry import LineString
 
 RANDOM_SEED = 0
 
@@ -50,6 +38,8 @@ class TestCollisionCheck(ExIn):
     ex_function: Callable
     eval_function: Callable
     eval_weights: tuple[float, float]
+    impl_validate_func_wrapper: Optional[Callable] = None
+    disallowed_dependencies: Optional[set[str]] = None
 
     def str_id(self) -> str:
         return f"step-{self.step_id}-"
@@ -86,16 +76,9 @@ class CollisionCheckPerformance(PerformanceResults):
         if len(eval_list) == 0:
             return CollisionCheckWeightedPerformance(0.0, np.inf, {})
 
-        total_acccuracy = np.sum(
-            [eval.accuracy * eval.weights[0] for eval in eval_list]
-        )
-        total_solve_time = np.sum(
-            [eval.solve_time * eval.weights[1] for eval in eval_list]
-        )
-        performances = {
-            eval.step_id: {"accuracy": eval.accuracy, "solve_time": eval.solve_time}
-            for eval in eval_list
-        }
+        total_acccuracy = np.sum([eval.accuracy * eval.weights[0] for eval in eval_list])
+        total_solve_time = np.sum([eval.solve_time * eval.weights[1] for eval in eval_list])
+        performances = {eval.step_id: {"accuracy": eval.accuracy, "solve_time": eval.solve_time} for eval in eval_list}
 
         return CollisionCheckWeightedPerformance(
             total_acccuracy / total_weights[0],
@@ -104,14 +87,28 @@ class CollisionCheckPerformance(PerformanceResults):
         )
 
 
-def _collision_check_rep(
-    algo_in: TestCollisionCheck, alg_out: Any
-) -> tuple[CollisionCheckPerformance, Report]:
+def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[CollisionCheckPerformance, Report]:
 
     # Set Random Seed
     set_random_seed(RANDOM_SEED)
 
     r = Report(algo_in.name)
+
+    # Validate implementation
+    if algo_in.impl_validate_func_wrapper is not None and algo_in.disallowed_dependencies is not None:
+        data = algo_in.sample_generator(0)
+        check = algo_in.impl_validate_func_wrapper(algo_in.ex_function, algo_in.disallowed_dependencies)
+        called_funcs = check(*data[:-1])
+        if called_funcs:
+            validation_details = []
+            validation_details.append("Implementation validation failed. Disallowed dependencies detected:")
+            for record in called_funcs:
+                validation_details.append(
+                    f"  - Library: {record['library']}, "
+                    f"Function: {record['func_name']}, Line: {record['lineno']}, File: {record['filename']}"
+                )
+            r.text(f"{algo_in.str_id()}-validation", "\n".join(validation_details))
+            return CollisionCheckPerformance(0.0, 0.0, algo_in.eval_weights, algo_in.step_id), r
 
     accuracy_list = []
     solve_times = []
@@ -128,9 +125,7 @@ def _collision_check_rep(
             # print("Estimate is a tuple!")
             accuracy_list.append(algo_in.eval_function(data, estimate[0]))
             try:
-                algo_in.visualizer(
-                    r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1]
-                )
+                algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1])
             except:
                 algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
             r.text(
@@ -151,10 +146,7 @@ def _collision_check_rep(
     r.text(
         f"{algo_in.str_id()}-results",
         "\n".join(
-            [
-                f"Accuracy #{ex_num}: {ex_perf}"
-                for ex_num, ex_perf in enumerate(accuracy_list)
-            ]
+            [f"Accuracy #{ex_num}: {ex_perf}" for ex_num, ex_perf in enumerate(accuracy_list)]
             + [f"Total Accuracy = {np.mean(accuracy_list)}"]
             + [f"Average Solving Time = {np.mean(solve_times)}"]
         ),
@@ -241,17 +233,61 @@ def collision_check_robot_frame_loop(
     collision_checker = CollisionChecker()
     # Iterate Over Path
     result = []
-    for i, (pose, next_pose, observed_obstacles) in enumerate(
-        zip(poses[:-1], poses[1:], observed_obstacles_list)
-    ):
-        if collision_checker.collision_check_robot_frame(
-            r, pose, next_pose, observed_obstacles
-        ):
+    for i, (pose, next_pose, observed_obstacles) in enumerate(zip(poses[:-1], poses[1:], observed_obstacles_list)):
+        if collision_checker.collision_check_robot_frame(r, pose, next_pose, observed_obstacles):
             result.append(i)
     return result
 
 
+def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> Callable:
+    called_funcs = []
+    detected_libs = set()  # Track already detected libraries
+
+    def trace_calls(frame, event, arg):  # pylint: disable=unused-argument
+        import traceback  # pylint: disable=import-outside-toplevel
+
+        if event != "call":
+            return
+        module = frame.f_globals.get("__name__", "")
+        for lib in disallowed_dependencies:
+            if module.startswith(lib) and lib not in detected_libs:
+                # Only record each library once
+                detected_libs.add(lib)
+
+                traces = traceback.extract_stack(frame)
+                for trace in reversed(traces):
+                    if trace.name == func.__name__:
+                        called_funcs.append(
+                            {
+                                "library": lib,
+                                "func_name": trace.name,
+                                "lineno": trace.lineno,
+                                "filename": trace.filename.split("/")[-1],  # Get the filename only
+                            }
+                        )
+                        break
+        return None
+
+    def wrapper(*args, **kwargs):
+        import sys  # pylint: disable=import-outside-toplevel
+
+        sys.setprofile(trace_calls)
+        try:
+            func(*args, **kwargs)
+        finally:
+            sys.setprofile(None)
+        return called_funcs
+
+    return wrapper
+
+
 def get_exercise6() -> Exercise:
+    disallowed_dependencies = {
+        "shapely",
+        "Polygon3D",
+        "scipy.spatial",
+        "sympy.geometry",
+    }
 
     # Generate Test Data
     test_values = [
@@ -264,26 +300,32 @@ def get_exercise6() -> Exercise:
             CollisionPrimitives_SeparateAxis.proj_polygon,
             segment_eval_function,
             eval_weights=(5, 5),
+            impl_validate_func_wrapper=validate_impl_wrapper,
+            disallowed_dependencies=disallowed_dependencies,
         ),  # Task 1: proj polygon.
         TestCollisionCheck(
             10,
             2,
             "Separating Axis Thm",
             DataGenerator.generate_SAT_poly,
-            viusalize_SAT_poly,
+            visualize_SAT_poly,
             CollisionPrimitives_SeparateAxis.separating_axis_thm,
             float_eval_function,
             eval_weights=(20, 20),
+            impl_validate_func_wrapper=validate_impl_wrapper,
+            disallowed_dependencies=disallowed_dependencies,
         ),  # Task 2: Separate Axis Theorem.
         TestCollisionCheck(
             6,
             3,
             "Separating Axis Thm with Circles",
             DataGenerator.generate_SAT_poly_circle,
-            viusalize_SAT_poly_circle,
+            visualize_SAT_poly_circle,
             CollisionPrimitives_SeparateAxis.separating_axis_thm,
             float_eval_function,
             eval_weights=(20, 20),
+            impl_validate_func_wrapper=validate_impl_wrapper,
+            disallowed_dependencies=disallowed_dependencies,
         ),  # Task 3: Extended Separate Axis Theorem for circles.
         TestCollisionCheck(
             5,
@@ -294,7 +336,9 @@ def get_exercise6() -> Exercise:
             CollisionChecker().path_collision_check,
             idx_list_eval_function,
             (20, 20),
-        ),  # Task 4
+            impl_validate_func_wrapper=validate_impl_wrapper,
+            disallowed_dependencies=disallowed_dependencies,
+        ),  # Task 4 - Path Collision Check
         TestCollisionCheck(
             5,
             5,
@@ -304,7 +348,7 @@ def get_exercise6() -> Exercise:
             CollisionChecker().path_collision_check_occupancy_grid,
             idx_list_eval_function,
             (20, 20),
-        ),  # Task 5
+        ),  # Task 5 - Path Collision Check - Occupancy Grid
         TestCollisionCheck(
             5,
             6,
@@ -314,7 +358,7 @@ def get_exercise6() -> Exercise:
             CollisionChecker().path_collision_check_r_tree,
             idx_list_eval_function,
             (30, 30),
-        ),  # Task 6
+        ),  # Task 6 - Path Collision Check - R-Tree
         TestCollisionCheck(
             5,
             7,
@@ -324,17 +368,17 @@ def get_exercise6() -> Exercise:
             collision_check_robot_frame_loop,
             idx_list_eval_function,
             (20, 20),
-        ),  # Task 7
+        ),  # Task 7 - Collision Check - Rigid Body Transformation
         TestCollisionCheck(
             5,
             8,
-            "Path Collision Check - Safety Certificates",
+            "Path Collision Check - Optimization-based Collision Detection",
             lambda x: DataGenerator().generate_random_robot_map_and_path(12, x),
             visualize_map_path,
-            CollisionChecker().path_collision_check_safety_certificate,
+            CollisionChecker().path_collision_check_opt,
             idx_list_eval_function,
             (30, 30),
-        ),  # Task 8
+        ),  # Task 8 - Path Collision Check - Optimization-based Collision Detection
     ]
 
     total_weights = (
@@ -345,9 +389,7 @@ def get_exercise6() -> Exercise:
     return Exercise[TestCollisionCheck, Any](
         desc="This exercise is about the collision checking methods.",
         evaluation_fun=_collision_check_rep,
-        perf_aggregator=lambda x: CollisionCheckPerformance.perf_aggregator(
-            x, total_weights
-        ),
+        perf_aggregator=lambda x: CollisionCheckPerformance.perf_aggregator(x, total_weights),
         test_values=test_values,
         expected_results=None,
     )
