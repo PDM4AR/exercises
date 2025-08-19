@@ -14,14 +14,20 @@ class InformedGraphSearch(ABC):
 
     @abstractmethod
     def path(self, start: X, goal: X) -> Path:
+        """
+        Given the start and goal nodes, returns an ordered list of nodes from self.graph
+        that make up the path between them, or an empty list if no path exists.
+        """
         # Abstract function. Nothing to do here.
         pass
+
 
 @dataclass
 class UniformCostSearch(InformedGraphSearch):
     def path(self, start: X, goal: X) -> Path:
         # todo
         pass
+
 
 @dataclass
 class Astar(InformedGraphSearch):
@@ -50,7 +56,7 @@ class Astar(InformedGraphSearch):
         # this function directly. Rather, it should call `heuristic`
         # todo
         return 0
-        
+
     def path(self, start: X, goal: X) -> Path:
         # todo
         return []
