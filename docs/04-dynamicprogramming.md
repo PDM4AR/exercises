@@ -205,7 +205,7 @@ In both the images, the `WONDERLAND` cells are purple cell because we can't attr
 
 ### Help for modeling the MDP
 
-Correctly modeling the MDP is crucial for the success of your algorithms. To help you with this, we provide you with the admissible action set, the ground truth transition probabilities and rewards for selected cells of the [5x5 example](#example-picture) above. You can use these to validate your implementation. Moreover, the function `get_transition_prob()` is evaluated on sampled state-action pairs to help you understanding if this crucial part is correctly implemented.
+Correctly modeling the MDP is crucial for the success of your algorithms. To help you with this, we provide you with the admissible action set, the ground truth transition probabilities and rewards for selected cells of the [5x5 example](#example-picture) above. You can use these to validate your implementation. Moreover, the function `get_transition_prob()` is evaluated on sampled state-action pairs to help you understanding if this crucial part is correctly implemented. You can also modify the test cases to check for edge cases for the transition probabilities in the function `get_transition_prob_test_cases()`. You can find it directly in the file `data.py`.
 
 The coordinates of the cells are given in the format `(row, column)` starting from the top left corner of the grid. All axes are 0-indexed.
 
