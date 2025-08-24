@@ -88,6 +88,9 @@ class SpaceshipAgent(Agent):
          - Plan a new trajectory if necessary
          (e.g., our tracking is deviating from the desired trajectory, the obstacles are moving, etc.)
 
+        NOTE: this function is not run in real time meaning that the simulation is stopped when the function is called.
+        Thus the time efficiency of the replanning is not critical for the simulation.
+        However the average time spent in get_commands is still considered in the score.
 
         Do **not** modify the signature of this method.
         """
