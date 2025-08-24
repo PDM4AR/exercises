@@ -66,12 +66,17 @@ class SpaceshipAgent(Agent):
         We suggest to compute here an initial trajectory/node graph/path, used by your planner to navigate the environment.
 
         Do **not** modify the signature of this method.
+
+        the time spent in this method is **not** considered in the score.
         """
         self.myname = init_sim_obs.my_name
         self.sg = init_sim_obs.model_geometry
         self.sp = init_sim_obs.model_params
         self.planner = SpaceshipPlanner(planets=self.planets, satellites=self.satellites, sg=self.sg, sp=self.sp)
         assert isinstance(init_sim_obs.goal, SpaceshipTarget | DockingTarget)
+        # make sure you consider both types of goals accordingly
+        # (Docking is a subclass of SpaceshipTarget and may require special handling
+        # to take into account the docking structure)
         self.goal_state = init_sim_obs.goal.target
 
         #
