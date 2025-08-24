@@ -126,6 +126,18 @@ class SpaceshipPlanner:
         # TODO: Implement SCvx algorithm or comparable
         #
 
+        """
+        for SCvx it would follow a logic similar to:
+        
+        initial guess interpolation
+        while stopping criterion not satisfied
+            convexify
+            discretize
+            solve convex sub problem
+            update trust region
+            update stopping criterion
+        """
+
         self._convexification()
         try:
             error = self.problem.solve(verbose=self.params.verbose_solver, solver=self.params.solver)
