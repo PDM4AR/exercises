@@ -1,51 +1,44 @@
 # Preliminaries
+{:.no_toc}
 
-- [Rules of the game](#rules-of-the-game)
-- [Getting started](#getting-started)
-    * [Git](#git)
-        - [Installing Git](#installing-git)
-        - [Creating a Github account](#creating-a-github-account)
-        - [Resources](#-resources--)
-        - [Goals](#--goals---)
-    * [Docker](#docker)
-        - [Resources](#-resources---1)
-        - [Goals](#--goals----1)
-    * [Python](#python)
-        - [Resources](#-resources---2)
-    * [IDEs (optional-recommended)](#ides---optional---recommended----)
-- [Support](#support)
+<div markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+1. TOC
+{:toc}
+</div>
+
+---
 
 ## Rules of the game
 
 The programming exercises are a great way to understand and apply what you learn in class.
 
-There will be four types of exercises:
+There are four types of exercises:
 
 - **Warm-up** exercise(s), not graded;
 - **Weekly** individual exercises, graded (will account for 30% of the final grade);
-- **Finals** group exercises, graded (will account for 70% (30 + 40) of the final grade).
+- **Finals** group exercises, graded (will account for 70% (30 + 40) of the final grade);
 - **Extra** exercises from previous years, not graded.
 
-#### **Warm-up** exercises, not graded.
+#### **Warm-up** exercises, not graded
 
 Just ensuring everything is working as expected.
 
-#### **Weekly** individual exercises, graded.
+#### **Weekly** individual exercises, graded
 
 The weekly exercises must be solved *individually*.
-They will involve relative short programming tasks related to the topics covered in class.
-You will submit your solutions via your private repository on Github
-(detailed instruction on the submission procedure can be found later on).
+They will involve relatively short programming tasks related to the topics covered in class.
+You will submit your solutions via your private GitHub repository. Detailed submission instructions are provided later.
 
 **Important information**:
 
 * Each exercise has a limited submission window, typically 2 weeks.
-* Only the last **valid** (i.e., processed by the server irrespectively of the outcome) submission within the exercise time window will account for your exercise grade. A missing submission will count as 0.
-* The score will be based on some performance metrics (how correct is your solution, how fast it is, how much memory
-  it uses, etc.) which will be declared in the exercise description.
-  Note that we will provide guideline on the performance that is considered PASS or GOOD, but **not** in advance the mapping _score_ -> _grade_.
-* Only your best _N-1_ exercise results contribute to the 30% of your final grade, where _N_ is the total number of weekly exercises(N=5).
-* For each exercise you will have a limited number of possible submissions to the server. You will be able to test locally as much as you want though. Consider this as a learning experience for robotics, field tests are expensive.
+* Only the last **VALID** submission (i.e., processed by the server regardless of the outcome) within the exercise time window counts toward your exercise grade. A missing submission counts as 0.
+* Your score is based on performance metrics (e.g., correctness, speed, memory usage) declared in the exercise description. We provide guidelines for PASS/GOOD performance, but we do not publish the score-to-grade mapping in advance.
+* Only your best _N-1_ exercise results contribute to 30% of your final grade, where _N_ is the total number of weekly exercises (N=5).
+* For each exercise, you have a limited number of server submissions. You can test locally as much as you want. Consider this a learning experience for robotics; field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
 | Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
@@ -58,20 +51,20 @@ You will submit your solutions via your private repository on Github
 
 * Most of these exercises are already accessible before the official evaluation opens.
   You are free to engage with them earlier, but be aware that changes may occur up until the official opening.
-  After the evaluation opens the exercise is "frozen" and you can solve it and submit it.
+  After the evaluation opens, the exercise is "frozen", and you can solve and submit it.
 
-#### **Finals** exercises, graded.
+#### **Finals** exercises, graded
 
-These will be solved in small groups of **3 people maximum** but the modality is the same as the weekly exercises.
+These are solved in small groups of **up to 3 people**, with the same modality as the weekly exercises.
 They will be a bit more involved content-wise.
-Instructions on the group forming modality are provided via Piazza.
+Instructions on group formation are provided via Piazza.
 
-| Exercise **ID** | **Topic** | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
-|-----------------|-----------|----------------------|------------------------------|---------------------|-----------------------|
-| 13              | To be anounced | 12th of November     | 2nd of December (23:59 CET) | tentative           | 10                    |
-| 14              | To be anounced | 3rd of December     | 23rd of December (23:59 CET) | tentative           | 10                    |
+| Exercise **ID** | **Topic**       | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
+|-----------------|-----------------|----------------------|------------------------------|---------------------|-----------------------|
+| 13              | To be announced | 12th of November     | 2nd of December (23:59 CET)  | tentative           | 10                    |
+| 14              | To be announced | 3rd of December      | 23rd of December (23:59 CET) | tentative           | 10                    |
 
-#### **Extra** exercises from previous years, not graded.
+#### **Extra** exercises from previous years, not graded
 
 You can have a look at the finals from last year and challenge yourself.
 
@@ -102,42 +95,48 @@ We will use:
 - [Python](https://www.python.org/) as programming language;
 - [Docker](https://www.docker.com/) as environment containerization (but you won't see it);
 - [Git](https://git-scm.com/) as version control system;
+- [GitHub](https://github.com/) as code hosting and assignment distribution and submission platform;
+- [VS Code](https://code.visualstudio.com/) as code editor.
 
-If they all sound completely new to you **do not panic**.
-We will require a very basic use of most of them, but it is a good time to start learning these tools since they are all
-widely adopted in modern robotics.
+If these tools are new to you, do not panic. We require only very basic use of most of them. It's a good time to start learning these tools, as they are widely adopted in modern robotics.
 
-If you get stuck, try to pair with experienced colleagues for help.
-When this still does not solve the problem, try to reach out to the instructors on Piazza or at the office hours.
+If you get stuck, pair up with experienced colleagues. If that doesn't solve the problem, reach out to the instructors on Piazza or during office hours.
 
-If you are using a Linux-based OS the process should be straight forward.
-Windows and Mac can give some more hiccups in the setup, but they are supported as well.
-
+If you are using a Linux-based OS, the process should be straightforward.
+Windows and macOS may have more hiccups, but they are supported as well.
 
 ### Python
 
-Python will be the programming language adopted in this course. You don't have to install python on your local machine as you will work with the docker container that has python installed (more information below).
+Python will be the programming language adopted in this course. You don't need to install Python on your local machine because you'll work in a Docker container with Python preinstalled (more information below).
 
 #### _Resources_
+If you want to learn Python basics, here are some resources to get you started:
 
-- [Official documentation](https://docs.python.org/3/)
 - [Python Tutorial](https://www.tutorialspoint.com/python/index.htm), in particular make sure to go through the basic
   data structures (tuples, lists, dictionaries, sets,...), loops (while, for,...), conditional statements (if-else),
   functions, classes and objects.
+- [Official documentation](https://docs.python.org/3/)
 
 ### Docker
 
-We will run the exercises in a virtual environment (or better, in a container).
-Read the "Resources" section to get a better understanding of it, containerization is ubiquitous in modern software development.
+We will run the exercises in a containerized environment, a technique widely used in modern software development. Read the [Resources](#docker-resources) section for more information on Docker.
+
 Now let's install it on your computer:
 
-* (Linux)[Installation instructions](https://docs.docker.com/engine/install/)
-* (Mac) We recommand to install the Docker Desktop following the [installation instruction](https://docs.docker.com/desktop/setup/install/mac-install/). 
-* (Windows) First install WSL 2 following the [instruction](https://learn.microsoft.com/en-us/windows/wsl/install), choose distro Ubuntu 22.04 LTS. Run `wsl -l -v` to check if you install the desired linux distribution and WSL version.
-Then the Docker Desktop following the [installation instruction](https://docs.docker.com/desktop/install/windows-install/).
-  
-#### _Resources_
+If you are using __Linux__, you can choose to either install `Docker Engine` or `Docker Desktop`, but __NOT__ both.
+- [Install Docker Engine on Linux](https://docs.docker.com/engine/install/), or
+- [Install Docker Desktop on Linux](https://docs.docker.com/desktop/install/linux-install/)
 
+If you are using __Mac__, follow the instructions below to install Docker Desktop:
+- [Install Docker Desktop on Mac](https://docs.docker.com/desktop/install/mac-install/)
+
+If you are using __Windows__, follow this YouTube video to install Docker Desktop:
+- [Install Docker Desktop on Windows](https://youtu.be/ZyBBv1JmnWQ?si=l6Xfqq7lLQpGrohe)
+
+#### _Resources_
+{: #docker-resources}
+
+If you want to learn more about Docker, check out the following resources:
 - [Docker intro](https://docs.duckietown.com/ente/devmanual-software/basics/development/docker.html)
 
 #### **Checklist**
@@ -145,44 +144,42 @@ Then the Docker Desktop following the [installation instruction](https://docs.do
 - [ ] I have installed Docker on my computer
 - [ ] I can run without errors the Docker hello-world (`docker run hello-world`)
 
+### Git & GitHub
 
-### Git
-
-Git is a version control software.
-Please find more explanation under the "Resources" paragraph if you have never heard of it before.
+Git is a version control software. GitHub is a cloud-based platform that hosts Git repositories. Please see the [Resources](#git-resources) section if you are new to them.
 You will need Git on your computer and a GitHub account.
 
 #### Creating a GitHub account
 
-If you do not have already a GitHub account create a new one [here](https://github.com/join).
+If you do not already have a GitHub account create a new one [here](https://github.com/join).
 
 #### Setting up Git
 
-(Linux, Mac)Download git for your OS from [this site](https://git-scm.com/downloads). Then set up git and authenticate with GitHub following the instruction [here](https://docs.github.com/en/get-started/git-basics/set-up-git).
+(Linux, Mac) Download Git for your OS from [this site](https://git-scm.com/downloads). Then set up Git and authenticate with GitHub following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git).
 
-(Windows)Install and set up git on both Windows and WSL following the instruction [here](https://docs.github.com/en/get-started/git-basics/set-up-git). We recommend connecting to GitHub over HTTPS and use git credential manager(GCM) to store your Git credentials. Simply follow [this section](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git#git-credential-manager) to get GCM for Windows and [this section](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended) for WSL. Later on, you may clone the GitHub repository using HTTPS either on WSL(recommanded) or Windows. 
+(Windows) Install and set up Git on both Windows and WSL following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git). We recommend connecting to GitHub over HTTPS and using Git Credential Manager (GCM) to store your Git credentials. Simply follow [this section](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git#git-credential-manager) to get GCM for Windows and [this section](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended) for WSL. Later, you can clone the GitHub repository using HTTPS either on WSL (recommended) or Windows.
 
 #### _Resources_
+{: #git-resources}
 
 - [Git Guide](https://github.com/git-guides)
-- [Github tutorial](https://guides.github.com/activities/hello-world/)
+- [GitHub tutorial](https://guides.github.com/activities/hello-world/)
 
 #### **Checklist**
 
-- [ ]  I can run `git version` on my terminal without error.
-- [ ]  I have a GitHub account.
-- [ ]  I know how to use basic git commands `git clone`, `git add`, `git commit` and `git push`.
+- [ ] I can run `git version` on my terminal without errors.
+- [ ] I have a GitHub account.
+- [ ] I know how to use basic git commands `git clone`, `git add`, `git commit` and `git push`.
 
 ### VS Code
 
 Using an [IDE](https://en.wikipedia.org/wiki/Integrated_development_environment) is not necessary.
-But it provides a good set of tools that speed up the development (code navigation, debugging,...).
+But it provides a good set of tools that speeds up development (code navigation, debugging,...).
 Moreover, we will provide environment configurations that will make your life easier.
 
-We recommend using VS code. You can find installation instructions [here](https://code.visualstudio.com/docs/setup/setup-overview). After having VSCode installed, also install the DevContainer extension in VSCode or from [here](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+We recommend using VS Code. You can find installation instructions [here](https://code.visualstudio.com/docs/setup/setup-overview). After installing VS Code, also install the Dev Containers extension from [here](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 
-There are many other good IDEs for python (PyCharm, Atom, Spyder,...), they should work just fine if you know how to
-replicate exactly the development environment in `.devcontainer/` but we won't support them officially.
+There are many other good IDEs for Python (PyCharm, Atom, Spyder,...) that should work just fine if you know how to replicate the development environment in `.devcontainer/` exactly. We won't support them officially.
 
 ## Support
 
