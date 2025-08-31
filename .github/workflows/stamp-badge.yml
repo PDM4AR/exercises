@@ -1,0 +1,25 @@
+name: Stamp badge URL
+on:
+  push:
+    paths:
+      - 'README.md'
+  workflow_dispatch:
+
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stamp badge URL in README.md
+        run: |
+          set -e
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
+          sed -i "s|cloneInVolume?url=[^)]*|cloneInVolume?url=${REPO_URL}|g" README.md
+
+      - uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "stamp repo-specific Dev Containers badge URL"
+          commit_author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
