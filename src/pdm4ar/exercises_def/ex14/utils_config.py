@@ -9,10 +9,7 @@ from dg_commons.perception.sensor import VisRangeSensor
 from dg_commons.sim import SimParameters
 from dg_commons.sim.goals import PolygonGoal
 from dg_commons.sim.models.diff_drive import DiffDriveModel, DiffDriveState
-from dg_commons.sim.models.diff_drive_structures import (
-    DiffDriveGeometry,
-    DiffDriveParameters,
-)
+from dg_commons.sim.models.diff_drive_structures import DiffDriveGeometry, DiffDriveParameters
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.scenarios import DgScenario
 from dg_commons.sim.sim_perception import FovObsFilter, ObsFilter

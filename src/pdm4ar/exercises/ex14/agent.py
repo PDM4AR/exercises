@@ -1,9 +1,9 @@
-from dataclasses import dataclass
 import random
+from dataclasses import dataclass
 from typing import Sequence
 
 from dg_commons import PlayerName
-from dg_commons.sim import SimObservations, InitSimObservations
+from dg_commons.sim import InitSimObservations, SimObservations
 from dg_commons.sim.agents import Agent
 from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.diff_drive import DiffDriveCommands
@@ -20,6 +20,7 @@ class Pdm4arAgent(Agent):
     """This is the PDM4AR agent.
     Do *NOT* modify the naming of the existing methods and the input/output types.
     Feel free to add additional methods, objects and functions that help you to solve the task"""
+
     name: PlayerName
     goal: PlanningGoal
     static_obstacles: Sequence[StaticObstacle]
@@ -30,16 +31,16 @@ class Pdm4arAgent(Agent):
         # feel free to remove/modify  the following
         self.params = Pdm4arAgentParams()
 
-    def on_episode_init(self, init_obs: InitSimObservations):
+    def on_episode_init(self, init_sim_obs: InitSimObservations):
         """This method is called by the simulator at the beginning of each episode."""
-        self.name = init_obs.my_name
-        self.goal = init_obs.goal
-        self.static_obstacles = list(init_obs.dg_scenario.static_obstacles)
-        self.sg = init_obs.model_geometry
-        self.sp = init_obs.model_params
+        self.name = init_sim_obs.my_name
+        self.goal = init_sim_obs.goal
+        self.static_obstacles = list(init_sim_obs.dg_scenario.static_obstacles)
+        self.sg = init_sim_obs.model_geometry
+        self.sp = init_sim_obs.model_params
 
     def get_commands(self, sim_obs: SimObservations) -> DiffDriveCommands:
-        """ This method is called by the simulator every dt_commands seconds (0.1s by default).
+        """This method is called by the simulator every dt_commands seconds (0.1s by default).
         Do not modify the signature of this method.
 
         For instance, this is how you can get your current state from the observations:

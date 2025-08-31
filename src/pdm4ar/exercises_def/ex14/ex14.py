@@ -14,7 +14,7 @@ from reprep import MIME_MP4, Report
 
 
 def ex14_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
-    r = Report("Final23-" + sim_context.description)
+    r = Report("Final25-" + sim_context.description)
     # run simulation
     sim = Simulator()
     sim.run(sim_context)
@@ -45,7 +45,7 @@ def _ex14_vis(sim_context: SimContext) -> Report:
             sim_context=sim_context,
             figsize=(16, 16),
             dt=50,
-            dpi=120,
+            dpi=60,
             plot_limits=[[-12, 12], [-12, 12]],  # make sure this is aligned with boundaries
         )
 
