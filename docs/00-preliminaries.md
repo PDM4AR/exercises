@@ -123,7 +123,10 @@ We will run the exercises in a containerized environment, a technique widely use
 
 Now let's install it on your computer:
 
-If you are using __Linux__, you can choose to either install `Docker Engine` or `Docker Desktop`, but __NOT__ both.
+If you are using __Linux__, you can choose to either install `Docker Engine` or `Docker Desktop`, but __NOT__ both. `Docker Engine` is the core container runtime and is bundled with the Docker CLI `docker`, while `Docker Desktop` is `Docker Engine + GUI + extra tools`.
+
+👉 For this course, `Docker Engine` is recommended for its simplicity and lower resource usage.
+
 - [Install Docker Engine on Linux](https://docs.docker.com/engine/install/), or
 - [Install Docker Desktop on Linux](https://docs.docker.com/desktop/install/linux-install/)
 
