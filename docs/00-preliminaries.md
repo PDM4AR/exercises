@@ -125,7 +125,7 @@ Now let's install it on your computer:
 
 If you are using __Linux__, you can choose to either install `Docker Engine` or `Docker Desktop`, but __NOT__ both. `Docker Engine` is the core container runtime and is bundled with the Docker CLI `docker`, while `Docker Desktop` is `Docker Engine + GUI + extra tools`.
 
-👉 For this course, `Docker Engine` is recommended for its simplicity and lower resource usage.
+👉 For **Linux** users of this course, `Docker Engine` is recommended for its simplicity and lower resource usage.
 
 - [Install Docker Engine on Linux](https://docs.docker.com/engine/install/), or
 - [Install Docker Desktop on Linux](https://docs.docker.com/desktop/install/linux-install/)
@@ -158,9 +158,9 @@ If you do not already have a GitHub account create a new one [here](https://gith
 
 #### Setting up Git
 
-(Linux, Mac) Download Git for your OS from [this site](https://git-scm.com/downloads). Then set up Git and authenticate with GitHub following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git).
+**(Linux, Mac)** Download Git for your OS from [this site](https://git-scm.com/downloads). Then set up Git and authenticate with GitHub following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git).
 
-(Windows) Install and set up Git on both Windows and WSL following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git). We recommend connecting to GitHub over HTTPS and using Git Credential Manager (GCM) to store your Git credentials. Simply follow [this section](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git#git-credential-manager) to get GCM for Windows and [this section](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended) for WSL. Later, you can clone the GitHub repository using HTTPS either on WSL (recommended) or Windows.
+**(Windows)** Install and set up Git on both Windows and WSL following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git). We recommend connecting to GitHub over HTTPS and using Git Credential Manager (GCM) to store your Git credentials. Simply follow [this section](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git?platform=windows#git-credential-manager) to get GCM for Windows and [this section](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended) for WSL. Later, you can clone the GitHub repository using HTTPS either on WSL (recommended) or Windows.
 
 #### _Resources_
 {: #git-resources}
