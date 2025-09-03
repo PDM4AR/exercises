@@ -14,6 +14,7 @@ from reprep import MIME_MP4, Report
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex13.perf_metrics import ex13_metrics
 from pdm4ar.exercises_def.ex13.utils_config import sim_context_from_yaml
+from pdm4ar.exercises_def.ex13.get_config import get_config
 
 
 def ex13_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
@@ -62,7 +63,7 @@ def load_config_ex13(file_path: Path) -> Mapping:
 
 def get_exercise11():
     config_dir = Path(__file__).parent
-    configs = ["config_planet.yaml", "config_satellites.yaml", "config_satellites_diff.yaml"]
+    configs = get_config()
 
     test_values: List[SimContext] = []
     for c in configs:
