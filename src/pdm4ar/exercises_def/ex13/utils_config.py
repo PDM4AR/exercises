@@ -26,7 +26,7 @@ from shapely.geometry.base import BaseGeometry
 
 from pdm4ar.exercises.ex13.agent import SpaceshipAgent
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
-from pdm4ar.exercises_def.ex13.utils_params import SatelliteParams, PlanetParams
+from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, SatelliteParams, PlanetParams
 
 
 def _load_config(file_path: str) -> dict[str, Any]:
@@ -108,6 +108,51 @@ def _parse_satellite(planet: Point, tau: float, orbit_r, omega, radius) -> tuple
     return dyn_obstacle, player
 
 
+def _parse_asteroid(
+    config: dict,
+) -> tuple[dict[PlayerName, DynObstacleModel], dict[PlayerName, SatelliteParams], dict[PlayerName, NPAgent]]:
+
+    def parse(start, orientation, velocity, radius) -> tuple[DynObstacleModel, NPAgent]:
+        s = Point(start)
+        v = Point(velocity)
+
+        satellite_1 = DynObstacleState(x=s.x, y=s.y, psi=orientation, vx=v.x, vy=v.y, dpsi=0)
+        satellite_1_shape = Point(0, 0).buffer(radius)
+        dyn_obstacle = DynObstacleModel(
+            satellite_1,
+            shape=satellite_1_shape,
+            og=ObstacleGeometry(m=500, Iz=50, e=0.5),
+            op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
+        )
+        # keep sequence of commands constant
+        cmds_seq = DgSampledSequence[DynObstacleCommands](
+            timestamps=[0],
+            values=[
+                DynObstacleCommands(acc_x=0, acc_y=0, acc_psi=0),
+            ],
+        )
+        player = NPAgent(cmds_seq)
+        return dyn_obstacle, player
+
+    asteroids = {}
+    asteroids_params = {}
+    asteroids_players = {}
+
+    for name, asteroid in config.items():
+        a, pa = parse(asteroid["start"], asteroid["orientation"], asteroid["velocity"], asteroid["radius"])
+
+        asteroids[name] = a
+        asteroids_players[name] = pa
+        asteroids_params[name] = AsteroidParams(
+            start=asteroid["start"],
+            orientation=asteroid["orientation"],
+            velocity=asteroid["velocity"],
+            radius=asteroid["radius"],
+        )
+
+    return asteroids, asteroids_params, asteroids_players
+
+
 def sim_context_from_yaml(file_path: str):
     config = _load_config(file_path=file_path)
 
@@ -118,7 +163,16 @@ def sim_context_from_yaml(file_path: str):
     x0 = SpaceshipState(**config["agents"][name]["state"])
 
     # obstacles (planets + satellites)
-    planets, planets_params, satellites, satellites_params, satellites_npagents = _parse_planets(config)
+    if "planets" in config:
+        planets, planets_params, satellites, satellites_params, satellites_npagents = _parse_planets(config)
+    else:
+        planets, planets_params = [], {}
+        satellites, satellites_params, satellites_npagents = {}, {}, {}
+
+    if "asteroids" in config:
+        asteroids, asteroids_params, asteroids_npagents = _parse_asteroid(config["asteroids"])
+    else:
+        asteroids, asteroids_params, asteroids_npagents = {}, {}, {}
 
     env_limits = LineString(config["boundary"]["corners"])
     planets.append(env_limits)
@@ -158,7 +212,10 @@ def sim_context_from_yaml(file_path: str):
     initstate = SpaceshipState(**config["agents"][name]["state"])
     players = {
         playername: SpaceshipAgent(
-            init_state=deepcopy(initstate), satellites=deepcopy(satellites_params), planets=deepcopy(planets_params)
+            init_state=deepcopy(initstate),
+            satellites=deepcopy(satellites_params),
+            planets=deepcopy(planets_params),
+            asteroids=deepcopy(asteroids_params),
         )
     }
 
@@ -168,6 +225,12 @@ def sim_context_from_yaml(file_path: str):
 
     for p, sagent in satellites_npagents.items():
         players[p] = sagent
+
+    for a, s in asteroids.items():
+        models[a] = s
+
+    for a, aagent in asteroids_npagents.items():
+        players[a] = aagent
 
     return SimContext(
         dg_scenario=DgScenario(static_obstacles=static_obstacles),  # need satellites
