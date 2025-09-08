@@ -12,7 +12,7 @@ from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, Spaces
 
 from pdm4ar.exercises.ex13.planner import SpaceshipPlanner
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
-from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams
+from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams, AsteroidParams
 from pdm4ar.exercises_def.ex13.utils_plot import plot_traj
 
 
@@ -41,6 +41,7 @@ class SpaceshipAgent(Agent):
     init_state: SpaceshipState
     satellites: dict[PlayerName, SatelliteParams]
     planets: dict[PlayerName, PlanetParams]
+    asteroids: dict[PlayerName, AsteroidParams]
     goal_state: DynObstacleState
 
     cmds_plan: DgSampledSequence[SpaceshipCommands]
@@ -57,6 +58,7 @@ class SpaceshipAgent(Agent):
         init_state: SpaceshipState,
         satellites: dict[PlayerName, SatelliteParams],
         planets: dict[PlayerName, PlanetParams],
+        asteroids: dict[PlayerName, AsteroidParams],
     ):
         """
         Initializes the agent.
@@ -67,6 +69,7 @@ class SpaceshipAgent(Agent):
         self.init_state = init_state
         self.satellites = satellites
         self.planets = planets
+        self.asteroids = asteroids
 
     def on_episode_init(self, init_sim_obs: InitSimObservations):
         """
