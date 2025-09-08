@@ -14,6 +14,63 @@ from pdm4ar.exercises.ex13.planner import SpaceshipPlanner
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
 from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams
 
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+class Config:
+    PLOT = True
+    VERBOSE = False
+
+
+def plot_traj(computed: DgSampledSequence, actual: list = None):
+    """
+    Example of simple plotting function to help you debug your code.
+    Feel free to modify it or create your own plotting functions.
+    Note that the plot is overwritten at each call which means that only the last simulation is saved.
+    """
+
+    timestamps = list(computed._timestamps)  # sequence.get_sampling_points()
+    values = list(computed._values)
+
+    df = pd.DataFrame(values)
+
+    plt.plot(df["x"], df["y"], label="Computed Trajectory")
+    for i in range(len(df)):
+        plt.arrow(
+            df["x"][i],
+            df["y"][i],
+            np.cos(df["psi"][i]),
+            np.sin(df["psi"][i]),
+            head_width=0.1,
+            head_length=0.1,
+            fc="k",
+            ec="k",
+        )
+
+    if actual is not None:
+        actual_positions = np.array([[state.x, state.y] for state in actual])
+        actual_orientations = np.array([state.psi for state in actual])
+        plt.scatter(actual_positions[:, 0], actual_positions[:, 1], label="Actual Trajectory")
+        for i in range(len(actual_positions)):
+            plt.arrow(
+                actual_positions[i, 0],
+                actual_positions[i, 1],
+                np.cos(actual_orientations[i]),
+                np.sin(actual_orientations[i]),
+                head_width=0.1,
+                head_length=0.05,
+                fc="r",
+                ec="r",
+            )
+
+    plt.grid(True)
+    plt.legend()
+    file_path = "src/pdm4ar/exercises/ex13/final_traj.png"  # feel free to change path
+    plt.savefig(file_path)
+    plt.close()
+
 
 @dataclass(frozen=True)
 class MyAgentParams:
@@ -56,6 +113,7 @@ class SpaceshipAgent(Agent):
         This method is called by the simulator only before the beginning of each simulation.
         Provides the SpaceshipAgent with information about its environment, i.e. planet and satellite parameters and its initial position.
         """
+        self.actual_trajectory = []
         self.init_state = init_state
         self.satellites = satellites
         self.planets = planets
@@ -100,7 +158,11 @@ class SpaceshipAgent(Agent):
         Do **not** modify the signature of this method.
         """
         current_state = sim_obs.players[self.myname].state
+        self.actual_trajectory.append(current_state)
         expected_state = self.state_traj.at_interp(sim_obs.time)
+
+        if Config.PLOT and int(10 * sim_obs.time) % 25 == 0:
+            plot_traj(self.state_traj, self.actual_trajectory)
 
         #
         # TODO: Implement scheme to replan
