@@ -60,7 +60,7 @@ def load_config_ex13(file_path: Path) -> Mapping:
     return fd(config_dict)
 
 
-def get_exercise11():
+def get_exercise13():
     config_dir = Path(__file__).parent
     configs = ["config_planet.yaml", "config_satellites.yaml", "config_satellites_diff.yaml"]
 
