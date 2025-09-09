@@ -1,8 +1,8 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.241.1/containers/python-3
 {
-	"name": "pdm4ar2024",
-	"image": "idscfrazz/pdm4ar2024:3.11-bullseye",
+	"name": "pdm4ar2025",
+	"image": "idscfrazz/pdm4ar2025:3.11-bullseye",
 	// Configure tool-specific properties.
 	"customizations": {
 		// Configure properties specific to VS Code.
