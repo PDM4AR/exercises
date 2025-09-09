@@ -25,7 +25,7 @@ cell2color = frozendict(
         Cell.START: to_rgb("yellow"),
         Cell.GRASS: to_rgb("green"),
         Cell.SWAMP: to_rgb("cyan"),
-        Cell.WORMHOLE: to_rgb("purple"),
+        Cell.WONDERLAND: to_rgb("purple"),
         Cell.CLIFF: to_rgb("black"),
     }
 )
