@@ -131,10 +131,6 @@ Keep in mind:
 - These times are for reference only, your implementation does not need to match them exactly.
 - Small variations in solving time between runs of the same algorithm may be observed.
 
-#### Update & Run
-
-Please refer to [Hello World](01-helloworld.md) for instructions.
-
 #### Food for thought
 
 * Which of the graph search algorithms you implemented are better suited for different topologies of graphs?
