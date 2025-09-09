@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-
 from typing import Any, Sequence
 
+import matplotlib.pyplot as plt
 import numpy as np
 from geometry import SE2value
-import matplotlib.pyplot as plt
+from matplotlib.patches import Arc
+from matplotlib.patches import Circle as pltCircle
 
 __all__ = [
     "Point",
@@ -15,9 +16,7 @@ __all__ = [
     "AABB",
     "Polygon",
     "Path",
-    "Polygon_3D",
-    "Point_3D",
-    "Segment_3D",
+    "Capsule",
 ]
 
 
@@ -79,6 +78,101 @@ class Segment(GeoPrimitive):
 
 
 @dataclass(frozen=True)
+class Capsule(GeoPrimitive):
+    """
+    Represents a capsule, which is a line segment inflated by a given radius.
+    Geometrically, a capsule consists of a segment (the central axis) and all points within
+    a specified radius from that segment, forming a shape with rounded ends.
+    - segment: the central line segment of the capsule
+    - radius: the radius by which the segment is inflated
+    """
+
+    segment: Segment
+    radius: float
+
+    def apply_SE2transform(self, t: SE2value) -> "Capsule":
+        transformed_segment = self.segment.apply_SE2transform(t)
+        return replace(self, segment=transformed_segment)
+
+    def visualize(self, ax: Any):
+        # Draw the segment
+        ax.set_aspect(1)
+        self.segment.visualize(ax)
+
+        start = np.array([self.segment.p1.x, self.segment.p1.y], dtype=float)
+        end = np.array([self.segment.p2.x, self.segment.p2.y], dtype=float)
+        direction = end - start
+        length = np.linalg.norm(direction)
+        if length <= 1e-6:
+            # If the segment is too short, just draw two circles
+            circle = pltCircle(
+                (self.segment.p1.x, self.segment.p1.y),
+                self.radius,
+                color="r",
+                fill=False,
+                linewidth=2,
+            )
+            ax.add_artist(circle)
+            return
+
+        direction /= length  # Normalize the direction vector
+        theta = np.arctan2(direction[1], direction[0])
+
+        arc1 = Arc(
+            (self.segment.p1.x, self.segment.p1.y),
+            2 * self.radius,
+            2 * self.radius,
+            angle=np.degrees(theta) + 90,
+            theta1=0,
+            theta2=180,
+            color="r",
+            linewidth=2,
+        )
+        arc2 = Arc(
+            (self.segment.p2.x, self.segment.p2.y),
+            2 * self.radius,
+            2 * self.radius,
+            angle=np.degrees(theta) - 90,
+            theta1=0,
+            theta2=180,
+            color="r",
+            linewidth=2,
+        )
+        ax.add_artist(arc1)
+        ax.add_artist(arc2)
+
+        # Draw the two parallel line segments that form the sides of the capsule
+        # Calculate perpendicular vector to the segment
+        offset_vector = np.array([-direction[1], direction[0]]) * self.radius
+
+        # Draw the two parallel lines
+        ax.plot(
+            [self.segment.p1.x + offset_vector[0], self.segment.p2.x + offset_vector[0]],
+            [self.segment.p1.y + offset_vector[1], self.segment.p2.y + offset_vector[1]],
+            color="r",
+            linewidth=2,
+        )
+        ax.plot(
+            [self.segment.p1.x - offset_vector[0], self.segment.p2.x - offset_vector[0]],
+            [self.segment.p1.y - offset_vector[1], self.segment.p2.y - offset_vector[1]],
+            color="r",
+            linewidth=2,
+        )
+
+    def get_boundaries(self) -> tuple["Point", "Point"]:
+        return (
+            Point(
+                min(self.segment.p1.x, self.segment.p2.x) - self.radius,
+                min(self.segment.p1.y, self.segment.p2.y) - self.radius,
+            ),
+            Point(
+                max(self.segment.p1.x, self.segment.p2.x) + self.radius,
+                max(self.segment.p1.y, self.segment.p2.y) + self.radius,
+            ),
+        )
+
+
+@dataclass(frozen=True)
 class Circle(GeoPrimitive):
     center: Point
     radius: float
@@ -93,7 +187,7 @@ class Circle(GeoPrimitive):
             self.radius,
             color="r",
             fill=False,
-            linewidth=5,
+            linewidth=2,
         )
         ax.set_aspect(1)
         ax.add_artist(draw_circle)
@@ -126,7 +220,7 @@ class Triangle(GeoPrimitive):
             [[self.v1.x, self.v1.y], [self.v2.x, self.v2.y], [self.v3.x, self.v3.y]],
             color="r",
             fill=False,
-            linewidth=5,
+            linewidth=2,
         )
         ax.set_aspect(1)
         ax.add_artist(draw_triangle)
@@ -179,7 +273,7 @@ class Polygon(GeoPrimitive):
             [[p.x, p.y] for p in self.vertices],
             color="r",
             fill=False,
-            linewidth=5,
+            linewidth=2,
         )
         ax.set_aspect(1)
         ax.add_artist(draw_poly)
@@ -229,83 +323,3 @@ class Path(GeoPrimitive):
 
 def _transform_points(t: SE2value, points: Sequence[Point]) -> Sequence[Point]:
     return [p.apply_SE2transform(t) for p in points]
-
-
-################### 3-D Polygons, Segments and Points:. May be removed.
-@dataclass(frozen=True)
-class Point_3D(GeoPrimitive):
-    x: float
-    y: float
-    z: float
-
-    def apply_SE2transform(self, t: SE2value) -> "Point":
-        p = t @ np.array([self.x, self.y, 1])
-        return Point(p[0], p[1])
-
-    def visualize(self, ax: Any):
-        # Draw Point
-        ax.plot(self.x, self.y, marker="x", markersize=10)
-
-    def get_boundaries(self) -> tuple["Point", "Point"]:
-        return self, self
-
-
-@dataclass(frozen=True)
-class Segment_3D(GeoPrimitive):
-    p1: Point_3D
-    p2: Point_3D
-    # TODO: FOR A TA: FINISH OUT THE 3D SEGMENT CLASS.
-
-    def apply_SE2transform(self, t: SE2value) -> "Segment":
-        p1 = self.p1.apply_SE2transform(t)
-        p2 = self.p2.apply_SE2transform(t)
-        return replace(self, p1=p1, p2=p2)
-
-    def visualize(self, ax: Any):
-        ax.plot(
-            [self.p1.x, self.p2.x], [self.p1.y, self.p2.y], marker="x", markersize=10
-        )
-
-    def get_boundaries(self) -> tuple["Point", "Point"]:
-        p_min = Point(min(self.p1.x, self.p2.x), min(self.p1.y, self.p2.y))
-        p_max = Point(max(self.p1.x, self.p2.x), max(self.p1.y, self.p2.y))
-        return p_min, p_max
-
-
-@dataclass(frozen=True)
-class Polygon_3D(GeoPrimitive):
-    vertices: list[Point_3D]
-    # TODO: For A TA: FINISH OUT the 3D POLYGON CLASS
-
-    def apply_SE2transform(self, t: SE2value) -> "Polygon":
-        transformed_vertices = _transform_points(t, self.vertices)
-        return replace(self, vertices=transformed_vertices)
-
-    def center(self):
-        number_of_vertices = len(self.vertices)
-        return Point_3D(
-            sum([v.x for v in self.vertices]) / number_of_vertices,
-            sum([v.y for v in self.vertices]) / number_of_vertices,
-            sum([v.z for v in self.vertices]) / number_of_vertices,
-        )
-
-    def visualize(self, ax: Any):
-        draw_poly = plt.Polygon(
-            [[p.x, p.y] for p in self.vertices],
-            color="r",
-            fill=False,
-            linewidth=5,
-        )
-        ax.set_aspect(1)
-        ax.add_artist(draw_poly)
-
-    def get_boundaries(self) -> tuple["Point_3D", "Point_3D"]:
-        p_min = Point(
-            min([v.x for v in self.vertices]),
-            min([v.y for v in self.vertices]),
-        )
-        p_max = Point(
-            max([v.x for v in self.vertices]),
-            max([v.y for v in self.vertices]),
-        )
-        return p_min, p_max
