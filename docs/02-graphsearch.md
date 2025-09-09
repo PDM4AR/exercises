@@ -121,9 +121,11 @@ Averaging over the test cases we compute an accuracy metric as (# of correct pat
 
 For reference, the TA’s solution achieves the following average solving times on the private test cases:
 
-DepthFirst:         0.000485 s  
-BreadthFirst:       0.000239 s  
-IterativeDeepening: 0.000867 s
+| Algorithm           | Solving time[s] |
+|---------------------|-----------------|
+| DepthFirst          | 0.000485        |
+| BreadthFirst        | 0.000239        |
+| IterativeDeepening  | 0.000867        |
 
 Use these numbers as a guideline to understand the order of magnitude of expected performance for a descently optimized solution.
 
