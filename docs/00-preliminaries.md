@@ -36,7 +36,7 @@ You will submit your solutions via your private GitHub repository. Detailed subm
 
 * Each exercise has a limited submission window, typically 2 weeks.
 * Only the last **VALID** submission (i.e., processed by the server regardless of the outcome) within the exercise time window counts toward your exercise grade. A missing submission counts as 0.
-* Your score is based on performance metrics (e.g., correctness, speed, memory usage) declared in the exercise description. We provide guidelines for PASS/GOOD performance, but we do not publish the score-to-grade mapping in advance.
+* Your score will be determined by the performance metrics specified in the exercise description (e.g., correctness, execution speed). For metrics other than correctness, we provide reference values based on our solution and/or historical data. The mapping from scores to grades will not be disclosed in advance.
 * Only your best _N-1_ exercise results contribute to 30% of your final grade, where _N_ is the total number of weekly exercises (N=5).
 * For each exercise, you have a limited number of server submissions. You can test locally as much as you want. Consider this a learning experience for robotics; field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
@@ -158,9 +158,18 @@ If you do not already have a GitHub account create a new one [here](https://gith
 
 #### Setting up Git
 
-**(Linux, Mac)** Download Git for your OS from [this site](https://git-scm.com/downloads). Then set up Git and authenticate with GitHub following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git).
+For __Linux__ or __Mac__ users: 
+- Download and install Git for your OS from [this site](https://git-scm.com/downloads). 
+- Set up Git and authenticate with GitHub following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git). You are free to pick the connecting and credential caching options that you are most comfortable with.
 
-**(Windows)** Install and set up Git on both Windows and WSL following the instructions [here](https://docs.github.com/en/get-started/git-basics/set-up-git). We recommend connecting to GitHub over HTTPS and using Git Credential Manager (GCM) to store your Git credentials. Simply follow [this section](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git?platform=windows#git-credential-manager) to get GCM for Windows and [this section](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended) for WSL. Later, you can clone the GitHub repository using HTTPS either on WSL (recommended) or Windows.
+For __Windows__ users,
+- Download and install Git for Windows from [here](https://git-scm.com/downloads/win), which comes with the Git Credential Manager (GCM).
+- The simplist way to connect to GitHub on Windows is over HTTPS and use GCM to store your Git credentials. See [here](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git?platform=windows#git-credential-manager) for detailed instructions. 
+
+Notes for __Windows__ users:
+- VS Code with Dev Container extension(see below) automatically forwards your cached credential from Windows to the container. This means you can perform all Git operations both on Windows and inside the container without re-authenticating.
+- If you clone the repository on Windows (as instructed above), remember that Linux-based containers will access those files through the Windows filesystem. This causes significant overhead for file-intensive operations (e.g., I/O, dependency installation). **For this course, the impact is negligible since no bulky I/O operations are expected.**
+- The “proper” way for performance-critical projects is to clone the repository inside WSL instead of Windows. This requires configuring GCM on WSL separately. Instructions are available [here](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended).
 
 #### _Resources_
 {: #git-resources}
