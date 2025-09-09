@@ -17,7 +17,7 @@ from dg_commons.sim.models.obstacles_dyn import (
     DynObstacleState,
     DynObstacleCommands,
 )
-from dg_commons.sim.models.spaceship import SpaceshipState, SpaceshipModel
+from dg_commons.sim.models.satellite import SatelliteState, SatelliteModel
 from dg_commons.sim.scenarios.structures import DgScenario
 from dg_commons.sim.simulator import SimContext
 from numpy import arctan2
@@ -156,11 +156,11 @@ def _parse_asteroid(
 def sim_context_from_yaml(file_path: str):
     config = _load_config(file_path=file_path)
 
-    # Spaceship
+    # Spaceship new
     assert len(config["agents"].keys()) == 1, "Only one player today"
     name = list(config["agents"])[0]
     playername = PlayerName(name)
-    x0 = SpaceshipState(**config["agents"][name]["state"])
+    x0 = SatelliteState(**config["agents"][name]["state"])
 
     # obstacles (planets + satellites)
     if "planets" in config:
@@ -209,7 +209,7 @@ def sim_context_from_yaml(file_path: str):
     missions = {playername: goal}
 
     # models & players
-    initstate = SpaceshipState(**config["agents"][name]["state"])
+    initstate = SatelliteState(**config["agents"][name]["state"])
     players = {
         playername: SpaceshipAgent(
             init_state=deepcopy(initstate),
@@ -219,7 +219,7 @@ def sim_context_from_yaml(file_path: str):
         )
     }
 
-    models = {playername: SpaceshipModel.default(x0)}
+    models = {playername: SatelliteModel.default(x0)}
     for p, s in satellites.items():
         models[p] = s
 
