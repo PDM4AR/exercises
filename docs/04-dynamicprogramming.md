@@ -257,5 +257,8 @@ The final score will be computed as follows: $score = \frac{N_{completed}}{N} \c
 In the report you will find the average of each metric for all the test cases (`perf_result`), value iteration test cases (`value_iteration`), policy iteration test cases (`policy_iteration`) and transition probability test cases (`transition_prob`).
 The score is calculated based on all the test cases (`perf_result`) plus (`transition_prob`).
 
-
+We provide the following guidelines for your algorithm performance:
+| Metric              | Values      | PASSING  | GOOD   |
+|---------------------|-------------|----------|--------|
+| Score               | [0, 1.0)    | >0.9     | >0.99  |
 
