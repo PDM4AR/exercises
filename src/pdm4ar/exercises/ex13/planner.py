@@ -14,10 +14,10 @@ from dg_commons.sim.models.spaceship_structures import (
     SpaceshipParameters,
 )
 
-from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
+from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams
 
-from pdm4ar.exercises.ex11.spaceship import Spaceship
-from pdm4ar.exercises.ex11.discretization import (
+from pdm4ar.exercises.ex13.spaceship import Spaceship
+from pdm4ar.exercises.ex13.discretization import (
     DiscretizationMethod,
     FirstOrderHold,
     ZeroOrderHold,
@@ -25,9 +25,9 @@ from pdm4ar.exercises.ex11.discretization import (
 
 import math
 from dg_commons.sim.goals import PlanningGoal
-from pdm4ar.exercises_def.ex11.goal import (
+from pdm4ar.exercises_def.ex13.goal import (
     SpaceshipTarget,
-    SatelliteTarget,
+    #SatelliteTarget,
     DockingTarget,
 )
 
@@ -137,8 +137,13 @@ class SpaceshipPlanner:
         self.dock = False
 
         # Discretization Method
-        # self.integrator = ZeroOrderHold(self.Spaceship, self.params.K, self.params.N_sub)
+        # self.integrator = ZeroOrderHold(self.spaceship, self.params.K, self.params.N_sub)
         self.integrator = FirstOrderHold(self.spaceship, self.params.K, self.params.N_sub)
+        # Check dynamics implementation
+        if self.integrator.check_dynamics() is False:
+            raise ValueError("Dynamics check failed.")
+        else:
+            print("Dynamics check passed.")
 
         # Variables
         self.variables = self._get_variables()
@@ -242,12 +247,12 @@ class SpaceshipPlanner:
             # print("Iteration: ", it)
 
         # ***** DEBUG *****
-        if np.any(np.any(np.abs(self.variables["nu"].value) > 1e-5, axis=0), axis=0):
-            print("nu != 0: ", self.variables["nu"].value)
-        if np.any(np.any(np.abs(self.variables["nu_s"].value) > 1e-5, axis=0), axis=0):
-            print("nu_s != 0: ", self.variables["nu_s"].value)
-        if np.any(np.any(np.abs(self.variables["nu_tc"].value) > 1e-5, axis=0), axis=0):
-            print("nu_tc != 0: ", self.variables["nu_tc"].value)
+        # if np.any(np.any(np.abs(self.variables["nu"].value) > 1e-5, axis=0), axis=0):
+        #     print("nu != 0: ", self.variables["nu"].value)
+        # if np.any(np.any(np.abs(self.variables["nu_s"].value) > 1e-5, axis=0), axis=0):
+        #     print("nu_s != 0: ", self.variables["nu_s"].value)
+        # if np.any(np.any(np.abs(self.variables["nu_tc"].value) > 1e-5, axis=0), axis=0):
+        #     print("nu_tc != 0: ", self.variables["nu_tc"].value)
 
         print("p: ", self.variables["p"].value)
         # *****************
@@ -325,16 +330,16 @@ class SpaceshipPlanner:
         p[0] = self.toggle_params.tf_initial_guess
         start_state = start.as_ndarray()
 
-        if isinstance(goal, SatelliteTarget):
-            # Forcast goal position at time p
-            goal_state = np.concatenate(
-                [
-                    goal.get_target_state_at(p[0]).as_ndarray(),
-                    np.array([0, start_state[7]]),
-                ],
-                axis=0,
-            )
-        elif isinstance(goal, SpaceshipTarget):
+        # if isinstance(goal, SatelliteTarget):
+        #     # Forcast goal position at time p
+        #     goal_state = np.concatenate(
+        #         [
+        #             goal.get_target_state_at(p[0]).as_ndarray(),
+        #             np.array([0, start_state[7]]),
+        #         ],
+        #         axis=0,
+        #     )
+        if isinstance(goal, SpaceshipTarget):
             goal_state = np.concatenate([goal.target.as_ndarray(), np.array([0, start_state[7]])], axis=0)
 
         for k in range(K):
@@ -656,39 +661,39 @@ class SpaceshipPlanner:
         F_goal = np.zeros((5, 1))
         r_goal = np.zeros(5)
 
-        if isinstance(self.goal, SatelliteTarget):
-            planet_x = self.goal.planet_x
-            planet_y = self.goal.planet_y
-            omega = self.goal.omega
-            tau = self.goal.tau
-            orbit_r = self.goal.orbit_r
-            radius = self.goal.radius
-            offset_r = self.goal.offset_r
+        # if isinstance(self.goal, SatelliteTarget):
+        #     planet_x = self.goal.planet_x
+        #     planet_y = self.goal.planet_y
+        #     omega = self.goal.omega
+        #     tau = self.goal.tau
+        #     orbit_r = self.goal.orbit_r
+        #     radius = self.goal.radius
+        #     offset_r = self.goal.offset_r
 
-            p_bar = self.p_bar[0]
-            # g(p_bar)
-            cos_omega_t = (orbit_r + offset_r) * math.cos(omega * p_bar + tau)
-            sin_omega_t = (orbit_r + offset_r) * math.sin(omega * p_bar + tau)
-            x_goal_bar = cos_omega_t + planet_x
-            y_goal_bar = sin_omega_t + planet_y
-            v_goal_bar = omega * orbit_r
-            psi_goal_bar = np.pi / 2 + omega * p_bar + tau
-            vx_goal_bar = v_goal_bar * math.sin(psi_goal_bar)
-            vy_goal_bar = v_goal_bar * math.cos(psi_goal_bar)
-            goal_bar = np.array([x_goal_bar, y_goal_bar, psi_goal_bar, vx_goal_bar, vy_goal_bar])
+        #     p_bar = self.p_bar[0]
+        #     # g(p_bar)
+        #     cos_omega_t = (orbit_r + offset_r) * math.cos(omega * p_bar + tau)
+        #     sin_omega_t = (orbit_r + offset_r) * math.sin(omega * p_bar + tau)
+        #     x_goal_bar = cos_omega_t + planet_x
+        #     y_goal_bar = sin_omega_t + planet_y
+        #     v_goal_bar = omega * orbit_r
+        #     psi_goal_bar = np.pi / 2 + omega * p_bar + tau
+        #     vx_goal_bar = v_goal_bar * math.sin(psi_goal_bar)
+        #     vy_goal_bar = v_goal_bar * math.cos(psi_goal_bar)
+        #     goal_bar = np.array([x_goal_bar, y_goal_bar, psi_goal_bar, vx_goal_bar, vy_goal_bar])
 
-            # goal constraint: g(p_bar) = x - x_goal
-            C_goal = np.eye(5)
-            # dg_dp
-            F_goal[0, 0] = -omega * (orbit_r + offset_r) * math.sin(omega * p_bar + tau)
-            F_goal[1, 0] = omega * (orbit_r + offset_r) * math.cos(omega * p_bar + tau)
-            F_goal[2, 0] = omega
-            F_goal[3, 0] = omega * v_goal_bar * math.cos(psi_goal_bar)
-            F_goal[4, 0] = -omega * v_goal_bar * math.sin(psi_goal_bar)
-            F_goal = -F_goal
-            # r_goal
-            r_goal = self.X_bar[:5, -1] - goal_bar - C_goal @ self.X_bar[:5, -1] - F_goal @ self.p_bar
-        elif isinstance(self.goal, SpaceshipTarget):
+        #     # goal constraint: g(p_bar) = x - x_goal
+        #     C_goal = np.eye(5)
+        #     # dg_dp
+        #     F_goal[0, 0] = -omega * (orbit_r + offset_r) * math.sin(omega * p_bar + tau)
+        #     F_goal[1, 0] = omega * (orbit_r + offset_r) * math.cos(omega * p_bar + tau)
+        #     F_goal[2, 0] = omega
+        #     F_goal[3, 0] = omega * v_goal_bar * math.cos(psi_goal_bar)
+        #     F_goal[4, 0] = -omega * v_goal_bar * math.sin(psi_goal_bar)
+        #     F_goal = -F_goal
+        #     # r_goal
+        #     r_goal = self.X_bar[:5, -1] - goal_bar - C_goal @ self.X_bar[:5, -1] - F_goal @ self.p_bar
+        if isinstance(self.goal, SpaceshipTarget):
             C_goal = np.eye(5)
             F_goal = np.zeros((5, 1))
             r_goal = (
@@ -705,28 +710,28 @@ class SpaceshipPlanner:
     def g(self, X, U, p):
         g_tot = np.zeros(5)
 
-        if isinstance(self.goal, SatelliteTarget):
-            planet_x = self.goal.planet_x
-            planet_y = self.goal.planet_y
-            omega = self.goal.omega
-            tau = self.goal.tau
-            orbit_r = self.goal.orbit_r
-            radius = self.goal.radius
-            offset_r = self.goal.offset_r
+        # if isinstance(self.goal, SatelliteTarget):
+        #     planet_x = self.goal.planet_x
+        #     planet_y = self.goal.planet_y
+        #     omega = self.goal.omega
+        #     tau = self.goal.tau
+        #     orbit_r = self.goal.orbit_r
+        #     radius = self.goal.radius
+        #     offset_r = self.goal.offset_r
 
-            # g(p_bar)
-            cos_omega_t = (orbit_r + offset_r) * math.cos(omega * p[0] + tau)
-            sin_omega_t = (orbit_r + offset_r) * math.sin(omega * p[0] + tau)
-            x_goal_bar = cos_omega_t + planet_x
-            y_goal_bar = sin_omega_t + planet_y
-            v_goal_bar = omega * orbit_r
-            psi_goal_bar = np.pi / 2 + omega * p[0] + tau
-            vx_goal_bar = v_goal_bar * math.sin(psi_goal_bar)
-            vy_goal_bar = v_goal_bar * math.cos(psi_goal_bar)
-            goal_bar = np.array([x_goal_bar, y_goal_bar, psi_goal_bar, vx_goal_bar, vy_goal_bar])
+        #     # g(p_bar)
+        #     cos_omega_t = (orbit_r + offset_r) * math.cos(omega * p[0] + tau)
+        #     sin_omega_t = (orbit_r + offset_r) * math.sin(omega * p[0] + tau)
+        #     x_goal_bar = cos_omega_t + planet_x
+        #     y_goal_bar = sin_omega_t + planet_y
+        #     v_goal_bar = omega * orbit_r
+        #     psi_goal_bar = np.pi / 2 + omega * p[0] + tau
+        #     vx_goal_bar = v_goal_bar * math.sin(psi_goal_bar)
+        #     vy_goal_bar = v_goal_bar * math.cos(psi_goal_bar)
+        #     goal_bar = np.array([x_goal_bar, y_goal_bar, psi_goal_bar, vx_goal_bar, vy_goal_bar])
 
-            g_tot = X[:5, -1] - goal_bar
-        elif isinstance(self.goal, SpaceshipTarget):
+        #     g_tot = X[:5, -1] - goal_bar
+        if isinstance(self.goal, SpaceshipTarget):
             g_tot = X[:5, -1] - self.goal.target.as_ndarray()[:5]
 
         return g_tot

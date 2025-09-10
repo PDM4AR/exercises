@@ -1,3 +1,6 @@
+from pdm4ar.exercises_def.structures import out_dir
+import os
+
 from dataclasses import dataclass
 from re import S
 from typing import Sequence
@@ -13,10 +16,10 @@ from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
 from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
-from pdm4ar.exercises.ex11.planner import SpaceshipPlanner
-from pdm4ar.exercises.ex11.spaceship import Spaceship
-from pdm4ar.exercises_def.ex11.goal import SpaceshipTarget, SatelliteTarget, DockingTarget
-from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
+from pdm4ar.exercises.ex13.planner import SpaceshipPlanner
+from pdm4ar.exercises.ex13.spaceship import Spaceship
+from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget    #, SatelliteTarget
+from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams
 
 
 @dataclass(frozen=True)
@@ -95,7 +98,9 @@ class SpaceshipAgent(Agent):
         U = np.zeros((2, K))
         p = np.zeros(1)
 
-        # isinstance(goal, DockingTarget):
+        if isinstance(goal, DockingTarget):
+            A, B, C, A1, A2, half_p_angle = self.goal.get_landing_constraint_points_fix()
+            self.goal.plot_landing_points(A, B, C, A1, A2)
         #     phi = goal.target.as_ndarray()[3]
         #     goal_state = np.concatenate([goal.target.as_ndarray()-, np.array([0, start_state[7]])], axis=0)
 
@@ -105,16 +110,16 @@ class SpaceshipAgent(Agent):
             p[0] = 10 + i
             start_state = start.as_ndarray()
 
-            if isinstance(goal, SatelliteTarget):
+            #if isinstance(goal, SatelliteTarget):
                 # Forcast goal position at time p
-                goal_state = np.concatenate(
-                    [
-                        goal.get_target_state_at(p[0]).as_ndarray(),
-                        np.array([0, start_state[7]]),
-                    ],
-                    axis=0,
-                )
-            elif isinstance(goal, SpaceshipTarget):
+                # goal_state = np.concatenate(
+                #     [
+                #         goal.get_target_state_at(p[0]).as_ndarray(),
+                #         np.array([0, start_state[7]]),
+                #     ],
+                #     axis=0,
+                # )
+            if isinstance(goal, SpaceshipTarget):
                 goal_state = np.concatenate([goal.target.as_ndarray(), np.array([0, start_state[7]])], axis=0)
 
             for k in range(K):
@@ -179,8 +184,8 @@ class SpaceshipAgent(Agent):
 
             # Stack into an array of shape (2500, 2) with all (x, y) pairs
             points = np.vstack([X.ravel(), Y.ravel()]).T
-            np.savetxt("/workspaces/exercises/out/11/index.html_resources/Al.txt", self.planner.Al, fmt="%d")
-            np.savetxt("/workspaces/exercises/out/11/index.html_resources/bl.txt", self.planner.bl, fmt="%d")
+            np.savetxt("/workspaces/exercises/out/13/index.html_resources/Al.txt", self.planner.Al, fmt="%d")
+            np.savetxt("/workspaces/exercises/out/13/index.html_resources/bl.txt", self.planner.bl, fmt="%d")
 
             bl_expanded = self.planner.bl[:, np.newaxis]
             print(f"boolean shape {((self.planner.Al[0,:] @ points.T <= bl_expanded[0]).T).shape}")
@@ -213,7 +218,11 @@ class SpaceshipAgent(Agent):
 
         # Display the plot
 
-        plt.savefig("/workspaces/exercises/out/11/index.html_resources/traj.jpg")
+        #plt.savefig("/workspaces/exercises/out/13/index.html_resources/traj.jpg")
+
+        output_dir = os.path.join(out_dir("13"), "index.html_resources")
+        os.makedirs(output_dir, exist_ok=True)
+        plt.savefig(os.path.join(output_dir, "traj.jpg"))
 
     def plot_circle(self, cx, cy, radius):
         import matplotlib.pyplot as plt
@@ -248,16 +257,16 @@ class SpaceshipAgent(Agent):
                 p[0] = 9 + i
                 start_state = start.as_ndarray()
 
-                if isinstance(goal, SatelliteTarget):
+                # if isinstance(goal, SatelliteTarget):
                     # Forcast goal position at time p
-                    goal_state = np.concatenate(
-                        [
-                            goal.get_target_state_at(p[0]).as_ndarray(),
-                            np.array([0, start_state[7]]),
-                        ],
-                        axis=0,
-                    )
-                elif isinstance(goal, SpaceshipTarget):
+                    # goal_state = np.concatenate(
+                    #     [
+                    #         goal.get_target_state_at(p[0]).as_ndarray(),
+                    #         np.array([0, start_state[7]]),
+                    #     ],
+                    #     axis=0,
+                    # )
+                if isinstance(goal, SpaceshipTarget):
                     goal_state = np.concatenate([goal.target.as_ndarray(), np.array([0, start_state[7]])], axis=0)
 
                 for k in range(K):
@@ -317,7 +326,7 @@ class SpaceshipAgent(Agent):
                 self.cmds_plan = self.cmds_plan.shift_timestamps(t0)
                 self.state_traj = self.state_traj.shift_timestamps(t0)
                 # ***** DEBUG *****
-                print("New state trajectory")
+                print("New state trajectory after replan:")
                 print(self.state_traj.at_interp(sim_obs.time))
                 # *****************
 

@@ -74,7 +74,7 @@ def get_exercise13():
     return Exercise[SimContext, None](
         desc="PDM4ARSpaceship(ex13)",
         evaluation_fun=ex13_evaluation,
-        perf_aggregator=lambda x: ex13_performance_aggregator(x),
+        perf_aggregator=ex13_performance_aggregator,
         test_values=test_values,
         expected_results=[
             None,
