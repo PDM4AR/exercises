@@ -1,5 +1,8 @@
 # PDM4AR-exercises
 
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/PDM4AR/exercises)
+
+
 All the necessary instructions are on our website: [https://pdm4ar.github.io/exercises/](https://pdm4ar.github.io/exercises/).
 
 ### Highlights from the previous year
