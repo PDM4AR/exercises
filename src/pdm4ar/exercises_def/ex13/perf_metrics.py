@@ -116,11 +116,13 @@ def ex13_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         distance2goal = goal_poly.distance(last_point)
 
         # actuation effort
-        abs_acc = agent_log.commands.transform_values(lambda u: abs(u.thrust))
-        actuation_effort = seq_integrate(abs_acc).values[-1] / duration
+        abs_acc = 0  # agent_log.commands.transform_values(lambda u: abs(u.thrust))
+        actuation_effort = 0  # seq_integrate(abs_acc).values[-1] / duration
 
         # fuel left
-        fuel_left = agent_log.states.transform_values(lambda x: x.m).values[-1] - sim_context.models[player_name].sp.m_v
+        fuel_left = (
+            0  # agent_log.states.transform_values(lambda x: x.m).values[-1] - sim_context.models[player_name].sp.m_v
+        )
 
         # computation time
         avg_comp_time = np.average(agent_log.info.values)
