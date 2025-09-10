@@ -8,6 +8,7 @@ from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
+from dg_commons.sim.models.satellite import SatelliteCommands, SatelliteState
 from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
 from pdm4ar.exercises.ex13.planner import SpaceshipPlanner
@@ -100,7 +101,7 @@ class SpaceshipAgent(Agent):
 
         self.cmds_plan, self.state_traj = self.planner.compute_trajectory(self.init_state, self.goal_state)
 
-    def get_commands(self, sim_obs: SimObservations) -> SpaceshipCommands:
+    def get_commands(self, sim_obs: SimObservations) -> SatelliteCommands:
         """
         This method is called by the simulator at every simulation time step. (0.1 sec)
         We suggest to perform two tasks here:
@@ -130,4 +131,4 @@ class SpaceshipAgent(Agent):
         # FirstOrderHold
         cmds = self.cmds_plan.at_interp(sim_obs.time)
 
-        return cmds
+        return SatelliteCommands(F_left=0.1, F_right=0.3)
