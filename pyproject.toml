@@ -4,8 +4,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pdm4ar"
-version = "2024.0.0"
-authors = ["IDSC Frazzoli <azanardi@ethz.ch>"]
+version = "2025.0.0"
+authors = ["IDSC Frazzoli <yuesli@ethz.ch>"]
 
 description = "Exercises for the course Planning and Decision Making for Autonomous Robots at ETH Zurich"
 readme = "README.md"
