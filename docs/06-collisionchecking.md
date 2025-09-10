@@ -241,11 +241,6 @@ For this exercise our performance metric is accuracy and execution time.
 | 07          | 05                       | 20                | 20                    |
 | 08          | 05                       | 30                | 30                    |
 
-### How to run
-
-Make sure to update your repo before running the exercise. 
-Please refer to [Hello World](01-helloworld.md) for instructions.
-
 ### Advice
 
 Be cautious of clashing class names between our self-defined `GeoPrimitive` classes and the `shapely` classes. It is not recommended to run the following: `import triangle` or `from shapely import *` as these will result in errors due to identical class/module names. You may instead choose to use aliases for your imported modules (e.g. `import triangle as tr` or `from shapely.geometry import Point as shapelyPoint`) or to just import the methods that you need (e.g. `from triangle import triangulate`).

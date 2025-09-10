@@ -258,6 +258,7 @@ In the report you will find the average of each metric for all the test cases (`
 The score is calculated based on all the test cases (`perf_result`) plus (`transition_prob`).
 
 We provide the following guidelines for your algorithm performance:
+
 | Metric              | Values      | PASSING  | GOOD   |
 |---------------------|-------------|----------|--------|
 | Score               | [0, 1.0)    | >0.9     | >0.99  |
