@@ -184,7 +184,7 @@ class SpaceshipPlanner:
         self.dock = False
         if isinstance(goal, DockingTarget):
             self.dock = True
-            a, b, c, a1, a2, p = goal.get_landing_constraint_points()
+            a, b, c, a1, a2, p = goal.get_landing_constraint_points_offset()                               # OLD VERSION with offsets !!
             A, B = self.get_landing_constraints(a, b, c, goal)
             self.Al = A
             self.bl = B
@@ -284,8 +284,8 @@ class SpaceshipPlanner:
         Must define better the margin on the wall based on
         the spaceship dimension"""
         # Compute constraints for the three edges
-        A1, b1 = self.edge_constraint(A, B)
-        A2, b2 = self.edge_constraint(C, A)
+        A1, b1 = self.edge_constraint(A, C)
+        A2, b2 = self.edge_constraint(B, A)
 
         # Stack the results in matrix form
         A_matrix = np.vstack([A1, A2])

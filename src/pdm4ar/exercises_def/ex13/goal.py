@@ -125,7 +125,7 @@ class DockingTarget(SpaceshipTarget):
         line_dock_buffer = line_dock.buffer(line_thickness, cap_style=2)
         return line_dock_buffer
 
-    def get_landing_constraint_points(self):
+    def get_landing_constraint_points_offset(self):
         """
         Returns some useful points to create constraints for the landing scenario.
         In particular:
@@ -164,7 +164,7 @@ class DockingTarget(SpaceshipTarget):
 
         return A, B, C, A1, A2, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
     
-    def get_landing_constraint_points_fix(self):
+    def get_landing_constraint_points(self):
         """
         Returns some useful points to create constraints for the landing scenario.
         In particular:

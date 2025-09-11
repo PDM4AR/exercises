@@ -99,7 +99,7 @@ class SpaceshipAgent(Agent):
         p = np.zeros(1)
 
         if isinstance(goal, DockingTarget):
-            A, B, C, A1, A2, half_p_angle = self.goal.get_landing_constraint_points_fix()
+            A, B, C, A1, A2, half_p_angle = self.goal.get_landing_constraint_points()
             self.goal.plot_landing_points(A, B, C, A1, A2)
         #     phi = goal.target.as_ndarray()[3]
         #     goal_state = np.concatenate([goal.target.as_ndarray()-, np.array([0, start_state[7]])], axis=0)

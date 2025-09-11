@@ -10,7 +10,7 @@
 #       delta: 0.0
 #       m: 2.5
 #     goal:
-#       type: # static or dock
+#       type: ...                       # static or dock
 #       state: 
 #         x: 8.0                        # EDITABLE within boundaries
 #         y: 8.0                        # EDITABLE within boundaries
@@ -21,17 +21,17 @@
 #       pos_tolerance: 0.3              # EDITABLE
 #       dir_tolerance: 2                # EDITABLE (in rad), 2 if static
 #       vel_tolerance: 0.4              # EDITABLE
-#       #if dock
+#       #(if dock)
 #         #add_land_space: 0.0 
 #         #arms_length: 1.3 
 #         #offset: 1.3
-#     color: blue (inside superscripts !)
+#     color: blue                       # (inside superscripts !)
 
-# planets: # ALL EDITABLE: or :{}
+# planets:                              # ALL EDITABLE: or :{}
 #   Namek:
 #     center: [0.0, 0.0]
 #     radius: 2.0
-#     satellites: # ALL EDITABLE: or :{}
+#     satellites:                       # ALL EDITABLE: or :{}
 #       Cereal:
 #         tau: 2.0
 #         orbit_r: 6.0
@@ -44,8 +44,8 @@
 #         radius: 0.95
 
 # boundary:
-#   corners: # EDITABLE in clockwise order + last = first
-#   # CHECK: shown in animations? or must change other boundaries too?
+# # NOTE: in src>pdm4ar>exercises_def>ex13>ex13.py, the function _ex13_vis sets the plot limits at [-12, 27], [-12, -12]: change it to visualize the animation correctly 
+#  corners:                           # EDITABLE in clockwise order; last point must be equal to the first
 #     - [-11, -11]
 #     - [-11, 11]
 #     - [11, 11]
@@ -53,45 +53,3 @@
 #     - [-11, -11]
 
 # seed: 98
-
-
-agents:
-  PDM4ARSpaceship: # do not change this name
-    color: 'blue'
-    state:
-      x: -9.0
-      y: -9.0
-      psi: 0
-      vx: 0.0
-      vy: 0.0
-      dpsi: 0.0
-      delta: 0.0
-      m: 2.5
-    goal:
-      type: static
-      state: 
-        x: 8.5
-        y: 9.5
-        psi: 0.0
-        vx: 0.0
-        vy: 0.0
-        dpsi: 0.0
-      pos_tolerance: 0.3
-      dir_tolerance: 2
-      vel_tolerance: 0.4
-
-planets:
-  Vampa:
-    center: [0.0, 0.0]
-    radius: 3.0
-    satellites: {}
-
-boundary:
-  corners:
-    - [-11, -11]
-    - [-11, 11]
-    - [11, 11]
-    - [11, -11]
-    - [-11, -11]
-
-seed: 98

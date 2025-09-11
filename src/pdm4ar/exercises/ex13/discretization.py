@@ -36,17 +36,57 @@ class DiscretizationMethod:
         self.n_x = spaceship.n_x
         self.n_u = spaceship.n_u
         self.n_p = spaceship.n_p
+    
+    def calculate_discretization(self, X: NDArray, U: NDArray, p: NDArray) -> tuple[NDArray, NDArray, NDArray, NDArray]:
+        """
+        Calculate discretization for given states, inputs and parameter matrices.
+
+        :param X: Matrix of states at all time steps
+        :param U: Matrix of inputs at all time steps
+        :param p: Vector of parameters
+        :return: The 2D flattened matrices for the discrete-time linear dynamics, required by the optimization framework
+        """
+        pass
 
     def integrate_nonlinear_piecewise(self, X_l: NDArray, U: NDArray, p: NDArray) -> NDArray:
+        """
+        Piecewise integration of the continuous-time nonlinear dynamics, simulating the system response to the inputs U that
+        produced the discrete-time linear state sequence X_l, starting from each state. Helpful to verify accuracy of linearization.
+
+        :param X_l: Linear state evolution matrix
+        :param U: Linear input evolution matrix
+        :param p: Vector of parameters
+        :return: The piecewise integrated dynamics
+        """
         pass
 
     def integrate_nonlinear_full(self, x0: NDArray, U: NDArray, p: NDArray) -> NDArray:
+        """
+        Simulate nonlinear behavior given an initial state and an input over time, integrating the continuous-time nonlinear dynamics
+        starting from the initial state x0 under the effect of the input U.
+
+        :param x0: Initial state
+        :param U: Linear input evolution matrix
+        :param p: Vector of parameters
+        :return: The full integrated dynamics
+        """     
+        pass
+
+    def integrate_nonlinear_full_dense(self, x0: NDArray, U: NDArray, p: NDArray) -> NDArray:
+        """
+        Simulate nonlinear behavior given an initial state and an input over time, integrating the continuous-time nonlinear dynamics
+        starting from the initial state x0 under the effect of the input U.
+
+        :param x0: Initial state
+        :param U: Linear input evolution matrix
+        :param p: Vector of parameters
+        :return: The full integrated dynamics (with added points linked to N_subs)
+        """
         pass
 
     def check_dynamics(self) -> bool:
         """
         Check if the implemented dynamics returns the correct state trajectory.
-
         """
         pass
 
@@ -91,14 +131,6 @@ class ZeroOrderHold(DiscretizationMethod):
         self.P0[self.A_bar_ind] = np.eye(self.n_x).reshape(-1)
 
     def calculate_discretization(self, X: NDArray, U: NDArray, p: NDArray) -> tuple[NDArray, NDArray, NDArray, NDArray]:
-        """
-        Calculate discretization for given states, inputs and parameter matrices.
-
-        :param X: Matrix of states at all time steps
-        :param U: Matrix of inputs at all time steps
-        :param p: Vector of parameters
-        :return: The discretization matrices
-        """
 
         for k in range(self.K - 1):
             self.P0[self.x_ind] = X[:, k]
@@ -139,14 +171,6 @@ class ZeroOrderHold(DiscretizationMethod):
         return dPdt
 
     def integrate_nonlinear_piecewise(self, X_l: NDArray, U: NDArray, p: NDArray) -> NDArray:
-        """
-        Piecewise integration to verfify accuracy of linearization.
-
-        :param X_l: Linear state evolution matrix
-        :param U: Linear input evolution matrix
-        :param p: Vector of parameters
-        :return: The piecewise integrated dynamics
-        """
 
         X_nl = np.zeros_like(X_l)
         X_nl[:, 0] = X_l[:, 0]
@@ -160,14 +184,6 @@ class ZeroOrderHold(DiscretizationMethod):
         return X_nl
 
     def integrate_nonlinear_full(self, x0: NDArray, U: NDArray, p: NDArray) -> NDArray:
-        """
-        Simulate nonlinear behavior given an initial state and an input over time.
-
-        :param x0: Initial state
-        :param U: Linear input evolution matrix
-        :param p: Vector of parameters
-        :return: The full integrated dynamics
-        """
 
         X_nl = np.zeros([x0.size, self.K])
         X_nl[:, 0] = x0
@@ -181,15 +197,7 @@ class ZeroOrderHold(DiscretizationMethod):
         return X_nl
 
     def integrate_nonlinear_full_dense(self, x0: NDArray, U: NDArray, p: NDArray) -> NDArray:
-        """
-        Simulate nonlinear behavior given an initial state and an input over time.
-
-        :param x0: Initial state
-        :param U: Linear input evolution matrix
-        :param p: Vector of parameters
-        :return: The full integrated dynamics (with added points linked to N_subs)
-        """
-
+        
         X_nl = np.zeros([x0.size, U.shape[1]])
         X_nl_dense = np.zeros([x0.size, U.shape[1] + (U.shape[1] - 1) * (self.N_sub - 2)])
         X_nl[:, 0] = x0
@@ -275,14 +283,6 @@ class FirstOrderHold(DiscretizationMethod):
 
     def calculate_discretization(self, X: NDArray, U: NDArray, p: NDArray) -> tuple[
         NDArray, NDArray, NDArray, NDArray, NDArray]:
-        """
-        Calculate discretization for given states, inputs and parameter matrices.
-
-        :param X: Matrix of states at all time steps
-        :param U: Matrix of inputs at all time steps
-        :param p: Vector of parameters
-        :return: The discretization matrices
-        """
 
         for k in range(self.K - 1):
             self.P0[self.x_ind] = X[:, k]
@@ -332,14 +332,6 @@ class FirstOrderHold(DiscretizationMethod):
         return dPdt
 
     def integrate_nonlinear_piecewise(self, X_l: NDArray, U: NDArray, p: NDArray) -> NDArray:
-        """
-        Piecewise integration to verify accuracy of linearization.
-
-        :param X_l: Linear state evolution matrix
-        :param U: Linear input evolution matrix
-        :param p: Vector of parameters
-        :return: The piecewise integrated dynamics
-        """
 
         X_nl = np.zeros_like(X_l)
         X_nl[:, 0] = X_l[:, 0]
@@ -353,14 +345,6 @@ class FirstOrderHold(DiscretizationMethod):
         return X_nl
 
     def integrate_nonlinear_full(self, x0: NDArray, U: NDArray, p: NDArray) -> NDArray:
-        """
-        Simulate nonlinear behavior given an initial state and an input over time.
-
-        :param x0: Initial state
-        :param U: Linear input evolution matrix
-        :param p: Vector of parameters
-        :return: The full integrated dynamics
-        """
 
         X_nl = np.zeros([x0.size, U.shape[1]])
         X_nl[:, 0] = x0
@@ -373,14 +357,6 @@ class FirstOrderHold(DiscretizationMethod):
         return X_nl
 
     def integrate_nonlinear_full_dense(self, x0: NDArray, U: NDArray, p: NDArray) -> NDArray:
-        """
-        Simulate nonlinear behavior given an initial state and an input over time.
-
-        :param x0: Initial state
-        :param U: Linear input evolution matrix
-        :param p: Vector of parameters
-        :return: The full integrated dynamics (with added points linked to N_subs)
-        """
 
         X_nl = np.zeros([x0.size, U.shape[1]])
         X_nl_dense = np.zeros([x0.size, U.shape[1] + (U.shape[1] - 1) * (self.N_sub - 2)])
