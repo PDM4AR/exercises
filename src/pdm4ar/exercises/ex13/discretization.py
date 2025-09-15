@@ -3,7 +3,7 @@ import sympy as spy
 from numpy.typing import NDArray
 from scipy.integrate import odeint
 
-from pdm4ar.exercises.ex11.spaceship import SpaceshipDyn
+from pdm4ar.exercises.ex13.spaceship import SpaceshipDyn
 
 
 class DiscretizationMethod:

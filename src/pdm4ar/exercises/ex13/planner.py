@@ -11,8 +11,8 @@ from dg_commons.sim.models.spaceship_structures import (
     SpaceshipParameters,
 )
 
-from pdm4ar.exercises.ex11.discretization import *
-from pdm4ar.exercises_def.ex11.utils_params import PlanetParams, SatelliteParams
+from pdm4ar.exercises.ex13.discretization import *
+from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams
 
 
 @dataclass(frozen=True)
