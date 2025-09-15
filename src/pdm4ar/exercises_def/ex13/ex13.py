@@ -14,6 +14,7 @@ from reprep import MIME_MP4, Report
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex13.perf_metrics import ex13_metrics
 from pdm4ar.exercises_def.ex13.utils_config import sim_context_from_yaml
+from pdm4ar.exercises_def.ex13.get_config import get_config
 
 
 def ex13_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
@@ -42,7 +43,7 @@ def _ex13_vis(sim_context: SimContext) -> Report:
     gif_viz = r.figure(cols=1)
     with gif_viz.data_file("Animation", MIME_MP4) as fn:
         create_animation(
-            file_path=fn, sim_context=sim_context, figsize=(16, 16), dt=50, dpi=120, plot_limits=[[-12, 27], [-12, 12]]
+            file_path=fn, sim_context=sim_context, figsize=(16, 16), dt=50, dpi=120, plot_limits=[[-12, 27], [-12, 12]]         # plot_limits = [horizontal, vertical]
         )
     # state/commands plots
     for pn in sim_context.log.keys():
@@ -62,7 +63,7 @@ def load_config_ex13(file_path: Path) -> Mapping:
 
 def get_exercise13():
     config_dir = Path(__file__).parent
-    configs = ["config_planet.yaml", "config_satellites.yaml", "config_satellites_diff.yaml"]
+    configs = get_config()
 
     test_values: List[SimContext] = []
     for c in configs:
@@ -73,7 +74,7 @@ def get_exercise13():
     return Exercise[SimContext, None](
         desc="PDM4ARSpaceship(ex13)",
         evaluation_fun=ex13_evaluation,
-        perf_aggregator=lambda x: ex13_performance_aggregator(x),
+        perf_aggregator=ex13_performance_aggregator,
         test_values=test_values,
         expected_results=[
             None,

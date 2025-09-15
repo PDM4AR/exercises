@@ -95,6 +95,11 @@ class SpaceshipPlanner:
         # Discretization Method
         # self.integrator = ZeroOrderHold(self.Spaceship, self.params.K, self.params.N_sub)
         self.integrator = FirstOrderHold(self.spaceship, self.params.K, self.params.N_sub)
+        # Check dynamics implementation
+        if self.integrator.check_dynamics() is False:
+            raise ValueError("Dynamics check failed.")
+        else:
+            print("Dynamics check passed.")
 
         # Variables
         self.variables = self._get_variables()

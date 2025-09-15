@@ -15,6 +15,9 @@ from shapely import Polygon
 from shapely.geometry import Point, LineString
 from shapely.ops import unary_union
 
+from pdm4ar.exercises_def.structures import out_dir
+import os
+
 
 @dataclass(frozen=True)
 class SpaceshipTarget(PlanningGoal):
@@ -122,7 +125,7 @@ class DockingTarget(SpaceshipTarget):
         line_dock_buffer = line_dock.buffer(line_thickness, cap_style=2)
         return line_dock_buffer
 
-    def get_landing_constraint_points(self):
+    def get_landing_constraint_points_offset(self):
         """
         Returns some useful points to create constraints for the landing scenario.
         In particular:
@@ -154,14 +157,14 @@ class DockingTarget(SpaceshipTarget):
 
         A = np.array([center_of_landing_x, center_of_landing_y])
 
-        C = np.array([t1_x, t1_y])
-        B = np.array([t2_x, t2_y])
+        B = np.array([t1_x, t1_y])
+        C = np.array([t2_x, t2_y])
         A1 = np.array([line_dock_x_start, line_dock_y_start])
         A2 = np.array([line_dock_x_end, line_dock_y_end])
 
         return A, B, C, A1, A2, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
     
-    def get_landing_constraint_points_fix(self):
+    def get_landing_constraint_points(self):
         """
         Returns some useful points to create constraints for the landing scenario.
         In particular:
@@ -171,7 +174,7 @@ class DockingTarget(SpaceshipTarget):
                 -C: end of arm 2.
                 -A1: starting point of landing base.
                 -A2: ending point of landing base.
-                -p: (angular aperture of the dock)/2..
+                -p: (angular aperture of the dock)/2.
         """
         offset_y = self.offset
         sinpsi = sin(self.target.psi)
@@ -193,9 +196,43 @@ class DockingTarget(SpaceshipTarget):
 
         A = np.array([center_of_landing_x, center_of_landing_y])
 
-        C = np.array([t1_x, t1_y])
-        B = np.array([t2_x, t2_y])
+        B = np.array([t1_x, t1_y])
+        C = np.array([t2_x, t2_y])
         A1 = np.array([line_dock_x_start, line_dock_y_start])
         A2 = np.array([line_dock_x_end, line_dock_y_end])
 
         return A, B, C, A1, A2, np.arcsin(np.linalg.norm(B - C) / (2 * np.linalg.norm(B - A)))
+
+    def plot_landing_points(self, A, B, C, A1, A2):
+        
+        import matplotlib.pyplot as plt
+    
+        fig, ax = plt.subplots(figsize=(6, 6))
+
+        # Plot docking line (A1 to A2)
+        ax.plot([A1[0], A2[0]], [A1[1], A2[1]], 'k--', label="Docking line")
+
+        # Plot points with different colors
+        ax.scatter(A[0], A[1], c='red', label="A (center + offset)", zorder=5)
+        ax.scatter(B[0], B[1], c='blue', label="B (end arm 1)", zorder=5)
+        ax.scatter(C[0], C[1], c='green', label="C (end arm 2)", zorder=5)
+        ax.scatter(A1[0], A1[1], c='purple', label="A1 (dock start)", zorder=5)
+        ax.scatter(A2[0], A2[1], c='orange', label="A2 (dock end)", zorder=5)
+
+        # Plot arms (A1 to B, A2 to C)
+        ax.plot([A1[0], B[0]], [A1[1], B[1]], 'b-')
+        ax.plot([A2[0], C[0]], [A2[1], C[1]], 'g-')
+
+        # Improve layout
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_title("Landing Constraint Points")
+        ax.legend()
+        ax.axis('equal')
+        ax.grid(True)
+
+        # Save the figure to a file
+        output_dir = os.path.join(out_dir("13"), "index.html_resources")
+        os.makedirs(output_dir, exist_ok=True)
+        plt.savefig(os.path.join(output_dir, "landing_constraints.jpg"), dpi=300)
+        print("Landing constraint points plot saved to 'landing_constraints.jpg'")
