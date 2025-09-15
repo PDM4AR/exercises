@@ -34,10 +34,10 @@ You will submit your solutions via your private GitHub repository. Detailed subm
 
 **Important information**:
 
-* Each exercise has a limited submission window, typically 2 weeks.
+* Each exercise has a limited submission window for 2-3 weeks.
 * Only the last **VALID** submission (i.e., processed by the server regardless of the outcome) within the exercise time window counts toward your exercise grade. A missing submission counts as 0.
-* Your score will be determined by the performance metrics specified in the exercise description (e.g., correctness, execution speed). For metrics other than correctness, we provide reference values based on our solution and/or historical data. The mapping from scores to grades will not be disclosed in advance.
-* Only your best _N-1_ exercise results contribute to 30% of your final grade, where _N_ is the total number of weekly exercises (N=5).
+* Your score will be determined by the performance metrics specified in the exercise description. While multiple metrics are considered, **CORRECTNESS** is the most important factor. For students who wish to pursue higher performance(e.g. in solving time), we provide reference values based on the TA solution and/or historical data. The mapping from scores to grades will **NOT** be disclosed in advance.
+* Only your best **_N-1_** exercise results contribute to 30% of your final grade, where _N_ is the total number of graded weekly exercises (N=5).
 * For each exercise, you have a limited number of server submissions. You can test locally as much as you want. Consider this a learning experience for robotics; field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
@@ -80,7 +80,7 @@ You can have a look at the finals from last year and challenge yourself.
 ## Plagiarism and dishonest conduct
 
 We take plagiarism and dishonest conduct very seriously.
-The exercises are meant to be solved **individually**.
+The exercises are meant to be solved **individually** and **without excessive reliance on AI tools**.
 We will check for plagiarism with automated software and human help.
 Violating the [ETH plagiarism etiquette](https://ethz.ch/content/dam/ethz/main/education/rechtliches-abschluesse/leistungskontrollen/plagiarism-citationetiquette.pdf) will result in disciplinary actions as per ETH regulations.
 > "C. The consequences of plagiarism Pursuant to Art. 2 Para. b of the ETH Zurich Disciplinary Code (RSETHZ 361.1)
@@ -168,8 +168,8 @@ For __Windows__ users,
 
 Notes for __Windows__ users:
 - VS Code with Dev Container extension(see below) automatically forwards your cached credential from Windows to the container. This means you can perform all Git operations both on Windows and inside the container without re-authenticating.
-- If you clone the repository on Windows (as instructed above), remember that Linux-based containers will access those files through the Windows filesystem. This causes significant overhead for file-intensive operations (e.g., I/O, dependency installation). **For this course, the impact is negligible since no bulky I/O operations are expected.**
-- The “proper” way for performance-critical projects is to clone the repository inside WSL instead of Windows. This requires configuring GCM on WSL separately. Instructions are available [here](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended).
+- If you clone the repository on Windows (as instructed above), remember that our Linux-based container will access the files through the Windows filesystem. This causes significant overhead for file-intensive operations (e.g., I/O, dependency installation). **For this course, the impact is negligible since no bulky I/O operations are expected.**
+- Cloning the repository inside WSL instead of Windows avoids the overhead for file-intensive operations. It requires configuring GCM on WSL separately. If you are interested in following this approach (not necessary for this course). instructions are available [here](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended).
 
 #### _Resources_
 {: #git-resources}
