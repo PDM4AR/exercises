@@ -252,14 +252,15 @@ The final evaluation will combine the following metrics: ratio of completed case
 * **value_func_R2**: This metric will evaluate the accuracy of your `ValueFunc`. It is a measure of how well your `ValueFunc` approximates the ground truth `ValueFunc`. It is computed as $R^2 = 1 - \frac{\sum_{s \in S} (VF^{gt}(s) - VF(s))^2}{\sum_{s \in S} (VF^{gt}(s) - \bar{VF^{gt}})^2}$ where $VF^{gt}$ is the ground truth `ValueFunc`, $VF$ is your `ValueFunc`, and $\bar{VF^{gt}}$ is the mean of the ground truth `ValueFunc`. With negative values being clipped to 0, this metric will be in the interval [0, 1].
 * **solve_time**: As your algorithms will be tested on graphs of increasing size, the efficiency of your code will be measured in terms of process time required (in seconds).
 
-The final score will be computed as follows: $score = \frac{N_{completed}}{N} \cdot \left((\frac{policy\_accuracy + value\_func\_R2}{2} - 0.0025 \cdot solve\_time) * 0.8 + transition\_prob\_accuracy * 0.2\right)$
+<!-- The final score will be computed as follows: $score = \frac{N_{completed}}{N} \cdot \left((\frac{policy\_accuracy + value\_func\_R2}{2} - 0.0025 \cdot solve\_time) * 0.8 + transition\_prob\_accuracy * 0.2\right)$
 
 In the report you will find the average of each metric for all the test cases (`perf_result`), value iteration test cases (`value_iteration`), policy iteration test cases (`policy_iteration`) and transition probability test cases (`transition_prob`).
-The score is calculated based on all the test cases (`perf_result`) plus (`transition_prob`).
+The score is calculated based on all the test cases (`perf_result`) plus (`transition_prob`). -->
 
-We provide the following guidelines for your algorithm performance:
+<!-- For reference, the TA’s solution achieves the following efficiency and solving times on the server:
 
 | Metric              | Values      | PASSING  | GOOD   |
 |---------------------|-------------|----------|--------|
-| Score               | [0, 1.0)    | >0.9     | >0.99  |
+| Score               | [0, 1.0)    | >0.9     | >0.99  | -->
 
+Solving time reference: TBA
