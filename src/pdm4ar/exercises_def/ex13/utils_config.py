@@ -174,8 +174,9 @@ def sim_context_from_yaml(file_path: str):
     else:
         asteroids, asteroids_params, asteroids_npagents = {}, {}, {}
 
-    env_limits = LineString(config["boundary"]["corners"])
-    planets.append(env_limits)
+    if "boundary" in config:
+        env_limits = LineString(config["boundary"]["corners"])
+        planets.append(env_limits)
     obsgeo = ObstacleGeometry.default_static(color="saddlebrown")
     static_obstacles: list[StaticObstacle] = [StaticObstacle(shape=s, geometry=obsgeo) for s in planets]
 
