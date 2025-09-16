@@ -88,8 +88,8 @@ class SpaceshipAgent(Agent):
         self.goal_state = init_sim_obs.goal.target
         # Plot docking station
         if isinstance(init_sim_obs.goal, DockingTarget):
-            A, B, C, A1, A2, half_p_angle = self.goal.get_landing_constraint_points()
-            self.goal.plot_landing_points(A, B, C, A1, A2)
+            A, B, C, A1, A2, half_p_angle = init_sim_obs.goal.get_landing_constraint_points()
+            init_sim_obs.goal.plot_landing_points(A, B, C, A1, A2)
 
         #
         # TODO: Implement Compute Initial Trajectory
