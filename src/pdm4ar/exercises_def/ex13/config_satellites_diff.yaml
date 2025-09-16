@@ -1,0 +1,63 @@
+agents:
+  PDM4ARSpaceship: # do not change this name
+    state:
+      x: -8.0
+      y: -8.0
+      psi: 0.26179938779 
+      vx: 0.0
+      vy: 0.0
+      dpsi: 0.0
+      delta: 0.0
+      m: 2.5
+    goal:
+      type: dock
+      state: 
+        x: 23.0
+        y: 8.0
+        psi: 3.8
+        vx: 0.0
+        vy: 0.0
+        dpsi: 0.0
+      pos_tolerance: 0.7
+      dir_tolerance: 0.5
+      vel_tolerance: 0.3
+      add_land_space: 0.0 
+      arms_length: 0.7
+      offset: 1.2
+    color: 'blue'
+
+planets:
+  Namek:
+    center: [0.0, 0.0]
+    radius: 2.0
+    satellites:
+      Cereal:
+        tau: 2.0
+        orbit_r: 6.0
+        omega: 0.1
+        radius: 0.45
+      Beehay:
+        tau: 3.14159
+        orbit_r: 7.0
+        omega: 0.17248
+        radius: 0.45
+      Anoyo:
+        tau: 0.3
+        orbit_r: 8.0
+        omega: 0.12353
+        radius: 0.45
+      Zun:
+        tau: 4.71239
+        orbit_r: 9.5
+        omega: 0.09202
+        radius: 0.95
+
+boundary:
+  corners:
+    - [-11, -11]
+    - [-11, 11]
+    - [25, 11]
+    - [25, -11]
+    - [-11, -11]
+
+seed: 98
