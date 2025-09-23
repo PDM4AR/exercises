@@ -43,15 +43,16 @@ You will submit your solutions via your private GitHub repository. Detailed subm
 
 | Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
 |-----------------|-----------------------|----------------------|------------------------------|---------------------|-----------------------|
-| 02              | Graph Search          | 24th of September    | 14th of October (23:59 CET)  | tentative           | 10                    | 
-| 03              | Informed Graph Search | 24th of September    | 14th of October (23:59 CET)  | tentative           | 10                    |
-| 04              | Dynamic Programming   | 1st of October       | 21st of October (23:59 CET)  | tentative           | 10                    |
-| 05              | Steering (Dubins)     | 15th of October      | 28th of October (23:59 CET)  | tentative           | 10                    |
+| 02              | Graph Search          | 24th of September    | 14th of October (23:59 CET)  | confirmed           | 10                    | 
+| 03              | Informed Graph Search | 24th of September    | 14th of October (23:59 CET)  | confirmed           | 10                    |
+| 04              | Dynamic Programming   | 1st of October       | 19th of October (23:59 CET)  | tentative           | 10                    |
+| 05              | Steering (Dubins)     | 15th of October      | 2nd of November (23:59 CET)  | tentative           | 10                    |
 | 06              | Collision Checking    | 29th of October      | 11th of November (23:59 CET) | tentative           | 10                    |
 
 * Most of these exercises are already accessible before the official evaluation opens.
   You are free to engage with them earlier, but be aware that changes may occur up until the official opening.
   After the evaluation opens, the exercise is "frozen", and you can solve and submit it.
+* NOTE: The server will not be available between 20th Oct. to 24th Oct. due to equipment inspection of ETH.
 
 #### **Finals** exercises, graded
 
