@@ -24,7 +24,7 @@ from numpy import arctan2
 from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
-from pdm4ar.exercises.ex13.agent import SpaceshipAgent
+from pdm4ar.exercises.ex13.agent import SatelliteAgent
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
 from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, SatelliteParams, PlanetParams
 
@@ -214,7 +214,7 @@ def sim_context_from_yaml(file_path: str):
     # models & players
     initstate = SatelliteState(**config["agents"][name]["state"])
     players = {
-        playername: SpaceshipAgent(
+        playername: SatelliteAgent(
             init_state=deepcopy(initstate),
             satellites=deepcopy(satellites_params),
             planets=deepcopy(planets_params),

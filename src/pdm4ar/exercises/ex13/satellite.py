@@ -1,11 +1,11 @@
 import sympy as spy
 
-from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
+from dg_commons.sim.models.satellite_structures import SatelliteGeometry, SatelliteParameters
 
 
-class SpaceshipDyn:
-    sg: SpaceshipGeometry
-    sp: SpaceshipParameters
+class SatelliteDyn:
+    sg: SatelliteGeometry
+    sp: SatelliteParameters
 
     x: spy.Matrix
     u: spy.Matrix
@@ -20,7 +20,7 @@ class SpaceshipDyn:
     B: spy.Function
     F: spy.Function
 
-    def __init__(self, sg: SpaceshipGeometry, sp: SpaceshipParameters):
+    def __init__(self, sg: SatelliteGeometry, sp: SatelliteParameters):
         self.sg = sg
         self.sp = sp
 

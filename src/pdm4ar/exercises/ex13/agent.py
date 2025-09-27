@@ -7,11 +7,10 @@ from dg_commons.sim.agents import Agent
 from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
-from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
 from dg_commons.sim.models.satellite import SatelliteCommands, SatelliteState
-from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
+from dg_commons.sim.models.satellite_structures import SatelliteGeometry, SatelliteParameters
 
-from pdm4ar.exercises.ex13.planner import SpaceshipPlanner
+from pdm4ar.exercises.ex13.planner import SatellitePlanner
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
 from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams, AsteroidParams
 from pdm4ar.exercises_def.ex13.utils_plot import plot_traj
@@ -32,9 +31,9 @@ class MyAgentParams:
     my_tol: float = 0.1
 
 
-class SpaceshipAgent(Agent):
+class SatelliteAgent(Agent):
     # How does it enter in the simulation? The SpaceshipAgent object is created as value
-    # corresponding to key "PDM4ARSpaceship" in dict "players", which is an attribute of 
+    # corresponding to key "PDM4ARSpaceship" in dict "players", which is an attribute of
     # SimContext returned by "sim_context_from_yaml" in utils_config.py
     """
     This is the PDM4AR agent.
@@ -42,24 +41,24 @@ class SpaceshipAgent(Agent):
     Do *NOT* modify the naming of the existing methods and input/output types.
     """
 
-    init_state: SpaceshipState
+    init_state: SatelliteState
     satellites: dict[PlayerName, SatelliteParams]
     planets: dict[PlayerName, PlanetParams]
     asteroids: dict[PlayerName, AsteroidParams]
     goal_state: DynObstacleState
 
-    cmds_plan: DgSampledSequence[SpaceshipCommands]
-    state_traj: DgSampledSequence[SpaceshipState]
+    cmds_plan: DgSampledSequence[SatelliteCommands]
+    state_traj: DgSampledSequence[SatelliteState]
     myname: PlayerName
-    planner: SpaceshipPlanner
+    planner: SatellitePlanner
     goal: PlanningGoal
     static_obstacles: Sequence[StaticObstacle]
-    sg: SpaceshipGeometry
-    sp: SpaceshipParameters
+    sg: SatelliteGeometry
+    sp: SatelliteParameters
 
     def __init__(
         self,
-        init_state: SpaceshipState,
+        init_state: SatelliteState,
         satellites: dict[PlayerName, SatelliteParams],
         planets: dict[PlayerName, PlanetParams],
         asteroids: dict[PlayerName, AsteroidParams],
@@ -67,7 +66,7 @@ class SpaceshipAgent(Agent):
         """
         Initializes the agent.
         This method is called by the simulator only before the beginning of each simulation.
-        Provides the SpaceshipAgent with information about its environment, i.e. planet and satellite parameters and its initial position.
+        Provides the SatelliteAgent with information about its environment, i.e. planet and satellite parameters and its initial position.
         """
         self.actual_trajectory = []
         self.init_state = init_state
@@ -87,7 +86,7 @@ class SpaceshipAgent(Agent):
         self.myname = init_sim_obs.my_name
         self.sg = init_sim_obs.model_geometry
         self.sp = init_sim_obs.model_params
-        self.planner = SpaceshipPlanner(planets=self.planets, satellites=self.satellites, sg=self.sg, sp=self.sp)
+        self.planner = SatellitePlanner(planets=self.planets, satellites=self.satellites, sg=self.sg, sp=self.sp)
         assert isinstance(init_sim_obs.goal, SpaceshipTarget | DockingTarget)
         # make sure you consider both types of goals accordingly
         # (Docking is a subclass of SpaceshipTarget and may require special handling
