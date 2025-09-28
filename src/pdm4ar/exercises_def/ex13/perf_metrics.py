@@ -30,8 +30,6 @@ class PlayerMetrics(PerformanceResults):
     """Integral of the commands sent to the robot normalized by the time taken"""
     avg_computation_time: float
     """Average computation time of the get_commands method."""
-    fuel_left: float
-    """Amount of fuel left in the tank"""
 
 
 @dataclass(frozen=True)
@@ -50,8 +48,6 @@ class AvgPlayerMetrics(PerformanceResults):
     """Integral of the commands sent to the robot normalized by the time taken."""
     avg_computation_time: float
     """Average computation time of the get_commands method."""
-    avg_fuel_left: float
-    """Amount of fuel left in the tank"""
 
     def __repr__(self):
         repr: str = ""
@@ -71,7 +67,6 @@ class AvgPlayerMetrics(PerformanceResults):
             + self.avg_episode_duration / 5
             + self.avg_actuation_effort
         ) * 1e1
-        # score += self.avg_fuel_left * 5e1
         return score
 
 
@@ -116,13 +111,8 @@ def ex13_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         distance2goal = goal_poly.distance(last_point)
 
         # actuation effort
-        abs_acc = 0  # agent_log.commands.transform_values(lambda u: abs(u.thrust))
-        actuation_effort = 0  # seq_integrate(abs_acc).values[-1] / duration
-
-        # fuel left
-        fuel_left = (
-            0  # agent_log.states.transform_values(lambda x: x.m).values[-1] - sim_context.models[player_name].sp.m_v
-        )
+        abs_acc = agent_log.commands.transform_values(lambda u: (abs(u.F_right) + abs(u.F_left)))
+        actuation_effort = seq_integrate(abs_acc).values[-1] / duration
 
         # computation time
         avg_comp_time = np.average(agent_log.info.values)
@@ -137,7 +127,6 @@ def ex13_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
             distance2goal=distance2goal,
             actuation_effort=actuation_effort,
             avg_computation_time=avg_comp_time,
-            fuel_left=fuel_left,
         )
         agents_perf.append(pm)
 
@@ -148,7 +137,6 @@ def ex13_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
     avg_distance2goal = np.average([p.distance2goal for p in agents_perf])
     avg_actuation_effort = np.average([p.actuation_effort for p in agents_perf])
     avg_computation_time = np.average([p.avg_computation_time for p in agents_perf])
-    avg_fuel_left = np.average([p.fuel_left for p in agents_perf])
 
     avg_player_metrics = AvgPlayerMetrics(
         goal_success_rate=goal_success_rate,
@@ -158,7 +146,6 @@ def ex13_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         avg_distance2goal=avg_distance2goal,
         avg_actuation_effort=avg_actuation_effort,
         avg_computation_time=avg_computation_time,
-        avg_fuel_left=avg_fuel_left,
     )
 
     return avg_player_metrics, agents_perf
