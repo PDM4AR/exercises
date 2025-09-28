@@ -37,14 +37,20 @@ class SatelliteDyn:
         Define dynamics and extract jacobians.
         Get dynamics for SCvx.
         extract the state from self.x the following way:
-        0x 1y 2psi 3vx 4vy 5dpsi 6delta 7m
+        0x 1y 2psi 3vx 4vy 5dpsi
         """
         # TODO Modify dynamics
+
+        x, y, psi, vx, vy, dpsi = self.x
+        thrust_l, thrust_r = self.u
+        lr, m = self.sg.l_r, self.sp.m_v  # Geometry and parameter constants
+        I = self.sg.Iz
+
         f = spy.zeros(self.n_x, 1)  # replace this line by computing the dynamics like in following example
         "f[0] = ..."
         "f[1] = ..."
         "..."
-        "f[7] = ..."
+        "f[5] = ..."
 
         # HINT for the dynamics: SymPy is a library for symbolic mathematics.
         # Here you’ll need symbolic math, not numerical math.
