@@ -10,8 +10,8 @@ agents:
     goal:
       type: static
       state: 
-        x: 8.0
-        y: 8.0
+        x: 9.0
+        y: 9.0
         psi: 0.0
         vx: 0.0
         vy: 0.0
@@ -33,7 +33,7 @@ planets:
         radius: 0.45
       Zun:
         tau: 4.71239
-        orbit_r: 9.5
+        orbit_r: 8.5
         omega: 0.09202
         radius: 0.95
 
