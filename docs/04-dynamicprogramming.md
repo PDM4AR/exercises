@@ -263,4 +263,8 @@ The score is calculated based on all the test cases (`perf_result`) plus (`trans
 |---------------------|-------------|----------|--------|
 | Score               | [0, 1.0)    | >0.9     | >0.99  | -->
 
-Solving time reference: TBA
+Solving time reference: 
+| Algorithm           | Solving time[s] |
+|---------------------|-----------------|
+| ValueIteration      | 8.714           |
+| PolicyIteration     | 4.263           |
