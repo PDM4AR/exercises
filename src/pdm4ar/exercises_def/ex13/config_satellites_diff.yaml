@@ -7,8 +7,6 @@ agents:
       vx: 0.0
       vy: 0.0
       dpsi: 0.0
-      delta: 0.0
-      m: 2.5
     goal:
       type: dock
       state: 

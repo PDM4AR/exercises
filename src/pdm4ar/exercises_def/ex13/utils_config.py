@@ -95,6 +95,7 @@ def _parse_satellite(planet: Point, tau: float, orbit_r, omega, radius) -> tuple
         shape=satellite_1_shape,
         og=ObstacleGeometry(m=500, Iz=50, e=0.5),
         op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
+        tag="satellite",
     )
     centripetal_acc = omega**2 * orbit_r
     # keep sequence of commands constant
@@ -123,6 +124,7 @@ def _parse_asteroid(
             shape=satellite_1_shape,
             og=ObstacleGeometry(m=500, Iz=50, e=0.5),
             op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
+            tag="asteroid",
         )
         # keep sequence of commands constant
         cmds_seq = DgSampledSequence[DynObstacleCommands](
@@ -220,18 +222,19 @@ def sim_context_from_yaml(file_path: str):
         )
     }
 
+    # Dynamic obstacles (satellites + asteroids) added to models (as obstacles) and players(their names)
     models = {playername: SatelliteModel.default(x0)}
     for p, s in satellites.items():
-        models[p] = s
+        models[p] = s                                           # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object             
 
     for p, sagent in satellites_npagents.items():
-        players[p] = sagent
+        players[p] = sagent                                     # sagent is dg_commons.sim.agents.NPAgent object
 
     for a, s in asteroids.items():
-        models[a] = s
+        models[a] = s                                           # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object
 
     for a, aagent in asteroids_npagents.items():
-        players[a] = aagent
+        players[a] = aagent                                     # aagent is dg_commons.sim.agents.NPAgent object
 
     return SimContext(
         dg_scenario=DgScenario(static_obstacles=static_obstacles),  # need satellites
