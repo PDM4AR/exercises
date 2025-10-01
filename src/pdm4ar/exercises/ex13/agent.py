@@ -31,7 +31,10 @@ class MyAgentParams:
     my_tol: float = 0.1
 
 
-class SatelliteAgent(Agent):
+class SpaceshipAgent(Agent):
+    # How does it enter in the simulation? The SpaceshipAgent object is created as value
+    # corresponding to key "PDM4ARSpaceship" in dict "players", which is an attribute of
+    # SimContext returned by "sim_context_from_yaml" in utils_config.py
     """
     This is the PDM4AR agent.
     Do *NOT* modify this class name
@@ -130,4 +133,4 @@ class SatelliteAgent(Agent):
         # FirstOrderHold
         cmds = self.cmds_plan.at_interp(sim_obs.time)
 
-        return SatelliteCommands(F_left=0.5, F_right=0.1)
+        return SatelliteCommands(F_left=0.6, F_right=0.5)

@@ -222,18 +222,19 @@ def sim_context_from_yaml(file_path: str):
         )
     }
 
+    # Dynamic obstacles (satellites + asteroids) added to models (as obstacles) and players(their names)
     models = {playername: SatelliteModel.default(x0)}
     for p, s in satellites.items():
-        models[p] = s
+        models[p] = s                                           # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object             
 
     for p, sagent in satellites_npagents.items():
-        players[p] = sagent
+        players[p] = sagent                                     # sagent is dg_commons.sim.agents.NPAgent object
 
     for a, s in asteroids.items():
-        models[a] = s
+        models[a] = s                                           # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object
 
     for a, aagent in asteroids_npagents.items():
-        players[a] = aagent
+        players[a] = aagent                                     # aagent is dg_commons.sim.agents.NPAgent object
 
     return SimContext(
         dg_scenario=DgScenario(static_obstacles=static_obstacles),  # need satellites

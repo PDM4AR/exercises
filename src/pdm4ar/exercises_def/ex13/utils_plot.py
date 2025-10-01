@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from dg_commons import DgSampledSequence
+import os
 
 
 def plot_traj(computed: DgSampledSequence, actual: list = None):
@@ -49,5 +50,6 @@ def plot_traj(computed: DgSampledSequence, actual: list = None):
 
     plt.grid(True)
     plt.legend()
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     plt.savefig(file_path)
     plt.close()
