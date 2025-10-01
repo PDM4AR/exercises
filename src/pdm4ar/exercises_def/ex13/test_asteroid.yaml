@@ -4,8 +4,8 @@ agents:
     color: 'blue'
     state:
       x: -9.0
-      y: -9.0
-      psi: 0
+      y: -5.0
+      psi: 0.5
       vx: 0.0
       vy: 0.0
       dpsi: 0.0
@@ -30,7 +30,7 @@ asteroids:
   Apophis:
     start: [5.0, 5.0]
     radius: 0.5
-    velocity: [1, -0.8]
+    velocity: [0.0001, -0.00008]
     orientation: 0
 
 boundary:
@@ -40,5 +40,5 @@ boundary:
     - [11, 11]
     - [11, -11]
     - [-11, -11]
-
+    
 seed: 98
