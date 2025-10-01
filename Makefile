@@ -12,6 +12,6 @@ update:
 
 # Command to update the base image on top of which the devcontainer is built.
 # Note that this needs to be run from outside the devcontainer.
-CURRENT_BASE = pdm4ar2024:3.11-bullseye
+CURRENT_BASE = pdm4ar2025:3.11-bullseye
 update-base-image:
 	docker pull idscfrazz/$(CURRENT_BASE)
