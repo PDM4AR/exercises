@@ -26,15 +26,12 @@ agents:
       offset: 1.3
 
 
-planets:
-  Namek:
-    center: [5.0, 4.0]
-    radius: 2.5
-    satellites: {}
-  Vampa:
-    center: [0.0, 0.0]
-    radius: 2.0
-    satellites: {}
+asteroids:
+  Apophis:
+    start: [5.0, 5.0]
+    radius: 0.5
+    velocity: [1, -0.8]
+    orientation: 0
 
 boundary:
   corners:

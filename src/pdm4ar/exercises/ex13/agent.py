@@ -8,11 +8,12 @@ from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
 from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
+from dg_commons.sim.models.satellite import SatelliteCommands, SatelliteState
 from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
 from pdm4ar.exercises.ex13.planner import SpaceshipPlanner
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
-from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams
+from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams, AsteroidParams
 from pdm4ar.exercises_def.ex13.utils_plot import plot_traj
 
 
@@ -32,6 +33,9 @@ class MyAgentParams:
 
 
 class SpaceshipAgent(Agent):
+    # How does it enter in the simulation? The SpaceshipAgent object is created as value
+    # corresponding to key "PDM4ARSpaceship" in dict "players", which is an attribute of 
+    # SimContext returned by "sim_context_from_yaml" in utils_config.py
     """
     This is the PDM4AR agent.
     Do *NOT* modify this class name
@@ -41,6 +45,7 @@ class SpaceshipAgent(Agent):
     init_state: SpaceshipState
     satellites: dict[PlayerName, SatelliteParams]
     planets: dict[PlayerName, PlanetParams]
+    asteroids: dict[PlayerName, AsteroidParams]
     goal_state: DynObstacleState
 
     cmds_plan: DgSampledSequence[SpaceshipCommands]
@@ -57,6 +62,7 @@ class SpaceshipAgent(Agent):
         init_state: SpaceshipState,
         satellites: dict[PlayerName, SatelliteParams],
         planets: dict[PlayerName, PlanetParams],
+        asteroids: dict[PlayerName, AsteroidParams],
     ):
         """
         Initializes the agent.
@@ -67,6 +73,7 @@ class SpaceshipAgent(Agent):
         self.init_state = init_state
         self.satellites = satellites
         self.planets = planets
+        self.asteroids = asteroids
 
     def on_episode_init(self, init_sim_obs: InitSimObservations):
         """
@@ -97,7 +104,7 @@ class SpaceshipAgent(Agent):
 
         self.cmds_plan, self.state_traj = self.planner.compute_trajectory(self.init_state, self.goal_state)
 
-    def get_commands(self, sim_obs: SimObservations) -> SpaceshipCommands:
+    def get_commands(self, sim_obs: SimObservations) -> SatelliteCommands:
         """
         This method is called by the simulator at every simulation time step. (0.1 sec)
         We suggest to perform two tasks here:
@@ -127,4 +134,4 @@ class SpaceshipAgent(Agent):
         # FirstOrderHold
         cmds = self.cmds_plan.at_interp(sim_obs.time)
 
-        return cmds
+        return SatelliteCommands(F_left=0.6, F_right=0.5)

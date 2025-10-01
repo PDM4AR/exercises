@@ -43,7 +43,12 @@ def _ex13_vis(sim_context: SimContext) -> Report:
     gif_viz = r.figure(cols=1)
     with gif_viz.data_file("Animation", MIME_MP4) as fn:
         create_animation(
-            file_path=fn, sim_context=sim_context, figsize=(16, 16), dt=50, dpi=120, plot_limits=[[-12, 27], [-12, 12]]         # plot_limits = [horizontal, vertical]
+            file_path=fn,
+            sim_context=sim_context,
+            figsize=(16, 16),
+            dt=50,
+            dpi=120,
+            plot_limits=[[-12, 27], [-12, 12]],  # plot_limits = [horizontal, vertical]
         )
     # state/commands plots
     for pn in sim_context.log.keys():

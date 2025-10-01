@@ -17,7 +17,7 @@ from dg_commons.sim.models.obstacles_dyn import (
     DynObstacleState,
     DynObstacleCommands,
 )
-from dg_commons.sim.models.spaceship import SpaceshipState, SpaceshipModel
+from dg_commons.sim.models.satellite import SatelliteState, SatelliteModel
 from dg_commons.sim.scenarios.structures import DgScenario
 from dg_commons.sim.simulator import SimContext
 from numpy import arctan2
@@ -26,7 +26,7 @@ from shapely.geometry.base import BaseGeometry
 
 from pdm4ar.exercises.ex13.agent import SpaceshipAgent
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
-from pdm4ar.exercises_def.ex13.utils_params import SatelliteParams, PlanetParams
+from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, SatelliteParams, PlanetParams
 
 
 def _load_config(file_path: str) -> dict[str, Any]:
@@ -95,6 +95,7 @@ def _parse_satellite(planet: Point, tau: float, orbit_r, omega, radius) -> tuple
         shape=satellite_1_shape,
         og=ObstacleGeometry(m=500, Iz=50, e=0.5),
         op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
+        tag="satellite",
     )
     centripetal_acc = omega**2 * orbit_r
     # keep sequence of commands constant
@@ -108,20 +109,76 @@ def _parse_satellite(planet: Point, tau: float, orbit_r, omega, radius) -> tuple
     return dyn_obstacle, player
 
 
+def _parse_asteroid(
+    config: dict,
+) -> tuple[dict[PlayerName, DynObstacleModel], dict[PlayerName, SatelliteParams], dict[PlayerName, NPAgent]]:
+
+    def parse(start, orientation, velocity, radius) -> tuple[DynObstacleModel, NPAgent]:
+        s = Point(start)
+        v = Point(velocity)
+
+        satellite_1 = DynObstacleState(x=s.x, y=s.y, psi=orientation, vx=v.x, vy=v.y, dpsi=0)
+        satellite_1_shape = Point(0, 0).buffer(radius)
+        dyn_obstacle = DynObstacleModel(
+            satellite_1,
+            shape=satellite_1_shape,
+            og=ObstacleGeometry(m=500, Iz=50, e=0.5),
+            op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
+            tag="asteroid",
+        )
+        # keep sequence of commands constant
+        cmds_seq = DgSampledSequence[DynObstacleCommands](
+            timestamps=[0],
+            values=[
+                DynObstacleCommands(acc_x=0, acc_y=0, acc_psi=0),
+            ],
+        )
+        player = NPAgent(cmds_seq)
+        return dyn_obstacle, player
+
+    asteroids = {}
+    asteroids_params = {}
+    asteroids_players = {}
+
+    for name, asteroid in config.items():
+        a, pa = parse(asteroid["start"], asteroid["orientation"], asteroid["velocity"], asteroid["radius"])
+
+        asteroids[name] = a
+        asteroids_players[name] = pa
+        asteroids_params[name] = AsteroidParams(
+            start=asteroid["start"],
+            orientation=asteroid["orientation"],
+            velocity=asteroid["velocity"],
+            radius=asteroid["radius"],
+        )
+
+    return asteroids, asteroids_params, asteroids_players
+
+
 def sim_context_from_yaml(file_path: str):
     config = _load_config(file_path=file_path)
 
-    # Spaceship
+    # Spaceship new
     assert len(config["agents"].keys()) == 1, "Only one player today"
     name = list(config["agents"])[0]
     playername = PlayerName(name)
-    x0 = SpaceshipState(**config["agents"][name]["state"])
+    x0 = SatelliteState(**config["agents"][name]["state"])
 
     # obstacles (planets + satellites)
-    planets, planets_params, satellites, satellites_params, satellites_npagents = _parse_planets(config)
+    if "planets" in config:
+        planets, planets_params, satellites, satellites_params, satellites_npagents = _parse_planets(config)
+    else:
+        planets, planets_params = [], {}
+        satellites, satellites_params, satellites_npagents = {}, {}, {}
 
-    env_limits = LineString(config["boundary"]["corners"])
-    planets.append(env_limits)
+    if "asteroids" in config:
+        asteroids, asteroids_params, asteroids_npagents = _parse_asteroid(config["asteroids"])
+    else:
+        asteroids, asteroids_params, asteroids_npagents = {}, {}, {}
+
+    if "boundary" in config:
+        env_limits = LineString(config["boundary"]["corners"])
+        planets.append(env_limits)
     obsgeo = ObstacleGeometry.default_static(color="saddlebrown")
     static_obstacles: list[StaticObstacle] = [StaticObstacle(shape=s, geometry=obsgeo) for s in planets]
 
@@ -155,19 +212,29 @@ def sim_context_from_yaml(file_path: str):
     missions = {playername: goal}
 
     # models & players
-    initstate = SpaceshipState(**config["agents"][name]["state"])
+    initstate = SatelliteState(**config["agents"][name]["state"])
     players = {
         playername: SpaceshipAgent(
-            init_state=deepcopy(initstate), satellites=deepcopy(satellites_params), planets=deepcopy(planets_params)
+            init_state=deepcopy(initstate),
+            satellites=deepcopy(satellites_params),
+            planets=deepcopy(planets_params),
+            asteroids=deepcopy(asteroids_params),
         )
     }
 
-    models = {playername: SpaceshipModel.default(x0)}
+    # Dynamic obstacles (satellites + asteroids) added to models (as obstacles) and players(their names)
+    models = {playername: SatelliteModel.default(x0)}
     for p, s in satellites.items():
-        models[p] = s
+        models[p] = s                                           # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object             
 
     for p, sagent in satellites_npagents.items():
-        players[p] = sagent
+        players[p] = sagent                                     # sagent is dg_commons.sim.agents.NPAgent object
+
+    for a, s in asteroids.items():
+        models[a] = s                                           # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object
+
+    for a, aagent in asteroids_npagents.items():
+        players[a] = aagent                                     # aagent is dg_commons.sim.agents.NPAgent object
 
     return SimContext(
         dg_scenario=DgScenario(static_obstacles=static_obstacles),  # need satellites
