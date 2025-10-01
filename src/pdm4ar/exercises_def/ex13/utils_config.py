@@ -95,6 +95,7 @@ def _parse_satellite(planet: Point, tau: float, orbit_r, omega, radius) -> tuple
         shape=satellite_1_shape,
         og=ObstacleGeometry(m=500, Iz=50, e=0.5),
         op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
+        tag="satellite",
     )
     centripetal_acc = omega**2 * orbit_r
     # keep sequence of commands constant
@@ -123,6 +124,7 @@ def _parse_asteroid(
             shape=satellite_1_shape,
             og=ObstacleGeometry(m=500, Iz=50, e=0.5),
             op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
+            tag="asteroid",
         )
         # keep sequence of commands constant
         cmds_seq = DgSampledSequence[DynObstacleCommands](

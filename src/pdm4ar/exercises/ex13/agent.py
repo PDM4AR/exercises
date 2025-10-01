@@ -130,4 +130,4 @@ class SatelliteAgent(Agent):
         # FirstOrderHold
         cmds = self.cmds_plan.at_interp(sim_obs.time)
 
-        return SatelliteCommands(F_left=0.1, F_right=0.3)
+        return SatelliteCommands(F_left=0.5, F_right=0.1)
