@@ -3,7 +3,7 @@
 This exercise is the final graded exercise issued for the Fall semester of 2024.
 
 ## Problem description
-Your task is to implement a planning (and control) stack for an autonomous vehicle, so that it can navigate safely and efficiently on highways with mixed traffic(i.e. you are surrounded by human drivers).
+Your task is to implement a planning (and control) stack for an autonomous vehicle, so that it can navigate safely and efficiently on highways with mixed traffic (i.e. you are surrounded by human drivers).
 
 Specifically, given a desired lane, your planning stack needs to perform the lane changing maneuver without colliding with other road users. 
 Note that, just like driving in real life, you can observe the current states of other vehicles, but you do **NOT** know the exact action or policy others plan to take. Nonetheless, it is safe to assume that others obey the social conventions just as you do. For example, they will not intentionally crash on you and will try their best to avoid collisions.

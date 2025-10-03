@@ -136,7 +136,7 @@ The various data structures needed for the development of the exercise can be in
 
 We developed the exercises based on the following
 paper ([Convex Optimisation for Trajectory Generation](https://arxiv.org/pdf/2106.09125.pdf)) on SCvx, the planning
-method used in 2021 by spaceX to land their rocket on a moving platform in the middle of the ocean. We recommend to use
+method used in 2021 by SpaceX to land their rocket on a moving platform in the middle of the ocean. We recommend to use
 such a method to solve the problem but you are free to come up with your own solution. We made available some basic
 skeleton structure to implement the SCvx pipeline in the **planner.py**. The **discretization.py** file provides an
 implementation of the ZeroOrderHold and FirstOrderHold that is used in the convexification step of the SCvx pipeline to
