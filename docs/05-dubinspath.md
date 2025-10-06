@@ -133,25 +133,25 @@ def compare_spline_to_dubins(
 ```
 
 **Hint**  
-- A cubic Hermite spline is a piecewise polynomial interpolation method where each segment is defined by two endpoints and their corresponding tangents. Given two points \( p_0, p_1 \in \mathbb{R}^2 \) and their tangents \( t_0, t_1 \in \mathbb{R}^2 \), the cubic Hermite spline for \( s \in [0, 1] \) is:
+- A cubic Hermite spline is a piecewise polynomial interpolation method where each segment is defined by two endpoints and their corresponding tangents. Given two points $p_0, p_1 \in \mathbb{R}^2$ and their tangents $t_0, t_1 \in \mathbb{R}^2$, the cubic Hermite spline for $s \in [0, 1]$ is:
 
-  \( h(s) = h_{00}(s) p_0 + h_{10}(s) t_0 + h_{01}(s) p_1 + h_{11}(s) t_1 \)
+  $h(s) = h_{00}(s) p_0 + h_{10}(s) t_0 + h_{01}(s) p_1 + h_{11}(s) t_1$
 
   where the Hermite basis functions are:  
-  - \( h_{00}(s) = 2s^3 - 3s^2 + 1 \)  
-  - \( h_{10}(s) = s^3 - 2s^2 + s \)  
-  - \( h_{01}(s) = -2s^3 + 3s^2 \)  
-  - \( h_{11}(s) = s^3 - s^2 \)
+  - $h_{00}(s) = 2s^3 - 3s^2 + 1$
+  - $h_{10}(s) = s^3 - 2s^2 + s$  
+  - $h_{01}(s) = -2s^3 + 3s^2$  
+  - $h_{11}(s) = s^3 - s^2$
 
-- To **approximate curvature geometrically**, sample a dense set of points along the spline. Then for each triplet of consecutive points \( a, b, c \):
-  - Compute \( \vec{ba} = b - a \), \( \vec{bc} = c - b \)
+- To **approximate curvature geometrically**, sample a dense set of points along the spline. Then for each triplet of consecutive points $a, b, c$:
+  - Compute $\vec{ba} = b - a$, $\vec{bc} = c - b$
   - Skip the triplet if any vector is near-zero (to avoid instability)
-  - Compute the angle \( \Delta\theta \) between \( \vec{ba} \) and \( \vec{bc} \)
+  - Compute the angle $\Delta\theta$ between $\vec{ba}$ and $\vec{bc}$
   - Estimate curvature locally using:
 
-    \( \kappa \approx \frac{\Delta\theta}{\|\vec{ba}\|} \)
+    $\kappa \approx \frac{\Delta\theta}{\|\vec{ba}\|}$
 
-  - Keep track of the maximum curvature along the spline and mark the spline as **feasible** if \( \max \kappa \leq 1/\text{radius} \)
+  - Keep track of the maximum curvature along the spline and mark the spline as **feasible** if $\max \kappa \leq 1/\text{radius}$
 
 - Special case: when the start and end **positions** are the same:
   - Same heading → **feasible**  
@@ -159,7 +159,7 @@ def compare_spline_to_dubins(
 
 **Note on tangent vector scale**
 
-The tangent vectors \( t_0 \) and \( t_1 \), which define the direction of the Hermite spline at the start and end points, must be **scaled by the distance between the start and end positions**. This ensures that the shape of the spline is consistent and comparable across different queries. The team has decided to use this distance as the standard scale for all tangent vectors.
+The tangent vectors $t_0$ and $t_1$, which define the direction of the Hermite spline at the start and end points, must be **scaled by the distance between the start and end positions**. This ensures that the shape of the spline is consistent and comparable across different queries. The team has decided to use this distance as the standard scale for all tangent vectors.
 
 
 ### 6. [10%] Computing reversing path
