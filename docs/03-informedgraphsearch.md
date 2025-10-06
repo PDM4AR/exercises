@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-hello-world.html" target="_top">Hello-world</a></td>
+    <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-helloworld.html" target="_top">Hello-world</a></td>
   </tr>
 </table>
 
@@ -157,7 +157,7 @@ For reference, the TA’s solution achieves the following efficiency and solving
 | Heuristic efficiency|     0.6112  |
 | Solve time [s]      |     0.0102  |
 
-Use these numbers as a guideline to understand the order of magnitude of expected performance for a descently optimized solution.
+Use these numbers as a guideline to understand the order of magnitude of expected performance for a decently optimized solution.
 
 
 ### Useful remarks from last year Q&A
