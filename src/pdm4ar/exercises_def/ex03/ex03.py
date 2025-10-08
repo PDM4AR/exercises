@@ -406,7 +406,9 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> 
         module = frame.f_globals.get("__name__", "")
         func_name = frame.f_code.co_name
         for lib in disallowed_dependencies:
-            if module.startswith(lib) and func_name == "astar_path" or func_name == "shortest_path":
+            if module.startswith(lib) or func_name == "shortest_path":
+                if lib == "networkx" and func_name != "astar_path":
+                    continue  # only astar_path is disallowed from networkx
                 identifier = (lib, func_name)
                 if identifier not in detected_funcs:
                     # Only record each function once
@@ -440,7 +442,7 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> 
 
 
 def get_exercise3() -> Exercise:
-    disallowed_dependencies = {"networkx"}
+    disallowed_dependencies = {"networkx", "ctypes"}
 
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
     test_values = list()
