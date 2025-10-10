@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from dg_commons import DgSampledSequence
 import os
+from pdm4ar.exercises_def.structures import out_dir
 
 
 def plot_traj(computed: DgSampledSequence, actual: list = None):
@@ -13,7 +14,6 @@ def plot_traj(computed: DgSampledSequence, actual: list = None):
     only the plot of the last simulation is saved.
     """
 
-    file_path = "src/pdm4ar/exercises/ex13/final_traj.png"  # feel free to change path
     timestamps = list(computed._timestamps)  # sequence.get_sampling_points()
     values = list(computed._values)
 
@@ -50,6 +50,8 @@ def plot_traj(computed: DgSampledSequence, actual: list = None):
 
     plt.grid(True)
     plt.legend()
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    plt.savefig(file_path)
+    # Save the figure to a file
+    output_dir = os.path.join(out_dir("13"), "index.html_resources")
+    os.makedirs(output_dir, exist_ok=True)
+    plt.savefig(os.path.join(output_dir, "final_traj.png"), dpi=300)
     plt.close()

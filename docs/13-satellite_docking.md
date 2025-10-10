@@ -1,7 +1,7 @@
-# PDM4AR Spaceship
+# PDM4AR Satellite Docking
 
-This exercise tackles a complex problem in space exploration - navigating and docking a spaceship through challenging space environments.
-The goal is to reach the predefined target location using the available thruster of the spaceship, which force and direction can be controlled.
+This exercise tackles a complex problem in space exploration - navigating and docking a satellite through challenging space environments.
+The goal is to reach the predefined target location using the available thrusters of the satellite, which force can be controlled.
 
 ## Task
 
@@ -46,33 +46,27 @@ The spaceship's dynamics are represented by the following equations.
 Note that the pose is expressed in global frame, while the velocities are expressed in the spaceship frame.
 
 1. **Position Dynamics:**
-    - $\frac{dx}{dt} = v_x \cos(\psi) - v_y \sin(\psi)$
-    - $\frac{dy}{dt} = v_x \sin (\psi) + v_y \cos(\psi)$
+    - $\frac{dx}{dt} = v_x$
+    - $\frac{dy}{dt} = v_x$
 
 2. **Orientation Dynamics:**
     - $\frac{d\psi}{dt} = \dot{\psi}$
 
-3. **Fuel Dynamics:**
-    - $\frac{dm}{dt} = -C_T * F_{thrust}$
+3. **Velocity Dynamics:**
+    - $\frac{dv_x}{dt} = \frac{1}{m} \cos(\psi) \cdot (F_{r} + F_{l})$
+    - $\frac{dv_y}{dt} = \frac{1}{m} \sin(\psi) \cdot (F_{r} + F_{l})$
+4. **Angular Velocity Dynamics:**
+    - $\frac{d\dot{\psi}}{dt} = \frac{l_r}{I} \cdot (F_{r} + F_{l})$
 
-4. **Velocity Dynamics:**
-    - $\frac{dv_x}{dt} = \frac{1}{m} \cos(\delta)F_{thrust} + \dot{\psi} v_y$
-    - $\frac{dv_y}{dt} = \frac{1}{m} \sin(\delta)F_{thrust} - \dot{\psi} v_x$
+If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}]'$, and the control inputs 
+are $U = [F_{r}, F_{l}]$, we obtain the following dynamics equations:
 
-5. **Angular Velocity Dynamics:**
-    - $\frac{d\dot{\psi}}{dt} = - \frac{l_r}{I}\sin(\delta)F_{thrust}$
-    - $\frac{d\delta}{dt} = \dot{\delta}$
-
-If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}, \delta, m]'$, and the control inputs 
-are $U = [F_{thrust}, \dot{\delta}]$, we obtain the following dynamics equations:
-
-6. **Dynamics:**
+1. **Dynamics:**
     - $\frac{dX(t)}{dt} = f(X(t), U(t))$
 
-The spaceship you have the control over has one central thruster where you are able to control the amount of thrust to
-produce $F_{thrust}$ and the angle of the thruster with respect to the spaceship $\delta$. The thruster is mounted centrally on the spaceship
-with an offset of $l_r$ to the CoG of the spaceship. The velocity $v_x$ and $v_y$ are the velocities in the x and y
-direction of the spaceship frame respectively. The angle $\psi$ is the angle of the spaceship with respect to the x-axis. The length of the spaceship is $l$.
+The satellite you have the control over has two side thrusters where you are able to individually control the amount of thrust to
+produce $F_{r}$ and $F_{l}$. The thrusters are mounted on the side of the satellite. The velocity $v_x$ and $v_y$ are the velocities in the x and y
+direction of the satellite with respect to the world frame x-axis and y-axis. The angle $\psi$ is the angle of the satellite with respect to the x-axis. The length of the spaceship is $l$.
 
 You may check your implementation of the dynamics in the init function in `planner.py`, right after the creation of the integrator object.
 
@@ -93,35 +87,32 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
       \end{bmatrix} \right\rVert _{2} < \text{vel\_tol}$
 - The spaceship needs to dodge every obstacle in its path: $(x, y) \bigoplus \mathcal{X}_{Rocket}(\psi) \notin Obstacle
   \quad \forall Obstacle \in Obstacles$
-- The spaceship's mass should be greater than or equal to the mass of the spaceship without fuel: $m(t) \geq m_
-  {spaceship} \quad \forall t$
-- Control inputs, $F_{thrust}$ is limited: $F_{thrust} \in [-F_{\text{max}}, F_{\text{max}}]$.
-- The thrust angle is limited: $\delta
-  \in [-\delta_{\text{max}}, \delta_{\text{max}}]$.
+- Control inputs, $F_{l}$ and $F_{r}$ are limited: $F_{l}$ and $F_{r} \in [-F_{\text{max}}, F_{\text{max}}]$.
 - You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
-- The rate of change of $\delta$ is limited: $v_{\delta} \in [-v^{max}_{\delta} ,v^{max}_{\delta}]$
 
 ## Evaluation Metrics
 
-The quality of the spaceship's trajectory is evaluated based on several key factors:
+The quality of the satellite's trajectory is evaluated based on several key factors:
 
-0. **Mission Accomplishment** You safely reach the goal region.
+1. **Mission Accomplishment** You safely reach the goal region.
 
-1. **Planning Efficiency:** We consider the average time spent in the "get_commands" method as a proxy for efficiency
+2. **Planning Efficiency:** We consider the average time spent in the "get_commands" method as a proxy for efficiency
    and quality of the planner.
 
-2. **Time Taken To Reach the Goal:** The time taken to reach the goal.
+3. **Time Taken To Reach the Goal:** The time taken to reach the goal.
 
-3. **Mass Consumption:** The amount of fuel used to reach the final goal.
+4. **Actuation effort:** The average of the absolute value of the thrusters' force.
 
-The metric is a weigthed sum of the different metrics mentionned above with 1000 being the maximum. Note that it is theoretically impossible reach full score as we penalise computation time which is by definition none zero (but can be optimized). You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex11/perf_metrics.py`
+5. **The precision of the planner:** Distance to the goal at the end of the episode.
+
+The metric is a weigthed sum of the different metrics mentionned above with 1000 being the maximum. Note that it is theoretically impossible reach full score as we penalise computation time which is by definition none zero (but can be optimized). You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex11/perf_metrics.py`.
 
 ## Data  Structures
 
 The various data structures needed for the development of the exercise can be inspected in the following files:
 
-- SpaceshipState & SpaceshipCommands: `dg_commons/sim/models/spaceship.py`
-- SpaceshipGeometry & SpaceshipParameters: `dg_commons/sim/models/spaceship_structure.py`
+- SpaceshipState & SpaceshipCommands: `dg_commons/sim/models/satellite.py`
+- SpaceshipGeometry & SpaceshipParameters: `dg_commons/sim/models/satellite_structure.py`
 - SatelliteParams & PlanetParams: `src/pdm4ar/exercises_def/ex11/utils_params.py`
 
 ## Code Structure
@@ -130,7 +121,7 @@ The various data structures needed for the development of the exercise can be in
 
 - **agent.py**: Interface with the simulator.
 - **planner.py**: SCvx skeleton.
-- **spaceship.py**: Helper file for transfer of dynamics between the planner and discretization.
+- **satellite.py**: Helper file for transfer of dynamics between the planner and discretization.
 - **discretization.py**: ZeroOrderHold and FirstOrderHold Implementation for convexification. Note that here you are not required to modify anything, but you still have to understand what the functions do for the completion of the algorithm.
 
 ## Hints
@@ -158,11 +149,13 @@ If you decide to go with the SCvx implementation here is an overview of the gene
     - check convergence of the solution: if converged, exit loop otherwise, update trust region according to the paper
 - extract solutions to return valid commands and trajectory.
 
-We strongly suggest to read at least the page 26 to 37 to understand the whole setting of SCvx.
+We strongly suggest to read at least the pages 26 to 37 to understand the whole setting of SCvx.
 We also recommand to read the previous 25 pages for better understanding of the underlying concepts of SPC algorithms (especially figure 11). You will also find an example of a theoritical application pages 47 to 52. 
 We might have forgotten to mention important pages, we thus strongly encourage you to explore the rest of the paper by yourself.
 
 <!-- In the paper "A Real-Time Algorithm for Non-Convex Powered Descent Guidance" (https://depts.washington.edu/uwrainlab/wordpress/wp-content/uploads/2020/01/AIAA_SciTech_2020.pdf), you will find the use of \textit{Scaling Matrices} to scale states, inputs and parameters to produce numerically well-conditioned optimization problems. Our solution implementation only made use of scaling the parameters, not touching on states and inputs, and converged reliably. We recommend to use the same approach and  only introducing the normalization of states and inputs if you are facing numerical issues. -->
+
+### Docking targets and landing constraints
 
 In addition, the docker goal class has a method to return notable points (get_landing_constraint_points). Try to think how you can use them to create a valid constraints. (We suggest to activate the landing constraints only on the final [5-7] steps). You can visualize a representation of the docking goal as an image in the out folder to get a better idea of which points are returned:
 
@@ -172,7 +165,7 @@ As a general and final advice try to understand the method **before** starting t
 
 ### Plotting function
 
-To help you get started debugging the exercise, we’ve included a simple plotting helper, `plot_traj`, in `src/pdm4ar/axercises_def/ex13/utils_plot.py`. It’s an example of a plot that can be useful during debugging; feel free to extend it or design your own visualizations. We strongly encourage you to plot whatever you need to better understand your code’s behavior and pinpoint issues.
+To help you get started debugging the exercise, we’ve included a simple plotting helper, `plot_traj`, in `src/pdm4ar/axercises_def/ex13/utils_plot.py`. It’s an example of a plot that can be useful during debugging; feel free to extend it or design your own visualizations. We strongly encourage you to plot whatever you need to better understand your code’s behavior and pinpoint issues. The plotting feature can be enabled and disabled in the config class present in `agent.py`.
 
 ## Available Optimization Tools
 
@@ -182,4 +175,3 @@ solvers for our SCvx pipeline. If you want to use other optimizers, or you are n
 **please consider that we have not tested it**.
 
 Moreover, we suggest looking into DCP and DPP systems. DCP stands for [Disciplined Convex Programming](https://www.cvxpy.org/tutorial/dcp/index.html), while DPP stands for [Disciplined Parametrized Programming](https://www.cvxpy.org/tutorial/dpp/index.html). Both are rulesets you should follow to build a convex problem (DCP) that is also fast and efficient to solve repeatedly with different parameters (DPP), as in your case.
-
