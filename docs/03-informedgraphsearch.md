@@ -148,22 +148,17 @@ These test cases are not graded but serve as a guideline for how the exercise wi
 
 The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, efficiency>:
 * **Accuracy**: Both UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
-* **Efficiency**: Your efficiency score will incorporate both the solve time and the heuristic efficiency. The precise weighting of these metrics has not been determined. However, a simple heuristic should suffice. After all, choosing a computationally complex heuristic might affect the solve time.
+* **Efficiency**: Your efficiency score will incorporate both the solve time and the heuristic efficiency. A simple heuristic should suffice. After all, choosing a computationally complex heuristic might affect the solve time.
 
-### Baselines
+For reference, the TA’s solution achieves the following efficiency and solving times on the server:
 
-For each metric, we provide the following guidelines for your algorithm performance.
-* **PASSING** means your solution fulfills the essential requirements for the task.
-* **GOOD** means your solution is strong while,
-* **EXCELLENT** means your solution meets our highest expectation.
+| Metric              | Values      |
+|---------------------|-------------|
+| Heuristic efficiency|     0.6112  |
+| Solve time [s]      |     0.0102  |
 
+Use these numbers as a guideline to understand the order of magnitude of expected performance for a descently optimized solution.
 
-| Metric              | Values      | PASSING | GOOD   | EXCELLENT |
-|---------------------|-------------|---------|--------|-----------|
-| Completion rate     | [0, 1.0]    | 1.0     | 1.0    | 1.0       |
-| Accuracy            | [0, 1.0]    | 1.0     | 1.0    | 1.0       |
-| Heuristic efficiency| [0, 1.0]    | < 0.8   | < 0.7  | < 0.6     |
-| Solve time [s]      |             | < 0.05  | < 0.01 | < 0.005   |
 
 ### Useful remarks from last year Q&A
 * Please, use the provided templates to implement your functions, without modifying the arguments and output numbers and types, unless stated otherwise.

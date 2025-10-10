@@ -59,4 +59,4 @@ RUN rm poetry.lock pyproject.toml
 
 # ENV PATH="${HOME}/.local/bin:$PATH"
 # https://github.com/RamiKrispin/vscode-python-medium/blob/main/03_final_example/.devcontainer/set_python_env.sh
-LABEL maintainer="A. Zanardi (azanardi@ethz.ch)"
+LABEL maintainer="Y. Li (yuesli@ethz.ch)"

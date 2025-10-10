@@ -39,6 +39,9 @@ class Pdm4arAgentParams:
 
 
 class SatelliteAgent(Agent):
+    # How does it enter in the simulation? The SpaceshipAgent object is created as value
+    # corresponding to key "PDM4ARSpaceship" in dict "players", which is an attribute of
+    # SimContext returned by "sim_context_from_yaml" in utils_config.py
     """
     This is the PDM4AR agent.
     Do *NOT* modify this class name
