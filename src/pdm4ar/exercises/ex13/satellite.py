@@ -40,12 +40,6 @@ class SatelliteDyn:
         0x 1y 2psi 3vx 4vy 5dpsi
         """
         # TODO Modify dynamics
-
-        # x, y, psi, vx, vy, dpsi = self.x
-        # thrust_l, thrust_r = self.u
-        # lr, m = self.sg.l_r, self.sp.m_v  # Geometry and parameter constants
-        # I = self.sg.Iz
-
         f = spy.zeros(self.n_x, 1)  # replace this line by computing the dynamics like in following example
         "f[0] = ..."
         "f[1] = ..."

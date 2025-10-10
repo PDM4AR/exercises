@@ -1,0 +1,54 @@
+agents:
+  PDM4ARSpaceship:
+    color: 'blue'
+    state:
+      x: -9.0
+      y: -9.0
+      psi: 0.0 
+      vx: 0.0
+      vy: 0.0
+      dpsi: 0.0
+    goal:
+      type: static
+      state:
+        x: 8.5
+        y: 9.5
+        psi: 0.0
+        vx: 0.0
+        vy: 0.0
+        dpsi: 0.0
+      pos_tolerance: 0.5
+      dir_tolerance: 0.5
+      vel_tolerance: 1.0
+    
+
+planets:
+  Namek:
+    center: [0.0, 0.0]
+    radius: 2.0
+    satellites:
+      Moon1:
+        tau: 1.0
+        orbit_r: 6.0
+        omega: 0.25358
+        radius: 0.5
+      Moon2:
+        tau: -0.5
+        orbit_r: 8.0
+        omega: 0.12353
+        radius: 0.5
+      Moon3:
+        tau: -1.5
+        orbit_r: 7.0
+        omega: 0.17248
+        radius: 0.5
+
+boundary:
+  corners:
+    - [-12.0, -12.0]
+    - [-12.0, 12.0]
+    - [12.0, 12.0]
+    - [12.0, -12.0]
+    - [-12.0, -12.0]
+
+seed: 98 # probably  redundant

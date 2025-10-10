@@ -15,10 +15,6 @@ from dg_commons.sim.models.satellite import SatelliteCommands, SatelliteState
 from dg_commons.sim.models.satellite_structures import (
     SatelliteGeometry,
     SatelliteParameters,
-from dg_commons.sim.models.satellite import SatelliteCommands, SatelliteState
-from dg_commons.sim.models.satellite_structures import (
-    SatelliteGeometry,
-    SatelliteParameters,
 )
 import scipy.linalg
 
@@ -143,8 +139,6 @@ class SatellitePlanner:
         # Solver Parameters
         self.params = SolverParameters()
 
-        # Satellite Dynamics
-        self.satellite = SatelliteDyn(self.sg, self.sp)
         # Satellite Dynamics
         self.satellite = SatelliteDyn(self.sg, self.sp)
 
@@ -1276,7 +1270,6 @@ class SatellitePlanner:
 
     @staticmethod
     def _extract_seq_from_array() -> tuple[DgSampledSequence[SatelliteCommands], DgSampledSequence[SatelliteState]]:
-    def _extract_seq_from_array() -> tuple[DgSampledSequence[SatelliteCommands], DgSampledSequence[SatelliteState]]:
         """
         Example of how to create a DgSampledSequence from numpy arrays and timestamps.
         """
@@ -1284,8 +1277,6 @@ class SatellitePlanner:
         # in case my planner returns 3 numpy arrays
         F = np.array([0, 1, 2, 3, 4])
         ddelta = np.array([0, 0, 0, 0, 0])
-        cmds_list = [SatelliteCommands(f, dd) for f, dd in zip(F, ddelta)]
-        mycmds = DgSampledSequence[SatelliteCommands](timestamps=ts, values=cmds_list)
         cmds_list = [SatelliteCommands(f, dd) for f, dd in zip(F, ddelta)]
         mycmds = DgSampledSequence[SatelliteCommands](timestamps=ts, values=cmds_list)
 
