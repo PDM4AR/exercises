@@ -6,10 +6,10 @@ def get_config() -> List[str]:
 
     configs = [
         # "config_planet.yaml",
-        "config_satellites.yaml",
+        # "config_satellites.yaml",
         # "config_satellites_diff.yaml",
         # "config_local.yaml"
-        # "test_asteroid.yaml"
+        "test_asteroid.yaml"
     ]
 
     return configs

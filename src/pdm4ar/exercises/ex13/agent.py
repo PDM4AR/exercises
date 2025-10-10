@@ -107,14 +107,15 @@ class SatelliteAgent(Agent):
             landing_constraints_points = {"A": A, "B": B, "C": C, "A1": A1, "A2": A2, "p": p}
 
         self.planner = SatellitePlanner(
-            planets=self.planets,
-            satellites=self.satellites,
             sg=self.sg,
             sp=self.sp,
             map_borders=map_borders,
             init_state=self.init_state,
             goal_state=self.goal_state,
             lc=landing_constraints_points,
+            planets=self.planets,
+            satellites=self.satellites,
+            asteroids=self.asteroids,
         )
 
         self.cmds_plan, self.state_traj = self.planner.compute_trajectory(self.init_state, self.goal_state)

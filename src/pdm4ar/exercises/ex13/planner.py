@@ -1,5 +1,6 @@
 import ast
 from dataclasses import dataclass, field
+import glob
 from typing import Any, Union
 from matplotlib.dates import SA
 import matplotlib.pyplot as plt
@@ -54,7 +55,8 @@ class SolverParameters:
     stop_crit: float = 1e-5  # Stopping criteria constant
 
     tf_min_weight: float = 1.5  # weight for final time
-    padding: float = 1  # padding for obstacles
+    mult_padding: float = 1  # multiplicative padding for obstacles
+    add_padding: float = 1.5  # additive padding for obstacles
     n_last: int = 5  # number of last points to consider for docker constraints
     weight_thrust: float = 0  # weight for thrust
     weight_ddelta: float = 0  # weight for angular velocity
@@ -70,6 +72,7 @@ class SatellitePlanner:
 
     planets: dict[PlayerName, PlanetParams]
     satellites: dict[PlayerName, SatelliteParams]
+    asteroids: dict[PlayerName, AsteroidParams]
     satellite: SatelliteDyn
     sg: SatelliteGeometry
     sp: SatelliteParameters
@@ -94,20 +97,22 @@ class SatellitePlanner:
 
     def __init__(
         self,
-        planets: dict[PlayerName, PlanetParams],
-        satellites: dict[PlayerName, SatelliteParams],
         sg: SatelliteGeometry,
         sp: SatelliteParameters,
         map_borders: dict[str, float],
         init_state: SatelliteState,
         goal_state: DynObstacleState,
         lc: dict[str, Any] = {},
+        planets: dict[PlayerName, PlanetParams] = {},
+        satellites: dict[PlayerName, SatelliteParams] = {},
+        asteroids: dict[PlayerName, AsteroidParams] = {},
     ):
         """
         Pass environment information to the planner.
         """
         self.planets = planets
         self.satellites = satellites
+        self.asteroids = asteroids
         self.sg = sg
         self.sp = sp
 
@@ -149,6 +154,7 @@ class SatellitePlanner:
         self.nb_tc = self.satellite.n_x  # -2
         self.nb_planets = len(self.planets)
         self.nb_satellites = len(self.satellites)
+        self.nb_asteroids = len(self.asteroids)
 
         # Variables
         self.variables = self._get_variables()
@@ -454,6 +460,14 @@ class SatellitePlanner:
             problem_parameters["r_prime_sat_bar"] = cvx.Parameter(
                 (self.nb_satellites, self.params.K), name="r_prime_sat_bar"
             )
+        if self.asteroids:
+            problem_parameters["C_ast_bar"] = cvx.Parameter(
+                (self.nb_asteroids * self.dim_pos, self.params.K), name="C_ast_bar"
+            )
+            problem_parameters["H_bar"] = cvx.Parameter((self.nb_asteroids, self.params.K), name="H_bar")
+            problem_parameters["r_prime_ast_bar"] = cvx.Parameter(
+                (self.nb_asteroids, self.params.K), name="r_prime_ast_bar"
+            )
 
         return problem_parameters
 
@@ -547,8 +561,8 @@ class SatellitePlanner:
                 )
         constraints.extend(dynamics_constraints)
 
+        # Obstacle constraints
         if self.planets:
-            # Obstacle constraints
             planet_constraints = []
             for k in range(self.params.K):
                 planet_constraints.append(
@@ -572,9 +586,23 @@ class SatellitePlanner:
                         @ self.variables["X"][:2, k]
                         + self.problem_parameters["G_bar"][:, k] * self.variables["p"]
                         + self.problem_parameters["r_prime_sat_bar"][:, k]
-                        <= self.variables["v_s"]
+                        <= self.variables["v_s"]  # why the same as for planets?
                     )
                 constraints.extend(satellite_constraints)
+
+        if self.asteroids:
+            asteroid_constraints = []
+            for k in range(self.params.K):
+                asteroid_constraints.append(
+                    cvx.reshape(
+                        self.problem_parameters["C_ast_bar"][:, k], (self.nb_asteroids, self.dim_pos), order="C"
+                    )
+                    @ self.variables["X"][:2, k]
+                    + self.problem_parameters["H_bar"][:, k] * self.variables["p"]
+                    + self.problem_parameters["r_prime_ast_bar"][:, k]
+                    <= self.variables["v_s"]
+                )
+            constraints.extend(asteroid_constraints)
 
         # Docker Constraints
         if self.landing_constraints_points:
@@ -607,6 +635,7 @@ class SatellitePlanner:
         # S_plus
         s_plus_planets = np.zeros((len(self.planets), self.params.K))
         s_plus_satellites = np.zeros((len(self.satellites), self.params.K))
+        s_plus_asteroids = np.zeros((len(self.asteroids), self.params.K))
         for k in range(self.params.K):
             for i, planet in enumerate(self.planets):
                 s_plus_planets[i, k] = self._s_plus_circle(
@@ -618,11 +647,15 @@ class SatellitePlanner:
                 p_s_k, _, _ = self.satellite_pos_at_k(sat, k)
                 s_plus_satellites[i, k] = self._s_plus_circle(self.satellites[sat].radius, p_s_k, X[:2, k])
 
+            for i, ast in enumerate(self.asteroids):
+                p_a_k, _ = self.asteroid_pos_at_k(ast, k)
+                s_plus_asteroids[i, k] = self._s_plus_circle(self.asteroids[ast].radius, p_a_k, X[:2, k])
+
         # g_ic, g_tc
         g_ic = X[:, 0] - self.problem_parameters["init_state"].value
         g_tc = X[:6, -1] - self.problem_parameters["goal_state"].value
 
-        s_plus_stacked = np.vstack((s_plus_planets, s_plus_satellites))
+        s_plus_stacked = np.vstack((s_plus_planets, s_plus_satellites, s_plus_asteroids))
 
         # Cost
         terminal_cost = (
@@ -676,9 +709,9 @@ class SatellitePlanner:
         return total_cost
 
     def _s_plus_circle(self, radius: float, center: NDArray, pos: NDArray) -> float:
-        safe_radius = self.params.padding * (radius + 1.5)
+        safe_radius = self.params.mult_padding * (radius + self.params.add_padding)
         s_plus = -((pos[0] - center[0]) ** 2) - (pos[1] - center[1]) ** 2 + safe_radius**2
-        if s_plus > 0:
+        if s_plus > 0:  # inside the enlarged circular obstacle
             return s_plus
         else:
             return 0
@@ -754,6 +787,13 @@ class SatellitePlanner:
                     self.problem_parameters["G_bar"].value,
                 ) = self.calculate_jacobian_satellites()
 
+        if self.asteroids:
+            (
+                self.problem_parameters["C_ast_bar"].value,
+                self.problem_parameters["r_prime_ast_bar"].value,
+                self.problem_parameters["H_bar"].value,
+            ) = self.calculate_jacobian_asteroids()
+
         if self.landing_constraints_points:
             docker_matrices, docker_b = self._compute_docker_constraints()
             self.problem_parameters["docker_matrices"].value = docker_matrices
@@ -801,7 +841,7 @@ class SatellitePlanner:
                     self.satellites[sat].orbit_r,
                     self.satellites[sat].tau,
                     self.satellites[sat].omega,
-                    center,
+                    p_s_k,
                 )
 
                 G_bar[i, k] = G_k
@@ -812,6 +852,32 @@ class SatellitePlanner:
                 r_satellites[i, k] = r_satellite
 
         return C_satellites, r_satellites, G_bar
+
+    def calculate_jacobian_asteroids(self):
+        X_bar = self.problem_parameters["X_bar"].value
+        p_bar = self.problem_parameters["p_bar"][0].value
+        H_bar = np.zeros((self.nb_asteroids, self.params.K))
+        C_asteroids = np.zeros((self.nb_asteroids * self.dim_pos, self.params.K))
+        r_asteroids = np.zeros((self.nb_asteroids, self.params.K))
+
+        for k in range(self.params.K):
+            for i, ast in enumerate(self.asteroids):
+                p_a_k, t_k = self.asteroid_pos_at_k(ast, k)
+
+                jacobian_asteroid, r_asteroid = self.jacobian_for_circle(
+                    self.asteroids[ast].radius, p_a_k, X_bar[:2, k]
+                )
+
+                H_k = self.temporal_jacobian_ast(k, X_bar[:2, k], p_a_k, ast)
+
+                H_bar[i, k] = H_k
+
+                r_asteroid -= H_k * p_bar
+
+                C_asteroids[i * self.dim_pos : (i + 1) * self.dim_pos, k] = jacobian_asteroid
+                r_asteroids[i, k] = r_asteroid
+
+        return C_asteroids, r_asteroids, H_bar
 
     def satellite_pos_at_k(self, sat: PlayerName, k):
         p_bar = self.problem_parameters["p_bar"][0].value
@@ -829,16 +895,43 @@ class SatellitePlanner:
         p_s_k = np.array([x_s_k, y_s_k])
         return p_s_k, t_k, center
 
-    def temporal_jacobian_sat(self, k, pos_satellite, t_k, orbit_r, tau, omega, planet_center):
+    def asteroid_pos_at_k(self, ast: PlayerName, k):
+        p_bar = self.problem_parameters["p_bar"][0].value
+
+        p_a_0 = self.asteroids[ast].start
+        glob_vel = self.get_glob_vel_asteroid(ast)
+
+        t_k = (p_bar + self.sim_time) * k / (self.params.K - 1)
+        x_a_k = p_a_0[0] + glob_vel[0] * t_k
+        y_a_k = p_a_0[1] + glob_vel[1] * t_k
+        p_a_k = np.array([x_a_k, y_a_k])
+        return p_a_k.ravel(), t_k
+
+    def get_glob_vel_asteroid(self, ast: PlayerName):
+        lin_vel = self.asteroids[ast].velocity
+        orientation = self.asteroids[ast].orientation
+        transf_matrix = np.array(
+            [[np.cos(orientation), -np.sin(orientation)], [np.sin(orientation), np.cos(orientation)]]
+        )
+        glob_vel = transf_matrix @ np.array(lin_vel).reshape((2, 1))
+        return glob_vel
+
+    def temporal_jacobian_sat(self, k, pos_agent, t_k, orbit_r, tau, omega, current_sat_pos):
         a = 2 * omega * k * orbit_r / (self.params.K - 1)
         alpha = tau + omega * t_k
         return a * (
-            (pos_satellite[1] - planet_center[1] - orbit_r * np.sin(alpha)) * np.cos(alpha)
-            - (pos_satellite[0] - planet_center[0] - orbit_r * np.cos(alpha)) * np.sin(alpha)
+            (pos_agent[1] - current_sat_pos[1]) * np.cos(alpha) - (pos_agent[0] - current_sat_pos[0]) * np.sin(alpha)
+        )
+
+    def temporal_jacobian_ast(self, k, pos_agent, current_ast_pos, ast):
+        a = 2 * k / (self.params.K - 1)
+        glob_vel = self.get_glob_vel_asteroid(ast)
+        return a * (
+            (pos_agent[0] - current_ast_pos[0]) * glob_vel[0] + (pos_agent[1] - current_ast_pos[1]) * glob_vel[1]
         )
 
     def jacobian_for_circle(self, radius: float, center: NDArray, pos: NDArray) -> tuple[NDArray, float]:
-        safe_radius = self.params.padding * (radius + 1.5)
+        safe_radius = self.params.mult_padding * (radius + self.params.add_padding)
         jacobian = np.array([-2 * (pos[0] - center[0]), -2 * (pos[1] - center[1])])
         residual = (
             -((pos[0] - center[0]) ** 2)
@@ -847,10 +940,10 @@ class SatellitePlanner:
             + 2 * (pos[0] - center[0]) * pos[0]
             + 2 * (pos[1] - center[1]) * pos[1]
         )
+        # ravel to convert 2D array (2,1) to 1D array as expected
+        return jacobian.ravel(), residual
 
-        return jacobian, residual
-
-    def _linear_constrain_from_points(self, p1, p2, side):
+    def _linear_constraint_from_points(self, p1, p2, side):
         x1, y1 = p1
         x2, y2 = p2
 
@@ -876,9 +969,9 @@ class SatellitePlanner:
         A2 = self.landing_constraints_points["A2"]
         C = self.landing_constraints_points["C"]
 
-        A_arm2, b_arm2 = self._linear_constrain_from_points(B, A2, "below")
-        A_base, b_base = self._linear_constrain_from_points(A1, A2, "above")
-        A_arm1, b_arm1 = self._linear_constrain_from_points(C, A1, "above")
+        A_arm2, b_arm2 = self._linear_constraint_from_points(B, A2, "below")
+        A_base, b_base = self._linear_constraint_from_points(A1, A2, "above")
+        A_arm1, b_arm1 = self._linear_constraint_from_points(C, A1, "above")
 
         return np.vstack((A_arm1, A_base, A_arm2)), np.array([b_arm1, b_base, b_arm2])
 
@@ -1077,6 +1170,21 @@ class SatellitePlanner:
                 for k in range(self.params.K):
                     p_s[:, k], _, _ = self.satellite_pos_at_k(sat, k)
                 plt.plot(p_s[0], p_s[1], "b--")  # Movement outline
+
+        # Plot asteroids
+        for ast in self.asteroids:
+            p_a_0 = self.asteroids[ast].start
+            glob_vel = self.get_glob_vel_asteroid(ast)
+            # Plot initial position
+            circle = Circle((p_a_0[0], p_a_0[1]), self.asteroids[ast].radius, color="gray", fill=True)
+            plt.gca().add_patch(circle)
+
+            # Plot asteroid movement outline
+            p_a = np.zeros((2, self.params.K))
+            for k in range(self.params.K):
+                p_a[:, k], _ = self.asteroid_pos_at_k(ast, k)
+            plt.plot(p_a[0], p_a[1], "k--")  # Movement outline
+
         plt.legend()
         plt.savefig(f"traj.png")
         plt.close()
@@ -1138,6 +1246,22 @@ class SatellitePlanner:
                 x = np.linspace(self.map_borders["xmin"], self.map_borders["xmax"], 100)
                 y = (-jacobian[0] * x - r) / jacobian[1]
                 plt.plot(x, y, "r--")
+
+        for i, ast in enumerate(self.asteroids):
+            jacobian = self.problem_parameters["C_ast_bar"].value[i * self.dim_pos : (i + 1) * self.dim_pos, k]
+            r = self.problem_parameters["r_prime_ast_bar"].value[i, k]
+            # Plot the asteroid
+            p_a_0 = self.asteroids[ast].start
+            glob_vel = self.get_glob_vel_asteroid(ast)
+            t_k = self.variables["p"].value[0] * k / (self.params.K - 1)
+            x_a = p_a_0[0] + glob_vel[0] * t_k
+            y_a = p_a_0[1] + glob_vel[1] * t_k
+            circle = Circle((x_a, y_a), self.asteroids[ast].radius, color="gray", fill=True)
+            plt.gca().add_patch(circle)
+            # Plot the linearized constraint
+            x = np.linspace(self.map_borders["xmin"], self.map_borders["xmax"], 100)
+            y = (-jacobian[0] * x - r) / jacobian[1]
+            plt.plot(x, y, "r--")
 
         plt.legend()
         plt.title(f"Linearized constraints at time {k}")
