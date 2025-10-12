@@ -61,7 +61,7 @@ def get_exercise14():
     ]
 
     return Exercise[SimContext, None](
-        desc="Final'23- planning course exercise.",
+        desc="Final'25- planning course exercise.",
         evaluation_fun=ex14_evaluation,
         perf_aggregator=lambda x: ex14_performance_aggregator(x),
         test_values=test_values,
