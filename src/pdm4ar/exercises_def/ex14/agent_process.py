@@ -10,11 +10,13 @@ import cloudpickle as cp
 from dg_commons.sim.agents import Agent
 from dg_commons.sim.simulator_structures import InitSimObservations, SimObservations
 
+MsgOp = Literal["call", "close", "ok", "err"]
+
 
 @dataclass
 class _Msg:
     id: str
-    op: Literal["call", "getattr", "setattr", "close", "ok", "err"]
+    op: MsgOp
     name: Optional[str] = None
     payload: Optional[bytes] = None
     error: Optional[str] = None
@@ -48,17 +50,6 @@ def _worker_loop(conn: multiprocessing.connection.Connection, ctor_bytes: bytes,
                 conn.send(_Msg(id=msg.id, op="ok"))
                 break
 
-            elif msg.op == "getattr":
-                val = getattr(agent, msg.name)
-                if callable(val):
-                    raise TypeError(f"{msg.name} is callable; use 'call'")
-                conn.send(_Msg(id=msg.id, op="ok", payload=_dumps(val)))
-
-            elif msg.op == "setattr":
-                val = _loads(msg.payload)
-                setattr(agent, msg.name, val)
-                conn.send(_Msg(id=msg.id, op="ok"))
-
             elif msg.op == "call":
                 args, kwargs = _loads(msg.payload)
                 t0 = time.perf_counter()
@@ -74,14 +65,14 @@ def _worker_loop(conn: multiprocessing.connection.Connection, ctor_bytes: bytes,
 
 
 class _MethodProxy:
-    """Proxy for remote method calls (transparent timing optional)."""
+    """Proxy for remote method calls."""
 
     def __init__(self, owner: "AgentProcess", name: str):
         self._owner = owner
         self._name = name
 
-    def __call__(self, *args, timeout: float | None = None, **kwargs):
-        return self._owner._rpc_call("call", self._name, (args, kwargs), timeout=timeout)
+    def __call__(self, *args, **kwargs):
+        return self._owner._rpc_call("call", self._name, (args, kwargs))
 
 
 class AgentProcess(Agent):
@@ -90,6 +81,11 @@ class AgentProcess(Agent):
     """
 
     def __init__(self, agent_ctor, *init_args, **init_kwargs):
+        if init_args is None:
+            init_args = ()
+        if init_kwargs is None:
+            init_kwargs = {}
+
         parent_conn, child_conn = mp.Pipe(duplex=True)
         self._conn = parent_conn
         self._proc = mp.Process(
@@ -106,26 +102,16 @@ class AgentProcess(Agent):
 
     # --- Agent interface ---
     def on_episode_init(self, init_sim_obs: InitSimObservations):
-        self._rpc_call("call", "on_episode_init", (init_sim_obs,))
+        return _MethodProxy(self, "on_episode_init")(init_sim_obs)
 
     def get_commands(self, sim_obs: SimObservations) -> Any:
-        return self._rpc_call("call", "get_commands", (sim_obs,))
+        return _MethodProxy(self, "get_commands")(sim_obs)
 
-    # --- Transparent attribute access ---
-    def __getattr__(self, name: str):
-        if name.startswith("_"):
-            raise AttributeError
-        try:
-            return self._rpc_call("getattr", name, None)
-        except TypeError:
-            return _MethodProxy(self, name)
+    def on_get_extra(self) -> Optional[Any]:
+        return _MethodProxy(self, "on_get_extra")()
 
-    def __setattr__(self, name: str, value: Any):
-        if name.startswith("_"):
-            return super().__setattr__(name, value)
-        self._rpc_call("setattr", name, value)
-
-    def close(self, timeout: float | None = 2.0):
+    # --- internal ---
+    def _close(self, timeout: Optional[float] = 2.0):
         if self._closed:
             return
         try:
@@ -137,14 +123,16 @@ class AgentProcess(Agent):
                     self._proc.kill()
             self._closed = True
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *_):
-        self.close()
+    def __del__(self):
+        self._close(timeout=1.0)
 
     def _rpc_call(
-        self, op: str, name: Optional[str], body: Any, timeout: Optional[float] = None, return_time: bool = False
+        self,
+        op: MsgOp,
+        name: Optional[str],
+        body: Optional[tuple[tuple, dict]],
+        timeout: Optional[float] = None,
+        return_time: bool = False,
     ):
         """Perform an RPC and optionally return (result, wall_time)."""
         msg_id = uuid.uuid4().hex
