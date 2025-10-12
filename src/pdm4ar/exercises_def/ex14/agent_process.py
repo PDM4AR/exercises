@@ -33,35 +33,36 @@ def _loads(payload: bytes) -> Any:
 
 def _worker_loop(conn: multiprocessing.connection.Connection, ctor_bytes: bytes, init_bytes: bytes) -> None:
     """Worker process: construct agent, then serve RPC."""
-    try:
-        ctor = _loads(ctor_bytes)
-        args, kwargs = _loads(init_bytes)
-        agent = ctor(*args, **kwargs)
-    except Exception:
-        conn.send(_Msg(id="init", op="err", error=traceback.format_exc()))
-        return
-    else:
-        conn.send(_Msg(id="init", op="ok"))
-
-    while True:
-        msg: _Msg = conn.recv()
+    with conn:
         try:
-            if msg.op == "close":
-                conn.send(_Msg(id=msg.id, op="ok"))
-                break
-
-            elif msg.op == "call":
-                args, kwargs = _loads(msg.payload)
-                t0 = time.perf_counter()
-                result = getattr(agent, msg.name)(*args, **kwargs)
-                wall = time.perf_counter() - t0
-                conn.send(_Msg(id=msg.id, op="ok", payload=_dumps(result), wall_time=wall))
-
-            else:
-                raise ValueError(f"Unknown op {msg.op}")
-
+            ctor = _loads(ctor_bytes)
+            args, kwargs = _loads(init_bytes)
+            agent = ctor(*args, **kwargs)
         except Exception:
-            conn.send(_Msg(id=msg.id, op="err", error=traceback.format_exc()))
+            conn.send(_Msg(id="init", op="err", error=traceback.format_exc()))
+            return
+        else:
+            conn.send(_Msg(id="init", op="ok"))
+
+        while True:
+            msg: _Msg = conn.recv()
+            try:
+                if msg.op == "close":
+                    conn.send(_Msg(id=msg.id, op="ok"))
+                    break
+
+                elif msg.op == "call":
+                    args, kwargs = _loads(msg.payload)
+                    t0 = time.perf_counter()
+                    result = getattr(agent, msg.name)(*args, **kwargs)
+                    wall = time.perf_counter() - t0
+                    conn.send(_Msg(id=msg.id, op="ok", payload=_dumps(result), wall_time=wall))
+
+                else:
+                    raise ValueError(f"Unknown op {msg.op}")
+
+            except Exception:
+                conn.send(_Msg(id=msg.id, op="err", error=traceback.format_exc()))
 
 
 class _MethodProxy:
@@ -91,14 +92,19 @@ class AgentProcess(Agent):
         self._proc = mp.Process(
             target=_worker_loop,
             args=(child_conn, _dumps(agent_ctor), _dumps((init_args, init_kwargs))),
-            daemon=True,
         )
         self._proc.start()
+        child_conn.close()
+
         msg = self._conn.recv()
         if msg.op != "ok":
             raise RuntimeError(f"Agent failed to start:\n{msg.error}")
         self._closed = False
         self._last_function_call_time = 0.0
+
+        # --- state tracking ---
+        self._capacity = 1  # default capacity
+        self._current_load = 0
 
     # --- Agent interface ---
     def on_episode_init(self, init_sim_obs: InitSimObservations):
@@ -110,8 +116,25 @@ class AgentProcess(Agent):
     def on_get_extra(self) -> Optional[Any]:
         return _MethodProxy(self, "on_get_extra")()
 
+    # --- state tracking interface ---
+    def set_capacity(self, capacity: int):
+        assert capacity > 0 and isinstance(capacity, int), "Capacity must be a positive integer"
+        self._capacity = capacity
+
+    def get_capacity(self) -> int:
+        return self._capacity
+
+    def set_current_load(self, load: int):
+        assert 0 <= load <= self._capacity and isinstance(
+            load, int
+        ), "Load must be a non-negative integer within capacity"
+        self._current_load = load
+
+    def get_current_load(self) -> int:
+        return self._current_load
+
     # --- internal ---
-    def _close(self, timeout: Optional[float] = 2.0):
+    def close(self, timeout: Optional[float] = 5.0):
         if self._closed:
             return
         try:
@@ -122,9 +145,10 @@ class AgentProcess(Agent):
                 if self._proc.is_alive():
                     self._proc.kill()
             self._closed = True
+            self._conn.close()
 
     def __del__(self):
-        self._close(timeout=1.0)
+        self.close(timeout=5.0)
 
     def _rpc_call(
         self,
