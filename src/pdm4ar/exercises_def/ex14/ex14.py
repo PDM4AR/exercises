@@ -1,6 +1,6 @@
 import pprint
 from pathlib import Path
-from typing import List, Mapping, Tuple
+from typing import Any, List, Mapping, Tuple
 
 import numpy as np
 import yaml
@@ -9,11 +9,12 @@ from dg_commons.sim.simulator import SimContext, Simulator
 from dg_commons.sim.simulator_animation import create_animation
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex14.perf_metrics import ex14_metrics
-from pdm4ar.exercises_def.ex14.utils_config import sim_context_from_yaml
+from pdm4ar.exercises_def.ex14.utils_config import load_config, sim_context_from_config
 from reprep import MIME_MP4, Report
 
 
-def ex14_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
+def ex14_evaluation(sim_config: Mapping[str, Any], ex_out=None) -> Tuple[float, Report]:
+    sim_context: SimContext = sim_context_from_config(sim_config)
     r = Report("Final25-" + sim_context.description)
     # run simulation
     sim = Simulator()
@@ -55,9 +56,9 @@ def _ex14_vis(sim_context: SimContext) -> Report:
 def get_exercise14():
     config_dir = Path(__file__).parent
     name_1, name_2 = "config_1.yaml", "config_2.yaml"
-    test_values: List[SimContext] = [
-        sim_context_from_yaml(str(config_dir / name_1)),
-        sim_context_from_yaml(str(config_dir / name_2)),
+    test_values: List[Mapping[str, Any]] = [
+        load_config(str(config_dir / name_1)),
+        load_config(str(config_dir / name_2)),
     ]
 
     return Exercise[SimContext, None](

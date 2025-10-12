@@ -15,18 +15,19 @@ from dg_commons.sim.scenarios import DgScenario
 from dg_commons.sim.sim_perception import FovObsFilter, ObsFilter
 from dg_commons.sim.simulator import SimContext
 from pdm4ar.exercises.ex14.agent import Pdm4arAgent
+from pdm4ar.exercises_def.ex14.agent_process import AgentProcess
 from shapely import LinearRing, Point, Polygon
 
 
-def _load_config(file_path: str) -> Mapping[str, Any]:
+def load_config(file_path: str) -> Mapping[str, Any]:
     with open(file_path, "r") as file:
         config: dict[str, Any] = yaml.safe_load(file)
+        if "config_name" not in config:
+            config["config_name"] = file_path.split("/")[-1].split(".")[0]
     return fd(config)
 
 
-def sim_context_from_yaml(file_path: str):
-    config = _load_config(file_path=file_path)
-
+def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
     #  obstacles
     shapes = list(map(Polygon, config["static_obstacles"]))
     obstacles = list(map(StaticObstacle, shapes))
@@ -45,7 +46,9 @@ def sim_context_from_yaml(file_path: str):
             x0=x0, vg=DiffDriveGeometry.default(color=color), vp=DiffDriveParameters.default(omega_limits=(-10, 10))
         )
         models[pn] = model
-        player = Pdm4arAgent()
+        # player_capacity = p_attr["capacity"]
+        player = AgentProcess(Pdm4arAgent)
+        # player.set_capacity(player_capacity)
         players[pn] = player
         goal_poly = Point(p_attr["goal"]).buffer(p_attr["goal_radius"])
         goal = PolygonGoal(goal_poly)
@@ -66,7 +69,7 @@ def sim_context_from_yaml(file_path: str):
             max_sim_time=D(90),
         ),
         seed=config["seed"],
-        description=file_path.split("/")[-1].split(".")[0],
+        description=config["config_name"],
     )
 
 
