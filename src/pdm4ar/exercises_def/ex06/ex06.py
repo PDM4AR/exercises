@@ -1,5 +1,4 @@
 import random
-import sys
 import timeit
 from dataclasses import dataclass
 from typing import Any, Callable, Optional, Sequence
@@ -99,8 +98,7 @@ def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[Col
         data = algo_in.sample_generator(0)
         is_valid, error_msg = algo_in.impl_validator(algo_in.ex_function, *data[:-1])
         if not is_valid:
-            r.text(f"{algo_in.str_id()}-validation", error_msg)
-            return CollisionCheckPerformance(0.0, 0.0, algo_in.eval_weights, algo_in.step_id), r
+            raise RuntimeError(error_msg)
 
     accuracy_list = []
     solve_times = []
@@ -232,24 +230,33 @@ def collision_check_robot_frame_loop(
 
 
 def disallowed_validator(func: Callable, *args, **kwargs) -> tuple[bool, str]:
+    import inspect  # pylint: disable=import-outside-toplevel
+    import sys  # pylint: disable=import-outside-toplevel
+
     disallowed_dependencies = {
         "shapely",
         "Polygon3D",
         "scipy.spatial",
         "sympy.geometry",
+        "sys",
+        "ctypes",
+        "_ctypes",
     }
 
     called_funcs = []
     detected_libs = set()  # Track already detected libraries
 
+    top_frame_id = id(inspect.currentframe())
+
     def trace_calls(frame, event, arg):  # pylint: disable=unused-argument
         import traceback  # pylint: disable=import-outside-toplevel
 
-        if event != "call":
+        if (id(frame) == top_frame_id) or (event not in ("call", "c_call")):
             return
         module = frame.f_globals.get("__name__", "")
+        c_module = getattr(arg, "__module__", "") or ""  # For C functions
         for lib in disallowed_dependencies:
-            if module.startswith(lib) and lib not in detected_libs:
+            if lib not in detected_libs and (module.startswith(lib) or c_module.startswith(lib)):
                 # Only record each library once
                 detected_libs.add(lib)
 
