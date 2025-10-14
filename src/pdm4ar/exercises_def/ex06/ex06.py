@@ -116,7 +116,7 @@ def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[Col
             accuracy_list.append(algo_in.eval_function(data, estimate[0]))
             try:
                 algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1])
-            except TypeError:
+            except:
                 algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
             r.text(
                 f"{algo_in.str_id()}-{ex_num}",
