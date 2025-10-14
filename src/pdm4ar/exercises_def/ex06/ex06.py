@@ -38,8 +38,7 @@ class TestCollisionCheck(ExIn):
     ex_function: Callable
     eval_function: Callable
     eval_weights: tuple[float, float]
-    impl_validate_func_wrapper: Optional[Callable] = None
-    disallowed_dependencies: Optional[set[str]] = None
+    impl_validator: Optional[Callable[[Callable, Any], tuple[bool, str]]] = None
 
     def str_id(self) -> str:
         return f"step-{self.step_id}-"
@@ -71,7 +70,7 @@ class CollisionCheckPerformance(PerformanceResults):
     def perf_aggregator(
         eval_list: Sequence["CollisionCheckPerformance"],
         total_weights: tuple[float, float],
-    ) -> "CollisionCheckWeightedPerformance":
+    ) -> CollisionCheckWeightedPerformance:
 
         if len(eval_list) == 0:
             return CollisionCheckWeightedPerformance(0.0, np.inf, {})
@@ -95,20 +94,11 @@ def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[Col
     r = Report(algo_in.name)
 
     # Validate implementation
-    if algo_in.impl_validate_func_wrapper is not None and algo_in.disallowed_dependencies is not None:
+    if algo_in.impl_validator is not None:
         data = algo_in.sample_generator(0)
-        check = algo_in.impl_validate_func_wrapper(algo_in.ex_function, algo_in.disallowed_dependencies)
-        called_funcs = check(*data[:-1])
-        if called_funcs:
-            validation_details = []
-            validation_details.append("Implementation validation failed. Disallowed dependencies detected:")
-            for record in called_funcs:
-                validation_details.append(
-                    f"  - Library: {record['library']}, "
-                    f"Function: {record['func_name']}, Line: {record['lineno']}, File: {record['filename']}"
-                )
-            r.text(f"{algo_in.str_id()}-validation", "\n".join(validation_details))
-            return CollisionCheckPerformance(0.0, 0.0, algo_in.eval_weights, algo_in.step_id), r
+        is_valid, error_msg = algo_in.impl_validator(algo_in.ex_function, *data[:-1])
+        if not is_valid:
+            raise RuntimeError(error_msg)
 
     accuracy_list = []
     solve_times = []
@@ -154,8 +144,8 @@ def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[Col
 
     return (
         CollisionCheckPerformance(
-            np.mean(accuracy_list),
-            np.mean(solve_times),
+            float(np.mean(accuracy_list)),
+            float(np.mean(solve_times)),
             algo_in.eval_weights,
             algo_in.step_id,
         ),
@@ -239,18 +229,34 @@ def collision_check_robot_frame_loop(
     return result
 
 
-def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> Callable:
+def disallowed_validator(func: Callable, *args, **kwargs) -> tuple[bool, str]:
+    import inspect  # pylint: disable=import-outside-toplevel
+    import sys  # pylint: disable=import-outside-toplevel
+
+    disallowed_dependencies = {
+        "shapely",
+        "Polygon3D",
+        "scipy.spatial",
+        "sympy.geometry",
+        "sys",
+        "ctypes",
+        "_ctypes",
+    }
+
     called_funcs = []
     detected_libs = set()  # Track already detected libraries
+
+    top_frame_id = id(inspect.currentframe())
 
     def trace_calls(frame, event, arg):  # pylint: disable=unused-argument
         import traceback  # pylint: disable=import-outside-toplevel
 
-        if event != "call":
+        if (id(frame) == top_frame_id) or (event not in ("call", "c_call")):
             return
         module = frame.f_globals.get("__name__", "")
+        c_module = getattr(arg, "__module__", "") or ""  # For C functions
         for lib in disallowed_dependencies:
-            if module.startswith(lib) and lib not in detected_libs:
+            if lib not in detected_libs and (module.startswith(lib) or c_module.startswith(lib)):
                 # Only record each library once
                 detected_libs.add(lib)
 
@@ -268,27 +274,28 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> 
                         break
         return None
 
-    def wrapper(*args, **kwargs):
-        import sys  # pylint: disable=import-outside-toplevel
+    sys.setprofile(trace_calls)
+    try:
+        func(*args, **kwargs)
+    finally:
+        sys.setprofile(None)
 
-        sys.setprofile(trace_calls)
-        try:
-            func(*args, **kwargs)
-        finally:
-            sys.setprofile(None)
-        return called_funcs
-
-    return wrapper
+    # If no disallowed libraries were detected, the implementation is valid
+    if len(called_funcs) == 0:
+        return True, ""
+    else:
+        validation_details = []
+        validation_details.append("Implementation validation failed. Disallowed dependencies detected:")
+        for record in called_funcs:
+            validation_details.append(
+                f"  - Library: {record['library']}, "
+                f"Function: {record['func_name']}, Line: {record['lineno']}, File: {record['filename']}"
+            )
+        error_msg = "\n".join(validation_details)
+        return False, error_msg
 
 
 def get_exercise6() -> Exercise:
-    disallowed_dependencies = {
-        "shapely",
-        "Polygon3D",
-        "scipy.spatial",
-        "sympy.geometry",
-    }
-
     # Generate Test Data
     test_values = [
         TestCollisionCheck(
@@ -300,8 +307,7 @@ def get_exercise6() -> Exercise:
             CollisionPrimitives_SeparateAxis.proj_polygon,
             segment_eval_function,
             eval_weights=(5, 5),
-            impl_validate_func_wrapper=validate_impl_wrapper,
-            disallowed_dependencies=disallowed_dependencies,
+            impl_validator=disallowed_validator,
         ),  # Task 1: proj polygon.
         TestCollisionCheck(
             10,
@@ -312,8 +318,7 @@ def get_exercise6() -> Exercise:
             CollisionPrimitives_SeparateAxis.separating_axis_thm,
             float_eval_function,
             eval_weights=(20, 20),
-            impl_validate_func_wrapper=validate_impl_wrapper,
-            disallowed_dependencies=disallowed_dependencies,
+            impl_validator=disallowed_validator,
         ),  # Task 2: Separate Axis Theorem.
         TestCollisionCheck(
             6,
@@ -324,8 +329,7 @@ def get_exercise6() -> Exercise:
             CollisionPrimitives_SeparateAxis.separating_axis_thm,
             float_eval_function,
             eval_weights=(20, 20),
-            impl_validate_func_wrapper=validate_impl_wrapper,
-            disallowed_dependencies=disallowed_dependencies,
+            impl_validator=disallowed_validator,
         ),  # Task 3: Extended Separate Axis Theorem for circles.
         TestCollisionCheck(
             5,
@@ -336,8 +340,7 @@ def get_exercise6() -> Exercise:
             CollisionChecker().path_collision_check,
             idx_list_eval_function,
             (20, 20),
-            impl_validate_func_wrapper=validate_impl_wrapper,
-            disallowed_dependencies=disallowed_dependencies,
+            impl_validator=disallowed_validator,
         ),  # Task 4 - Path Collision Check
         TestCollisionCheck(
             5,
