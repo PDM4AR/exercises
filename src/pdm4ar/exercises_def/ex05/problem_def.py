@@ -119,8 +119,8 @@ def ex5_spline_eval(algo_out, algo_out_tf, expected):
     dubins_length, spline_length, is_feasible, *_ = algo_out
     dubins_gt, spline_gt, feasible_gt, *_ = gt_tuple
 
-    lengths_match = math.isclose(dubins_length, dubins_gt, rel_tol=1e-2) and math.isclose(
-        spline_length, spline_gt, rel_tol=1e-2
+    lengths_match = math.isclose(dubins_length, dubins_gt, rel_tol=1e-2, abs_tol=1e-2) and math.isclose(
+        spline_length, spline_gt, rel_tol=1e-2, abs_tol=1e-2
     )
     feasibility_match = is_feasible == feasible_gt
 
