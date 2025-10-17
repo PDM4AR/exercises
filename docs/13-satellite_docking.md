@@ -56,9 +56,9 @@ Note that the pose is expressed in global frame, while the velocities are expres
     - $\frac{dv_x}{dt} = \frac{1}{m} \cos(\psi) \cdot (F_{r} + F_{l})$
     - $\frac{dv_y}{dt} = \frac{1}{m} \sin(\psi) \cdot (F_{r} + F_{l})$
 4. **Angular Velocity Dynamics:**
-    - $\frac{d\dot{\psi}}{dt} = \frac{l_r}{I} \cdot (F_{r} + F_{l})$
+    - $\frac{d\dot{\psi}}{dt} = \frac{l_m}{I} \cdot (F_{r} + F_{l})$
 
-If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}]'$, and the control inputs 
+If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}]$, and the control inputs 
 are $U = [F_{r}, F_{l}]$, we obtain the following dynamics equations:
 
 1. **Dynamics:**
@@ -70,7 +70,10 @@ direction of the satellite with respect to the world frame x-axis and y-axis. Th
 
 You may check your implementation of the dynamics in the init function in `planner.py`, right after the creation of the integrator object.
 
-![Spaceship Dynamics](img/spaceship.png)
+The two following figures illustrate the geometrical parameters as well as the state and input.
+
+![Spaceship Dynamics](img/satellite-dynamics.png)
+![Spaceship Dynamics](img/satellite-geometry.png)
 
 ## Constraints
 
