@@ -4,11 +4,13 @@ import time
 import traceback
 import uuid
 from dataclasses import dataclass
+from multiprocessing.util import Finalize
 from typing import Any, Literal, Optional
 
 import cloudpickle as cp
 from dg_commons.sim.agents import Agent
 from dg_commons.sim.simulator_structures import InitSimObservations, SimObservations
+from pdm4ar.exercises_def.ex14.restricted_loads import restricted_loads
 
 MsgOp = Literal["call", "close", "ok", "err"]
 
@@ -29,6 +31,11 @@ def _dumps(obj: Any) -> bytes:
 
 def _loads(payload: bytes) -> Any:
     return cp.loads(payload)
+
+
+def _restricted_loads(payload: bytes) -> Any:
+    allowed_modules = ["dg_commons", "numpy"]
+    return restricted_loads(payload, allowed_modules=allowed_modules)
 
 
 def _worker_loop(conn: multiprocessing.connection.Connection, ctor_bytes: bytes, init_bytes: bytes) -> None:
@@ -96,6 +103,8 @@ class AgentProcess(Agent):
         self._proc.start()
         child_conn.close()
 
+        self._finalizer = Finalize(self, self.close, exitpriority=10)
+
         msg = self._conn.recv()
         if msg.op != "ok":
             raise RuntimeError(f"Agent failed to start:\n{msg.error}")
@@ -148,7 +157,7 @@ class AgentProcess(Agent):
             self._conn.close()
 
     def __del__(self):
-        self.close(timeout=5.0)
+        self.close()
 
     def _rpc_call(
         self,
@@ -166,7 +175,7 @@ class AgentProcess(Agent):
             raise TimeoutError(f"Timeout on RPC {op}({name})")
         reply: _Msg = self._conn.recv()
         if reply.op == "ok":
-            result = None if reply.payload is None else _loads(reply.payload)
+            result = None if reply.payload is None else _restricted_loads(reply.payload)
             self._last_function_call_time = reply.wall_time
             if return_time:
                 return result, reply.wall_time
