@@ -6,8 +6,8 @@ def get_config() -> List[str]:
 
     configs = [
         # public tests
-        # "config_planet_target.yaml",
-        # "config_planet.yaml",
+        "config_planet_target.yaml",
+        "config_planet.yaml",
         "config_asteroid.yaml",
         # "config_local.yaml",
     ]
