@@ -25,22 +25,18 @@
 #         #offset: 1.3
 #     color: blue                       # (inside superscripts !)
 
-# planets:                              # ALL EDITABLE: or :{}
+# planets:                              # ALL EDITABLE: or :{} or nothing
 #   Namek:
 #     center: [0.0, 0.0]
 #     radius: 2.0
-#     satellites:                       # ALL EDITABLE: or :{}
-#       Cereal:
-#         tau: 2.0
-#         orbit_r: 6.0
-#         omega: 0.1
-#         radius: 0.45
-#       Zun:
-#         tau: 4.71239
-#         orbit_r: 9.5
-#         omega: 0.09202
-#         radius: 0.95
-
+# 
+# asteroids:                            # ALL EDITABLE: or :{} or nothing
+#   Apophis:
+#     start: [5.0, 5.0]
+#     radius: 1.0
+#     velocity: [-1.2, 0.0]
+#     orientation: 0.5
+# 
 # boundary:
 # # NOTE: in src>pdm4ar>exercises_def>ex13>ex13.py, the function _ex13_vis sets the plot limits at [-12, 27], [-12, -12]: change it to visualize the animation correctly 
 #  corners:                           # EDITABLE in clockwise order; last point must be equal to the first

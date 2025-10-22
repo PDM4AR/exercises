@@ -23,27 +23,27 @@ However, we provide a template to solve the problem adopting a sequential convex
 
 Your agent will be tested in three different scenarios:
 
-1. **Scenario 1: Dodging Planets with a Docking Goal**
-    - In this scenario, the spaceship needs to avoid planets while trying to arrive at a fixed final goal, $X_1$. 
+1. **Scenario 1: Dodging Planets with a Target Goal**
+    - In this scenario, the satellite needs to avoid one or multiple planets while trying to arrive at a fixed final goal, $X_1$. 
 
-   ![Planets Image](img/example1.png)
+   ![Planets Image](img/config_target.png)
 
 
-2. **Scenario 2: Dodging a Planet and Its Satellites with a Static Goal**
-    - The spaceship must navigate around a planet with multiple moving satellites to reach a certain goal position, $X_1$.
+2. **Scenario 2: Dodging Planets with a Docking Goal**
+    - The satellite must navigate around one or multiple planets while successfully docking at the target $X_1$.
 
-   ![Satellites Image](img/example2.png)
+   ![Satellites Image](img/config_planets.png)
 
-3. **Scenario 3: Dodging a Planet and Its Satellites with a Docking Goal**
-    - Similar to Scenario 2, but the final goal is to dock like in Scenario 1.
+3. **Scenario 3: Dodging Planets and the asteroid field with a Docking Goal**
+    - Similar to Scenario 2, but with moving obstacles. Here the moving osbtacles are asteroids with linear trajectories.
 
-   ![Mov Satellites Image](img/example3.png)
+   ![Mov Satellites Image](img/config_asteroids.png)
 
-In `exercises_def>ex13` you can find also a `config_local.yaml` file with a couple instructions to create your own local test files, moving around the starting point or the goal, planets or satellites, changing their dimensions or velocity. To choose which test cases to run, you have to modify the `get_config.py` file in the same folder.
+In `exercises_def>ex13` you can find also a `config_local.yaml` file with a couple instructions to create your own local test files, moving around the starting point or the goal, planets or asteroids, changing their dimensions or velocity. To choose which test cases to run, you have to modify the `get_config.py` file in the same folder.
 
 ## Spaceship dynamics
 The spaceship's dynamics are represented by the following equations. 
-Note that the pose is expressed in global frame, while the velocities are expressed in the spaceship frame.
+Note that the pose and velocities are expressed in global frame.
 
 1. **Position Dynamics:**
     - $\frac{dx}{dt} = v_x$
@@ -65,8 +65,7 @@ are $U = [F_{r}, F_{l}]$, we obtain the following dynamics equations:
     - $\frac{dX(t)}{dt} = f(X(t), U(t))$
 
 The satellite you have the control over has two side thrusters where you are able to individually control the amount of thrust to
-produce $F_{r}$ and $F_{l}$. The thrusters are mounted on the side of the satellite. The velocity $v_x$ and $v_y$ are the velocities in the x and y
-direction of the satellite with respect to the world frame x-axis and y-axis. The angle $\psi$ is the angle of the satellite with respect to the x-axis. The length of the spaceship is $l$.
+produce $F_{r}$ and $F_{l}$. The thrusters are mounted on the side of the satellite. The velocity $v_x$ and $v_y$ are the velocities in the x and y axis direction of the satellite with respect to the world frame x-axis and y-axis. The angle $\psi$ is the angle of the satellite with respect to the x-axis. The length of the spaceship is $l$.
 
 You may check your implementation of the dynamics in the init function in `planner.py`, right after the creation of the integrator object.
 
@@ -80,15 +79,15 @@ The two following figures illustrate the geometrical parameters as well as the s
 There are several constraints that need to be satisfied, [$x_0, y_0$] is the starting location and [$x_1, y_1$] is the goal location:
 
 - The initial and final inputs needs to be zero: $U(t_0) = U(t_f) = 0$
-- The spaceship needs to arrive close to the goal
+- The satellite needs to arrive close to the goal
     - $\left\lVert \begin{bmatrix} x(t_f) \\ y(t_f) \end{bmatrix} - \begin{bmatrix} x_{\text{1}} \\ y_{\text{1}}
       \end{bmatrix} \right\rVert _{2} < \text{pos\_tol}$
 - with a specified orientation.
     - $\left\lVert \psi(t_f) - \psi_{\text{1}} \right\rVert _{1} < \text{dir\_tol}$
-- The spaceship needs to arrive with a specified velocity.
+- The satellite needs to arrive with a specified velocity.
     - $\left\lVert \begin{bmatrix} v_x(t_f) \\ v_y(t_f) \end{bmatrix} - \begin{bmatrix} v_{x,1} \\ v_{y,1}
       \end{bmatrix} \right\rVert _{2} < \text{vel\_tol}$
-- The spaceship needs to dodge every obstacle in its path: $(x, y) \bigoplus \mathcal{X}_{Rocket}(\psi) \notin Obstacle
+- The satellite needs to dodge every obstacle in its path: $(x, y) \bigoplus \mathcal{X}_{Rocket}(\psi) \notin Obstacle
   \quad \forall Obstacle \in Obstacles$
 - Control inputs, $F_{l}$ and $F_{r}$ are limited: $F_{l}$ and $F_{r} \in [-F_{\text{max}}, F_{\text{max}}]$.
 - You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
@@ -108,15 +107,15 @@ The quality of the satellite's trajectory is evaluated based on several key fact
 
 5. **The precision of the planner:** Distance to the goal at the end of the episode.
 
-The metric is a weigthed sum of the different metrics mentionned above with 1000 being the maximum. Note that it is theoretically impossible reach full score as we penalise computation time which is by definition none zero (but can be optimized). You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex11/perf_metrics.py`.
+The metric is a weigthed sum of the different metrics mentionned above with 1000 being the maximum. Note that it is theoretically impossible to reach full score as we penalise computation time and actualtion effort which are by definition none zero if the mission is accomplished (but can be optimized). You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex11/perf_metrics.py`.
 
 ## Data  Structures
 
 The various data structures needed for the development of the exercise can be inspected in the following files:
 
-- SpaceshipState & SpaceshipCommands: `dg_commons/sim/models/satellite.py`
-- SpaceshipGeometry & SpaceshipParameters: `dg_commons/sim/models/satellite_structure.py`
-- SatelliteParams & PlanetParams: `src/pdm4ar/exercises_def/ex11/utils_params.py`
+- SatelliteState & SatelliteCommands: `dg_commons/sim/models/satellite.py`
+- SatelliteGeometry & SatelliteParameters: `dg_commons/sim/models/satellite_structure.py`
+- AsteroidParams & PlanetParams: `src/pdm4ar/exercises_def/ex13/utils_params.py`
 
 ## Code Structure
 
@@ -168,7 +167,9 @@ As a general and final advice try to understand the method **before** starting t
 
 ### Plotting function
 
-To help you get started debugging the exercise, we’ve included a simple plotting helper, `plot_traj`, in `src/pdm4ar/axercises_def/ex13/utils_plot.py`. It’s an example of a plot that can be useful during debugging; feel free to extend it or design your own visualizations. We strongly encourage you to plot whatever you need to better understand your code’s behavior and pinpoint issues. The plotting feature can be enabled and disabled in the config class present in `agent.py`.
+To help you get started debugging the exercise, we’ve included a simple plotting helper, `plot_traj`, in `src/pdm4ar/axercises_def/ex13/utils_plot.py`. It’s an example of a plot that can be useful during debugging; feel free to extend it or design your own visualizations. We strongly encourage you to plot whatever you need to better understand your code’s behavior and pinpoint issues. The plotting feature can be enabled and disabled in the config class present in `agent.py`. The figure below shows an exmple where the trajectory has been followed pefectly. The black arrows and continuous lines represent the computed heading of the satellite and its trajectory. The red arrows and dotted line represent the simulated heading and trajectory. The image refreshes during simulation enabaling you to visualise the simulation while it is happening and don't need to wait for the videos to be created. This is particulary useful when running multiple configs at once.
+
+![Plotting functione example](img/landing_constraints.jpg)
 
 ## Available Optimization Tools
 

@@ -59,19 +59,20 @@ def _parse_planets(
         )
 
         planets.append(planet)
-        for sname, sat in p["satellites"].items():
-            s, ps = _parse_satellite(
-                planet, tau=sat["tau"], orbit_r=sat["orbit_r"], omega=sat["omega"], radius=sat["radius"]
-            )
-            satellite_id = pn + "/" + sname
-            satellites[satellite_id] = s
-            satellites_players[satellite_id] = ps
-            satellites_params[satellite_id] = SatelliteParams(
-                orbit_r=sat["orbit_r"],
-                omega=sat["omega"],
-                tau=sat["tau"],
-                radius=sat["radius"],
-            )
+        if "satellites" in p:
+            for sname, sat in p["satellites"].items():
+                s, ps = _parse_satellite(
+                    planet, tau=sat["tau"], orbit_r=sat["orbit_r"], omega=sat["omega"], radius=sat["radius"]
+                )
+                satellite_id = pn + "/" + sname
+                satellites[satellite_id] = s
+                satellites_players[satellite_id] = ps
+                satellites_params[satellite_id] = SatelliteParams(
+                    orbit_r=sat["orbit_r"],
+                    omega=sat["omega"],
+                    tau=sat["tau"],
+                    radius=sat["radius"],
+                )
 
     return planets, planet_params, satellites, satellites_params, satellites_players
 
@@ -225,16 +226,16 @@ def sim_context_from_yaml(file_path: str):
     # Dynamic obstacles (satellites + asteroids) added to models (as obstacles) and players(their names)
     models = {playername: SatelliteModel.default(x0)}
     for p, s in satellites.items():
-        models[p] = s                                           # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object             
+        models[p] = s  # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object
 
     for p, sagent in satellites_npagents.items():
-        players[p] = sagent                                     # sagent is dg_commons.sim.agents.NPAgent object
+        players[p] = sagent  # sagent is dg_commons.sim.agents.NPAgent object
 
     for a, s in asteroids.items():
-        models[a] = s                                           # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object
+        models[a] = s  # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object
 
     for a, aagent in asteroids_npagents.items():
-        players[a] = aagent                                     # aagent is dg_commons.sim.agents.NPAgent object
+        players[a] = aagent  # aagent is dg_commons.sim.agents.NPAgent object
 
     return SimContext(
         dg_scenario=DgScenario(static_obstacles=static_obstacles),  # need satellites
