@@ -12,7 +12,7 @@ from dg_commons.sim.models.satellite_structures import SatelliteGeometry, Satell
 
 from pdm4ar.exercises.ex13.planner import SatellitePlanner
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
-from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams, AsteroidParams
+from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, AsteroidParams
 from pdm4ar.exercises_def.ex13.utils_plot import plot_traj
 
 
@@ -42,7 +42,6 @@ class SatelliteAgent(Agent):
     """
 
     init_state: SatelliteState
-    satellites: dict[PlayerName, SatelliteParams]
     planets: dict[PlayerName, PlanetParams]
     asteroids: dict[PlayerName, AsteroidParams]
     goal_state: DynObstacleState
@@ -59,7 +58,6 @@ class SatelliteAgent(Agent):
     def __init__(
         self,
         init_state: SatelliteState,
-        satellites: dict[PlayerName, SatelliteParams],
         planets: dict[PlayerName, PlanetParams],
         asteroids: dict[PlayerName, AsteroidParams],
     ):
@@ -70,7 +68,6 @@ class SatelliteAgent(Agent):
         """
         self.actual_trajectory = []
         self.init_state = init_state
-        self.satellites = satellites
         self.planets = planets
         self.asteroids = asteroids
 
@@ -86,7 +83,7 @@ class SatelliteAgent(Agent):
         self.myname = init_sim_obs.my_name
         self.sg = init_sim_obs.model_geometry
         self.sp = init_sim_obs.model_params
-        self.planner = SatellitePlanner(planets=self.planets, satellites=self.satellites, sg=self.sg, sp=self.sp)
+        self.planner = SatellitePlanner(planets=self.planets, asteroids=self.asteroids, sg=self.sg, sp=self.sp)
         assert isinstance(init_sim_obs.goal, SpaceshipTarget | DockingTarget)
         # make sure you consider both types of goals accordingly
         # (Docking is a subclass of SpaceshipTarget and may require special handling

@@ -1,3 +1,4 @@
+import ast
 from dataclasses import dataclass, field
 from typing import Union
 
@@ -12,7 +13,7 @@ from dg_commons.sim.models.satellite_structures import (
 )
 
 from pdm4ar.exercises.ex13.discretization import *
-from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, SatelliteParams, AsteroidParams
+from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, AsteroidParams
 
 
 @dataclass(frozen=True)
@@ -52,7 +53,7 @@ class SatellitePlanner:
     """
 
     planets: dict[PlayerName, PlanetParams]
-    satellites: dict[PlayerName, SatelliteParams]
+    asteroids: dict[PlayerName, AsteroidParams]
     satellite: SatelliteDyn
     sg: SatelliteGeometry
     sp: SatelliteParameters
@@ -74,7 +75,7 @@ class SatellitePlanner:
     def __init__(
         self,
         planets: dict[PlayerName, PlanetParams],
-        satellites: dict[PlayerName, SatelliteParams],
+        asteroids: dict[PlayerName, AsteroidParams],
         sg: SatelliteGeometry,
         sp: SatelliteParameters,
     ):
@@ -82,7 +83,7 @@ class SatellitePlanner:
         Pass environment information to the planner.
         """
         self.planets = planets
-        self.satellites = satellites
+        self.asteroids = asteroids
         self.sg = sg
         self.sp = sp
 
