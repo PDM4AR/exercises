@@ -167,9 +167,9 @@ As a general and final advice try to understand the method **before** starting t
 
 ### Plotting function
 
-To help you get started debugging the exercise, we’ve included a simple plotting helper, `plot_traj`, in `src/pdm4ar/axercises_def/ex13/utils_plot.py`. It’s an example of a plot that can be useful during debugging; feel free to extend it or design your own visualizations. We strongly encourage you to plot whatever you need to better understand your code’s behavior and pinpoint issues. The plotting feature can be enabled and disabled in the config class present in `agent.py`. The figure below shows an exmple where the trajectory has been followed pefectly. The black arrows and continuous lines represent the computed heading of the satellite and its trajectory. The red arrows and dotted line represent the simulated heading and trajectory. The image refreshes during simulation enabaling you to visualise the simulation while it is happening and don't need to wait for the videos to be created. This is particulary useful when running multiple configs at once.
+To help you get started debugging the exercise, we’ve included a simple plotting helper, `plot_traj`, in `src/pdm4ar/axercises_def/ex13/utils_plot.py`. It’s an example of a plot that can be useful during debugging; feel free to extend it or design your own visualizations. We strongly encourage you to plot whatever you need to better understand your code’s behavior and pinpoint issues. The plotting feature can be enabled and disabled in the config class present in `agent.py`. The figure below shows an exmple where the trajectory has been followed pefectly. The black arrows and continuous lines represent the computed heading of the satellite and its trajectory. The red arrows and dotted line represent the simulated heading and trajectory. The image refreshes during simulation enabaling you to visualise the simulation while it is happening and don't need to wait for the videos to be created. This is particulary useful when running multiple configs at once. The refresh rate of the image can be changed in the `get_command()` in the angent class.
 
-![Plotting functione example](img/landing_constraints.jpg)
+![Plotting functione example](img/final_traj.png)
 
 ## Available Optimization Tools
 
