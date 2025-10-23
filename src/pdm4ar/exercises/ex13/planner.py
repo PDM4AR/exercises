@@ -97,7 +97,7 @@ class SatellitePlanner:
         # self.integrator = ZeroOrderHold(self.Satellite, self.params.K, self.params.N_sub)
         self.integrator = FirstOrderHold(self.satellite, self.params.K, self.params.N_sub)
         # Check dynamics implementation
-        if self.integrator.check_dynamics() is False:
+        if not self.integrator.check_dynamics():
             raise ValueError("Dynamics check failed.")
         else:
             print("Dynamics check passed.")

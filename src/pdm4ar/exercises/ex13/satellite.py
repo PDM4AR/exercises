@@ -24,8 +24,8 @@ class SatelliteDyn:
         self.sg = sg
         self.sp = sp
 
-        self.x = spy.Matrix(spy.symbols("x y psi vx vy dpsi delta m", real=True))  # states
-        self.u = spy.Matrix(spy.symbols("thrust ddelta", real=True))  # inputs
+        self.x = spy.Matrix(spy.symbols("x y psi vx vy dpsi", real=True))  # states
+        self.u = spy.Matrix(spy.symbols("thrust_l thrust_r", real=True))  # inputs
         self.p = spy.Matrix([spy.symbols("t_f", positive=True)])  # final time
 
         self.n_x = self.x.shape[0]  # number of states
