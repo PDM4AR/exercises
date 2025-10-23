@@ -217,7 +217,6 @@ def sim_context_from_yaml(file_path: str):
     players = {
         playername: SatelliteAgent(
             init_state=deepcopy(initstate),
-            satellites=deepcopy(satellites_params),
             planets=deepcopy(planets_params),
             asteroids=deepcopy(asteroids_params),
         )
