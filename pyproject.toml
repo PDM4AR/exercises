@@ -41,11 +41,7 @@ typing_extensions = "*"
 decorator = "*"
 
 # dg
-dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "new-type-of-spaceship" }
-# dg-commonroad-drivability-checker = "2024.1"
-
-# dg
-#dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar/2024_rocket_new_dynamics" }
+dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar/master" }
 dg-commonroad-drivability-checker = "2024.1"
 
 # mpc
