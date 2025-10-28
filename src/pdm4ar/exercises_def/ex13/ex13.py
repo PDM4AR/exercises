@@ -10,6 +10,7 @@ from dg_commons.sim.simulator import SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from dg_commons.sim.utils import run_simulation
 from reprep import MIME_MP4, Report
+from collections import defaultdict
 
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex13.perf_metrics import ex13_metrics
@@ -17,7 +18,7 @@ from pdm4ar.exercises_def.ex13.utils_config import sim_context_from_yaml
 from pdm4ar.exercises_def.ex13.get_config import get_config
 
 
-def ex13_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report]:
+def ex13_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[Tuple[str, float], Report]:
     r = Report("Final25-" + sim_context.description)
     # run simulation
     run_simulation(sim_context)
@@ -31,11 +32,17 @@ def ex13_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[float, Report
     score_str = f"{score:.2f}"
     r.text("OverallScore: ", score_str)
     r.add_child(report)
-    return score, r
+    return (sim_context.description, score), r
 
 
-def ex13_performance_aggregator(ex_out: List[float]) -> float:
-    return np.average(ex_out)
+def ex13_performance_aggregator(ex_out: List[Tuple[str, float]]) -> Tuple[str, float]:
+    # Compute the average score for each scenario (string key) in the list of results (ex_out).
+    score_dict = defaultdict(list)
+    for k, v in ex_out:
+        score_dict[k].append(v)
+    score_per_scenario = {k: float(np.mean(vs)) for k, vs in score_dict.items()}
+    scores = {"Average": float(np.mean(list(score_per_scenario.values()))), "Per Scenario": score_per_scenario}
+    return scores
 
 
 def _ex13_vis(sim_context: SimContext) -> Report:
