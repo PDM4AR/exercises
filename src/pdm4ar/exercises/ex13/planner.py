@@ -229,6 +229,8 @@ class SatellitePlanner:
             self.X_bar, self.U_bar, self.p_bar
         )
 
+        # HINT: be aware that the matrices returned by calculate_discretization are flattened in F order (this way affect your code later when you use them)
+
         self.problem_parameters["init_state"].value = self.X_bar[:, 0]
         # ...
 
