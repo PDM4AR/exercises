@@ -26,7 +26,7 @@ from shapely.geometry.base import BaseGeometry
 
 from pdm4ar.exercises.ex13.agent import SatelliteAgent
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
-from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, SatelliteParams, PlanetParams
+from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, PlanetParams
 
 
 def _load_config(file_path: str) -> dict[str, Any]:
@@ -40,14 +40,10 @@ def _parse_planets(
 ) -> tuple[
     list[BaseGeometry],
     dict[PlayerName, PlanetParams],
-    dict[PlayerName, DynObstacleModel],
-    dict[PlayerName, SatelliteParams],
     dict[PlayerName, NPAgent],
 ]:
     planets = []
     planet_params = {}
-    satellites = {}
-    satellites_params = {}
     satellites_players = {}
 
     for pn, p in c["planets"].items():
@@ -59,60 +55,13 @@ def _parse_planets(
         )
 
         planets.append(planet)
-        if "satellites" in p:
-            for sname, sat in p["satellites"].items():
-                s, ps = _parse_satellite(
-                    planet, tau=sat["tau"], orbit_r=sat["orbit_r"], omega=sat["omega"], radius=sat["radius"]
-                )
-                satellite_id = pn + "/" + sname
-                satellites[satellite_id] = s
-                satellites_players[satellite_id] = ps
-                satellites_params[satellite_id] = SatelliteParams(
-                    orbit_r=sat["orbit_r"],
-                    omega=sat["omega"],
-                    tau=sat["tau"],
-                    radius=sat["radius"],
-                )
 
-    return planets, planet_params, satellites, satellites_params, satellites_players
-
-
-def _parse_satellite(planet: Point, tau: float, orbit_r, omega, radius) -> tuple[DynObstacleModel, NPAgent]:
-    """
-    orbit_r:
-    omega:
-    tau: initial angle of satellite w.r.t. mother planet
-    """
-    x = planet.centroid.x + orbit_r * cos(tau)
-    y = planet.centroid.y + orbit_r * sin(tau)
-    curr_psi = pi / 2 + arctan2(y - planet.centroid.y, x - planet.centroid.x)
-
-    v = omega * orbit_r
-
-    satellite_1 = DynObstacleState(x=x, y=y, psi=curr_psi, vx=v, vy=0, dpsi=omega)
-    satellite_1_shape = Point(0, 0).buffer(radius)
-    dyn_obstacle = DynObstacleModel(
-        satellite_1,
-        shape=satellite_1_shape,
-        og=ObstacleGeometry(m=500, Iz=50, e=0.5),
-        op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
-        tag="satellite",
-    )
-    centripetal_acc = omega**2 * orbit_r
-    # keep sequence of commands constant
-    cmds_seq = DgSampledSequence[DynObstacleCommands](
-        timestamps=[0],
-        values=[
-            DynObstacleCommands(acc_x=0, acc_y=centripetal_acc, acc_psi=0),
-        ],
-    )
-    player = NPAgent(cmds_seq)
-    return dyn_obstacle, player
+    return planets, planet_params, satellites_players
 
 
 def _parse_asteroid(
     config: dict,
-) -> tuple[dict[PlayerName, DynObstacleModel], dict[PlayerName, SatelliteParams], dict[PlayerName, NPAgent]]:
+) -> tuple[dict[PlayerName, DynObstacleModel], dict[PlayerName, AsteroidParams], dict[PlayerName, NPAgent]]:
 
     def parse(start, orientation, velocity, radius) -> tuple[DynObstacleModel, NPAgent]:
         s = Point(start)
@@ -167,10 +116,10 @@ def sim_context_from_yaml(file_path: str):
 
     # obstacles (planets + satellites)
     if "planets" in config:
-        planets, planets_params, satellites, satellites_params, satellites_npagents = _parse_planets(config)
+        planets, planets_params, satellites_npagents = _parse_planets(config)
     else:
         planets, planets_params = [], {}
-        satellites, satellites_params, satellites_npagents = {}, {}, {}
+        satellites_npagents = {}
 
     if "asteroids" in config:
         asteroids, asteroids_params, asteroids_npagents = _parse_asteroid(config["asteroids"])
@@ -224,8 +173,6 @@ def sim_context_from_yaml(file_path: str):
 
     # Dynamic obstacles (satellites + asteroids) added to models (as obstacles) and players(their names)
     models = {playername: SatelliteModel.default(x0)}
-    for p, s in satellites.items():
-        models[p] = s  # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object
 
     for p, sagent in satellites_npagents.items():
         players[p] = sagent  # sagent is dg_commons.sim.agents.NPAgent object

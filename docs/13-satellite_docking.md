@@ -94,20 +94,22 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
 
 ## Evaluation Metrics
 
-The quality of the satellite's trajectory is evaluated based on several key factors:
+The quality of the satellite's trajectory is evaluated based on several key factors. The following list describes the metrics in order of priorities:
 
 1. **Mission Accomplishment** You safely reach the goal region.
 
-2. **Planning Efficiency:** We consider the average time spent in the "get_commands" method as a proxy for efficiency
-   and quality of the planner.
+2. **Time Taken To Reach the Goal:** The time taken to reach the goal.
 
-3. **Time Taken To Reach the Goal:** The time taken to reach the goal.
+3. **Distance travelled:** The length of the taken trajectory.
 
 4. **Actuation effort:** The average of the absolute value of the thrusters' force.
 
 5. **The precision of the planner:** Distance to the goal at the end of the episode.
 
-The metric is a weigthed sum of the different metrics mentionned above with 1000 being the maximum. Note that it is theoretically impossible to reach full score as we penalise computation time and actualtion effort which are by definition none zero if the mission is accomplished (but can be optimized). You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex11/perf_metrics.py`.
+6. **Planning Efficiency:** We consider the average time spent in the "get_commands" method as a proxy for efficiency
+   and quality of the planner.
+
+The metric is a weigthed sum of the different metrics mentionned above with 1000 being the maximum. Note that it is theoretically impossible to reach full score as we penalise computation time and actualtion effort which are by definition none zero if the mission is accomplished (but can be optimized). You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex13/perf_metrics.py`.
 
 ## Data  Structures
 
@@ -171,10 +173,14 @@ To help you get started debugging the exercise, we’ve included a simple plotti
 
 ![Plotting functione example](img/final_traj.png)
 
+## Dynamics check
+
+To help you validate your dynamics model, we have implemented a function that simulates the agent using your dynamics on a prerecorded set of inputs and compares the results against the ground truth. This verification is automatically performed in the planner’s constructor. We strongly recommend ensuring that your implementation passes this dynamics check before proceeding with the rest of your solution. Note that this function is provided solely as a debugging tool and will not be used in the final evaluation.
+
 ## Available Optimization Tools
 
 If your solution needs to solve an optimization problem, we have added powerful libraries in the container to solve
-optimization problems. For instance, `scipy.optimize`, PuLP, cvxpy and cvxopt. We tested cvxpy with "ECOS" and "MOSEK" as
+optimization problems. For instance, `scipy.optimize`, PuLP, cvxpy and cvxopt. We tested cvxpy with "ECOS" and "CLARABEL" as
 solvers for our SCvx pipeline. If you want to use other optimizers, or you are not using SCvx to solve the problem,
 **please consider that we have not tested it**.
 

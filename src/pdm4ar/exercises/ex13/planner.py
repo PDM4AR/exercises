@@ -96,7 +96,8 @@ class SatellitePlanner:
         # Discretization Method
         # self.integrator = ZeroOrderHold(self.Satellite, self.params.K, self.params.N_sub)
         self.integrator = FirstOrderHold(self.satellite, self.params.K, self.params.N_sub)
-        # Check dynamics implementation
+
+        # Check dynamics implementation (pass this test before going further. It is not part of the final evaluation, so you can comment it out later)
         if not self.integrator.check_dynamics():
             raise ValueError("Dynamics check failed.")
         else:
