@@ -203,7 +203,7 @@ if __name__ == "__main__":
     from pathlib import Path
     from pprint import pprint
 
-    configs = ["config_planet.yaml", "config_satellites.yaml", "config_staellites_diff.yaml"]
+    configs = ["config_1_public.yaml", "config_2_public.yaml", "config_3_public.yaml"]
     for c in configs:
         config_file = Path(__file__).parent / c
         config = _load_config(str(config_file))
