@@ -1,0 +1,38 @@
+# Test case 1 in pdm4ar_scvxx
+agents:
+  PDM4ARSpaceship: # do not change this name
+    color: 'blue'
+    state:
+      x: -9.0
+      y: 0.0
+      psi: 0
+      vx: 0.0
+      vy: 0.0
+      dpsi: 0.0
+    goal:
+      type: static
+      state:
+        x: 7.5
+        y: -5.0
+        psi: 0.2
+        vx: 0.0
+        vy: 0.0
+        dpsi: 0.0
+      pos_tolerance: 0.5
+      dir_tolerance: 0.5
+      vel_tolerance: 1.0
+
+planets:
+  Namek:
+    center: [0, 0]
+    radius: 2.1
+
+boundary:
+  corners:
+    - [-11, -11]
+    - [-11, 11]
+    - [11, 11]
+    - [11, -11]
+    - [-11, -11]
+
+seed: 98
