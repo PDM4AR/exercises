@@ -19,3 +19,4 @@ Welcome to PDM4AR programming exercises for autonomous robots :airplane: :helico
 * [Robot Runners](10-robot_runners.md)
 * [Spaceship](11-spaceship.md)
 * [Highway Driving](12-highway_driving.md)
+* [Satellite Docking](13-satellite_docking.md)
