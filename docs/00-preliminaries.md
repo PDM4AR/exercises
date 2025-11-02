@@ -62,7 +62,7 @@ Instructions on group formation are provided via Piazza.
 
 | Exercise **ID** | **Topic**       | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
 |-----------------|-----------------|----------------------|------------------------------|---------------------|-----------------------|
-| 13              | To be announced | 12th of November     | 2nd of December (23:59 CET)  | tentative           | 10                    |
+| 13              | Satellite Docking | 12th of November     | 2nd of December (23:59 CET)  | Confirmed           | 10                    |
 | 14              | To be announced | 3rd of December      | 23rd of December (23:59 CET) | tentative           | 10                    |
 
 #### **Extra** exercises from previous years, not graded
