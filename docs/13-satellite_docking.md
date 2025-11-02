@@ -96,20 +96,33 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
 
 The quality of the satellite's trajectory is evaluated based on several key factors. The following list describes the metrics in order of priorities:
 
-1. **Mission Accomplishment** You safely reach the goal region.
+1.1. **No Collision** You do not go out of boundary or collide with any obstable. 
 
-2. **Time Taken To Reach the Goal:** The time taken to reach the goal.
+1.2. **Mission Accomplishment** You reach the goal region.
 
-3. **Distance travelled:** The length of the taken trajectory.
+2.1. **Time Taken To Reach the Goal:** The time taken to reach the goal.
 
-4. **Actuation effort:** The average of the absolute value of the thrusters' force.
+2.2. **Distance travelled:** The length of the taken trajectory.
 
-5. **The precision of the planner:** Distance to the goal at the end of the episode.
+2.3. **Actuation effort:** The average of the absolute value of the thrusters' force.
 
-6. **Planning Efficiency:** We consider the average time spent in the "get_commands" method as a proxy for efficiency
+2.4. **The precision of the planner:** Distance to the goal at the end of the episode.
+
+2.5. **Planning Efficiency:** We consider the average time spent in the "get_commands" method as a proxy for efficiency
    and quality of the planner.
 
 The metric is a weigthed sum of the different metrics mentionned above with 1000 being the maximum. Note that it is theoretically impossible to reach full score as we penalise computation time and actualtion effort which are by definition none zero if the mission is accomplished (but can be optimized). You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex13/perf_metrics.py`.
+
+As a reference, the TA solution receives the following score on the private test cases:
+
+| Scenario            | Score       |
+|---------------------|-------------|
+| Average             |     873.53  |
+| Scenario 1          |     891.98  |
+| Scenario 2          |     874.90  |
+| Scenario 3          |     853.70  |
+
+Use these numbers as a guideline to understand the order of magnitude of expected performance for a descently optimized solution.
 
 ## Data  Structures
 
