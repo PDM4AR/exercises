@@ -204,7 +204,7 @@ if __name__ == "__main__":
     from pathlib import Path
     from pprint import pprint
 
-    configs = ["scenario1.yaml", "scenario2.yaml", "scenario3.yaml"]
+    configs = ["config_1_public.yaml", "config_2_public.yaml", "config_3_public.yaml"]
     for c in configs:
         config_file = Path(__file__).parent / c
         config = _load_config(str(config_file))
