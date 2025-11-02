@@ -24,7 +24,6 @@ from numpy import arctan2
 from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
-from pdm4ar.exercises.ex13.agent import SatelliteAgent
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
 from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, PlanetParams
 
@@ -106,6 +105,8 @@ def _parse_asteroid(
 
 
 def sim_context_from_yaml(file_path: str):
+    from pdm4ar.exercises.ex13.agent import SatelliteAgent
+
     config = _load_config(file_path=file_path)
 
     # Spaceship new
@@ -203,7 +204,7 @@ if __name__ == "__main__":
     from pathlib import Path
     from pprint import pprint
 
-    configs = ["config_planet.yaml", "config_satellites.yaml", "config_staellites_diff.yaml"]
+    configs = ["scenario1.yaml", "scenario2.yaml", "scenario3.yaml"]
     for c in configs:
         config_file = Path(__file__).parent / c
         config = _load_config(str(config_file))

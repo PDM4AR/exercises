@@ -6,10 +6,10 @@ def get_config() -> List[str]:
 
     configs = [
         # public tests
-        "config_planet_target.yaml",
-        "config_planet.yaml",
-        "config_asteroid.yaml",
-        # "config_local.yaml",
+        "scenario1.yaml",
+        "scenario2.yaml",
+        "scenario3.yaml",
+        # "scenario_custom.yaml",
     ]
 
     return configs
