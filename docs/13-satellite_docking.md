@@ -96,7 +96,7 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
 
 The quality of the satellite's trajectory is evaluated based on several key factors. The following list describes the metrics in order of priorities:
 
-1.1. **No Collision** You do not go out of boundary or collide with any obstable. 
+1.1. **No Collision** You neither leave the designated boundary nor collide with any obstacle.
 
 1.2. **Mission Accomplishment** You reach the goal region.
 
