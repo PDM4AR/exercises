@@ -1,0 +1,44 @@
+agents:
+  PDM4AR_1:
+    state:
+      x: -9
+      y: -9
+      psi: 1
+    goal: [ 0, 0 ]  # This can be kept for compatibility or used as a fallback
+    goal_radius: 0.5
+    capacity: 2
+    color: 'saddlebrown'
+  # PDM4AR_2:
+  #   state:
+  #     x: 9
+  #     y: 9
+  #     psi: 3.14
+  #   goal: [ 0, 0 ]
+  #   goal_radius: 0.5
+  #   capacity: 2
+  #   color: 'steelblue'
+
+# Shared goals that any agent can collect
+shared_goals:
+  - id: 'goal_1'
+    center: [ -5, -5 ]
+    radius: 0.3
+  # - id: 'goal_2'
+  #   center: [ 5, 5 ]
+  #   radius: 0.3
+  # - id: 'goal_3'
+  #   center: [ -5, 5 ]
+  #   radius: 0.3
+  # - id: 'goal_4'
+  #   center: [ 5, -5 ]
+  #   radius: 0.3
+
+# Collection points where goals should be delivered
+collection_points:
+  - id: 'collection_1'
+    center: [ 0, 0 ]
+    radius: 1.0
+
+boundary: [ [ -11, -11 ], [ -11, 11 ], [ 11, 11 ], [ 11, -11 ], [ -11, -11 ] ]
+
+seed: 98

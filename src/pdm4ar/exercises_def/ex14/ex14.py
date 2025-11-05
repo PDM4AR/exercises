@@ -55,11 +55,8 @@ def _ex14_vis(sim_context: SimContext) -> Report:
 
 def get_exercise14():
     config_dir = Path(__file__).parent
-    name_1, name_2 = "config_1.yaml", "config_2.yaml"
-    test_values: List[Mapping[str, Any]] = [
-        load_config(str(config_dir / name_1)),
-        load_config(str(config_dir / name_2)),
-    ]
+    config_files = ["config_test.yaml"]
+    test_values: List[Mapping[str, Any]] = [load_config(str(config_dir / config_file)) for config_file in config_files]
 
     return Exercise[SimContext, None](
         desc="Final'25- planning course exercise.",

@@ -127,20 +127,36 @@ class AgentProcess(Agent):
 
     # --- state tracking interface ---
     def set_capacity(self, capacity: int):
-        assert capacity > 0 and isinstance(capacity, int), "Capacity must be a positive integer"
+        if not isinstance(capacity, int) or capacity <= 0:
+            raise ValueError("Capacity must be a positive integer")
+        if self._current_load > capacity:
+            raise ValueError(f"Cannot set capacity to {capacity}; current load {self._current_load} would exceed it")
         self._capacity = capacity
 
     def get_capacity(self) -> int:
         return self._capacity
 
     def set_current_load(self, load: int):
-        assert 0 <= load <= self._capacity and isinstance(
-            load, int
-        ), "Load must be a non-negative integer within capacity"
+        if not isinstance(load, int):
+            raise TypeError("Load must be an integer")
+        if load < 0:
+            raise ValueError("Load must be a non-negative integer")
+        if load > self._capacity:
+            raise ValueError(f"Agent load {load} exceeds capacity {self._capacity}")
         self._current_load = load
 
     def get_current_load(self) -> int:
         return self._current_load
+
+    def grab_goal(self):
+        if self._current_load + 1 > self._capacity:
+            raise ValueError(f"Agent load {self._current_load + 1} exceeds capacity {self._capacity}")
+        self._current_load += 1
+
+    def deliver_goal(self):
+        if self._current_load - 1 < 0:
+            raise ValueError(f"Agent load {self._current_load - 1} is negative")
+        self._current_load -= 1
 
     # --- internal ---
     def close(self, timeout: Optional[float] = 5.0):

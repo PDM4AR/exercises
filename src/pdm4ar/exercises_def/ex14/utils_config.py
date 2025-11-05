@@ -1,7 +1,7 @@
 from collections import defaultdict
 from copy import deepcopy
 from decimal import Decimal as D
-from typing import Any, Mapping
+from typing import Any, Mapping, List
 
 import yaml
 from dg_commons import PlayerName, fd
@@ -30,12 +30,16 @@ def load_config(file_path: str) -> Mapping[str, Any]:
 
 def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
     #  obstacles
-    shapes = list(map(Polygon, config["static_obstacles"]))
-    obstacles = list(map(StaticObstacle, shapes))
+    obstacles = None
+    if "static_obstacles" in config:
+        shapes = list(map(Polygon, config["static_obstacles"]))
+        obstacles = list(map(StaticObstacle, shapes))
+
+    # boundaries
     boundary = [
         StaticObstacle(LinearRing(config["boundary"])),
     ]
-    static_obstacles = obstacles + boundary
+    static_obstacles = obstacles + boundary if obstacles is not None else boundary
 
     # add agents
     agents_dict = config["agents"]
@@ -62,14 +66,14 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
     shared_goals_manager = None
     if "shared_goals" in config and "collection_points" in config:
         # Parse shared goals
-        shared_goals = []
+        shared_goals: List[SharedPolygonGoal] = []
         for goal_data in config["shared_goals"]:
             goal_poly = Point(goal_data["center"]).buffer(goal_data["radius"])
             shared_goal = SharedPolygonGoal(goal_id=goal_data["id"], polygon=goal_poly)
             shared_goals.append(shared_goal)
 
         # Parse collection points
-        collection_points = []
+        collection_points: List[CollectionPoint] = []
         for cp_data in config["collection_points"]:
             cp_poly = Point(cp_data["center"]).buffer(cp_data["radius"])
             collection_point = CollectionPoint(point_id=cp_data["id"], polygon=cp_poly)
