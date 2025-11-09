@@ -56,7 +56,7 @@ Note that the pose and velocities are expressed in global frame.
     - $\frac{dv_x}{dt} = \frac{1}{m} \cos(\psi) \cdot (F_{r} + F_{l})$
     - $\frac{dv_y}{dt} = \frac{1}{m} \sin(\psi) \cdot (F_{r} + F_{l})$
 4. **Angular Velocity Dynamics:**
-    - $\frac{d\dot{\psi}}{dt} = \frac{l_m}{I} \cdot (F_{r} + F_{l})$
+    - $\frac{d\dot{\psi}}{dt} = \frac{l_m}{I} \cdot (F_{r} - F_{l})$
 
 If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}]$, and the control inputs 
 are $U = [F_{r}, F_{l}]$, we obtain the following dynamics equations:
