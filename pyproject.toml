@@ -57,6 +57,7 @@ pulp = ">=2.7.0"
 cvxpy = { version = "1.5.3", extras = ["CVXOPT", "CBC", ] }
 casadi = "3.6.5"
 sympy = "1.13.0"
+cloudpickle = "3.1.2"
 
 # notebooks
 ipython = "8.26.0"
