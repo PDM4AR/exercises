@@ -15,7 +15,7 @@ from dg_commons.sim.scenarios import DgScenario
 from dg_commons.sim.shared_goals import CollectionPoint, SharedPolygonGoal, SharedPolygonGoalsManager
 from dg_commons.sim.sim_perception import FovObsFilter, ObsFilter
 from dg_commons.sim.simulator import SimContext
-from pdm4ar.exercises.ex14.agent import Pdm4arAgent
+from pdm4ar.exercises.ex14.agent import Pdm4arAgent, Pdm4arGlobalPlanner
 from pdm4ar.exercises_def.ex14.agent_process import AgentProcess
 from shapely import LinearRing, Point, Polygon
 
@@ -62,6 +62,9 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
     lidar2d = VisRangeSensor(range=30)
     sensors: dict[PlayerName, ObsFilter] = defaultdict(lambda: FovObsFilter(deepcopy(lidar2d)))
 
+    # global planner
+    global_planner = Pdm4arGlobalPlanner()
+
     # shared goals manager (optional)
     shared_goals_manager = None
     if "shared_goals" in config and "collection_points" in config:
@@ -97,6 +100,7 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
         seed=config["seed"],
         description=config["config_name"],
         shared_goals_manager=shared_goals_manager,
+        global_planner=global_planner,
     )
 
 

@@ -8,24 +8,24 @@ agents:
     goal_radius: 0.5
     capacity: 2
     color: 'saddlebrown'
-  # PDM4AR_2:
-  #   state:
-  #     x: 9
-  #     y: 9
-  #     psi: 3.14
-  #   goal: [ 0, 0 ]
-  #   goal_radius: 0.5
-  #   capacity: 2
-  #   color: 'steelblue'
+  PDM4AR_2:
+    state:
+      x: 9
+      y: 9
+      psi: 3.14
+    goal: [ 0, 0 ]
+    goal_radius: 0.5
+    capacity: 2
+    color: 'steelblue'
 
 # Shared goals that any agent can collect
 shared_goals:
   - id: 'goal_1'
     center: [ -5, -5 ]
     radius: 0.3
-  # - id: 'goal_2'
-  #   center: [ 5, 5 ]
-  #   radius: 0.3
+  - id: 'goal_2'
+    center: [ 5, 5 ]
+    radius: 0.3
   # - id: 'goal_3'
   #   center: [ -5, 5 ]
   #   radius: 0.3

@@ -115,10 +115,55 @@ class AgentProcess(Agent):
         self._capacity = 1  # default capacity
         self._current_load = 0
 
-    # --- Agent interface ---
-    def on_episode_init(self, init_sim_obs: InitSimObservations):
-        return _MethodProxy(self, "on_episode_init")(init_sim_obs)
+    def __setattr__(self, name: str, value):
+        """Forward non-private attribute sets to the remote agent.
 
+        Attributes starting with '_' are treated as local and set on the
+        proxy object. Other attributes are sent to the remote agent by
+        calling its __setattr__ via RPC so the remote instance stays in
+        sync (e.g. setting `player.name = ...`). We also mirror the
+        attribute locally for convenience.
+        """
+        # Local internals: set directly
+        if name.startswith("_"):
+            return object.__setattr__(self, name, value)
+
+        # If the connection or rpc call machinery isn't ready yet, fall
+        # back to setting locally.
+        if not hasattr(self, "_conn") or getattr(self, "_closed", True):
+            return object.__setattr__(self, name, value)
+
+        # Forward to remote agent: call its __setattr__
+        try:
+            # Use the existing RPC mechanism to call remote __setattr__
+            self._rpc_call("call", "__setattr__", ((name, value), {}))
+            # Mirror locally so subsequent local reads see the same value
+            object.__setattr__(self, name, value)
+        except Exception:
+            # If remote set fails for any reason, fall back to local set
+            object.__setattr__(self, name, value)
+
+    def __getattr__(self, name: str):
+        """Attempt to retrieve non-local attributes from the remote agent.
+
+        Called only when attribute lookup on the proxy fails. We forward
+        the lookup to the remote agent's __getattribute__ via RPC. If the
+        remote lookup fails, raise AttributeError.
+        """
+        # Do not proxy private attributes
+        if name.startswith("_"):
+            raise AttributeError(name)
+
+        # If proxy isn't fully initialized, behave like normal attribute error
+        if not hasattr(self, "_conn") or getattr(self, "_closed", True):
+            raise AttributeError(name)
+
+        try:
+            return self._rpc_call("call", "__getattribute__", ((name,), {}))
+        except Exception as e:
+            raise AttributeError(f"Remote attribute error: {name}: {e}")
+
+    # --- Agent interface ---
     def get_commands(self, sim_obs: SimObservations) -> Any:
         return _MethodProxy(self, "get_commands")(sim_obs)
 
