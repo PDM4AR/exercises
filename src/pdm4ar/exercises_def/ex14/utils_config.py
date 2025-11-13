@@ -55,11 +55,8 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
         player = AgentProcess(Pdm4arAgent)
         # player.set_capacity(player_capacity)
         players[pn] = player
-        goal_poly = Point(p_attr["goal"]).buffer(p_attr["goal_radius"])
-        goal = PolygonGoal(goal_poly)
-        missions[pn] = goal
     # sensing
-    lidar2d = VisRangeSensor(range=30)
+    lidar2d = VisRangeSensor(range=5)
     sensors: dict[PlayerName, ObsFilter] = defaultdict(lambda: FovObsFilter(deepcopy(lidar2d)))
 
     # global planner
@@ -94,8 +91,8 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
         param=SimParameters(
             dt=D("0.01"),
             dt_commands=D("0.1"),
-            sim_time_after_collision=D(3),
-            max_sim_time=D(90),
+            sim_time_after_collision=D("Infinity"),
+            max_sim_time=D(60),
         ),
         seed=config["seed"],
         description=config["config_name"],
