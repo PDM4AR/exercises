@@ -28,7 +28,7 @@ def ex14_evaluation(sim_config: Mapping[str, Any], ex_out=None) -> Tuple[float, 
     score_str = f"{score:.2f}\n" + pprint.pformat(avg_player_metrics)
     r.text("OverallScore: ", score_str)
     for pm in players_metrics:
-        r.text(f"EpisodeEvaluation-{pm.player_name}", pprint.pformat(pm))
+        r.text(f"AgentScore-{pm.player_name}", pprint.pformat(pm))
     r.add_child(report)
     return score, r
 
