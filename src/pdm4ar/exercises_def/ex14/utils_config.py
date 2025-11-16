@@ -53,6 +53,7 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
         models[pn] = model
         # player_capacity = p_attr["capacity"]
         player = AgentProcess(Pdm4arAgent)
+        # player = Pdm4arAgent()
         # player.set_capacity(player_capacity)
         players[pn] = player
     # sensing
