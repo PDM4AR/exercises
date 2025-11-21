@@ -12,12 +12,12 @@ from pdm4ar.exercises_def import Exercise, NodeColors, EdgeColors
 from pdm4ar.exercises_def.structures import PerformanceResults
 from pdm4ar.exercises.ex03 import (
     informed_graph_search_algo,
-    compute_path_cost,
     UniformCostSearch,
     Astar,
 )
 from pdm4ar.exercises_def.ex02 import str_from_path
-from pdm4ar.exercises.ex02.structures import X
+from pdm4ar.exercises.ex02.structures import X, Path
+from pdm4ar.exercises.ex03.structures import WeightedGraph
 from pdm4ar.exercises_def.ex03.data import (
     ex3_compute_expected_results,
     get_test_informed_gsproblem,
@@ -38,6 +38,16 @@ class Ex03PerformanceResult(PerformanceResults):
         assert self.solve_time >= 0, self.solve_time
         assert 0 <= self.heuristic_efficiency, self.heuristic_efficiency
 
+
+def compute_path_cost(wG: WeightedGraph, path: Path):
+    """A utility function to compute the cumulative cost along a path"""
+    if not path:
+        return float("inf")
+    total: float = 0
+    for i in range(1, len(path)):
+        inc = wG.get_weight(path[i - 1], path[i])
+        total += inc
+    return total
 
 def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex03PerformanceResult, Report]:
     # ex properties
@@ -394,7 +404,7 @@ def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03Performanc
     return Ex03PerformanceResult(accuracy=avgs[0], solve_time=avgs[1], heuristic_efficiency=avgs[2])
 
 
-def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> Callable:
+def validate_impl_wrapper(func: Callable, disallowed_dependencies: dict[str, set[str]]) -> Callable:
     called_funcs = []
     detected_funcs = set()  # Track already detected libraries
 
@@ -406,24 +416,27 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> 
         module = frame.f_globals.get("__name__", "")
         func_name = frame.f_code.co_name
         for lib in disallowed_dependencies:
-            if module.startswith(lib) and func_name == "astar_path" or func_name == "shortest_path":
-                identifier = (lib, func_name)
-                if identifier not in detected_funcs:
-                    # Only record each function once
-                    detected_funcs.add(identifier)
+            if module.startswith(lib):
+                # print(f"Found call to {lib}")
+                if not disallowed_dependencies[lib] or func_name in disallowed_dependencies[lib]:
+                    # print(f"Detected disallowed dependency: {lib}.{func_name}")
+                    identifier = (lib, func_name)
+                    if identifier not in detected_funcs:
+                        # Only record each function once
+                        detected_funcs.add(identifier)
 
-                    traces = traceback.extract_stack(frame)
-                    for trace in reversed(traces):
-                        if trace.name == func.__name__:
-                            called_funcs.append(
-                                {
-                                    "library": lib,
-                                    "func_name": trace.name,
-                                    "lineno": trace.lineno,
-                                    "filename": trace.filename.split("/")[-1],  # Get the filename only
-                                }
-                            )
-                            break
+                        traces = traceback.extract_stack(frame)
+                        for trace in reversed(traces):
+                            if trace.name == func.__name__:
+                                called_funcs.append(
+                                    {
+                                        "library": lib,
+                                        "func_name": trace.name,
+                                        "lineno": trace.lineno,
+                                        "filename": trace.filename.split("/")[-1],  # Get the filename only
+                                    }
+                                )
+                                break
         return trace_calls
 
     def wrapper(*args, **kwargs):
@@ -440,7 +453,8 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: set[str]) -> 
 
 
 def get_exercise3() -> Exercise:
-    disallowed_dependencies = {"networkx"}
+    disallowed_dependencies = {"networkx": {"astar_path", "shortest_path"}, 
+                               "ctypes": set()}    # ctypes is disallowed in its entirety
 
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
     test_values = list()

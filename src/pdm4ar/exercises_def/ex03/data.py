@@ -47,7 +47,7 @@ class TestValueEx3(ExIn):
     algo_name: str
     h_count_fn: Callable
     impl_validate_func_wrapper: Optional[Callable] = None
-    disallowed_dependencies: Optional[Set[str]] = None
+    disallowed_dependencies: Optional[dict[str, set[str]]] = None
     def str_id(self) -> str:
         return str(self.algo_name)
 

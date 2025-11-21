@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-hello-world.html" target="_top">Hello-world</a></td>
+    <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-helloworld.html" target="_top">Hello-world</a></td>
   </tr>
 </table>
 
@@ -56,21 +56,24 @@ The final goal of this exercise is to implement the ```calculate_dubins_path``` 
 
 The problem is split into multiple (individually graded) subtask, to give you some guidance on how to eventually implement ```calculate_dubins_path```:
 
-### Task
-1. [5%] Given the above dynamics and parameters, calculate the minimum turning radius of the back wheel for a generic car.
+### Tasks
+### 1. [5%] Computing minimum turning radius
+Given the above dynamics and parameters, calculate the minimum turning radius of the back wheel for a generic car.
 Please implement this calculation in:
  ```python 
  def calculate_car_turning_radius(wheel_base: float, max_steering_angle: float) -> DubinsParam:
   # TODO implement here your solution
   return DubinsParam(min_radius=0)
   ``` 
-2. [5%] In order to generate a Dubins' path, we need to be able to compute the possible turning circles for a given configuration. Implement this functionality in the method:
+### 2. [5%] Computing turning circles
+In order to generate a Dubins' path, we need to be able to compute the possible turning circles for a given configuration. Implement this functionality in the method:
 ```python
 def calculate_turning_circles(current_config: SE2Transform, radius: float) -> TurningCircle:
     # TODO implement here your solution
     return TurningCircle(left_circle=Curve.create_circle(), right_circle=Curve.create_circle())
 ```
-3. [20%] As a next step, we need to be able to connect two turning circles with a straight line segment which is tangent to the two circles.  To simplify computation for the next step, only return tangents which are possible for a car to complete starting from `circle_start` to `circle_end` (i.e. ignore tangents back to the start). Additionally, only return the valid tangent line(s) in which the car follows the directions of the turning circles. Note in principle ```circle_start``` and `circle_end` can have different radii, however we will only check the case when the radii are equal, you free to implement a more general method. If no tangent exists return an empty ```List```. 
+### 3. [20%] Connecting the turning circles
+As a next step, we need to be able to connect two turning circles with a straight line segment which is tangent to the two circles.  To simplify computation for the next step, only return tangents which are possible for a car to complete starting from `circle_start` to `circle_end` (i.e. ignore tangents back to the start). Additionally, only return the valid tangent line(s) in which the car follows the directions of the turning circles. Note in principle ```circle_start``` and `circle_end` can have different radii, however we will only check the case when the radii are equal, you free to implement a more general method. If no tangent exists return an empty ```List```. 
 The order of the lines in the List is not important. Write your code in:
  ```python
  def calculate_tangent_btw_circles(circle_start: Curve, circle_start: Curve) -> List[Line]:
@@ -78,9 +81,8 @@ The order of the lines in the List is not important. Write your code in:
     return [] # i.e. [Line(),]
  ``` 
 
-4. [50%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g. line with length = 0) in the returned list.
-4. [50%] Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g. line with length = 0) in the returned list.
-Implement it in:
+### 4. [50%] Generating Dubin's path
+Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g. line with length = 0) in the returned list.
 ```python
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
     # TODO implement here your solution
@@ -131,25 +133,25 @@ def compare_spline_to_dubins(
 ```
 
 **Hint**  
-- A cubic Hermite spline is a piecewise polynomial interpolation method where each segment is defined by two endpoints and their corresponding tangents. Given two points \( p_0, p_1 \in \mathbb{R}^2 \) and their tangents \( t_0, t_1 \in \mathbb{R}^2 \), the cubic Hermite spline for \( s \in [0, 1] \) is:
+- A cubic Hermite spline is a piecewise polynomial interpolation method where each segment is defined by two endpoints and their corresponding tangents. Given two points $p_0, p_1 \in \mathbb{R}^2$ and their tangents $t_0, t_1 \in \mathbb{R}^2$, the cubic Hermite spline for $s \in [0, 1]$ is:
 
-  \( h(s) = h_{00}(s) p_0 + h_{10}(s) t_0 + h_{01}(s) p_1 + h_{11}(s) t_1 \)
+  $h(s) = h_{00}(s) p_0 + h_{10}(s) t_0 + h_{01}(s) p_1 + h_{11}(s) t_1$
 
   where the Hermite basis functions are:  
-  - \( h_{00}(s) = 2s^3 - 3s^2 + 1 \)  
-  - \( h_{10}(s) = s^3 - 2s^2 + s \)  
-  - \( h_{01}(s) = -2s^3 + 3s^2 \)  
-  - \( h_{11}(s) = s^3 - s^2 \)
+  - $h_{00}(s) = 2s^3 - 3s^2 + 1$
+  - $h_{10}(s) = s^3 - 2s^2 + s$  
+  - $h_{01}(s) = -2s^3 + 3s^2$  
+  - $h_{11}(s) = s^3 - s^2$
 
-- To **approximate curvature geometrically**, sample a dense set of points along the spline. Then for each triplet of consecutive points \( a, b, c \):
-  - Compute \( \vec{ba} = b - a \), \( \vec{bc} = c - b \)
+- To **approximate curvature geometrically**, sample a dense set of points along the spline. Then for each triplet of consecutive points $a, b, c$:
+  - Compute $\vec{ba} = b - a$, $\vec{bc} = c - b$
   - Skip the triplet if any vector is near-zero (to avoid instability)
-  - Compute the angle \( \Delta\theta \) between \( \vec{ba} \) and \( \vec{bc} \)
+  - Compute the angle $\Delta\theta$ between $\vec{ba}$ and $\vec{bc}$
   - Estimate curvature locally using:
 
-    \( \kappa \approx \frac{\Delta\theta}{\|\vec{ba}\|} \)
+    $\kappa \approx \frac{\Delta\theta}{\|\vec{ba}\|}$
 
-  - Keep track of the maximum curvature along the spline and mark the spline as **feasible** if \( \max \kappa \leq 1/\text{radius} \)
+  - Keep track of the maximum curvature along the spline and mark the spline as **feasible** if $\max \kappa \leq 1/\text{radius}$
 
 - Special case: when the start and end **positions** are the same:
   - Same heading → **feasible**  
@@ -157,10 +159,11 @@ def compare_spline_to_dubins(
 
 **Note on tangent vector scale**
 
-The tangent vectors \( t_0 \) and \( t_1 \), which define the direction of the Hermite spline at the start and end points, must be **scaled by the distance between the start and end positions**. This ensures that the shape of the spline is consistent and comparable across different queries. The team has decided to use this distance as the standard scale for all tangent vectors.
+The tangent vectors $t_0$ and $t_1$, which define the direction of the Hermite spline at the start and end points, must be **scaled by the distance between the start and end positions**. This ensures that the shape of the spline is consistent and comparable across different queries. The team has decided to use this distance as the standard scale for all tangent vectors.
 
 
-6. [10%] Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
+### 6. [10%] Computing reversing path
+Thanks to your work the taxis are finally able to drive between waypoints. However, customers complain that the cars cannot
 park backwards and sidewards when they should pick them up. Instead, they wait in the middle of the street...
 In the following, extend the code implemented in task 4 to allow also for situation when the car needs to drive backwards. For simplicity, we will **only** consider cases with **three** path segments all completed in reverse (i.e. $C^{-}S^{-}C^{-}$ and $C^{-}C^{-}C^{-}$ type paths) + all optimal forward dubins paths coming from ```calculate_dubins_path``` (don't forget to call this function in the new method). Use the `Gear.REVERSE` enum value to indicate that the car drives backwards. For example, the following reverse path is a $R^{-}S^{-}L^{-}$ path (i.e. the direction of steering wheel input) with the `start_config.theta` and `end_config.theta` values corresponding to the direction that the car is facing towards.
 

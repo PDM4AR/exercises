@@ -112,8 +112,8 @@ class AgentProcess(Agent):
         self._last_function_call_time = 0.0
 
         # --- state tracking ---
-        self._capacity = 1  # default capacity
-        self._current_load = 0
+        # self._capacity = 1  # default capacity
+        # self._current_load = 0
 
     def __setattr__(self, name: str, value):
         """Forward non-private attribute sets to the remote agent.
@@ -171,37 +171,37 @@ class AgentProcess(Agent):
         return _MethodProxy(self, "on_get_extra")()
 
     # --- state tracking interface ---
-    def set_capacity(self, capacity: int):
-        if not isinstance(capacity, int) or capacity <= 0:
-            raise ValueError("Capacity must be a positive integer")
-        if self._current_load > capacity:
-            raise ValueError(f"Cannot set capacity to {capacity}; current load {self._current_load} would exceed it")
-        self._capacity = capacity
+    # def set_capacity(self, capacity: int):
+    #     if not isinstance(capacity, int) or capacity <= 0:
+    #         raise ValueError("Capacity must be a positive integer")
+    #     if self._current_load > capacity:
+    #         raise ValueError(f"Cannot set capacity to {capacity}; current load {self._current_load} would exceed it")
+    #     self._capacity = capacity
 
-    def get_capacity(self) -> int:
-        return self._capacity
+    # def get_capacity(self) -> int:
+    #     return self._capacity
 
-    def set_current_load(self, load: int):
-        if not isinstance(load, int):
-            raise TypeError("Load must be an integer")
-        if load < 0:
-            raise ValueError("Load must be a non-negative integer")
-        if load > self._capacity:
-            raise ValueError(f"Agent load {load} exceeds capacity {self._capacity}")
-        self._current_load = load
+    # def set_current_load(self, load: int):
+    #     if not isinstance(load, int):
+    #         raise TypeError("Load must be an integer")
+    #     if load < 0:
+    #         raise ValueError("Load must be a non-negative integer")
+    #     if load > self._capacity:
+    #         raise ValueError(f"Agent load {load} exceeds capacity {self._capacity}")
+    #     self._current_load = load
 
-    def get_current_load(self) -> int:
-        return self._current_load
+    # def get_current_load(self) -> int:
+    #     return self._current_load
 
-    def grab_goal(self):
-        if self._current_load + 1 > self._capacity:
-            raise ValueError(f"Agent load {self._current_load + 1} exceeds capacity {self._capacity}")
-        self._current_load += 1
+    # def grab_goal(self):
+    #     if self._current_load + 1 > self._capacity:
+    #         raise ValueError(f"Agent load {self._current_load + 1} exceeds capacity {self._capacity}")
+    #     self._current_load += 1
 
-    def deliver_goal(self):
-        if self._current_load - 1 < 0:
-            raise ValueError(f"Agent load {self._current_load - 1} is negative")
-        self._current_load -= 1
+    # def deliver_goal(self):
+    #     if self._current_load - 1 < 0:
+    #         raise ValueError(f"Agent load {self._current_load - 1} is negative")
+    #     self._current_load -= 1
 
     # --- internal ---
     def close(self, timeout: Optional[float] = 5.0):

@@ -4,8 +4,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pdm4ar"
-version = "2024.0.0"
-authors = ["IDSC Frazzoli <azanardi@ethz.ch>"]
+version = "2025.0.0"
+authors = ["IDSC Frazzoli <yuesli@ethz.ch>"]
 
 description = "Exercises for the course Planning and Decision Making for Autonomous Robots at ETH Zurich"
 readme = "README.md"
@@ -41,11 +41,7 @@ typing_extensions = "*"
 decorator = "*"
 
 # dg
-dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar2024/fix-arm64" }
-# dg-commonroad-drivability-checker = "2024.1"
-
-# dg
-#dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar/2024_rocket_new_dynamics" }
+dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar/master" }
 dg-commonroad-drivability-checker = "2024.1"
 
 # mpc
@@ -54,6 +50,8 @@ do-mpc = "4.6.5"
 # optimization
 scipy = "1.14.0"
 pulp = ">=2.7.0"
+qdldl = "0.1.7.post5" # later versions do not work for M chips
+osqp = "0.6.3"
 cvxpy = { version = "1.5.3", extras = ["CVXOPT", "CBC", ] }
 casadi = "3.6.5"
 sympy = "1.13.0"

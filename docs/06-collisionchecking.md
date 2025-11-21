@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-hello-world.html" target="_top">Hello-world</a></td>
+    <th><i>Prerequisites:</i></th><td><a href="./00-preliminaries.html" target="_top">Preliminaries</a></td><td><a href="./01-helloworld.html" target="_top">Hello-world</a></td>
   </tr>
 </table>
 
@@ -240,11 +240,6 @@ For this exercise our performance metric is accuracy and execution time.
 | 06          | 05                       | 30                | 30                    |
 | 07          | 05                       | 20                | 20                    |
 | 08          | 05                       | 30                | 30                    |
-
-### How to run
-
-Make sure to update your repo before running the exercise. 
-Please refer to [Hello World](01-helloworld.md) for instructions.
 
 ### Advice
 
