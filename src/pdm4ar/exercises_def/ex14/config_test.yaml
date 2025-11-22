@@ -4,14 +4,12 @@ agents:
       x: -9
       y: -9
       psi: 1
-    capacity: 2
     color: 'saddlebrown'
   PDM4AR_2:
     state:
       x: 9
       y: 9
       psi: 3.14
-    capacity: 2
     color: 'steelblue'
 
 # Shared goals that any agent can collect

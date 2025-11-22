@@ -4,32 +4,24 @@ agents:
       x: 0
       y: 10
       psi: 1
-    goal: [ 4.5, -2 ]
-    goal_radius: 0.5
     color: 'red'
   PDM4AR_2:
     state:
       x: -2
       y: -4
       psi: 1
-    goal: [ 6,4 ]
-    goal_radius: 0.5
     color: 'green'
   PDM4AR_3:
     state:
       x: -9
       y: 9
       psi: 1
-    goal: [ 8,8 ]
-    goal_radius: 0.5
     color: 'blue'
   PDM4AR_4:
     state:
       x: -9
       y: -9
       psi: 1
-    goal: [ 10,10 ]
-    goal_radius: 0.5
     color: 'saddlebrown'
 
 shared_goals:
@@ -51,12 +43,6 @@ shared_goals:
   - id: 'goal_6'
     center: [ 1, -2 ]
     radius: 0.3
-  # - id: 'goal_3'
-  #   center: [ -5, 5 ]
-  #   radius: 0.3
-  # - id: 'goal_4'
-  #   center: [ 5, -5 ]
-  #   radius: 0.3
 
 # Collection points where goals should be delivered
 collection_points:

@@ -4,8 +4,6 @@ agents:
       x: -9
       y: -9
       psi: 1
-    goal: [ 0, 0 ]  # This can be kept for compatibility or used as a fallback
-    goal_radius: 0.5
     capacity: 2
     color: 'saddlebrown'
   PDM4AR_2:
@@ -13,8 +11,6 @@ agents:
       x: 9
       y: 9
       psi: 3.14
-    goal: [ 0, 0 ]
-    goal_radius: 0.5
     capacity: 2
     color: 'steelblue'
 

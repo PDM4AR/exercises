@@ -4,8 +4,6 @@ agents:
       x: -9
       y: -9
       psi: 1
-    goal: [ 10,10 ]
-    goal_radius: 0.5
     color: 'saddlebrown'
 
 shared_goals:
@@ -24,12 +22,6 @@ shared_goals:
   - id: 'goal_5'
     center: [ 7, -2 ]
     radius: 0.3
-  # - id: 'goal_3'
-  #   center: [ -5, 5 ]
-  #   radius: 0.3
-  # - id: 'goal_4'
-  #   center: [ 5, -5 ]
-  #   radius: 0.3
 
 # Collection points where goals should be delivered
 collection_points:
