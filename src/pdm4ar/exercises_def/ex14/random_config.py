@@ -34,13 +34,12 @@ DEFAULT_AGENT_COLORS = [
 class GenerationParams:
     """Tunables for random config generation."""
 
-    robot_width: float = 0.6
-    margin: float = 0.2
-    goal_radius: float = 0.5
+    robot_width: float = 1.2
+    margin: float = 0.3
+    goal_radius: float = 0.3
     collection_radius: float = 0.8
-    agent_capacity: int = 2
-    obstacle_size_range: tuple[float, float] = (1.0, 2.5)
-    max_attempts: int = 5000
+    obstacle_size_range: tuple[float, float] = (2.0, 10.0)
+    max_attempts: int = 1000
 
 
 def generate_random_config(
@@ -64,7 +63,7 @@ def generate_random_config(
     rng = random.Random(seed)
 
     # Derived clearances
-    corridor_clearance = params.robot_width + params.margin
+    corridor_clearance = params.robot_width + params.margin * 2
     footprint_clearance = params.robot_width * 0.5 + params.margin
 
     boundary_coords = _ensure_closed_boundary(boundary or DEFAULT_BOUNDARY)
@@ -135,22 +134,9 @@ def generate_random_config(
         )
         agent_positions.append((location, agent_radius))
 
-        goal_point = _choose_agent_goal(
-            rng=rng,
-            collection_points=collection_points,
-            shared_goals=shared_goals,
-            boundary=boundary_poly,
-            clearance=footprint_clearance + params.goal_radius,
-            obstacles=obstacles,
-            other_points=placed_points + agent_positions,
-            max_attempts=params.max_attempts,
-        )
 
         agents[f"PDM4AR_{idx + 1}"] = {
             "state": {"x": location.x, "y": location.y, "psi": rng.uniform(-math.pi, math.pi)},
-            "goal": goal_point,
-            "goal_radius": params.goal_radius,
-            "capacity": params.agent_capacity,
             "color": DEFAULT_AGENT_COLORS[idx % len(DEFAULT_AGENT_COLORS)],
         }
 
@@ -226,14 +212,17 @@ def _sample_obstacles(
     if min_size <= 0 or max_size <= 0 or max_size < min_size:
         raise ValueError("Invalid obstacle size range")
 
-    max_radius = max_size * 0.5
-    inner_boundary = boundary.buffer(-(corridor_clearance + max_radius))
-    if inner_boundary.is_empty:
+    # max_radius = max_size * 0.5
+    # inner_boundary = boundary.buffer(-(corridor_clearance + max_radius))
+    if boundary.buffer(-(corridor_clearance + max_size * 0.5)).is_empty:
         raise ValueError("Boundary too small to place obstacles with the requested clearance.")
 
     for _ in range(num_obstacles):
         for _ in range(max_attempts):
             radius = rng.uniform(min_size, max_size) * 0.5
+            inner_boundary = boundary.buffer(-(radius))
+            if inner_boundary.is_empty:
+                continue
             cx = rng.uniform(inner_boundary.bounds[0], inner_boundary.bounds[2])
             cy = rng.uniform(inner_boundary.bounds[1], inner_boundary.bounds[3])
 
@@ -286,32 +275,6 @@ def _sample_point(
         return candidate
 
     raise RuntimeError("Could not sample a free point with the requested clearance.")
-
-
-def _choose_agent_goal(
-    rng: random.Random,
-    collection_points: Sequence[Mapping[str, Any]],
-    shared_goals: Sequence[Mapping[str, Any]],
-    boundary: Polygon,
-    clearance: float,
-    obstacles: Sequence[BaseGeometry],
-    other_points: Iterable[tuple[Point, float]],
-    max_attempts: int,
-) -> list[float]:
-    if collection_points:
-        return list(collection_points[rng.randrange(len(collection_points))]["center"])
-    if shared_goals:
-        return list(shared_goals[rng.randrange(len(shared_goals))]["center"])
-
-    free_point = _sample_point(
-        boundary=boundary,
-        obstacles=obstacles,
-        candidate_radius=clearance,
-        rng=rng,
-        max_attempts=max_attempts,
-        other_points=other_points,
-    )
-    return [free_point.x, free_point.y]
 
 
 def _assert_obstacle_clearances(obstacles: Sequence[Polygon], boundary: Polygon, min_clearance: float) -> None:
@@ -367,7 +330,9 @@ def _as_polygon(coords: Sequence[Sequence[float]]) -> Polygon:
     return poly
 
 
-def _random_convex_polygon(rng: random.Random, radius: float, min_vertices: int = 3, max_vertices: int = 6) -> Polygon | None:
+def _random_convex_polygon(
+    rng: random.Random, radius: float, min_vertices: int = 3, max_vertices: int = 6
+) -> Polygon | None:
     if min_vertices < 3 or max_vertices < min_vertices:
         raise ValueError("Invalid vertex count for obstacle polygons.")
     n = rng.randint(min_vertices, max_vertices)
@@ -377,6 +342,8 @@ def _random_convex_polygon(rng: random.Random, radius: float, min_vertices: int 
         r = rng.uniform(0.5 * radius, radius)
         pts.append((r * math.cos(a), r * math.sin(a)))
     poly = Polygon(pts)
+    # Convexify the polygon by taking its convex hull
+    poly = poly.convex_hull
     if poly.is_empty or not poly.is_valid or poly.area <= 0:
         return None
     return poly
@@ -386,9 +353,9 @@ if __name__ == "__main__":
     # Example usage when running the module directly
     random_config = generate_random_config(
         num_agents=3,
-        num_goals=2,
+        num_goals=12,
         num_collection_points=2,
-        num_obstacles=5,
+        num_obstacles=10,
         seed=42,
         config_name="random_ex14_config",
     )
