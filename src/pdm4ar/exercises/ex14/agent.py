@@ -40,6 +40,15 @@ class Pdm4arAgent(Agent):
         # feel free to remove/modify  the following
         self.params = Pdm4arAgentParams()
 
+    def on_episode_init(self, init_sim_obs: InitSimGlobalObservations):
+        pass
+
+    def on_receive_global_plan(
+        self,
+        serialized_msg: str,
+    ):
+        global_plan = GlobalPlanMessage.model_validate_json(serialized_msg)
+
     def get_commands(self, sim_obs: SimObservations) -> DiffDriveCommands:
         """This method is called by the simulator every dt_commands seconds (0.1s by default).
         Do not modify the signature of this method.

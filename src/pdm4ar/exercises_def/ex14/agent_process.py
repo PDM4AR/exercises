@@ -115,6 +115,9 @@ class AgentProcess(Agent):
     def on_episode_init(self, init_sim_obs: InitSimObservations):
         return _MethodProxy(self, "on_episode_init")(init_sim_obs)
 
+    def on_receive_global_plan(self, serialized_msg: str):
+        return _MethodProxy(self, "on_receive_global_plan")(serialized_msg)
+
     def get_commands(self, sim_obs: SimObservations) -> Any:
         return _MethodProxy(self, "get_commands")(sim_obs)
 
