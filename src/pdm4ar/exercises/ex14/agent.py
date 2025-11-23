@@ -4,7 +4,7 @@ from typing import Mapping, Sequence
 
 import numpy as np
 from dg_commons import PlayerName
-from dg_commons.sim import InitSimGlobalObservations, SharedGoalObservation, SimObservations
+from dg_commons.sim import InitSimGlobalObservations, InitSimObservations, SharedGoalObservation, SimObservations
 from dg_commons.sim.agents import Agent, GlobalPlanner
 from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.diff_drive import DiffDriveCommands
@@ -40,7 +40,7 @@ class Pdm4arAgent(Agent):
         # feel free to remove/modify  the following
         self.params = Pdm4arAgentParams()
 
-    def on_episode_init(self, init_sim_obs: InitSimGlobalObservations):
+    def on_episode_init(self, init_sim_obs: InitSimObservations):
         pass
 
     def on_receive_global_plan(
