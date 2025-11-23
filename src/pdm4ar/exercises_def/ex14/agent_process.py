@@ -111,97 +111,15 @@ class AgentProcess(Agent):
         self._closed = False
         self._last_function_call_time = 0.0
 
-        # --- state tracking ---
-        # self._capacity = 1  # default capacity
-        # self._current_load = 0
-
-    def __setattr__(self, name: str, value):
-        """Forward non-private attribute sets to the remote agent.
-
-        Attributes starting with '_' are treated as local and set on the
-        proxy object. Other attributes are sent to the remote agent by
-        calling its __setattr__ via RPC so the remote instance stays in
-        sync (e.g. setting `player.name = ...`). We also mirror the
-        attribute locally for convenience.
-        """
-        # Local internals: set directly
-        if name.startswith("_"):
-            return object.__setattr__(self, name, value)
-
-        # If the connection or rpc call machinery isn't ready yet, fall
-        # back to setting locally.
-        if not hasattr(self, "_conn") or getattr(self, "_closed", True):
-            return object.__setattr__(self, name, value)
-
-        # Forward to remote agent: call its __setattr__
-        try:
-            # Use the existing RPC mechanism to call remote __setattr__
-            self._rpc_call("call", "__setattr__", ((name, value), {}))
-            # Mirror locally so subsequent local reads see the same value
-            object.__setattr__(self, name, value)
-        except Exception:
-            # If remote set fails for any reason, fall back to local set
-            object.__setattr__(self, name, value)
-
-    def __getattr__(self, name: str):
-        """Attempt to retrieve non-local attributes from the remote agent.
-
-        Called only when attribute lookup on the proxy fails. We forward
-        the lookup to the remote agent's __getattribute__ via RPC. If the
-        remote lookup fails, raise AttributeError.
-        """
-        # Do not proxy private attributes
-        if name.startswith("_"):
-            raise AttributeError(name)
-
-        # If proxy isn't fully initialized, behave like normal attribute error
-        if not hasattr(self, "_conn") or getattr(self, "_closed", True):
-            raise AttributeError(name)
-
-        try:
-            return self._rpc_call("call", "__getattribute__", ((name,), {}))
-        except Exception as e:
-            raise AttributeError(f"Remote attribute error: {name}: {e}")
-
     # --- Agent interface ---
+    def on_episode_init(self, init_sim_obs: InitSimObservations):
+        return _MethodProxy(self, "on_episode_init")(init_sim_obs)
+
     def get_commands(self, sim_obs: SimObservations) -> Any:
         return _MethodProxy(self, "get_commands")(sim_obs)
 
     def on_get_extra(self) -> Optional[Any]:
         return _MethodProxy(self, "on_get_extra")()
-
-    # --- state tracking interface ---
-    # def set_capacity(self, capacity: int):
-    #     if not isinstance(capacity, int) or capacity <= 0:
-    #         raise ValueError("Capacity must be a positive integer")
-    #     if self._current_load > capacity:
-    #         raise ValueError(f"Cannot set capacity to {capacity}; current load {self._current_load} would exceed it")
-    #     self._capacity = capacity
-
-    # def get_capacity(self) -> int:
-    #     return self._capacity
-
-    # def set_current_load(self, load: int):
-    #     if not isinstance(load, int):
-    #         raise TypeError("Load must be an integer")
-    #     if load < 0:
-    #         raise ValueError("Load must be a non-negative integer")
-    #     if load > self._capacity:
-    #         raise ValueError(f"Agent load {load} exceeds capacity {self._capacity}")
-    #     self._current_load = load
-
-    # def get_current_load(self) -> int:
-    #     return self._current_load
-
-    # def grab_goal(self):
-    #     if self._current_load + 1 > self._capacity:
-    #         raise ValueError(f"Agent load {self._current_load + 1} exceeds capacity {self._capacity}")
-    #     self._current_load += 1
-
-    # def deliver_goal(self):
-    #     if self._current_load - 1 < 0:
-    #         raise ValueError(f"Agent load {self._current_load - 1} is negative")
-    #     self._current_load -= 1
 
     # --- internal ---
     def close(self, timeout: Optional[float] = 5.0):

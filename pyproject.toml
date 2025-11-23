@@ -9,9 +9,7 @@ authors = ["IDSC Frazzoli <yuesli@ethz.ch>"]
 
 description = "Exercises for the course Planning and Decision Making for Autonomous Robots at ETH Zurich"
 readme = "README.md"
-packages = [
-    { include = "pdm4ar", from = "src" },
-]
+packages = [{ include = "pdm4ar", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
@@ -25,7 +23,7 @@ frozendict = "2.4.4"
 pyyaml = "6.0.1"
 shapely = "2.0.5"
 triangle = { git = "https://github.com/ClearCalcs/triangle.git", branch = "master" }
-scikit-learn  = "1.5.1"
+scikit-learn = "1.5.1"
 
 # zuper
 zuper-commons-z7 = "7.2"
@@ -50,9 +48,9 @@ do-mpc = "4.6.5"
 # optimization
 scipy = "1.14.0"
 pulp = ">=2.7.0"
-qdldl = "0.1.7.post5" # later versions do not work for M chips
+qdldl = "0.1.7.post5"                                     # later versions do not work for M chips
 osqp = "0.6.3"
-cvxpy = { version = "1.5.3", extras = ["CVXOPT", "CBC", ] }
+cvxpy = { version = "1.5.3", extras = ["CVXOPT", "CBC"] }
 casadi = "3.6.5"
 sympy = "1.13.0"
 cloudpickle = "3.1.2"
@@ -63,6 +61,8 @@ ipykernel = "6.29.5"
 
 # others
 pre-commit = "3.8.0"
+pydantic = "2.12.4"
+numpydantic = "1.7.0"
 #setuptools = "*"
 #wheel = "*"
 

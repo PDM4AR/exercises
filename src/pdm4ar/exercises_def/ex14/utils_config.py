@@ -1,7 +1,7 @@
 from collections import defaultdict
 from copy import deepcopy
 from decimal import Decimal as D
-from typing import Any, Mapping, List
+from typing import Any, List, Mapping
 
 import yaml
 from dg_commons import PlayerName, fd
@@ -51,10 +51,8 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
             x0=x0, vg=DiffDriveGeometry.default(color=color), vp=DiffDriveParameters.default(omega_limits=(-10, 10))
         )
         models[pn] = model
-        # player_capacity = p_attr["capacity"]
         player = AgentProcess(Pdm4arAgent)
         # player = Pdm4arAgent()
-        # player.set_capacity(player_capacity)
         players[pn] = player
     # sensing
     lidar2d = VisRangeSensor(range=5)
@@ -100,18 +98,3 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
         shared_goals_manager=shared_goals_manager,
         global_planner=global_planner,
     )
-
-
-# if __name__ == "__main__":
-#     from pathlib import Path
-#     from pprint import pprint
-#
-#     configs = ["config_1.yaml", "config_2.yaml"]
-#     for c in configs:
-#         config_file = Path(__file__).parent / c
-#         config = _load_config(str(config_file))
-#         pprint(config)
-#
-#         # test actual sim context creation
-#         sim_context = sim_context_from_yaml(str(config_file))
-#         pprint(sim_context)
