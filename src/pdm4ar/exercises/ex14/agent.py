@@ -76,7 +76,7 @@ class Pdm4arGlobalPlanner(GlobalPlanner):
     def __init__(self):
         pass
 
-    def send_plan(self, init_sim_obs: InitSimGlobalObservations, players: Mapping[PlayerName, Pdm4arAgent]) -> str:
+    def send_plan(self, init_sim_obs: InitSimGlobalObservations) -> str:
         # TODO: implement here your global planning stack.
         global_plan_message = GlobalPlanMessage(
             fake_id=1,
