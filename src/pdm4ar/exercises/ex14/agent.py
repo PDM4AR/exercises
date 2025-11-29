@@ -13,11 +13,11 @@ from dg_commons.sim.models.obstacles import StaticObstacle
 from numpydantic import NDArray
 from pydantic import BaseModel
 
-
 class GlobalPlanMessage(BaseModel):
+    # TODO: modify/add here the fields you need to send your global plan
     fake_id: int
     fake_name: str
-    fake_np_data: NDArray
+    fake_np_data: NDArray # If you need to send numpy arrays, annotate them with NDArray
 
 
 @dataclass(frozen=True)
@@ -47,6 +47,7 @@ class Pdm4arAgent(Agent):
         self,
         serialized_msg: str,
     ):
+        # TODO: process here the received global plan
         global_plan = GlobalPlanMessage.model_validate_json(serialized_msg)
 
     def get_commands(self, sim_obs: SimObservations) -> DiffDriveCommands:
