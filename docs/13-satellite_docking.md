@@ -47,7 +47,7 @@ Note that the pose and velocities are expressed in global frame.
 
 1. **Position Dynamics:**
     - $\frac{dx}{dt} = v_x$
-    - $\frac{dy}{dt} = v_x$
+    - $\frac{dy}{dt} = v_y$
 
 2. **Orientation Dynamics:**
     - $\frac{d\psi}{dt} = \dot{\psi}$
