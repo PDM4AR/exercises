@@ -1,6 +1,6 @@
 import pprint
 from pathlib import Path
-from typing import Any, List, Mapping, Tuple
+from typing import Any, List, Mapping, Tuple, Dict
 
 import numpy as np
 import yaml
@@ -11,6 +11,7 @@ from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex14.perf_metrics import ex14_metrics
 from pdm4ar.exercises_def.ex14.utils_config import load_config, sim_context_from_config
 from reprep import MIME_MP4, Report
+from collections import defaultdict
 
 
 def ex14_evaluation(sim_config: Mapping[str, Any], ex_out=None) -> Tuple[float, Report]:
@@ -25,16 +26,21 @@ def ex14_evaluation(sim_config: Mapping[str, Any], ex_out=None) -> Tuple[float, 
     avg_player_metrics, players_metrics = ex14_metrics(sim_context)
     # report evaluation
     score: float = avg_player_metrics.reduce_to_score()
-    score_str = f"{score:.2f}\n" + pprint.pformat(avg_player_metrics)
+    r.text(f"EpisodeEvaluation:", pprint.pformat(avg_player_metrics))
+    score_str = f"{score:.2f}"
     r.text("OverallScore: ", score_str)
     for pm in players_metrics:
         r.text(f"AgentScore-{pm.player_name}", pprint.pformat(pm))
     r.add_child(report)
-    return score, r
+    return (sim_context.description, score), r
 
 
-def ex14_performance_aggregator(ex_out: List[float]) -> float:
-    return np.average(ex_out)
+def ex14_performance_aggregator(ex_out: List[Tuple[str, float]]) -> Dict[str, float]:
+    score_dict = defaultdict(list)
+    for k, v in ex_out:
+        score_dict[k].append(v)
+    score_per_scenario = {k: float(np.mean(vs)) for k, vs in score_dict.items()}
+    return score_per_scenario
 
 
 def _ex14_vis(sim_context: SimContext) -> Report:
@@ -55,7 +61,7 @@ def _ex14_vis(sim_context: SimContext) -> Report:
 
 def get_exercise14():
     config_dir = Path(__file__).parent
-    config_files = ["config_test.yaml"]
+    config_files = ["config_1.yaml", "config_2.yaml", "config_3.yaml"]
     test_values: List[Mapping[str, Any]] = [load_config(str(config_dir / config_file)) for config_file in config_files]
 
     return Exercise[SimContext, None](

@@ -20,8 +20,6 @@ class PlayerMetrics(PerformanceResults):
     """Number of goals delivered by the player."""
     travelled_distance: float
     """Distance travelled by the player."""
-    waiting_time: float
-    """Total waiting time before the goals are delivered by the player."""
     actuation_effort: float
     """Actuation effort of the player in the simulation."""
     avg_computation_time: float
@@ -36,12 +34,16 @@ class AllPlayerMetrics(PerformanceResults):
     """Number of goals delivered by all players."""
     total_travelled_distance: float
     """Total distance travelled by all players."""
-    total_waiting_time: float
-    """Total waiting time before all goals get delivered by all players."""
+    max_sim_time: float
+    """Maximum simulation time."""
+    task_accomplishment_time: float
+    """Total time taken to deliver all goals."""
     total_actuation_effort: float
     """Total actuation effort of all players in the simulation."""
     avg_computation_time: float
     """Average computation time of the get_commands method."""
+    global_planning_time: float
+    """Total time spent on global planning."""
 
     def __repr__(self):
         repr: str = ""
@@ -55,10 +57,11 @@ class AllPlayerMetrics(PerformanceResults):
         """Higher is better"""
         score = self.num_goals_delivered * 100
         score -= self.num_collided_players * 500
-        score -= self.total_travelled_distance * 0.1
-        score -= self.total_waiting_time * 0.1
-        score -= self.total_actuation_effort * 0.1
-        score -= self.avg_computation_time * 100
+        score += (self.max_sim_time - self.task_accomplishment_time) * 10
+        score -= self.total_travelled_distance * 0.5
+        score -= self.total_actuation_effort * 0.01
+        score -= max(0.0, self.avg_computation_time - 0.1) * 100
+        score -= max(0.0, self.global_planning_time - 10) * 10
         return score
 
 
@@ -76,8 +79,6 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
         goals_delivered = goal_manager.get_goals_delivered_by_agent(player_name)
         # number of goals delivered
         num_goal_delivered = len(goals_delivered)
-        # total waiting time before all goals get delivered
-        total_waiting_time = sum(goal_manager.all_goals[goal_id].delivery_time for goal_id in goals_delivered)
         # collision
         has_collided = True if player_name in collided_players else False
 
@@ -101,26 +102,35 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
             player_name=player_name,
             collided=has_collided,
             num_goal_delivered=num_goal_delivered,
-            waiting_time=total_waiting_time,
             travelled_distance=dist,
             actuation_effort=actuation_effort,
             avg_computation_time=avg_comp_time,
         )
         agents_perf.append(pm)
 
+    max_sim_time = float(sim_context.param.max_sim_time)
+    task_accomplishment_time = 0
+    for goal_id in goal_manager.all_goals.keys():
+        if goal_manager.all_goals[goal_id].delivery_time is None:
+            task_accomplishment_time = 60.0
+            break
+        else:
+            task_accomplishment_time = max(task_accomplishment_time, goal_manager.all_goals[goal_id].delivery_time)
     num_collided_players = [p.collided for p in agents_perf].count(True)
     num_goals_delivered = sum([p.num_goal_delivered for p in agents_perf])
     total_travelled_distance = sum([p.travelled_distance for p in agents_perf])
-    total_waiting_time = sum([p.waiting_time for p in agents_perf])
     total_actuation_effort = sum([p.actuation_effort for p in agents_perf])
     avg_computation_time = sum([p.avg_computation_time for p in agents_perf]) / len(agents_perf)
+    global_planning_time = sim_context.global_plan_execution_time
 
     all_player_metrics = AllPlayerMetrics(
         num_collided_players=num_collided_players,
         num_goals_delivered=num_goals_delivered,
         total_travelled_distance=total_travelled_distance,
-        total_waiting_time=total_waiting_time,
+        max_sim_time=max_sim_time,
+        task_accomplishment_time=task_accomplishment_time,
         total_actuation_effort=total_actuation_effort,
         avg_computation_time=avg_computation_time,
+        global_planning_time=global_planning_time,
     )
     return all_player_metrics, agents_perf
