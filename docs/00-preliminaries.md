@@ -41,13 +41,13 @@ You will submit your solutions via your private GitHub repository. Detailed subm
 * For each exercise, you have a limited number of server submissions. You can test locally as much as you want. Consider this a learning experience for robotics; field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
-| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**        | Note             |**Deadline status** | Available Submissions |
-|-----------------|-----------------------|----------------------|------------------------------|------------------|---------------------|-----------------------|
-| 02              | Graph Search          | 24th of September    | 14th of October (23:59 CET)  |                  | confirmed           | 10                    | 
-| 03              | Informed Graph Search | 24th of September    | 14th of October (23:59 CET)  |                  |confirmed           | 10                    |
-| 04              | Dynamic Programming   | 1st of October       | 26th of October (23:59 CET)  | Submission before 19th of Oct. is strongly suggested (see note below)| confirmed      | 10                    |
-| 05              | Steering (Dubins)     | 15th of October      | 2nd of November (23:59 CET)  |                  |confirmed           | 10                    |
-| 06              | Collision Checking    | 29th of October      | 11th of November (23:59 CET) |                  |confirmed           | 10                    |
+| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**        | Note                                                                  | **Deadline status** | Available Submissions |
+| --------------- | --------------------- | -------------------- | ---------------------------- | --------------------------------------------------------------------- | ------------------- | --------------------- |
+| 02              | Graph Search          | 24th of September    | 14th of October (23:59 CET)  |                                                                       | confirmed           | 10                    |
+| 03              | Informed Graph Search | 24th of September    | 14th of October (23:59 CET)  |                                                                       | confirmed           | 10                    |
+| 04              | Dynamic Programming   | 1st of October       | 26th of October (23:59 CET)  | Submission before 19th of Oct. is strongly suggested (see note below) | confirmed           | 10                    |
+| 05              | Steering (Dubins)     | 15th of October      | 2nd of November (23:59 CET)  |                                                                       | confirmed           | 10                    |
+| 06              | Collision Checking    | 29th of October      | 11th of November (23:59 CET) |                                                                       | confirmed           | 10                    |
 
 * Most of these exercises are already accessible before the official evaluation opens.
   You are free to engage with them earlier, but be aware that changes may occur up until the official opening.
@@ -60,23 +60,23 @@ These are solved in small groups of **up to 3 people**, with the same modality a
 They will be a bit more involved content-wise.
 Instructions on group formation are provided via Piazza.
 
-| Exercise **ID** | **Topic**       | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
-|-----------------|-----------------|----------------------|------------------------------|---------------------|-----------------------|
-| 13              | Satellite Docking | 12th of November     | 2nd of December (23:59 CET)  | Confirmed           | 10                    |
-| 14              | To be announced | 3rd of December      | 23rd of December (23:59 CET) | tentative           | 10                    |
+| Exercise **ID** | **Topic**                   | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
+| --------------- | --------------------------- | -------------------- | ---------------------------- | ------------------- | --------------------- |
+| 13              | Satellite Docking           | 12th of November     | 2nd of December (23:59 CET)  | Confirmed           | 10                    |
+| 14              | Multi-agent Goal Collection | 3rd of December      | 23rd of December (23:59 CET) | Confirmed           | 10                    |
 
 #### **Extra** exercises from previous years, not graded
 
 You can have a look at the finals from last year and challenge yourself.
 
 | Exercise **ID** | **Topic**            | Evaluation **opens** | Evaluation **closes** |
-|-----------------|----------------------|----------------------|-----------------------|
+| --------------- | -------------------- | -------------------- | --------------------- |
 | 07              | Optimization         | -                    | -                     |
 | 08              | Driving Games        | -                    | -                     |
 | 09              | PDM4ARocket Explorer | -                    | -                     |
 | 10              | Robot Runners        | -                    | -                     |
 | 11              | Spaceship            | -                    | -                     |
-| 12              | Highway Driving      | -                    | -                     | 
+| 12              | Highway Driving      | -                    | -                     |
 
 ## Plagiarism and dishonest conduct
 
