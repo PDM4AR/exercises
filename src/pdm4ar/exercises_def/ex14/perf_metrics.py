@@ -61,7 +61,7 @@ class AllPlayerMetrics(PerformanceResults):
         score -= self.total_travelled_distance * 0.5
         score -= self.total_actuation_effort * 0.01
         score -= max(0.0, self.avg_computation_time - 0.1) * 100
-        score -= max(0.0, self.global_planning_time - 10) * 10
+        score -= max(0.0, self.global_planning_time - 60) * 10
         return score
 
 
