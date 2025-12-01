@@ -39,7 +39,7 @@ typing_extensions = "*"
 decorator = "*"
 
 # dg
-dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "pdm4ar/master" }
+dg-commons = { git = "https://github.com/idsc-frazzoli/dg-commons.git", branch = "ex14_zhengyu_new" }
 dg-commonroad-drivability-checker = "2024.1"
 
 # mpc
