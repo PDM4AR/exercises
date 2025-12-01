@@ -1,13 +1,13 @@
 # Multi-agent Goal Collection [Final '25]
 
 ## Problem description
-Your task is to implement a planning and control stack for a fleet of differential drive robots operating in a warehouse environment to collect goals scattered around the area and deliver them to designated collection points. The robots automatically pick up goals when they move close enough and drop them off when they reach a collection area. Each robot can carry maximum **ONE** goal at a time.
+Your task is to implement a planning and control system for a fleet of differential drive robots. The robots must autonomously navigate a warehouse environment to collect goals and deliver them to designated collection points. Robots automatically pick up a goal when they reach a close proximity and deposit it upon entering the collection area. Each robot has a maximum capacity of **ONE** goal at a time.
 
 To test your agent, you are provided with a simulation environment. The environment provides observations to each agent at each time step and expects control commands in return. Additionally, an one-time global planning phase occurs before the simulation starts, allowing you to coordinate all agents to maximize overall efficiency.
 
 See below an image of the environment:
 
-![image](https://github.com/PDM4AR/exercises/assets/18750753/b4445a9d-98b9-4b56-96d2-281de2a97947)
+![image](img/multiagent_collection_example.png)
 
 
 ## Task Overview
@@ -35,7 +35,7 @@ Under `dg_commons/sim/`:
 - Locations of all collection points (as `shared_goals.py::CollectionPoint` objects)
 - All map information (boundaries and static obstacles)
 
-`src/pdm4ar/exercises/ex14/agent.py::GlobalPlanMessage` is an example `Pydantic` model for defining your global plan structure. You can modify it or create your own structure as needed.
+`src/pdm4ar/exercises/ex14/agent.py::GlobalPlanMessage` is an example `Pydantic` model for defining a structured global plan message. You can modify it or create your own structure as needed.
 
 ### 2. Agent Control
 After the global planning phase, the simulation starts. Each robot is controlled by an instance of a `Pdm4arAgent` which inherits from the base class `Agent`. You must implement your agent by:
@@ -59,7 +59,7 @@ After the global planning phase, the simulation starts. Each robot is controlled
    - `available_goals`: A mapping of goal IDs to `SharedGoalObservation` objects (only includes goals not yet collected), each containing:
      - `occupancy`: The goal's polygon footprint
 
-:warning: Only players and available goals within the sensor range and line-of-sight are included in `SimObservations` (see [Observations and Sensors](#obs-sensor) below).
+:warning: Only players and available goals within the sensor range and line-of-sight are included in `SimObservations` (see [Observations and Sensors](#obs-sensor) below for details).
 
 #### Simulation loop
 At the beginning of the simulation, the method `on_episode_init` is called for each agent.
@@ -71,7 +71,7 @@ The method `get_commands` receives the latest "sensed" observations and is expec
 
 #### Observations and Sensors
 {:#obs-sensor}
-The observations are computed assuming a 2D Lidar sensor with 360-degree field of view. This means they contain information only about non-occluded players and goals. The sensor is implemented using the `FovObsFilter` class, which filters the full observations based on line-of-sight.
+The observations are computed assuming a 2D Lidar sensor with 360-degree field of view and a detection range of **5 meters**. This means they contain information only about non-occluded players and goals. The sensor is implemented using the `FovObsFilter` class, which filters the full observations based on line-of-sight.
 
 Another robot or goal in the gray (occluded) area would not be visible to the agent:
 
@@ -112,18 +112,18 @@ We suggest getting familiar with the required basic structures by navigating the
 The robot's state (`DiffDriveState`) includes:
 - `x`, `y`: Position coordinates
 - `psi`: Heading angle
-- `vl`, `vr`: Left and right wheel velocities
 
 The control commands (`DiffDriveCommands`) specify:
-- `omega_l`: Left wheel angular velocity
-- `omega_r`: Right wheel angular velocity
+- `omega_l`: Left wheel angular velocity in rad/s. Positive values indicate forward rotation.
+- `omega_r`: Right wheel angular velocity in rad/s. Positive values indicate forward rotation.
 
 Note that the simulator will enforce the following constraints:
 - **Actuation limits**: The min/max rotational velocity of the wheels can be found in the `DiffDriveParameters` object.
 
-If the actuation limits are violated, the simulator will simply clip the value to the limits.
+If the actuation limits are violated, the simulator will simply clip the value to the limits. However, the actuation effort penalty will still be computed based on the original command values you provided. See [Performance Criteria and Scoring](#performance-criteria-and-scoring) below for details.
 
 ## Performance Criteria and Scoring
+{:#performance-criteria-and-scoring}
 
 Your solution will be evaluated based on multiple criteria. The performance metrics are defined in `exercises_def/ex14/perf_metrics.py`.
 
@@ -141,9 +141,11 @@ The overall performance combines all players' metrics:
 - **`num_collided_players`**: Total number of players that crashed
 - **`num_goals_delivered`**: Total number of goals delivered by all players
 - **`total_travelled_distance`**: Sum of distances traveled by all players
-- **`total_waiting_time`**: Sum of waiting times for all goals
+- **`max_sim_time`**: Maximum simulation time allowed
+- **`task_accomplishment_time`**: Total time taken to deliver all goals (time when last goal was delivered)
 - **`total_actuation_effort`**: Sum of actuation efforts of all players
-- **`avg_computation_time`**: Average computation time across all players
+- **`avg_computation_time`**: Average computation time across all players (per `get_commands` call)
+- **`global_planning_time`**: Total time spent on global planning (execution time of `send_plan` method)
 
 ### Score Function
 The final score is computed by the `reduce_to_score()` method in `AllPlayerMetrics`:
@@ -151,35 +153,58 @@ The final score is computed by the `reduce_to_score()` method in `AllPlayerMetri
 ```python
 score = num_goals_delivered * 100
 score -= num_collided_players * 500
-score -= total_travelled_distance * 0.1
-score -= total_waiting_time * 0.1
-score -= total_actuation_effort * 0.1
-score -= avg_computation_time * 100
+score += (max_sim_time - task_accomplishment_time) * 10
+score -= total_travelled_distance * 0.5
+score -= total_actuation_effort * 0.01
+score -= max(0.0, avg_computation_time - 0.1) * 100
+score -= max(0.0, global_planning_time - 60) * 10
 ```
 
 **Key takeaways**:
 - **Primary objective**: Maximize the number of goals delivered (100 points each)
 - **Critical penalty**: Avoid collisions (500 point penalty per collision)
-- **Efficiency matters**: Minimize travel distance, waiting time, actuation effort, and computation time
+- **Early completion bonus**: Finish faster to earn bonus points (10 points per second saved)
+- **Efficiency matters**:
+  - Minimize travel distance (0.5 point penalty per unit distance - highest weight among efficiency metrics)
+  - Minimize actuation effort (0.01 point penalty per unit effort)
+- **Computation time budget**: Keep `get_commands` execution time under the control rate (0.1s). Penalty of 100 points per second over budget.
+- **Global planning budget**: Keep global planning under 60 seconds (10 point penalty per second over budget). But sometimes spending more time here can be worth it if it leads to better overall performance.
 - **Higher scores are better**
 
-## Test cases
-The **test cases** on the server differ from the ones provided locally only by configuration parameters (number of robots, number of goals, map layout, etc.). Your solution should be general enough to handle different scenarios.
+### Reference Scores
+We provide the scores of the private test cases using our baseline implementation below for your reference:
 
-Once you run a simulation, a report containing the performance metrics and a visualization of the episode (make sure to click on the _data_nodes_ tab) is generated.
+| Test Case        | Reference Score |
+| ---------------- | --------------- |
+| config_1_private | 489.43          |
+| config_2_private | 904.30          |
+| config_3_private | 1255.45         |
+
+## Test cases
+The test cases on the server differ from the ones provided locally only by configuration parameters (number of robots, number of goals, map layout, etc.). Your solution should be general enough to handle different scenarios. But don't be worried, the topology of the environment will remain similar to the ones provided in the local tests.
+
+### Generate new test cases
+You can create new test cases by adding new configuration files in the `exercises_def/ex14/` folder and adding them to the list of available configurations in the `exercises_def/ex14/ex14.py` file.
+
+:sparkles: We provide a script to generate random configurations for this exercise at `exercises_def/ex14/random_config.py`. Feel free to modify and use it to create new test cases for your own testing.
 
 ## Run the exercise
 
 Run the exercise with:
 ```shell
-python [path/to/]src/pdm4ar/main.py --exercise 14
+python path/to/src/pdm4ar/main.py --exercise 14
 ```
 or:
 ```shell
-python [path/to/]src/pdm4ar/main.py -e 14
+python path/to/src/pdm4ar/main.py -e 14
 ```
 
-## Suggestions
+## View the report
+Once you run a simulation, a report containing the performance metrics and a visualization of the episode is generated. Click the `data nodes` button in the top bar of the report to show the generated visualizations.
+
+![image](img/data_nodes_report.png)
+
+## Suggestions and Tips
 
 **Planning vs Control rate**:
 The simulator invokes the `get_commands` method at 10 Hz (every 0.1s). While the agent is expected to provide new commands every 0.1s, the (re-)planning rate can probably be lower. Consider decoupling the planning and control rate for better performance overall. For example, you might recompute paths every 0.5s but update control commands every 0.1s.
