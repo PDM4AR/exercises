@@ -1,0 +1,46 @@
+agents:
+  PDM4AR_1:
+    state:
+      x: -9
+      y: -9
+      psi: 1
+    color: 'saddlebrown'
+
+shared_goals:
+  - id: 'goal_1'
+    center: [ -5, -5 ]
+    radius: 0.3
+  - id: 'goal_2'
+    center: [ 4.5, 6 ]
+    radius: 0.3
+  - id: 'goal_3'
+    center: [ -6, 7 ]
+    radius: 0.3
+  - id: 'goal_4'
+    center: [ 7, -8.5 ]
+    radius: 0.3
+  - id: 'goal_5'
+    center: [ 7, -2 ]
+    radius: 0.3
+
+# Collection points where goals should be delivered
+collection_points:
+  - id: 'collection_1'
+    center: [ 0, 5 ]
+    radius: 1.0
+  
+  - id: 'collection_2'
+    center: [ 4.5, -8.5 ]
+    radius: 1.0
+    
+static_obstacles:
+  - [ [ -1, -7 ], [ -1, -3 ], [ 3, -3 ], [ 3, -7 ], [ -1, -7 ] ]
+  - [ [ 5,  -7 ], [ 5, -3 ], [ 9, -3 ], [ 9, -7 ], [ 5, -7 ] ]
+  - [ [ -1, -1 ], [ -1, 3 ], [ 3, 3 ], [ 3, -1 ], [ -1, -1 ] ]
+  - [ [ 5, -1 ], [ 5, 3 ], [ 9, 3 ], [ 9, -1 ], [ 5, -1 ] ]
+  - [ [ -6, 5 ], [ -5, 6 ], [ -4, 6 ], [ -5, 4 ], [ -6, 5 ] ]
+  - [ [ 6, 5 ], [ 7, 7 ], [ 8, 6 ], [ 7, 4 ], [ 6, 5 ] ]
+
+boundary: [ [ -10, -10 ], [ -10, 10 ], [ 10, 10 ], [ 10, -10 ], [ -10, -10 ] ]
+
+seed: 98
