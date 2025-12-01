@@ -132,7 +132,6 @@ For each player, the following metrics are tracked:
 - **`collided`**: Whether the player crashed into an obstacle or another robot
 - **`num_goal_delivered`**: Number of goals successfully delivered by this player
 - **`travelled_distance`**: Total distance traveled by the player
-- **`waiting_time`**: Total time elapsed before goals are delivered (sum of delivery times)
 - **`actuation_effort`**: Integral of absolute wheel velocities
 - **`avg_computation_time`**: Average time taken by the `get_commands` method
 
