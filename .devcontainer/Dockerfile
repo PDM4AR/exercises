@@ -25,7 +25,11 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Install apt dependencies
 COPY .devcontainer/dependencies-apt.txt /tmp/
-RUN apt-get update \
+# The base image ships a yarn apt source whose signing key periodically expires
+# upstream (yarnpkg/yarn#9222), which breaks `apt-get update`. We don't use yarn,
+# so drop that source to keep builds reproducible for everyone.
+RUN rm -f /etc/apt/sources.list.d/yarn.list \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
     $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
     && rm -rf /var/lib/apt/lists/* && apt-get clean

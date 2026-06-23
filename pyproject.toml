@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pdm4ar"
-version = "2025.0.0"
+version = "2026.0.0"
 authors = ["IDSC Frazzoli <yuesli@ethz.ch>"]
 
 description = "Exercises for the course Planning and Decision Making for Autonomous Robots at ETH Zurich"
@@ -63,7 +63,9 @@ ipykernel = "6.29.5"
 pre-commit = "3.8.0"
 pydantic = "2.12.4"
 numpydantic = "1.7.0"
-#setuptools = "*"
+# setuptools 81 removed the legacy `pkg_resources` module, which reprep-z7 still
+# imports. Pin below 81 so `pkg_resources` is available in the built venv.
+setuptools = "<81"
 #wheel = "*"
 
 
