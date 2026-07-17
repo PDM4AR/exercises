@@ -49,6 +49,11 @@ USER vscode
 #    | tar xzvpf - --no-same-owner --strip-components=1 -C SuiteSparse
 #ENV CVXOPT_SUITESPARSE_SRC_DIR=${WORKDIR_PATH}/SuiteSparse
 
+# Install the Antigravity CLI (`agy`). It ships as a self-contained native
+# binary (no Node runtime needed) into /home/vscode/.local/bin, which is
+# already on PATH. Run as `vscode` so ownership is correct.
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
+
 # Install poetry
 RUN pipx install poetry==${POETRY_VERSION}
 
