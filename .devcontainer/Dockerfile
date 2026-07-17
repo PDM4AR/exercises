@@ -25,7 +25,11 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Install apt dependencies
 COPY .devcontainer/dependencies-apt.txt /tmp/
-RUN apt-get update \
+# The base image ships a yarn apt source whose signing key periodically expires
+# upstream (yarnpkg/yarn#9222), which breaks `apt-get update`. We don't use yarn,
+# so drop that source to keep builds reproducible for everyone.
+RUN rm -f /etc/apt/sources.list.d/yarn.list \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
     $(awk -F: '/^[^#]/ { print $1 }' /tmp/dependencies-apt.txt | uniq) \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
@@ -44,6 +48,11 @@ USER vscode
 #   && curl -fsSL https://api.github.com/repos/DrTimothyAldenDavis/SuiteSparse/tarball/v5.8.1 \
 #    | tar xzvpf - --no-same-owner --strip-components=1 -C SuiteSparse
 #ENV CVXOPT_SUITESPARSE_SRC_DIR=${WORKDIR_PATH}/SuiteSparse
+
+# Install the Antigravity CLI (`agy`). It ships as a self-contained native
+# binary (no Node runtime needed) into /home/vscode/.local/bin, which is
+# already on PATH. Run as `vscode` so ownership is correct.
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
 
 # Install poetry
 RUN pipx install poetry==${POETRY_VERSION}

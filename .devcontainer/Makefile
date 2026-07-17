@@ -1,6 +1,6 @@
 python_version=3.11-bullseye
 registry=idscfrazz
-image_name=pdm4ar2025
+image_name=pdm4ar2026
 dockerfile=Dockerfile
 
 platforms=linux/amd64,linux/arm64
