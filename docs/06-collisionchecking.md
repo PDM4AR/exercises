@@ -1,4 +1,4 @@
-# Collision Checking :collision:
+# Collision Checking and Sampling-based Planning :collision:
 
 <table>
   <tr>
@@ -8,95 +8,45 @@
 
 ## Exercise Overview
 
-In this exercise, you will build a comprehensive collision detection system for a circular differential drive robot navigating through environments with various obstacles. This exercise progresses from fundamental geometric algorithms to advanced spatial data structures and optimization-based methods. 
+In this exercise, you will build a collision detection system for a circular
+differential-drive robot and then apply it to sampling-based motion planning.
 
 ### What You Will Implement
 
-- **Geometric Collision Detection**: Implement the Separating Axis Theorem (SAT) for polygon-polygon and polygon-circle collision detection
+- **Geometric Collision Detection**: Implement the Separating Axis Theorem (SAT)
 - **Discretization Methods**: Apply occupancy grids for collision checking in continuous spaces
 - **Spatial Data Structures**: Use R-trees for efficient collision queries in environments with many obstacles  
 - **Coordinate Frame Transformations**: Handle collision detection with sensor data in robot coordinate frames
 - **Optimization-based Methods**: Implement Differentiable Collision Detection (DCDL) for continuous collision measures
+- **Sampling-based Planning**: Apply the collision checker in PRM and RRT*
 
 Unless otherwise specified, you are **NOT allowed** to use any geometry libraries like `shapely` for geometric operations and collision detection. :warning: <span style="color:red">We will check your implementation for this.</span> :warning:
 
 ## Part 1: Collision Checking Primitives with Separating Axis Theorem
 
-### Recap: Separating Axis Theorem (SAT)
+Two convex shapes do not collide if there is an axis on which their
+projections do not overlap. Tasks 1--3 build the projection and candidate-axis
+operations used by the Separating Axis Theorem.
 
-**Key Concept:** Two convex shapes do not collide if there exists a separating axis where their projections do not overlap.
+### Task 1: Project a Polygon onto a Segment
 
-**How it works:**
-1. **Find candidate axes** - typically perpendicular to edges of the shapes
-2. **Project both shapes** onto each axis
-3. **Check for overlap** - if any axis shows no overlap, shapes don't collide
-4. **Collision occurs** only if projections overlap on ALL axes
+Implement `CollisionPrimitives_SeparateAxis.proj_polygon` in
+`src/pdm4ar/exercises/ex06/collision_primitives.py`. The axis need not pass
+through the origin. Return the segment bounded by the two extreme projected
+points. The same function also accepts a `Circle` for Task 3.
 
-#### Task 1: Project a Polygon onto a Segment
+### Task 2: Separating Axis Theorem for Two Polygons
 
-First, implement the `proj_polygon` function inside the `CollisionPrimitives_SeparateAxis` class in the `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
+Implement `overlap`, `get_axes`, and the polygon--polygon branch of
+`separating_axis_thm`. Candidate axes may be chosen perpendicular to the
+polygon edges. `overlap` and `get_axes` are supporting functions and are not
+graded separately.
 
-It projects a polygon onto an axis and returns the projection segment.
+### Task 3: Separating Axis Theorem for a Polygon and a Circle
 
-You can use the `numpy` library for linear algebra operations, but you should not use any geometry libraries like `shapely` in this task. 
-
-**Notes:**
-- We use a line segment (bounded by two points) to represent a straight line/axis (extending infinitely in both directions) containing the segment
-- The axis does not necessarily pass through the origin
-- The projection is a segment bounded by two endpoints on the axis
-- Projection accuracy is verified by segment length and endpoint precision
-- Function signature also accepts `Circle` input for later use in `Task 3`
-
-#### Task 2a: Determine if Two Segments Overlap or Not
-
-Implement the `overlap` function inside the `CollisionPrimitives_SeparateAxis` class in the `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
-
-It checks if two line segments overlap (intersect), i.e., if they share any points.
-
-**Note:** This function will be used in later tasks for SAT implementation, but is not directly tested by the checker. We encourage you to test it yourself.
-
-#### Task 2b: Return a List of Candidate Separating Axes
-Implement a function that gets candidate separating axes given two polygons.
-
-You will implement the `get_axes` function inside the `CollisionPrimitives_SeparateAxis` class in the `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
-
-If two polygons do not intersect, there are potentially infinite separating axes that can be computed. As a hint, we recommend returning axes that are orthogonal to the edges of each polygon only. 
-
-**Note:** The checker will not verify your implementation for this task, so we encourage that you do your own testing. 
-
-#### Task 2c: Separating Axis Theorem for Two Polygons
-
-In this task, we bring it all together and implement the SAT for two polygons.
-
-We will be modifying the **first** case in the `separating_axis_thm` function.
-
-Using the methods you have previously implemented: `get_axes`, `proj_polygon`, and `overlap`, determine if two polygons intersect with each other or not using the SAT.
-
-The `separating_axis_thm` function takes two polygons as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
-
-The first argument is a `bool` that is *True* if the polygons collide, and *False* if they do not. 
-
-The second argument is an optional `Segment` which you can use to visualize which segment you are projecting against in your implementation of the SAT. 
-
-#### Task 3a: Return a List of Candidate Separating Axes for a Polygon and a Circle
-We now move to computing separating axes for a polygon and a circle.
-
-You will implement the function `get_axes_cp` that takes a `Circle` *circ* and a `Polygon` *poly* as inputs and returns a list of segments representing the candidate separating axes.
-
-**Hint**: Notice that the circle is a polygon with an infinite number of edges. Fortunately we do not need to check all axes normal to the edges.
-It's sufficient to check the axes normal to the polygon edges plus ONE axis formed by the circle center and the closest vertex of the polygon.
-
-**Note**: The checker will not verify your implementation for this task, so we encourage that you do your own testing.
-
-#### Task 3b: Separating Axis Theorem for a Polygon and a Circle
-
-We will be modifying the **second** case in the `separating_axis_thm` function. 
-
-The `separating_axis_thm` function takes a polygon and a circle as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
-
-The first argument is a `bool` that is *True* if the shapes collide, and *False* if they do not. 
-
-The second argument is an optional `Segment` which you can use to visualize which segment you are projecting against in your implementation of the Separating Axis Theorem. 
+Implement `get_axes_cp` and the polygon--circle branch of
+`separating_axis_thm`. In addition to the axes normal to the polygon edges,
+include the axis through the circle centre and the closest polygon vertex.
 
 ## Part 2: Collision Check Module
 
@@ -106,9 +56,9 @@ In this part, you will implement a collision checking module for a circle-shaped
 
 **Goal:** Implement different collision detection methods to check if robot paths are collision-free. Each method should use a unique approach to solve the collision-checking problem.
 
-**Available Tools:** 
-- All collision check primitives implemented in `Part 1`
-- Collision check primitives between [circle, polygon, triangle] and [point, segment] provided in the `CollisionPrimitives` class (`src/pdm4ar/exercises/ex06/collision_primitives.py`).
+**Available Tools:** Use the primitives implemented in Part 1 and the provided
+point/segment collision primitives in `CollisionPrimitives`. The collision
+checker implemented here will also serve as the local planner in Part 3.
 
 **Path Representation:** Robot path is represented using the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`):
 
@@ -134,7 +84,7 @@ You will implement the `path_collision_check` function which returns the indices
 
 **Implementation approaches:** To account for the robot's radius, you can either:
 1. **Inflate obstacles** by the robot's radius (creating a larger "danger zone") and convert robot-vs-obstacle collision checks into point-vs-inflated-obstacle checks
-2. Or, **Inflate path segments** by the robot's radius and reuse the polygon-polygon and polygon-circle collision check primitives implemented in Part 1
+2. Or, **Inflate path segments** by the robot's radius and check the resulting swept volume against each obstacle
 
 #### Task 5: Collision Checking via Occupancy Grid
 
@@ -198,18 +148,95 @@ You can use the code structure of the `OptCollisionCheckingPrimitives` class in 
 
 We will only call the `path_collision_check_opt` function during the evaluation.
 
+## Part 3: Sampling-based Planning Applications
+
+Tasks 9 and 10 are implemented in
+`src/pdm4ar/exercises/ex06/sampling_planners.py`. They reuse the collision
+checker from Tasks 4--8. The robot is a disk with radius `robot_radius`, and
+the configuration space is bounded by an `AABB`.
+
+Direct calls to motion-planning libraries that already implement PRM or RRT*
+are not allowed. General-purpose numerical operations and data structures may
+be used.
+
+### Task 9: Probabilistic Roadmap (PRM)
+
+The evaluator supplies a deterministic list of configurations. The list is
+generated using a fixed seed, so every student receives the same roadmap
+input. Some configurations may collide with obstacles.
+
+Implement `SamplingBasedPlanner.prm`:
+
+1. Discard configurations that are outside the bounds or in collision.
+2. Connect pairs at most `connection_radius` apart only when the complete edge
+   is collision-free.
+3. Weight each edge by its Euclidean length.
+4. Return a shortest path for every supplied start--goal query using Dijkstra
+   or A*.
+
+```python
+prm(
+    samples: list[Point],
+    queries: list[tuple[Point, Point]],
+    bounds: AABB,
+    robot_radius: float,
+    obstacles: list[GeoPrimitive],
+    connection_radius: float,
+) -> list[Path]
+```
+
+Every waypoint in a returned path must come from `samples`. Return `Path([])`
+for a query whose endpoint is invalid or whose roadmap contains no solution.
+
+### Task 10: Rapidly-exploring Random Tree Star (RRT*)
+
+Implement `SamplingBasedPlanner.rrt_star`. You may choose how to sample the
+configuration space. A typical implementation:
+
+1. Samples a configuration, optionally with a goal bias.
+2. Steers from the nearest tree node by at most `step_size`.
+3. Rejects colliding configurations and edges.
+4. Chooses the lowest-cost parent among nearby nodes.
+5. Rewires nearby nodes when the new node lowers their cost.
+6. Reconstructs the best path to the goal through parent links.
+
+```python
+rrt_star(
+    start: Point,
+    goal: Point,
+    bounds: AABB,
+    robot_radius: float,
+    obstacles: list[GeoPrimitive],
+    max_iterations: int = 3000,
+    step_size: float = 0.5,
+    rewire_radius: float = 1.5,
+    goal_bias: float = 0.1,
+    seed: int = 0,
+) -> Path
+```
+
+The same inputs and seed must produce the same result. Return `Path([])` when
+the endpoints are invalid or no solution is found within the iteration
+budget.
+
 ### Evaluation
 
 For this exercise our performance metric is accuracy and execution time.
 
 **Test Data Generation:**
-- For each task, random inputs are generated with the algorithm provided in `src/pdm4ar/exercises_def/ex06/data.py`
+- Tasks 1–8 use data from `src/pdm4ar/exercises_def/ex06/data.py`
+- Tasks 9–10 use deterministic planning problems from
+  `src/pdm4ar/exercises_def/ex06/sampling_data.py`
 - Each task contains multiple test cases
 
 **Accuracy Calculation:**
-- **Tasks 1-3:** Accuracies are calculated by the ratio of correct answers
+- **Tasks 1–3:** compare geometric results with the expected values
 - **Tasks 4-8:** Lists of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path
 - **Tasks 4-8:** Accuracies are calculated by the average of the accuracy of test cases
+- **Task 9:** checks query endpoints, sample membership, bounds,
+  collision-free edges, and shortest-path cost
+- **Task 10:** checks endpoints, bounds, collision-free edges, reproducibility,
+  and path-cost suboptimality
 
 **Execution Time:**
 - Execution time of each task is calculated as an average of its test cases
@@ -222,6 +249,8 @@ For this exercise our performance metric is accuracy and execution time.
 | 06          | 0.0002s                      |
 | 07          | 0.0030s                      |
 | 08          | 0.1639s                      |
+| 09          | hardware dependent        |
+| 10          | hardware dependent        |
 
 
 **Final Scoring:**
@@ -229,17 +258,16 @@ For this exercise our performance metric is accuracy and execution time.
 
 | Task **ID** | **Number of Test Cases** | *Accuracy Weight* | *Solving Time Weight* |
 |-------------|--------------------------|-------------------|-----------------------|
-| 01          | 05                       | 05                | 0                     |
-| 2a          | 00                       | 00                | 0                     |
-| 2b          | 00                       | 00                | 0                     |
-| 2c          | 10                       | 20                | 0                     |
-| 3a          | 00                       | 00                | 0                     |
-| 3b          | 06                       | 20                | 0                     |
+| 01          | 05                       | 05                | 05                    |
+| 02          | 10                       | 20                | 20                    |
+| 03          | 06                       | 20                | 20                    |
 | 04          | 05                       | 20                | 20                    |
 | 05          | 05                       | 20                | 20                    |
 | 06          | 05                       | 30                | 30                    |
 | 07          | 05                       | 20                | 20                    |
 | 08          | 05                       | 30                | 30                    |
+| 09          | 05                       | 20                | 20                    |
+| 10          | 10                       | 20                | 20                    |
 
 ### Advice
 

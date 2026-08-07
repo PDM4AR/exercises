@@ -4,6 +4,7 @@ from dg_commons import SE2Transform
 from matplotlib import pyplot as plt
 from numpy.linalg import inv
 from pdm4ar.exercises_def.ex06.structures import (
+    AABB,
     Circle,
     GeoPrimitive,
     Path,
@@ -15,10 +16,76 @@ from pdm4ar.exercises_def.ex06.structures import (
 from reprep import MIME_PDF, Report
 
 
+def _draw_planning_environment(ax, bounds: AABB, obstacles: list[GeoPrimitive]):
+    for obstacle in obstacles:
+        obstacle.visualize(ax)
+    ax.set_aspect(1)
+    ax.grid()
+    ax.set_xlim(bounds.p_min.x, bounds.p_max.x)
+    ax.set_ylim(bounds.p_min.y, bounds.p_max.y)
+
+
+def visualize_prm_problem(r: Report, ex_num: str, data, paths: list[Path]):
+    samples, queries, bounds, _, obstacles = data[:5]
+    rfig = r.figure(cols=1)
+    with rfig.plot(nid=f"prm-{ex_num}", mime=MIME_PDF, figsize=None) as _:
+        ax = plt.gca()
+        _draw_planning_environment(ax, bounds, obstacles)
+        ax.scatter(
+            [point.x for point in samples],
+            [point.y for point in samples],
+            s=6,
+            c="0.75",
+            label="provided samples",
+        )
+        colours = ("tab:blue", "tab:orange", "tab:purple", "tab:brown")
+        for query_index, (start, goal) in enumerate(queries):
+            colour = colours[query_index % len(colours)]
+            ax.plot(start.x, start.y, "o", color=colour)
+            ax.plot(goal.x, goal.y, "x", color=colour)
+            if (
+                isinstance(paths, list)
+                and query_index < len(paths)
+                and isinstance(paths[query_index], Path)
+                and paths[query_index].waypoints
+            ):
+                path = paths[query_index]
+                ax.plot(
+                    [point.x for point in path.waypoints],
+                    [point.y for point in path.waypoints],
+                    ".-",
+                    color=colour,
+                    linewidth=1.5,
+                    label=f"query {query_index + 1}",
+                )
+        ax.legend()
+
+
+def visualize_planning_problem(r: Report, ex_num: str, data, path: Path):
+    start, goal, bounds, _, obstacles = data[:5]
+    rfig = r.figure(cols=1)
+    with rfig.plot(nid=f"sampling-planner-{ex_num}", mime=MIME_PDF, figsize=None) as _:
+        ax = plt.gca()
+        _draw_planning_environment(ax, bounds, obstacles)
+        ax.plot(start.x, start.y, "go", label="start")
+        ax.plot(goal.x, goal.y, "bo", label="goal")
+        if isinstance(path, Path) and path.waypoints:
+            ax.plot(
+                [point.x for point in path.waypoints],
+                [point.y for point in path.waypoints],
+                "k.-",
+                linewidth=1.5,
+                label="path",
+            )
+        ax.legend()
+
+
 def visualize_circle_point(r: Report, ex_num: str, data: tuple[Circle, Point, bool]):
     c, p, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(nid=f"point-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None) as _:
+    with rfig.plot(
+        nid=f"point-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
+    ) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -136,7 +203,9 @@ def visualize_SAT_poly_circle(
         )
 
 
-def visualize_triangle_point(r: Report, ex_num: str, data: tuple[Triangle, Point, bool]):
+def visualize_triangle_point(
+    r: Report, ex_num: str, data: tuple[Triangle, Point, bool]
+):
     t, p, _ = data
     rfig = r.figure(cols=1)
     with rfig.plot(
@@ -193,7 +262,9 @@ def visualize_polygon_point(r: Report, ex_num: str, data: tuple[Polygon, Point, 
 def visualize_circle_line(r: Report, ex_num: str, data: tuple[Circle, Segment, bool]):
     c, l, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(nid=f"segment-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None) as _:
+    with rfig.plot(
+        nid=f"segment-circle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
+    ) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -213,10 +284,14 @@ def visualize_circle_line(r: Report, ex_num: str, data: tuple[Circle, Segment, b
         )
 
 
-def visualize_triangle_line(r: Report, ex_num: str, data: tuple[Triangle, Segment, bool]):
+def visualize_triangle_line(
+    r: Report, ex_num: str, data: tuple[Triangle, Segment, bool]
+):
     t, l, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(nid=f"segment-triangle-primitive-{ex_num}", mime=MIME_PDF, figsize=None) as _:
+    with rfig.plot(
+        nid=f"segment-triangle-primitive-{ex_num}", mime=MIME_PDF, figsize=None
+    ) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -239,7 +314,9 @@ def visualize_triangle_line(r: Report, ex_num: str, data: tuple[Triangle, Segmen
 def visualize_polygon_line(r: Report, ex_num: str, data: tuple[Polygon, Segment, bool]):
     poly, l, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(nid=f"segment-polygon-primitive-{ex_num}", mime=MIME_PDF, figsize=None) as _:
+    with rfig.plot(
+        nid=f"segment-polygon-primitive-{ex_num}", mime=MIME_PDF, figsize=None
+    ) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -266,7 +343,9 @@ def visualize_map_path(
 ):
     path, radius, obstacles, _ = data
     rfig = r.figure(cols=1)
-    with rfig.plot(nid=f"map-path-collision-{ex_num}", mime=MIME_PDF, figsize=None) as _:
+    with rfig.plot(
+        nid=f"map-path-collision-{ex_num}", mime=MIME_PDF, figsize=None
+    ) as _:
         ax = plt.gca()
         ax.grid()
 
@@ -277,7 +356,9 @@ def visualize_map_path(
             obs.visualize(ax)
         ax.set_aspect(1)
 
-        boundaries = [path.get_boundaries()] + [obs.get_boundaries() for obs in obstacles]
+        boundaries = [path.get_boundaries()] + [
+            obs.get_boundaries() for obs in obstacles
+        ]
 
         ax.set_xlim(
             min([p_min.x for p_min, _ in boundaries]) - 1,
@@ -360,7 +441,9 @@ def visualize_robot_frame_map(
             segment.visualize(ax)
             ax.set_aspect(1)
 
-            boundaries = [segment.get_boundaries()] + [obs.get_boundaries() for obs in observation]
+            boundaries = [segment.get_boundaries()] + [
+                obs.get_boundaries() for obs in observation
+            ]
 
             ax.set_xlim(
                 min([p_min.x for p_min, _ in boundaries]) - 1,
