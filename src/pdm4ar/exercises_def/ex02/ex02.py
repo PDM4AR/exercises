@@ -14,7 +14,7 @@ from collections import OrderedDict, defaultdict
 from reprep import Report, MIME_PNG, DataNode
 from zuper_commons.text import remove_escapes
 from matplotlib import pyplot as plt
-from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib.colors import ListedColormap, BoundaryNorm, Normalize
 from toolz import sliding_window
 
 from pdm4ar.exercises.ex02 import graph_search_algo, wavefront_planner
@@ -204,14 +204,19 @@ class GraphImageCache:
         # stored on the graph components
         node_colors = [graph.nodes[u]["node_color"] for u in graph.nodes]
         edge_colors = [graph.edges[u, v]["edge_color"] for (u, v) in graph.edges]
+        figure_size = max(6.0, min(14.0, graph.number_of_nodes() / 10.0))
+        figure, axis = plt.subplots(figsize=(figure_size, figure_size))
         nx.draw(
             graph,
             node_color=node_colors,
             edge_color=edge_colors,
             pos=pos,
             with_labels=True,
+            ax=axis,
         )
-        plt.savefig(self.image_file(self.counter), pil_kwargs={"figsize": figsize})
+        figure.tight_layout()
+        figure.savefig(self.image_file(self.counter), dpi=160, bbox_inches="tight")
+        plt.close(figure)
 
         # add the graph data to our cache lookup
         self.cache[graph_encoding] = self.counter
@@ -225,7 +230,7 @@ class GraphImageCache:
         cmap = ListedColormap(["white", "black", "green", "red", "orange", "blue"])
         norm = BoundaryNorm([0, 1, 2, 3, 4, 5, 6], cmap.N)
 
-        fig, ax = plt.subplots(figsize=(4, 4))
+        fig, ax = plt.subplots(figsize=(6, 6))
         ax.imshow(matrix, cmap=cmap, norm=norm)
 
         # Grid setup
@@ -239,7 +244,9 @@ class GraphImageCache:
         # Remove ticks
         plt.tick_params(left=False, bottom=False)
 
-        plt.savefig(self.image_file(self.counter), pil_kwargs={"figsize": figsize})
+        fig.tight_layout()
+        fig.savefig(self.image_file(self.counter), dpi=160, bbox_inches="tight")
+        plt.close(fig)
 
         # add the graph data to our cache lookup
         self.cache[grid_encoding] = self.counter
@@ -256,7 +263,7 @@ class GraphImageCache:
         # uniquely defines a graph, and keys should only be equal if their
         # graphs are equal. It turns out, we can use python's pickle encoding
         # for this purpose
-        return str(pickle.dumps(g))
+        return "renderer-v2:" + str(pickle.dumps(g))
 
 
 @dataclass(frozen=True)
@@ -275,9 +282,67 @@ def str_from_path(path: Path) -> str:
     return "".join(list(map(lambda u: f"{u}->", path)))[:-2]
 
 
+def wavefront_cost_image(test_graph, cost_to_go, name, pos=None, grid=None, max_cost=None) -> DataNode:
+    """Draw a cost-to-go field with costs as node or cell labels."""
+    figure_size = 6.0 if grid is not None else max(6.0, min(14.0, test_graph.number_of_nodes() / 10.0))
+    fig, ax = plt.subplots(figsize=(figure_size, figure_size))
+    finite_costs = [float(cost) for cost in cost_to_go.values() if np.isfinite(cost)]
+    scale_max = max(finite_costs, default=1.0) if max_cost is None else max_cost
+    norm = Normalize(vmin=0, vmax=max(1.0, scale_max))
+    cmap = plt.get_cmap("YlGn_r")
+
+    def cost_label(node):
+        cost = cost_to_go.get(node, np.inf)
+        if not np.isfinite(cost):
+            return "∞"
+        return str(int(cost)) if float(cost).is_integer() else f"{cost:g}"
+
+    if grid is not None:
+        size = len(grid)
+        image = np.empty((size, size, 4))
+        for row in range(size):
+            for col in range(size):
+                node = row * size + col + 1
+                if grid[row][col] == 1:
+                    image[row, col] = (0, 0, 0, 1)
+                    continue
+                cost = cost_to_go.get(node, np.inf)
+                image[row, col] = cmap(norm(cost)) if np.isfinite(cost) else (0.82, 0.82, 0.82, 1)
+                text_color = "white" if sum(image[row, col, :3]) < 1.35 else "black"
+                ax.text(col, row, cost_label(node), ha="center", va="center", color=text_color, fontsize=7)
+
+        ax.imshow(image)
+        ax.set_xticks(np.arange(size + 1) - 0.5)
+        ax.set_yticks(np.arange(size + 1) - 0.5)
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.set_aspect("equal")
+        ax.grid(color="black", linewidth=1)
+        ax.tick_params(left=False, bottom=False)
+    else:
+        node_colors = [
+            cmap(norm(cost_to_go[node])) if node in cost_to_go and np.isfinite(cost_to_go[node]) else "lightgray"
+            for node in test_graph.nodes()
+        ]
+        labels = {node: cost_label(node) for node in test_graph.nodes()}
+        nx.draw_networkx_edges(test_graph, pos, edge_color=EdgeColors.default, ax=ax)
+        nx.draw_networkx_nodes(test_graph, pos, node_color=node_colors, ax=ax)
+        nx.draw_networkx_labels(test_graph, pos, labels=labels, ax=ax)
+        ax.axis("off")
+
+    colorbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, shrink=0.75)
+    colorbar.set_label("Cost to goal")
+    output = io.BytesIO()
+    fig.tight_layout()
+    fig.savefig(output, format="png", dpi=160, bbox_inches="tight")
+    plt.close(fig)
+    return DataNode(nid=name, data=output.getvalue(), mime=MIME_PNG)
+
+
 def wavefront_result_image(test_graph, paths, goal, name, pos=None, grid=None) -> DataNode:
     """Draw all paths to one Wavefront goal in a single image."""
-    fig, ax = plt.subplots(figsize=(6, 6))
+    figure_size = 6.0 if grid is not None else max(6.0, min(14.0, test_graph.number_of_nodes() / 10.0))
+    fig, ax = plt.subplots(figsize=(figure_size, figure_size))
     starts = sorted(paths)
     colors = [plt.get_cmap("tab10")(index) for index in range(len(starts))]
     offsets = np.linspace(-0.08, 0.08, len(starts)) if len(starts) > 1 else [0]
@@ -338,7 +403,8 @@ def wavefront_result_image(test_graph, paths, goal, name, pos=None, grid=None) -
         ax.axis("off")
 
     image = io.BytesIO()
-    fig.savefig(image, format="png", bbox_inches="tight")
+    fig.tight_layout()
+    fig.savefig(image, format="png", dpi=160, bbox_inches="tight")
     plt.close(fig)
     return DataNode(nid=name, data=image.getvalue(), mime=MIME_PNG)
 
@@ -424,6 +490,33 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceR
             cost_msg += f"Cost-to-go: {'CORRECT' if cost_correct else 'WRONG'}\n"
             cost_msg += f"Your cost-to-go: {cost_to_go}\n"
             cost_msg += f"Ground truth cost-to-go: {gt_cost_to_go}\n"
+            if plotGraph:
+                if isinstance(graph_search_prob, GridSearchProblem):
+                    cost_plot_args = {"test_graph": test_graph, "grid": test_grid}
+                else:
+                    cost_plot_args = {"test_graph": G, "pos": pos}
+                finite_comparison_costs = [
+                    float(cost) for costs in (cost_to_go, gt_cost_to_go) for cost in costs.values() if np.isfinite(cost)
+                ]
+                comparison_max_cost = max(finite_comparison_costs, default=1.0)
+                cost_figure = r.figure(cols=2)
+                cost_figure.add_child(
+                    wavefront_cost_image(
+                        cost_to_go=cost_to_go,
+                        name=f"Student cost-to-go map for goal {goal}",
+                        max_cost=comparison_max_cost,
+                        **cost_plot_args,
+                    )
+                )
+                cost_figure.add_child(
+                    wavefront_cost_image(
+                        cost_to_go=gt_cost_to_go,
+                        name=f"Ground-truth cost-to-go map for goal {goal}",
+                        max_cost=comparison_max_cost,
+                        **cost_plot_args,
+                    )
+                )
+
             r.text(f"{algo_name}-goal{goal_index}", text=remove_escapes(cost_msg))
 
             for start_index, start in enumerate(starts):
