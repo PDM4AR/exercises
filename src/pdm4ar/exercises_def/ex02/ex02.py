@@ -1,5 +1,6 @@
 from typing import Any, Sequence
 from time import process_time
+import io
 import os
 from unittest import result
 from matplotlib.pylab import f
@@ -8,7 +9,7 @@ import pathlib
 import pickle
 import shutil
 import copy
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from reprep import Report, MIME_PNG, DataNode
 from zuper_commons.text import remove_escapes
@@ -16,7 +17,7 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
 from toolz import sliding_window
 
-from pdm4ar.exercises.ex02 import graph_search_algo
+from pdm4ar.exercises.ex02 import graph_search_algo, wavefront_planner
 from pdm4ar.exercises.ex02 import algo
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex02.data import *
@@ -274,6 +275,74 @@ def str_from_path(path: Path) -> str:
     return "".join(list(map(lambda u: f"{u}->", path)))[:-2]
 
 
+def wavefront_result_image(test_graph, paths, goal, name, pos=None, grid=None) -> DataNode:
+    """Draw all paths to one Wavefront goal in a single image."""
+    fig, ax = plt.subplots(figsize=(6, 6))
+    starts = sorted(paths)
+    colors = [plt.get_cmap("tab10")(index) for index in range(len(starts))]
+    offsets = np.linspace(-0.08, 0.08, len(starts)) if len(starts) > 1 else [0]
+
+    if grid is not None:
+        colors = [("red", "green")[index % 2] for index in range(len(starts))]
+        matrix = np.array(grid, copy=True)
+        for start_node in starts:
+            row, col = divmod(start_node - 1, len(grid))
+            matrix[row, col] = 4
+        goal_row, goal_col = divmod(goal - 1, len(grid))
+        matrix[goal_row, goal_col] = 5
+
+        cmap = ListedColormap(["white", "black", "green", "red", "orange", "blue"])
+        norm = BoundaryNorm([0, 1, 2, 3, 4, 5, 6], cmap.N)
+        ax.imshow(matrix, cmap=cmap, norm=norm)
+
+        for start_node, color, offset in zip(starts, colors, offsets):
+            path = paths[start_node]
+            if path:
+                coordinates = [divmod(node - 1, len(grid)) for node in path]
+                ys, xs = zip(*coordinates)
+                ax.plot(
+                    np.asarray(xs) + offset,
+                    np.asarray(ys) + offset,
+                    color=color,
+                    linewidth=2.5,
+                )
+
+        ax.set_xticks(np.arange(matrix.shape[1] + 1) - 0.5)
+        ax.set_yticks(np.arange(matrix.shape[0] + 1) - 0.5)
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.set_aspect("equal")
+        ax.grid(color="black", linewidth=1)
+        ax.tick_params(left=False, bottom=False)
+    else:
+        nx.draw_networkx_edges(test_graph, pos, edge_color=EdgeColors.default, ax=ax)
+        for start_node, color, offset in zip(starts, colors, offsets):
+            path_edges = list(sliding_window(2, paths[start_node]))
+            if path_edges:
+                nx.draw_networkx_edges(
+                    test_graph,
+                    pos,
+                    edgelist=path_edges,
+                    edge_color=[color],
+                    width=2.5,
+                    connectionstyle=f"arc3,rad={offset}",
+                    ax=ax,
+                )
+
+        node_colors = [
+            NodeColors.goal if node == goal else NodeColors.start if node in starts else NodeColors.default
+            for node in test_graph.nodes()
+        ]
+        nx.draw_networkx_nodes(test_graph, pos, node_color=node_colors, ax=ax)
+        nx.draw_networkx_labels(test_graph, pos, ax=ax)
+        ax.axis("off")
+
+    image = io.BytesIO()
+    fig.savefig(image, format="png", bbox_inches="tight")
+    plt.close(fig)
+    return DataNode(nid=name, data=image.getvalue(), mime=MIME_PNG)
+
+
 def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceResult, Report]:
     # draw graph
     graph_search_prob, algo_name = ex_in
@@ -328,6 +397,84 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceR
     r.section(f"{algo_name}")
     accuracy = []
     solve_times = []
+
+    if algo_name in wavefront_planner:
+        queries_by_goal = defaultdict(list)
+        for start, goal in test_queries:
+            queries_by_goal[goal].append(start)
+
+        planner = wavefront_planner[algo_name]()
+        reverse_graph = revert_graph(test_graph)
+        for goal_index, (goal, starts) in enumerate(queries_by_goal.items()):
+            starts = sorted(starts)
+            start_time = process_time()
+            cost_to_go = planner.compute_cost_to_go(reverse_graph, goal)
+            paths = {start: planner.extract_path(start, test_graph, cost_to_go) for start in starts}
+            solve_time = process_time() - start_time
+
+            gt_cost_to_go, gt_paths = ex_out[goal]
+            cost_correct = cost_to_go == gt_cost_to_go
+            path_accuracy = sum(paths[start] == gt_paths[start] for start in starts) / len(starts)
+            group_accuracy = 0.5 * float(cost_correct) + 0.5 * path_accuracy
+
+            accuracy.append({algo_name: group_accuracy})
+            solve_times.append({algo_name: solve_time})
+
+            cost_msg = f"Goal: {goal}\n"
+            cost_msg += f"Cost-to-go: {'CORRECT' if cost_correct else 'WRONG'}\n"
+            cost_msg += f"Your cost-to-go: {cost_to_go}\n"
+            cost_msg += f"Ground truth cost-to-go: {gt_cost_to_go}\n"
+            r.text(f"{algo_name}-goal{goal_index}", text=remove_escapes(cost_msg))
+
+            for start_index, start in enumerate(starts):
+                path = paths[start]
+                gt_path = gt_paths[start]
+                path_str = str_from_path(path) if path else "No path"
+                gt_path_str = str_from_path(gt_path) if gt_path else "No path"
+                path_status = "CORRECT" if path == gt_path else "WRONG"
+
+                msg = f"Start: {start},\tGoal: {goal}\n"
+                msg += f"Path: {path_status}\n"
+                msg += f"Your path: {path_str}\n"
+                msg += f"Ground truth path: {gt_path_str}\n"
+                r.text(
+                    f"{algo_name}-goal{goal_index}-start{start_index}",
+                    text=remove_escapes(msg),
+                )
+
+            if plotGraph:
+                rfig = r.figure(cols=2)
+                if isinstance(graph_search_prob, GridSearchProblem):
+                    plot_args = {
+                        "test_graph": test_graph,
+                        "goal": goal,
+                        "grid": test_grid,
+                    }
+                else:
+                    plot_args = {
+                        "test_graph": G,
+                        "goal": goal,
+                        "pos": pos,
+                    }
+                rfig.add_child(
+                    wavefront_result_image(
+                        paths=paths,
+                        name=f"Student paths to goal {goal}",
+                        **plot_args,
+                    )
+                )
+                rfig.add_child(
+                    wavefront_result_image(
+                        paths=gt_paths,
+                        name=f"Ground-truth paths to goal {goal}",
+                        **plot_args,
+                    )
+                )
+
+        cache.save()
+        goal_perf = list(map(Ex02PerformanceResult, accuracy, solve_times))
+        return ex2_perf_aggregator(goal_perf, algo_name=algo_name), r
+
     for i, query in enumerate(test_queries):
         # Set all edge color attribute to black
         if not isinstance(graph_search_prob, GridSearchProblem):
@@ -429,15 +576,17 @@ def ex2_perf_aggregator(perf: Sequence[Ex02PerformanceResult], algo_name=None) -
             "DepthFirst": 0,
             "BreadthFirst": 0,
             "IterativeDeepening": 0,
+            "WavefrontPlanner": 0,
         }
         solve_time = {
             "DepthFirst": 0,
             "BreadthFirst": 0,
             "IterativeDeepening": 0,
+            "WavefrontPlanner": 0,
         }
 
-        valid_acc = {"DepthFirst": [], "BreadthFirst": [], "IterativeDeepening": []}
-        valid_time = {"DepthFirst": [], "BreadthFirst": [], "IterativeDeepening": []}
+        valid_acc = {algo: [] for algo in accuracy_score}
+        valid_time = {algo: [] for algo in solve_time}
         for p in perf:
             for algo in valid_acc:
                 if algo in p.accuracy and p.accuracy[algo] is not None:
@@ -461,13 +610,24 @@ def ex2_perf_aggregator(perf: Sequence[Ex02PerformanceResult], algo_name=None) -
 
 
 def get_exercise2() -> Exercise:
-    graph_search_problems = get_graph_search_problems(n_seed=4)
-    expected_results = ex2_get_expected_results()
-    graph_search_algos = graph_search_algo.keys()
-
-    test_values = list()
-    for ab in product(graph_search_problems, graph_search_algos):
-        test_values.append(TestValueEx2(ab))
+    n_seed = 4
+    graph_search_problems = get_graph_search_problems(n_seed=n_seed)
+    wavefront_problems = get_wavefront_problems(graph_search_problems, seed=n_seed)
+    stored_expected_results = ex2_get_expected_results()
+    test_values = []
+    expected_results = []
+    graph_search_result_index = 0
+    for graph_search_problem, wavefront_problem in zip(
+        graph_search_problems,
+        wavefront_problems,
+    ):
+        for algo_name in graph_search_algo:
+            test_values.append(TestValueEx2((graph_search_problem, algo_name)))
+            expected_results.append(stored_expected_results[graph_search_result_index])
+            graph_search_result_index += 1
+        for algo_name in wavefront_planner:
+            test_values.append(TestValueEx2((wavefront_problem, algo_name)))
+            expected_results.append(None)
 
     return Exercise[TestValueEx2, Any](
         desc="This exercise is about graph search",

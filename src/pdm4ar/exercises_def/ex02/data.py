@@ -1,5 +1,5 @@
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import product
 import random
 from random import seed, sample
@@ -23,12 +23,46 @@ class GridSearchProblem(GraphSearchProblem):
     grid: Grid
 
 
+def get_wavefront_problems(
+    graph_search_problems: list[GraphSearchProblem],
+    seed: int,
+) -> list[GraphSearchProblem]:
+    """Add one reproducible random, unused start for every queried goal."""
+    rng = random.Random(seed)
+    wavefront_problems = []
+    for problem in graph_search_problems:
+        queries = set(problem.queries)
+        goals = {goal for _, goal in problem.queries}
+        for goal in sorted(goals):
+            starts = {start for start, query_goal in queries if query_goal == goal}
+            candidate_starts = [
+                node
+                for node in sorted(problem.graph)
+                if node != goal and node not in starts
+            ]
+            if candidate_starts:
+                queries.add((rng.choice(candidate_starts), goal))
+        wavefront_problems.append(replace(problem, queries=queries))
+    return wavefront_problems
+
+
 def networkx_2_adjacencylist(nxgraph: DiGraph) -> AdjacencyList:
     adj_list = dict()
     atlas = nxgraph.adj._atlas
     for n in atlas.keys():
         adj_list[n] = set(atlas[n].keys())
     return adj_list
+
+
+def revert_graph(graph: AdjacencyList) -> AdjacencyList:
+    """Return an adjacency list with the direction of every edge reversed."""
+    reverse_graph = {node: set() for node in graph}
+
+    for node, successors in graph.items():
+        for successor in successors:
+            reverse_graph.setdefault(successor, set()).add(node)
+
+    return reverse_graph
 
 
 def queries_from_adjacency(adj_list: AdjacencyList, n: int, n_seed=None) -> set[Query]:
