@@ -708,19 +708,16 @@ def get_exercise2() -> Exercise:
     wavefront_problems = get_wavefront_problems(graph_search_problems, seed=n_seed)
     stored_expected_results = ex2_get_expected_results()
     test_values = []
-    expected_results = []
-    graph_search_result_index = 0
     for graph_search_problem, wavefront_problem in zip(
         graph_search_problems,
         wavefront_problems,
     ):
         for algo_name in graph_search_algo:
             test_values.append(TestValueEx2((graph_search_problem, algo_name)))
-            expected_results.append(stored_expected_results[graph_search_result_index])
-            graph_search_result_index += 1
         for algo_name in wavefront_planner:
             test_values.append(TestValueEx2((wavefront_problem, algo_name)))
-            expected_results.append(None)
+
+    expected_results = [stored_expected_results[index] for index in range(len(test_values))]
 
     return Exercise[TestValueEx2, Any](
         desc="This exercise is about graph search",
