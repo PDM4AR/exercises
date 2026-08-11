@@ -5,7 +5,11 @@ from dg_commons import SE2Transform
 import sympy as sp
 
 from pdm4ar.exercises.ex05.structures import *
-from pdm4ar.exercises_def.ex05.utils import extract_path_points
+from pdm4ar.exercises_def.ex05.utils import (
+    compute_middle_curve,
+    update_arc_length,
+    extract_path_points,
+)
 
 
 class PathPlanner(ABC):
@@ -71,6 +75,7 @@ def calculate_tangent_btw_circles(circle_start: Curve, circle_end: Curve) -> lis
 
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
     # TODO implement here your solution
+    # The imported update_arc_length and compute_middle_curve helpers can simplify the implementation.
     # Please keep segments with zero length in the return list & return a valid dubins path!
     return []  # e.g., [Curve(), Line(),..]
 
