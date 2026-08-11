@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from turtle import distance
 
 from dg_commons import SE2Transform
+import sympy as sp
 
 from pdm4ar.exercises.ex05.structures import *
 from pdm4ar.exercises_def.ex05.utils import extract_path_points
@@ -113,3 +114,22 @@ def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transf
     # TODO implement here your solution
     # Please keep segments with zero length in the return list & return a valid dubins/reeds path!
     return []  # e.g., [Curve(..,gear=Gear.REVERSE), Curve(),..]
+
+
+def compute_lie_bracket(
+    field_f: sp.Matrix,
+    field_g: sp.Matrix,
+    state_vars: Sequence[sp.Symbol],
+) -> sp.Matrix:
+    # TODO implement here your solution
+    return sp.zeros(len(state_vars), 1)
+
+
+def compute_chow_rank(
+    vector_fields: Sequence[sp.Matrix],
+    state_vars: Sequence[sp.Symbol],
+    eval_point: dict[sp.Symbol, sp.Expr],
+    max_bracket_depth: int,
+) -> int:
+    # TODO implement here your solution
+    return 0

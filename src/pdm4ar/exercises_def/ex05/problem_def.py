@@ -133,6 +133,12 @@ def ex5_spline_eval(algo_out, algo_out_tf, expected):
     return correct, result_str
 
 
+def ex7_chow_rank_eval(algo_out, algo_out_tf, expected):
+    correct = algo_out == expected
+    result_str = PASSED_STR if correct else FAILED_STR
+    return int(correct), result_str
+
+
 def ex4_pre_tf_fun(algo_out):
     algo_nonempty = bool(len(algo_out)) and all([isinstance(seg, Segment) for seg in algo_out])
     pre_msg = ""

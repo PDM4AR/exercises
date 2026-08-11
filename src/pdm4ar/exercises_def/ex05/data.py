@@ -1,14 +1,16 @@
 import pdm4ar.exercises.ex05.algo as algo
 from pdm4ar.exercises_def.ex05.problem_def import *
+import sympy as sp
 
 # TBD
 # TODO TBD
 EX_1_RADIUS_WEIGHT = 0.05
 EX_2_CURVES_WEIGHT = 0.05
 EX_3_TANGENT_WEIGHT = 0.20
-EX_4_DUBINS_WEIGHT = 0.50
+EX_4_DUBINS_WEIGHT = 0.45
 EX_5_SPLINE_WEIGHT = 0.10
 EX_6_REEDS_WEIGHT = 0.10
+EX_7_CHOW_WEIGHT = 0.05
 
 assert math.isclose(
     EX_1_RADIUS_WEIGHT
@@ -16,7 +18,8 @@ assert math.isclose(
     + EX_3_TANGENT_WEIGHT
     + EX_4_DUBINS_WEIGHT
     + EX_6_REEDS_WEIGHT
-    + EX_5_SPLINE_WEIGHT,
+    + EX_5_SPLINE_WEIGHT
+    + EX_7_CHOW_WEIGHT,
     1,
 )
 
@@ -158,6 +161,58 @@ def get_ex6_start_end_test_values() -> DubinsProblem:
     )
 
 
+def get_ex7_chow_rank_test_values() -> DubinsProblem:
+    queries = []
+
+    x, y, theta = sp.symbols("x y theta", real=True)
+    unicycle_fields = [
+        sp.Matrix([sp.cos(theta), sp.sin(theta), 0]),
+        sp.Matrix([0, 0, 1]),
+    ]
+    queries.extend(
+        [
+            (unicycle_fields, [x, y, theta], {x: 0, y: 0, theta: 0}, 1),
+            (
+                unicycle_fields,
+                [x, y, theta],
+                {x: sp.Rational(1, 2), y: -1, theta: sp.pi / 2},
+                1,
+            ),
+        ]
+    )
+
+    x, y, theta, phi = sp.symbols("x y theta phi", real=True)
+    bicycle_fields = [
+        sp.Matrix([sp.cos(theta), sp.sin(theta), sp.tan(phi) / 2, 0]),
+        sp.Matrix([0, 0, 0, 1]),
+    ]
+    queries.append(
+        (bicycle_fields, [x, y, theta, phi], {x: 0, y: 0, theta: 0, phi: 0}, 2)
+    )
+
+    x, y, z = sp.symbols("x y z", real=True)
+    depth_fields = [sp.Matrix([1, 0, 0]), sp.Matrix([0, 1, x**2])]
+    queries.extend(
+        [
+            (depth_fields, [x, y, z], {x: 0, y: 0, z: 0}, 1),
+            (depth_fields, [x, y, z], {x: 1, y: -2, z: 4}, 1),
+            (depth_fields, [x, y, z], {x: 0, y: 7, z: -3}, 2),
+        ]
+    )
+
+    translation_fields = [sp.Matrix([1, 0, 0]), sp.Matrix([0, 1, 0])]
+    queries.append((translation_fields, [x, y, z], {x: -3, y: 4, z: 7}, 2))
+
+    return DubinsProblem(
+        queries=queries,
+        id_num=7,
+        id_str="Chow Controllability Rank Test",
+        algo_fun=algo.compute_chow_rank,
+        eval_fun=ex7_chow_rank_eval,
+        eval_weight=EX_7_CHOW_WEIGHT,
+    )
+
+
 def get_example_test_values() -> List[DubinsProblem]:
     test_values = [
         get_ex1_radius_test_values(),
@@ -166,5 +221,6 @@ def get_example_test_values() -> List[DubinsProblem]:
         get_ex4_start_end_test_values(),
         get_ex5_spline_comparison_values(),
         get_ex6_start_end_test_values(),
+        get_ex7_chow_rank_test_values(),
     ]
     return test_values

@@ -81,7 +81,7 @@ The order of the lines in the List is not important. Write your code in:
     return [] # i.e. [Line(),]
  ``` 
 
-### 4. [50%] Generating Dubin's path
+### 4. [45%] Generating Dubin's path
 Use the helper methods implemented in the previous task to come up with the complete Dubins' path generation between two configurations. Please always return a valid Dubins' path (never an empty list, use the fact that an optimal Dubin's path has always a **fixed** number of segments). Keep segments with zero length (e.g. line with length = 0) in the returned list.
 ```python
 def calculate_dubins_path(start_config: SE2Transform, end_config: SE2Transform, radius: float) -> Path:
@@ -181,6 +181,52 @@ def calculate_reeds_shepp_path(start_config: SE2Transform, end_config: SE2Transf
     return [] # e.g. [Curve(..,gear=Gear.REVERSE), Curve(),..]
 ```
 
+### 7. [5%] Chow controllability for a new parking maneuver
+
+After the unusual reverse-parking upgrade from Task 6, **ERMETH-ON-WHEELS** has
+an even more ambitious idea: a maneuver whose net motion is orthogonal to the
+direction of the wheels, allowing a taxi to enter very tight parking spaces.
+Before making promises to the investors, the navigation team wants to determine
+which candidate robotic vehicle models can generate the directions needed for
+such a maneuver.
+
+For each symbolic control system supplied by the evaluator, apply the
+Chow–Rashevskii controllability rank test and return the rank at the requested
+configuration. The inputs are generic symbolic vector fields, so your solution
+must not contain vehicle-specific cases. Implement the following API, using the
+course convention $[f,g]=Dg\,f-Df\,g$:
+
+```python
+def compute_lie_bracket(
+    field_f: sp.Matrix,
+    field_g: sp.Matrix,
+    state_vars: Sequence[sp.Symbol],
+) -> sp.Matrix:
+    # TODO implement here your solution
+    return sp.zeros(len(state_vars), 1)
+
+
+def compute_chow_rank(
+    vector_fields: Sequence[sp.Matrix],
+    state_vars: Sequence[sp.Symbol],
+    eval_point: dict[sp.Symbol, sp.Expr],
+    max_bracket_depth: int,
+) -> int:
+    # TODO implement here your solution
+    return 0
+```
+
+Start at depth zero with the original vector fields. At each subsequent depth,
+compute brackets between the original fields and the fields generated at the
+previous depth, stopping after `max_bracket_depth`. Keep every field and
+derivative symbolic throughout this construction. Only after building the final
+closure matrix should you substitute the supplied `eval_point` and compute its
+rank.
+
+The evaluator will use arbitrary symbol names and generic symbolic systems at
+both regular and singular evaluation points. Different valid bracket orders or
+spanning sets are acceptable: return only the final integer rank.
+
 ### Test cases and performance criteria
 
 All of the described subtasks are individually graded on different test cases. For each task, we use an **accuracy** metric which we compute by counting the number of *correctly* computed test cases divided by the total number of test cases, i.e. for task $i$: $\frac{N_{correct,i}}{N_{task,i}}$. We define a test case to be computed *correctly*, if:
@@ -188,6 +234,7 @@ All of the described subtasks are individually graded on different test cases. F
 - For task 1,2,3: The computed return values match the ones of the solution up to some numerical tolerance. 
 - For task 4,6: The computed `Path` is in the set of **optimal** (i.e.minimum distance) paths and follows the specification made in the problem description. 
 - For task 5: The computed values for Dubins length, spline length, and feasibility must match the reference solution within a given numerical tolerance.
+- For task 7: The returned integer rank must match the symbolic reference result at the supplied evaluation point.
 
 
 We provide some example test cases for each subtask. After running the exercise locally, you will find the report in the folder `out/ex05`. The provided test cases are not the same as the ones run on the test server used for grading, we advise you to additionally test your implementation using your own defined test cases, e.g. by modifying the existing ones in `src/pdm4ar/exercises_def/ex05/data.py`.
