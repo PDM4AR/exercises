@@ -203,6 +203,7 @@ We will only call the `path_collision_check_opt` function during the evaluation.
 Tasks 9 and 10 are implemented in `src/pdm4ar/exercises/ex06/sampling_planners.py`
 and reuse the collision checker from Tasks 4-8. Direct calls to libraries that
 already implement PRM or RRT* are not allowed.
+Planning problems may combine `Circle`, `Polygon`, and `Triangle` obstacles.
 
 ### Task 9: Probabilistic Roadmap (PRM)
 
@@ -249,8 +250,8 @@ For this exercise our performance metric is accuracy and execution time.
 | 06          | 0.0002s                      |
 | 07          | 0.0030s                      |
 | 08          | 0.1639s                      |
-| 09          | hardware dependent           |
-| 10          | hardware dependent           |
+| 09          | TODO                          |
+| 10          | TODO                          |
 
 
 **Final Scoring:**

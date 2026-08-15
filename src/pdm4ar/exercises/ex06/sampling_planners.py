@@ -1,6 +1,6 @@
 """Sampling-based motion-planning interfaces for Exercise 06.
 
-The planners use the collision checker implemented in Tasks 4--8.  PRM is
+The planners use the collision checker implemented in Tasks 4--8. PRM is
 given a deterministic set of samples, while RRT* owns its sampling strategy.
 """
 
@@ -22,8 +22,8 @@ class SamplingBasedPlanner:
         """Build a collision-free roadmap and solve every start--goal query.
 
         ``samples`` is generated deterministically by the evaluator and may
-        contain configurations that collide with obstacles.  Every returned
-        path must use only valid configurations from ``samples``.  Return an
+        contain configurations that collide with obstacles. Every returned
+        path must use only valid configurations from ``samples``. Return an
         empty ``Path`` for a query that cannot be solved.
         """
         # TODO: Task 9
@@ -45,7 +45,7 @@ class SamplingBasedPlanner:
         """Plan a path with RRT*, including parent selection and rewiring.
 
         Sampling may be implemented in any way, but using ``seed`` must make a
-        run reproducible.  Return ``Path([])`` if no solution is found.
+        run reproducible. Return ``Path([])`` if no solution is found.
         """
         # TODO: Task 10
         raise NotImplementedError
