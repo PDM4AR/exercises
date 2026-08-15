@@ -46,11 +46,13 @@ Ex: The current queue is `Q = [0]`, if nodes to be added in DFS fashion are `{2,
 If a successor of the expanded node is already in the queue, it should not be added newly. I.e., given `Q = [0]`, with successors `{2, 1, 0}` then the new queue will be `Q = [1, 2, 0]`.
 
 In the second part of the exercise, you will explore Wavefront Planning. Wavefront Planning applies Breadth-First Search (BFS) to a planning problem. Starting from the goal, BFS explores the graph and assigns each node a cost equal to the minimum number of moves required to reach the goal. The resulting cost-to-go map can then be reused to extract shortest paths from multiple starting positions. 
+
 Consider for example a warehouse robot that must reach a fixed drop-off point but may begin at any free location. Instead of performing a separate graph search for every possible starting position, the Wavefront Planner computes the cost-to-go map once and uses it to efficiently generate a path from any start node.
 You are asked to implement two additional methods: `compute_cost_to_go` and `extract_path`.
 
-Given the reversed graph and the goal ID, the `compute_cost_to_go method` should return the shortest distance from every node in the original graph to the goal node. Think about why the reversed graph is provided and how it allows a search starting at the goal to compute these distances.
-(HINT) Starting from the goal, think about what each depth layer of BFS represents and the order in which these layers are explored.
+Given the reversed graph and the goal ID, the `compute_cost_to_go` method should return the shortest distance from every node in the original graph to the goal node. Think about why the reversed graph is provided and how it allows a search starting at the goal to compute these distances.
+
+(HINT) Think about what each depth layer of BFS represents and the order in which these layers are explored.
 
 ```python
 def compute_cost_to_go(self, reverse_graph: AdjacencyList, goal: X) -> DistanceDict:
@@ -61,6 +63,9 @@ def compute_cost_to_go(self, reverse_graph: AdjacencyList, goal: X) -> DistanceD
                  to the goal as the value (an int if reachable, inf otherwise)  
         """
 ```
+Here is an example of a cost-to-go map for a simple graph problem. You can visualize the result of your own implementation in the report generated when running the code. The value associated with the goal is always 0. 
+
+<img src="img/cost_to_go_graph_02.png" alt="Cost-to-go example on the graph" width="500">
 
 The `extract_path` method must use the previously computed cost-to-go map and should *not* perform another graph search. Given the start node, it is possible to construct the path by repeatedly selecting a neighboring node whose cost-to-go value is one less than that of the current node, until the goal is reached. 
 
@@ -73,6 +78,14 @@ def extract_path(self, start: X, graph: AdjacencyList, cost_to_go: DistanceDict)
     :return: The path from start to goal as a Sequence of states, [] if a path does not exist
     """
 ```
+
+The `extract_path` function is used for multiple start queries on the same graph. The paths returned by the function can be visualized in the report generated when running the exercise. Here is an example of the returned paths for the cost-to-go map shown above. 
+
+<img src="img/extracted_paths_ex02_graph.png" alt="Extracted Paths example" width="500">
+
+For more information on the Wavefront Planner, here are some references you might want to look at: ([Tufts wavefront planner](https://www.cs.tufts.edu/comp/150IR/labs/wavefront.html)), ([CMU motion-planning lab](https://www.cs.cmu.edu/~16311/f05/labs/lab05/)). The problem definitions in these resources may differ slightly, so follow the specification in this documentation and treat the links as references only.
+
+
 When solving the problem, the following conventions should hold: 
 * The cost-to-go associated to the goal is 0, while the cost associated to an unreachable node is infinity.
 * If multiple neighboring nodes have a cost-to-go value exactly one less than the current node, choose the one with the smallest node ID.
