@@ -26,9 +26,9 @@ def get_simple_test_grid() -> np.ndarray:
     simple_map = np.array(
         [
             [Cell.CLIFF, Cell.GRASS, Cell.GRASS, Cell.GRASS, Cell.CLIFF],
-            [Cell.WONDERLAND, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.WONDERLAND],
+            [Cell.GRASS, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.GRASS],
             [Cell.GRASS, Cell.GRASS, Cell.START, Cell.GRASS, Cell.GOAL],
-            [Cell.WONDERLAND, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.WONDERLAND],
+            [Cell.GRASS, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.GRASS],
             [Cell.CLIFF, Cell.GRASS, Cell.GRASS, Cell.GRASS, Cell.CLIFF],
         ]
     )
@@ -42,8 +42,8 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]]
     test_maps = []
     swamp_ratio = 0.2
     test_maps.append(get_simple_test_grid())
-    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_wonderland=4, n_cliff=10, n_seed=5))
-    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_wonderland=5, n_cliff=15, n_seed=110))
+    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_wonderland=0, n_cliff=10, n_seed=5))
+    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_wonderland=0, n_cliff=15, n_seed=110))
 
     # additional maps for evaluation
     for map_info in evaluation_tests:
@@ -289,3 +289,101 @@ def get_grid_info() -> Dict:
         "start_pos": matrix_data["start_pos"],
         "goal_pos": matrix_data["goal_pos"],
     }
+
+
+# ---------------------------------------------------------------------------
+# Part 2: augmented cases (momentum / forecast / glitch)
+# ---------------------------------------------------------------------------
+from typing import Type  # noqa: E402
+
+from pdm4ar.exercises.ex04.mdp import (AugmentedGridMdp, FogGridMdp,  # noqa: E402
+                                       GlitchGridMdp, MomentumGridMdp)
+from pdm4ar.exercises.ex04.structures import AugmentedState  # noqa: E402
+
+AUG_CASES: list[tuple[str, Type[AugmentedGridMdp]]] = [
+    ("momentum", MomentumGridMdp),
+    ("forecast", FogGridMdp),
+    ("glitch", GlitchGridMdp),
+]
+
+
+def get_test_mdps_aug() -> list[tuple[str, int, AugmentedGridMdp]]:
+    """(case_name, map_index, mdp) over the same maps as Part 1."""
+    maps = [g.grid for g in get_test_grids()]
+    out = []
+    for case_name, cls in AUG_CASES:
+        for mi, grid in enumerate(maps):
+            out.append((case_name, mi, cls(grid=grid, gamma=0.9)))
+    return out
+
+
+def get_expected_results_algo_aug() -> list[tuple[ValueFunc, OptimalActions]]:
+    """Aligned with get_exercise4's Part-2 test order: the 9 (case, map)
+    pairs once for ValueIteration, once for PolicyIteration."""
+    data_dir = Path(__file__).parent
+    data = np.load(data_dir / "data/expected_results_aug.npz", allow_pickle=True)
+    one_pass = [
+        (data[f"{case_name}_value_{mi}"], data[f"{case_name}_policy_{mi}"])
+        for case_name, _ in AUG_CASES
+        for mi in range(3)
+    ]
+    return one_pass + one_pass
+
+
+@dataclass
+class TestTransitionProbAug(ExIn):
+    mdp: AugmentedGridMdp
+    case_name: str
+    state: AugmentedState
+    action: Action
+    next_state: AugmentedState
+    testId: int = 0
+
+    def str_id(self) -> str:
+        return f"TransitionProb-{self.case_name}{self.testId}"
+
+
+# (case, (i, j, z), action, (i', j', z'), expected probability)
+# Computed from the validated reference implementation on the 5x5 map.
+AUG_PROBES = [
+    ("forecast", (2, 1, 0), Action.EAST, (2, 2, 0), 0.5250000000),
+    ("forecast", (2, 1, 1), Action.EAST, (2, 2, 1), 0.1650000000),
+    ("forecast", (1, 2, 0), Action.NORTH, (0, 2, 1), 0.2250000000),
+    ("forecast", (3, 3, 1), Action.WEST, (3, 3, 0), 0.1400000000),
+    ("forecast", (1, 2, 1), Action.ABANDON, (2, 2, 0), 0.7000000000),
+    ("momentum", (2, 1, 0), Action.EAST, (2, 2, 4), 0.7500000000),
+    ("momentum", (2, 1, 4), Action.EAST, (2, 2, 4), 0.8500000000),
+    ("momentum", (2, 1, 2), Action.EAST, (2, 1, 0), 0.0000000000),
+    ("momentum", (2, 1, 2), Action.EAST, (2, 0, 2), 0.2500000000),
+    ("momentum", (2, 3, 1), Action.EAST, (1, 3, 1), 0.1500000000),
+    ("momentum", (3, 3, 1), Action.WEST, (3, 3, 0), 0.2000000000),
+    ("glitch", (2, 1, 0), Action.EAST, (2, 2, 0), 0.6750000000),
+    ("glitch", (2, 1, 1), Action.EAST, (2, 2, 1), 0.4200000000),
+    ("glitch", (2, 1, 0), Action.EAST, (2, 2, 1), 0.0750000000),
+    ("glitch", (3, 1, 1), Action.NORTH, (2, 2, 0), 0.0500000000),
+]
+
+
+def get_transition_prob_test_cases_aug() -> list[TestTransitionProbAug]:
+    grid = get_simple_test_grid()
+    classes = dict(AUG_CASES)
+    cases = []
+    counters: dict = {}
+    for case_name, state, action, next_state, _ in AUG_PROBES:
+        tid = counters.get(case_name, 0)
+        counters[case_name] = tid + 1
+        cases.append(
+            TestTransitionProbAug(
+                mdp=classes[case_name](grid=grid, gamma=0.9),
+                case_name=case_name,
+                state=state,
+                action=action,
+                next_state=next_state,
+                testId=tid,
+            )
+        )
+    return cases
+
+
+def get_expected_results_transition_aug() -> list[float]:
+    return [expected for *_ignored, expected in AUG_PROBES]

@@ -7,16 +7,21 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator
-from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
+from pdm4ar.exercises.ex04.mdp import AugmentedGridMdp, GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
 from pdm4ar.exercises.ex04.value_iteration import ValueIteration
 from pdm4ar.exercises.ex04.structures import Action, OptimalActions, Cell, Policy
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex04.data import (
     get_expected_results_algo,
+    get_expected_results_algo_aug,
     get_expected_results_transition,
+    get_expected_results_transition_aug,
     get_test_grids,
+    get_test_mdps_aug,
     get_transition_prob_test_cases,
+    get_transition_prob_test_cases_aug,
+    TestTransitionProbAug,
     TestTransitionProbEx4,
 )
 from pdm4ar.exercises_def.ex04.map import map2image
@@ -27,11 +32,23 @@ from reprep import MIME_PDF, Report
 @dataclass
 class TestValueEx4(ExIn):
     algo: Type[GridMdpSolver]
-    grid: GridMdp
+    grid: Union[GridMdp, AugmentedGridMdp]
     testId: int = 0
+    case_name: str = "base"
 
     def str_id(self) -> str:
-        return str(self.algo.__name__) + str(self.testId)
+        return f"{self.algo.__name__}-{self.case_name}{self.testId}"
+
+# VI results cached per (case_name, testId) so the PI run of the same MDP can
+# be compared against them (automated VI/PI coincidence check).
+_VI_CACHE: dict = {}
+COINCIDENCE_TOL = 1e-11
+
+AUG_Z_LABELS = {
+    "momentum": ["h=-", "h=N", "h=W", "h=S", "h=E"],
+    "forecast": ["CLEAR", "FOGGY"],
+    "glitch": ["OK", "GLITCHY"],
+}
 
 
 @dataclass(frozen=True)
@@ -133,11 +150,15 @@ def plot_report_figure(
     plot_grid_policy(rfig, grid_mdp, policy, algo_name)
 
 
-def ex4_evaluation(ex_in: Union[TestValueEx4, TestTransitionProbEx4], ex_out=None) -> tuple[PerformanceResults, Report]:
+def ex4_evaluation(ex_in, ex_out=None) -> tuple[PerformanceResults, Report]:
     if isinstance(ex_in, TestValueEx4):
-        return ex4_evaluation_algo(ex_in, ex_out)
+        if ex_in.case_name == "base":
+            return ex4_evaluation_algo(ex_in, ex_out)
+        return ex4_evaluation_algo_aug(ex_in, ex_out)
     elif isinstance(ex_in, TestTransitionProbEx4):
         return ex4_transition_prob_evaluation(ex_in, ex_out)
+    elif isinstance(ex_in, TestTransitionProbAug):
+        return ex4_transition_prob_evaluation_aug(ex_in, ex_out)
     else:
         raise ValueError(f"Unknown test type: {type(ex_in)}")
 
@@ -187,6 +208,8 @@ def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceRe
 
         msg = f"policy_accuracy: {policy_accuracy}\n"
         msg += f"value_func_r2:{value_func_r2:.3f}\n"
+        msg += _coincidence_msg(ex_in, np.asarray(value_func, dtype=float),
+                                all_states_mask, solve_time)
 
         r.text(f"{algo_name}", text=remove_escapes(msg))
 
@@ -279,24 +302,190 @@ def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult | Ex04TransitionPro
     )
 
 
+
+
+# ---------------------------------------------------------------------------
+# Part 2: augmented cases
+# ---------------------------------------------------------------------------
+def _coincidence_msg(ex_in: TestValueEx4, value_func, mask, solve_time) -> str:
+    """Cache the VI result; on the matching PI run, compare the converged
+    matrices and emit a review label if they agree to bit level."""
+    from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration as _PI
+    from pdm4ar.exercises.ex04.value_iteration import ValueIteration as _VI
+
+    key = (ex_in.case_name, ex_in.testId)
+    if issubclass(ex_in.algo, _VI):
+        _VI_CACHE[key] = (value_func.copy(), solve_time)
+        return ""
+    if issubclass(ex_in.algo, _PI) and key in _VI_CACHE:
+        v_vi, t_vi = _VI_CACHE[key]
+        d = np.abs(v_vi[mask] - value_func[mask])
+        max_diff = float(d.max()) if d.size else 0.0
+        ratio = t_vi / solve_time if solve_time > 0 else float("inf")
+        if max_diff < COINCIDENCE_TOL:
+            return (f"LABEL vi_pi_identical_suspected: the two submitted "
+                    f"value functions agree to {max_diff:.1e} (bit level; no "
+                    f"honest tolerance explains this). solve_time ratio "
+                    f"VI/PI = {ratio:.2f}. Please review manually.\n")
+        return f"vi_pi_coincidence_check: clean (max diff {max_diff:.1e})\n"
+    return ""
+
+
+def _plot_aug_slice_values(rfig, mdp, value_slice, title: str):
+    font_size = get_font_size(mdp)
+    with rfig.plot(nid=f"{title}-value", mime=MIME_PDF, figsize=None) as _:
+        ax = plt.gca()
+        ax.imshow(value_slice, aspect="equal")
+        ax.tick_params(axis="both", labelsize=font_size + 3)
+        ax.set_title(title, fontsize=font_size + 4)
+        for i in range(value_slice.shape[0]):
+            for j in range(value_slice.shape[1]):
+                if np.isfinite(value_slice[i, j]):
+                    ax.text(j, i, f"{value_slice[i, j]:.1f}", size=font_size,
+                            ha="center", va="center", color="k")
+
+
+def _plot_aug_slice_policy(rfig, mdp, policy_slice, title: str):
+    font_size = get_font_size(mdp)
+    map_img = map2image(mdp.grid)
+    with rfig.plot(nid=f"{title}-policy", mime=MIME_PDF, figsize=None) as _:
+        ax = plt.gca()
+        ax.imshow(map_img, aspect="equal")
+        ax.tick_params(axis="both", labelsize=font_size + 3)
+        ax.set_title(title, fontsize=font_size + 4)
+        for i in range(policy_slice.shape[0]):
+            for j in range(policy_slice.shape[1]):
+                a = policy_slice[i, j]
+                if a < 0:
+                    continue
+                a = Action(a)
+                if a == Action.ABANDON:
+                    ax.text(j, i, "X", size=font_size + 2, ha="center",
+                            va="center", color="k")
+                elif a == Action.STAY:
+                    ax.text(j, i, "G", size=font_size + 2, ha="center",
+                            va="center", color="k")
+                else:
+                    arrow = action2arrow[a]
+                    ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width,
+                             color="k")
+
+
+def _plot_aug_all_slices(r: Report, mdp, case_name: str, value_func, policy,
+                         algo_name: str):
+    labels = AUG_Z_LABELS[case_name]
+    rfig = r.figure(cols=2)
+    for zi in range(mdp.Z):
+        _plot_aug_slice_values(rfig, mdp, value_func[:, :, zi],
+                               f"{algo_name}-{labels[zi]}")
+        _plot_aug_slice_policy(rfig, mdp, policy[:, :, zi],
+                               f"{algo_name}-{labels[zi]}")
+
+
+def ex4_evaluation_algo_aug(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceResults, Report]:
+    mdp = ex_in.grid
+    solver: GridMdpSolver = ex_in.algo()
+    algo_name = ex_in.str_id()
+    r = Report(f"Ex4-{algo_name}")
+
+    t = process_time()
+    value_func, policy = solver.solve(mdp)
+    solve_time = process_time() - t
+    value_func = np.asarray(value_func, dtype=float)
+    policy = np.asarray(policy)
+    _plot_aug_all_slices(r, mdp, ex_in.case_name, value_func, policy, algo_name)
+
+    policy_accuracy, value_func_r2 = 0.0, 0.0
+    if ex_out is not None:
+        value_func_gt, policy_gt = ex_out
+        mask2 = mdp.grid != Cell.CLIFF
+        mask3 = np.repeat(mask2[:, :, None], mdp.Z, axis=2)
+
+        correct = 0
+        for user_a, gt_list in zip(policy[mask3], policy_gt[mask3]):
+            if gt_list is None or int(user_a) in gt_list:
+                correct += 1
+        policy_accuracy = float(correct) / policy_gt[mask3].size
+
+        value_func_r2 = 1.0 - np.sum(
+            np.square(value_func_gt[mask3] - value_func[mask3])
+        ) / np.sum(
+            np.square(value_func_gt[mask3] - np.mean(value_func_gt[mask3]))
+        )
+        value_func_r2 = max(0.0, float(value_func_r2))
+
+        plot_gt_policy = np.full(policy_gt.shape, -1, dtype=int)
+        for idx, gt_list in np.ndenumerate(policy_gt):
+            if gt_list:
+                plot_gt_policy[idx] = gt_list[0]
+        _plot_aug_all_slices(r, mdp, ex_in.case_name, value_func_gt,
+                             plot_gt_policy, "GroundTruth")
+
+        msg = f"policy_accuracy: {policy_accuracy}\n"
+        msg += f"value_func_r2:{value_func_r2:.3f}\n"
+        msg += _coincidence_msg(ex_in, value_func, mask3, solve_time)
+        r.text(f"{algo_name}", text=remove_escapes(msg))
+
+    result = Ex04Performance(policy_accuracy=policy_accuracy,
+                             value_func_r2=value_func_r2,
+                             solve_time=solve_time)
+    if isinstance(solver, PolicyIteration):
+        return Ex04PerformanceResult(policy_iteration=result), r
+    elif isinstance(solver, ValueIteration):
+        return Ex04PerformanceResult(value_iteration=result), r
+    raise ValueError(f"Unknown solver type: {type(solver)}")
+
+
+def ex4_transition_prob_evaluation_aug(ex_in: TestTransitionProbAug, ex_out=None) -> tuple[PerformanceResults, Report]:
+    test_name = ex_in.str_id()
+    r = Report(f"Ex4-{test_name}")
+    accuracy = 0.0
+    if ex_out is not None:
+        expected_prob = ex_out
+        msg = (f"Case: {ex_in.case_name}, State: {ex_in.state}, "
+               f"Action: {ex_in.action.name}, Next state: {ex_in.next_state}\n")
+        msg += f"Expected probability: {expected_prob}\n"
+        transition_prob = ex_in.mdp.get_transition_prob(
+            ex_in.state, ex_in.action, ex_in.next_state)
+        accuracy = 1.0 if abs(transition_prob - expected_prob) < 1e-6 else 0.0
+        msg += f"Computed probability: {transition_prob:.6f}\n"
+        msg += f"Accuracy: {accuracy:.1f}\n"
+        r.text(f"{test_name}", text=remove_escapes(msg))
+    return Ex04TransitionProbPerformance(transition_prob_accuracy=accuracy), r
+
+
 def get_exercise4() -> Exercise:
     algos = [ValueIteration, PolicyIteration]
     grid_mdps = get_test_grids()
+
+    # Part 1: the base MDP
     test_values_algo = [
         TestValueEx4(algo=algo, grid=grid_mdp, testId=i) for algo in algos for i, grid_mdp in enumerate(grid_mdps)
     ]
     expected_results_algo = get_expected_results_algo()
-
-    # Transition probability tests
     transition_test_cases = get_transition_prob_test_cases(grid_mdps[:1])  # Test on first grid only
     transition_expected_results = get_expected_results_transition(transition_test_cases)
 
-    # Create a combined test that handles both types of tests
-    all_test_values: list[Union[TestTransitionProbEx4, TestValueEx4]] = transition_test_cases + test_values_algo
-    all_expected_results = transition_expected_results + expected_results_algo
+    # Part 2: the augmented cases on the same maps
+    aug_mdps = get_test_mdps_aug()
+    test_values_aug = [
+        TestValueEx4(algo=algo, grid=mdp, testId=mi, case_name=case_name)
+        for algo in algos
+        for (case_name, mi, mdp) in aug_mdps
+    ]
+    expected_results_aug = get_expected_results_algo_aug()
+    aug_transition_cases = get_transition_prob_test_cases_aug()
+    aug_transition_expected = get_expected_results_transition_aug()
 
-    return Exercise[Union[TestTransitionProbEx4, TestValueEx4], Any](
-        desc="This exercise is about dynamic programming",
+    all_test_values = (
+        transition_test_cases + aug_transition_cases + test_values_algo + test_values_aug
+    )
+    all_expected_results = (
+        transition_expected_results + aug_transition_expected + expected_results_algo + expected_results_aug
+    )
+
+    return Exercise[Any, Any](
+        desc="Dynamic programming: the base MDP plus three augmented-state cases",
         evaluation_fun=ex4_evaluation,
         perf_aggregator=cast(Any, ex4_perf_aggregator),
         test_values=all_test_values,

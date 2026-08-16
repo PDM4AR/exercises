@@ -38,3 +38,56 @@ solution will be compared against. You are not required to use this type in your
 """
 ValueFunc = NDArray[np.float64]
 """Type Alias for the value function. It is the expected type of the value function that your solution should return."""
+
+
+# --------------------------------------------------------------------------
+# Part 2: augmented states (momentum / forecast / glitch)
+# --------------------------------------------------------------------------
+from enum import IntEnum, unique  # noqa: E402
+
+
+@unique
+class Heading(IntEnum):
+    """Momentum case: the direction the robot actually moved last hour."""
+
+    NONE = 0
+    NORTH = 1
+    WEST = 2
+    SOUTH = 3
+    EAST = 4
+
+
+@unique
+class Fog(IntEnum):
+    """Forecast case: this hour's fog forecast."""
+
+    CLEAR = 0
+    FOGGY = 1
+
+
+@unique
+class Gear(IntEnum):
+    """Glitch case: the state of the robot's wheels."""
+
+    OK = 0
+    GLITCHY = 1
+
+
+AugmentedState = tuple[int, int, int]
+"""Part-2 state: (i, j, z). The meaning and ordering of z is fixed per case
+(Heading / Fog / Gear); your (M, N, Z) output arrays must use these orderings."""
+
+P_FOGGY = 0.3
+"""A-priori probability of a FOGGY forecast (forecasts are iid each hour)."""
+FOGGY_EXTRA_SLIP = 0.20
+"""Extra slip mass under a FOGGY forecast, taken from the intended direction."""
+P_GEAR_BREAK_IN = 0.1
+"""P(OK -> GLITCHY) each hour."""
+P_GEAR_RECOVER = 0.3
+"""P(GLITCHY -> OK) each hour."""
+GLITCH_EXTRA_SLIP = 0.15
+"""Extra slip mass while GLITCHY, taken from the intended direction."""
+MOMENTUM_ALIGNED_BONUS = 0.10
+"""Added to the intended-direction probability when commanding along h."""
+MOMENTUM_OPPOSED_MALUS = 0.10
+"""Removed from the intended-direction probability when commanding against h."""
