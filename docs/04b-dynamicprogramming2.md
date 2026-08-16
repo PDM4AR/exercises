@@ -162,6 +162,25 @@ Policy Iteration submissions against each other, and requesting intermediate
 iterates (`max_iters`) makes the two algorithms distinguishable even though
 they agree at convergence.
 
+## Practice maps (not graded)
+
+Besides the graded test maps, we publish 12 extra practice maps of varied
+sizes with full solutions for every case, so you can check your
+implementation yourself:
+
+```python
+from pdm4ar.exercises.ex04b.value_iteration import ValueIteration
+from pdm4ar.exercises_def.ex04b.practice import check_solution
+
+check_solution(ValueIteration)                      # all cases, all maps
+check_solution(ValueIteration, cases=["forecast"])  # one case only
+```
+
+It prints, per map, the same policy accuracy and value R2 the graded
+evaluation computes (policy accuracy counts ALL optimal actions as correct,
+so your tie-breaking never costs you). If a map scores below 1.0, that map
+and case is where to look.
+
 ## Hints
 
 - Start by asking, for each case: standing in cell (i, j), what else must I
