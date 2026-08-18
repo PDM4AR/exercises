@@ -9,7 +9,7 @@
 ## Informed graph search
 
 In this exercise we look at weighted graph and related search algorithms for finding the shortest path. 
-Specifically, you are tasked with the implementation of two algorithms: Uniform Cost Search (UCS) and A*.
+Specifically, you are tasked with the implementation of three algorithms: Uniform Cost Search (UCS), bidirectional Uniform Cost Search (Bi-UCS), and A*.
 
 ### Graph structures
 
@@ -21,6 +21,7 @@ to keep track of the weights on the edges. A simple extension is the following:
 @dataclass
 class WeightedGraph:
     adj_list: AdjacencyList
+    reverse_adj_list: AdjacencyList
     weights: Mapping[Tuple[X, X], float]
     _G: MultiDiGraph
 
@@ -60,6 +61,8 @@ You can access a nodes coordinate using the method `get_node_coordinates()`.
 
 The edge weight between 2 nodes is given as the travel time required to go from a node to the other, and it is directly retrievable with the function `get_weight()`.
 
+The graphs are directed. `adj_list` contains the successors of every node, while `reverse_adj_list` contains its predecessors. If the original graph contains an edge from `u` to `v`, a backward search can traverse from `v` to `u`, but the edge cost must still be retrieved with `get_weight(u, v)`.
+
 
 ### Task
 Implement the following algorithms in `src/pdm4ar/exercises/ex03/algo.py`:
@@ -67,6 +70,17 @@ Implement the following algorithms in `src/pdm4ar/exercises/ex03/algo.py`:
 ```python
 @dataclass
 class UniformCostSearch(InformedGraphSearch):
+    settled_nodes: set[X] = field(default_factory=set, init=False)
+
+    def path(self, start: X, goal: X) -> Path:
+        # todo
+        pass
+
+@dataclass
+class BidirectionalUniformCostSearch(InformedGraphSearch):
+    settled_nodes_forward: set[X] = field(default_factory=set, init=False)
+    settled_nodes_backward: set[X] = field(default_factory=set, init=False)
+
     def path(self, start: X, goal: X) -> Path:
         # todo
         pass
@@ -85,7 +99,11 @@ class Astar(InformedGraphSearch):
         return []
 ```
 
-Unlike UCS, A* is an informed algorithm thus requires implementing a heuristic function. While worst time complexity is the same for UCS and A*, the use of an admissible heuristic often leads to a lower number of explored nodes to find the shortest path. If not path is found, your algorithms should return an empty list.
+Bi-UCS runs UCS simultaneously from the start and goal. The backward search uses `reverse_adj_list`, and the two searches must be joined to produce a path in the original forward direction. Do not stop merely because the two searches first encounter the same node; stop only when the two frontier costs prove that no cheaper joined path can still be found.
+
+Unlike UCS, A* is an informed algorithm thus requires implementing a heuristic function. While worst time complexity is the same for UCS and A*, the use of an admissible heuristic often leads to a lower number of explored nodes to find the shortest path. If no path is found, your algorithms should return an empty list.
+
+For UCS and Bi-UCS, record a node as settled when it is removed from its priority queue with its current best distance for the first time. Do not record stale queue entries more than once. Clear the settled-node sets at the beginning of every `path()` call. Their sizes are shown in the report to help you compare UCS and Bi-UCS, but they do not affect correctness or grading and are not expected to match the reference implementation exactly.
 
 You are free to implement the `_INTERNAL_heuristic` function based on any metric of your choice (make sure it is admissible!).
 There exist many distance metrics. Below is provided a visual representation of the most common.
@@ -114,7 +132,7 @@ Under which condition will the time metric be admissible?
 
 (HINT 2) To obtain the distance between 2 coordinates, you may find useful the function `osmnx.distance.great_circle_vec()`.
 
-(HINT 3) For UCS and Astar, you may find Python's `heapq` module useful.
+(HINT 3) For UCS, Bi-UCS and Astar, you may find Python's `heapq` module useful.
 
 (HINT 4) You might want to organise your queue as `queue = [ (<priority>, <i = insertion order>, <node>, <cost-to-reach>, <parent_node>) ]`
 
@@ -147,7 +165,7 @@ After running the exercise, you'll find reports in `out/[exercise]/` for each te
 These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
 
 The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, efficiency>:
-* **Accuracy**: Both UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
+* **Accuracy**: UCS, Bi-UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
 * **Efficiency**: Your efficiency score will incorporate both the solve time and the heuristic efficiency. A simple heuristic should suffice. After all, choosing a computationally complex heuristic might affect the solve time.
 
 For reference, the TA’s solution achieves the following efficiency and solving times on the server:

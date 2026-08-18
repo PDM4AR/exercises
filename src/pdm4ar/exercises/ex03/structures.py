@@ -32,6 +32,7 @@ class TravelSpeed(float, Enum):
 @dataclass
 class WeightedGraph:
     adj_list: AdjacencyList
+    reverse_adj_list: AdjacencyList
     weights: Mapping[tuple[X, X], float]
     _G: MultiDiGraph
 

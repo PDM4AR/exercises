@@ -13,6 +13,7 @@ from pdm4ar.exercises_def.structures import PerformanceResults
 from pdm4ar.exercises.ex03 import (
     informed_graph_search_algo,
     UniformCostSearch,
+    BidirectionalUniformCostSearch,
     Astar,
 )
 from pdm4ar.exercises_def.ex02 import str_from_path
@@ -308,7 +309,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                             close=False,
                         )
             # Compare your algo to ground truth
-            if gt_path_cost == path_cost:
+            if gt_path == path:
                 # Validate student's heuristic
                 if path_heuristic_val is not None:
                     if path_heuristic_val:  # non-empty
@@ -376,6 +377,14 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         if algo_name == Astar.__name__:
             msg += f"Your heuristic call counter: {heuristic_count}\n"
             msg += f"Trivial heuristic call counter: {trivial_heuristic_count}\n"
+        elif algo_name == UniformCostSearch.__name__:
+            msg += f"Your settled node count: {len(search_algo.settled_nodes)}\n"
+        elif algo_name == BidirectionalUniformCostSearch.__name__:
+            forward_count = len(search_algo.settled_nodes_forward)
+            backward_count = len(search_algo.settled_nodes_backward)
+            msg += f"Your forward settled node count: {forward_count}\n"
+            msg += f"Your backward settled node count: {backward_count}\n"
+            msg += f"Your total settled node count: {forward_count + backward_count}\n"
 
         r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
 
@@ -453,7 +462,7 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: dict[str, set
 
 
 def get_exercise3() -> Exercise:
-    disallowed_dependencies = {"networkx": {"astar_path", "shortest_path"}, 
+    disallowed_dependencies = {"networkx": {"astar_path", "shortest_path", "bidirectional_dijkstra"},
                                "ctypes": set()}    # ctypes is disallowed in its entirety
 
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
@@ -463,11 +472,18 @@ def get_exercise3() -> Exercise:
         # There is no heuristic in UCS, so we just return 0
         return 0, None
 
+    def bidirectional_uniform_cost_heuristic_counter(
+        search_algo: BidirectionalUniformCostSearch, start: X, goal: X
+    ) -> Tuple[int, list]:
+        # There is no heuristic in bidirectional UCS, so we just return 0
+        return 0, None
+
     def astar_heuristic_counter(search_algo: Astar, start: X, goal: X) -> Tuple[int, list]:
         return search_algo.heuristic_counter, None
 
     algos = [
         (UniformCostSearch.__name__, uniform_cost_heuristic_counter),
+        (BidirectionalUniformCostSearch.__name__, bidirectional_uniform_cost_heuristic_counter),
         (Astar.__name__, astar_heuristic_counter),
     ]
 

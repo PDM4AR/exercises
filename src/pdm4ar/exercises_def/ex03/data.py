@@ -9,11 +9,12 @@ from requests import get
 from sklearn.cluster import KMeans
 import pandas as pd
 from frozendict import frozendict
-from networkx import MultiDiGraph, compose, astar_path, NetworkXNoPath
+from networkx import MultiDiGraph, compose, astar_path, bidirectional_dijkstra, NetworkXNoPath
 import random
 from collections import defaultdict
 
-from pdm4ar.exercises.ex02.structures import Query, Path
+from pdm4ar.exercises.ex02.structures import AdjacencyList, Query, Path
+from pdm4ar.exercises.ex03.algo import BidirectionalUniformCostSearch
 from pdm4ar.exercises.ex03.structures import WeightedGraph, TravelSpeed
 from pdm4ar.exercises_def.ex03.local_queries import get_local_queries
 from pdm4ar.exercises_def import networkx_2_adjacencylist, queries_from_adjacency, ExIn
@@ -32,6 +33,15 @@ _fast = (
 )
 _slow = ("tertiary", "residential", "tertiary_link", "living_street")
 _other = ("unclassified", "road", "service")
+
+
+def reverse_adjacency_list(adj_list: AdjacencyList) -> AdjacencyList:
+    """Return the adjacency list obtained by reversing every directed edge."""
+    reverse_adj = {node: set() for node in adj_list}
+    for source, successors in adj_list.items():
+        for destination in successors:
+            reverse_adj.setdefault(destination, set()).add(source)
+    return reverse_adj
 
 
 @dataclass
@@ -74,6 +84,7 @@ def add_travel_time_weight(G: MultiDiGraph) -> MultiDiGraph:
 def networkx_2_weighted_graph(G: MultiDiGraph) -> WeightedGraph:
     G = add_travel_time_weight(G)
     adj = networkx_2_adjacencylist(G)
+    reverse_adj = reverse_adjacency_list(adj)
     weights = dict()
     for source, successors in adj.items():
         for dest in successors:
@@ -81,7 +92,12 @@ def networkx_2_weighted_graph(G: MultiDiGraph) -> WeightedGraph:
             assert isinstance(min_weight, float)
             assert min_weight > 0
             weights[(source, dest)] = min_weight
-    wG = WeightedGraph(adj_list=adj, weights=frozendict(weights), _G=G)
+    wG = WeightedGraph(
+        adj_list=adj,
+        reverse_adj_list=reverse_adj,
+        weights=frozendict(weights),
+        _G=G,
+    )
     return wG
 
 
@@ -265,13 +281,21 @@ def ex3_compute_expected_results(test_values: list[TestValueEx3]) -> list[list[t
         # loop over queries
         for query in test_queries:
             try:
-                path = astar_path(
-                    G=wG._G,
-                    source=query[0],
-                    target=query[1],
-                    heuristic=lambda v, u: 0,  # effectively Dijkstra
-                    weight='travel_time'
-                )
+                if test.algo_name == BidirectionalUniformCostSearch.__name__:
+                    _, path = bidirectional_dijkstra(
+                        G=wG._G,
+                        source=query[0],
+                        target=query[1],
+                        weight="travel_time",
+                    )
+                else:
+                    path = astar_path(
+                        G=wG._G,
+                        source=query[0],
+                        target=query[1],
+                        heuristic=lambda v, u: 0,  # effectively Dijkstra
+                        weight="travel_time",
+                    )
             except NetworkXNoPath:
                 path = []
             result.append((path, 0))

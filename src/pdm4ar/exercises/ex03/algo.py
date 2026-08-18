@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import heapq    # you may find this helpful
 
 from osmnx.distance import great_circle_vec
@@ -24,6 +24,18 @@ class InformedGraphSearch(ABC):
 
 @dataclass
 class UniformCostSearch(InformedGraphSearch):
+    settled_nodes: set[X] = field(default_factory=set, init=False)
+
+    def path(self, start: X, goal: X) -> Path:
+        # todo
+        pass
+
+
+@dataclass
+class BidirectionalUniformCostSearch(InformedGraphSearch):
+    settled_nodes_forward: set[X] = field(default_factory=set, init=False)
+    settled_nodes_backward: set[X] = field(default_factory=set, init=False)
+
     def path(self, start: X, goal: X) -> Path:
         # todo
         pass
