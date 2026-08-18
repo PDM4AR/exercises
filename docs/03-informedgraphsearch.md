@@ -94,8 +94,63 @@ class Astar(InformedGraphSearch):
         return []
 ```
 
-Bi-UCS runs UCS simultaneously from the start and goal. The backward search uses `reverse_adj_list`, and the two searches must be joined to produce a path in the original forward direction. Do not stop merely because the two searches first encounter the same node; stop only when the two frontier costs prove that no cheaper joined path can still be found.
+### Bidirectional Uniform Cost Search
+Bidirectional UCS is a practical variant of UCS intended to improve efficiency over the standard algorithm by running a bidirectional search, with the potential (in appropriate graphs) to reduce the total number of explored nodes.
 
+Bidirectional UCS runs the same search as UCS from both ends of the query. One
+UCS starts at `start` and follows `adj_list` towards `goal`. The other starts
+at `goal` and follows `reverse_adj_list` towards `start`. The backward search
+must still use edge weights in their original direction: when it traverses
+from `v` to a predecessor `u`, the corresponding original edge is `u -> v`.
+
+You can therefore implement Bi-UCS by starting from your forward UCS and
+adding the same search logic in the backward direction. Maintain the same
+information that your UCS implementation needs separately for the two
+directions.
+
+At each iteration, compare the minimum pending forward cost with the minimum
+pending backward cost. Expand only the direction with the smaller minimum;
+do not expand both queues in the same iteration. Apart from its direction,
+each expansion follows the usual UCS logic.
+
+In addition, note that we now need to maintain `mu`, the cost of the cheapest complete start-to-goal
+path found so far, initially infinity. Whenever the two searches connect at a
+node `x`, they define a complete candidate path with cost
+
+```text
+distance_forward[x] + distance_backward[x]
+```
+
+If this value is smaller than `mu`, update `mu` and remember `x` as the best
+meeting point so that the two path halves can eventually be joined. However, the first
+connection is not necessarily an optimal path, so the algorithm must not stop
+as soon as the searches meet.
+
+A safe termination condition (may only be used only after `mu` is finite) is:
+
+```text
+minimum_forward_queue_cost + minimum_backward_queue_cost >= mu
+```
+(Food for thought: why is this a safe termination condition for an optimal path?)
+At this point, we can join the forward and backward parts of the best path associated with `mu` and return it.
+
+Compared with your UCS code, the intended workflow is therefore:
+
+1. use your UCS logic once in the forward direction and once in the backward
+   direction;
+2. expand only the direction whose queue currently has the smaller minimum
+   cost;
+3. update `mu` whenever the two searches connect; and
+4. stop when the sum of the two queue minima is at least `mu`.
+
+Bi-UCS is **not guaranteed to examine fewer edges than UCS on every query**.
+Its benefit depends on the graph, the query, and how the two search frontiers
+develop. Even a correct and efficient Bi-UCS implementation may therefore
+have a search-efficiency ratio greater than `1.0` for an individual query.
+The reported ratio is intended to show the observed benefit across the test
+cases, not to impose a per-query guarantee.
+
+### A*
 Unlike UCS, A* is an informed algorithm thus requires implementing a heuristic function. While worst time complexity is the same for UCS and A*, the use of an admissible heuristic often leads to a lower number of explored nodes to find the shortest path. If no path is found, your algorithms should return an empty list.
 
 You are free to implement the `_INTERNAL_heuristic` function based on any metric of your choice (make sure it is admissible!).
@@ -116,7 +171,7 @@ class TravelSpeed(float, Enum):
 
 You are **NOT allowed** to use any existing graph search function implemented in the libraries such as `networkx`.
 
-In addition to path correctness, the evaluator measures search efficiency by counting edge-weight accesses made by your implementation. Calls through `WeightedGraph.get_weight()` are counted automatically; you do not need to maintain a counter yourself. The count reflects how many logical edges your search examines, including repeated examinations.
+In addition to path correctness, the evaluator measures search efficiency by counting edge-weight accesses made by your implementation. Calls through `WeightedGraph.get_weight()` are counted automatically; you do not need to maintain a counter yourself. The count reflects how many logical edges your search examines, including repeated examinations. This is a valuable proxy for the efficiency of the algorithm, as fewer weight calls correspond to a smaller number of explored nodes.
 
 For every query, your count is divided by the number of edge-weight accesses made by a reference NetworkX UCS run on the same graph and query:
 
