@@ -9,7 +9,7 @@ from requests import get
 from sklearn.cluster import KMeans
 import pandas as pd
 from frozendict import frozendict
-from networkx import MultiDiGraph, compose, astar_path, bidirectional_dijkstra, NetworkXNoPath
+from networkx import MultiDiGraph, compose, bidirectional_dijkstra, single_source_dijkstra, NetworkXNoPath
 import random
 from collections import defaultdict
 
@@ -55,11 +55,16 @@ class InformedGraphSearchProblem:
 class TestValueEx3(ExIn):
     problem: InformedGraphSearchProblem
     algo_name: str
-    h_count_fn: Callable
     impl_validate_func_wrapper: Optional[Callable] = None
     disallowed_dependencies: Optional[dict[str, set[str]]] = None
     def str_id(self) -> str:
         return str(self.algo_name)
+
+
+@dataclass(frozen=True)
+class ExpectedResultEx3:
+    path: Path
+    reference_ucs_weight_calls: int
 
 
 def _find_speed(row) -> float:
@@ -269,7 +274,35 @@ def find_center_of_cities(G: WeightedGraph, n_clusters=2):
 
 
 
-def ex3_compute_expected_results(test_values: list[TestValueEx3]) -> list[list[tuple[Path, int]]]:
+class NetworkXWeightCallCounter:
+    """Callable NetworkX weight function that counts logical edge examinations."""
+
+    def __init__(self, graph: MultiDiGraph):
+        self.graph = graph
+        self.count = 0
+
+    def __call__(self, _u, _v, edge_data) -> float:
+        self.count += 1
+        if self.graph.is_multigraph():
+            return min(edge["travel_time"] for edge in edge_data.values())
+        return edge_data["travel_time"]
+
+
+def reference_ucs_result(wG: WeightedGraph, start, goal) -> tuple[Path, int]:
+    weight_counter = NetworkXWeightCallCounter(wG._G)
+    try:
+        _, path = single_source_dijkstra(
+            G=wG._G,
+            source=start,
+            target=goal,
+            weight=weight_counter,
+        )
+    except NetworkXNoPath:
+        path = []
+    return path, weight_counter.count
+
+
+def ex3_compute_expected_results(test_values: list[TestValueEx3]) -> list[list[ExpectedResultEx3]]:
     expected_results = []
     # loop over test cases
     for test in test_values:
@@ -280,24 +313,19 @@ def ex3_compute_expected_results(test_values: list[TestValueEx3]) -> list[list[t
         result = []
         # loop over queries
         for query in test_queries:
-            try:
-                if test.algo_name == BidirectionalUniformCostSearch.__name__:
+            ucs_path, reference_weight_calls = reference_ucs_result(wG, query[0], query[1])
+            if test.algo_name == BidirectionalUniformCostSearch.__name__:
+                try:
                     _, path = bidirectional_dijkstra(
                         G=wG._G,
                         source=query[0],
                         target=query[1],
                         weight="travel_time",
                     )
-                else:
-                    path = astar_path(
-                        G=wG._G,
-                        source=query[0],
-                        target=query[1],
-                        heuristic=lambda v, u: 0,  # effectively Dijkstra
-                        weight="travel_time",
-                    )
-            except NetworkXNoPath:
-                path = []
-            result.append((path, 0))
+                except NetworkXNoPath:
+                    path = []
+            else:
+                path = ucs_path
+            result.append(ExpectedResultEx3(path, reference_weight_calls))
         expected_results.append(result)
     return expected_results

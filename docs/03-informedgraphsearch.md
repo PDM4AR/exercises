@@ -70,17 +70,12 @@ Implement the following algorithms in `src/pdm4ar/exercises/ex03/algo.py`:
 ```python
 @dataclass
 class UniformCostSearch(InformedGraphSearch):
-    settled_nodes: set[X] = field(default_factory=set, init=False)
-
     def path(self, start: X, goal: X) -> Path:
         # todo
         pass
 
 @dataclass
 class BidirectionalUniformCostSearch(InformedGraphSearch):
-    settled_nodes_forward: set[X] = field(default_factory=set, init=False)
-    settled_nodes_backward: set[X] = field(default_factory=set, init=False)
-
     def path(self, start: X, goal: X) -> Path:
         # todo
         pass
@@ -103,8 +98,6 @@ Bi-UCS runs UCS simultaneously from the start and goal. The backward search uses
 
 Unlike UCS, A* is an informed algorithm thus requires implementing a heuristic function. While worst time complexity is the same for UCS and A*, the use of an admissible heuristic often leads to a lower number of explored nodes to find the shortest path. If no path is found, your algorithms should return an empty list.
 
-For UCS and Bi-UCS, record a node as settled when it is removed from its priority queue with its current best distance for the first time. Do not record stale queue entries more than once. Clear the settled-node sets at the beginning of every `path()` call. Their sizes are shown in the report to help you compare UCS and Bi-UCS, but they do not affect correctness or grading and are not expected to match the reference implementation exactly.
-
 You are free to implement the `_INTERNAL_heuristic` function based on any metric of your choice (make sure it is admissible!).
 There exist many distance metrics. Below is provided a visual representation of the most common.
 ![image](https://miro.medium.com/max/1220/0*WrVc0CpxoStXpACy.png)
@@ -123,9 +116,15 @@ class TravelSpeed(float, Enum):
 
 You are **NOT allowed** to use any existing graph search function implemented in the libraries such as `networkx`.
 
-In addition to evaluating the correctness of your path, we will also evaluate your heuristic. If you choose a good heuristic, your algorithm will explore fewer nodes, and therefore your heuristic will be called less often. Therefore, the number of times your heuristic is called provides a good metric for your algorithm's efficiency. We will plug your heuristic function into our Astar solution and count how many times it is called. As a baseline, we will compare it with the "trivial" heuristic, which always returns 0 (this is algorithm is equivalent to UCS). We refer to the ratio of these values as the "heuristic efficiency". With a well chosen heuristic, your efficiency should be below 1.
+In addition to path correctness, the evaluator measures search efficiency by counting edge-weight accesses made by your implementation. Calls through `WeightedGraph.get_weight()` are counted automatically; you do not need to maintain a counter yourself. The count reflects how many logical edges your search examines, including repeated examinations.
 
-To get a sense of your heuristic efficiency, you can judge its performance on your own implementation of Astar. Every time you want to calculate the heuristic in `path`, make sure you call the `heuristic` function. Then, the evaluator will then run your Astar algorithm in two different modes. In the first run, the `heuristic` function will call the function that you implemented in `_INTERNAL_heuristic`. In the second mode, `heuristic` will simply return 0. The number of calls to the heuristic in each mode is printed in the tester output. Note that the heuristic efficiency calculation depends on the specific implementation of Astar. Therefore your local values might differ from the server's results. Nevertheless, this should tell you if you're on the right track.
+For every query, your count is divided by the number of edge-weight accesses made by a reference NetworkX UCS run on the same graph and query:
+
+```text
+search efficiency = your edge-weight accesses / reference UCS edge-weight accesses
+```
+
+The same definition is used for UCS, Bi-UCS and A*, both locally and during private evaluation. A value below 1 means that your implementation examined fewer edges than the reference UCS baseline. Only correct, non-trivial queries are included, and counts are summed across queries before the final ratio is computed. Always use the public weighted-graph interface and do not access the private NetworkX graph `_G`.
 
 (HINT 1) The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. 
 Under which condition will the time metric be admissible?
@@ -166,16 +165,7 @@ These test cases are not graded but serve as a guideline for how the exercise wi
 
 The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, efficiency>:
 * **Accuracy**: UCS, Bi-UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
-* **Efficiency**: Your efficiency score will incorporate both the solve time and the heuristic efficiency. A simple heuristic should suffice. After all, choosing a computationally complex heuristic might affect the solve time.
-
-For reference, the TA’s solution achieves the following efficiency and solving times on the server:
-
-| Metric              | Values      |
-|---------------------|-------------|
-| Heuristic efficiency|     0.6112  |
-| Solve time [s]      |     0.0102  |
-
-Use these numbers as a guideline to understand the order of magnitude of expected performance for a decently optimized solution.
+* **Efficiency**: Your efficiency score incorporates both solve time and search efficiency. The report shows your edge-weight accesses, the reference UCS count, and their ratio for each query.
 
 
 ### Useful remarks from last year Q&A

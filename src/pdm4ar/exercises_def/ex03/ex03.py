@@ -1,6 +1,6 @@
 from itertools import product
 from typing import Tuple, Any, Sequence, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import osmnx as ox
 from time import process_time
@@ -18,13 +18,13 @@ from pdm4ar.exercises.ex03 import (
 )
 from pdm4ar.exercises_def.ex02 import str_from_path
 from pdm4ar.exercises.ex02.structures import X, Path
-from pdm4ar.exercises.ex03.structures import WeightedGraph
+from pdm4ar.exercises.ex03.structures import WeightLookupCounter, WeightedGraph
 from pdm4ar.exercises_def.ex03.data import (
     ex3_compute_expected_results,
     get_test_informed_gsproblem,
     graph_dimensions,
     find_center_of_cities,
-    TestValueEx3
+    TestValueEx3,
 )
 
 
@@ -32,12 +32,16 @@ from pdm4ar.exercises_def.ex03.data import (
 class Ex03PerformanceResult(PerformanceResults):
     accuracy: float
     solve_time: float
-    heuristic_efficiency: float = 0
+    search_efficiency: float = 0
+    weight_calls: int = 0
+    reference_weight_calls: int = 0
 
-    def __post__init__(self):
+    def __post_init__(self):
         assert 0 <= self.accuracy <= 1, self.accuracy
         assert self.solve_time >= 0, self.solve_time
-        assert 0 <= self.heuristic_efficiency, self.heuristic_efficiency
+        assert 0 <= self.search_efficiency, self.search_efficiency
+        assert self.weight_calls >= 0, self.weight_calls
+        assert self.reference_weight_calls >= 0, self.reference_weight_calls
 
 
 def compute_path_cost(wG: WeightedGraph, path: Path):
@@ -54,7 +58,6 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
     # ex properties
     prob = ex_in.problem
     algo_name = ex_in.algo_name
-    heuristic_count_fn = ex_in.h_count_fn
     wG = prob.graph
     test_queries = prob.queries
     ec = [EdgeColors.default for uv in wG._G.edges]
@@ -78,7 +81,8 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
     r.section(f"{algo_name}")
     solve_times = []
     accuracy = []
-    heuristic_performance = []
+    weight_calls = []
+    reference_weight_calls = []
     search_algo = informed_graph_search_algo[algo_name](wG)
     # Validate implementation
     validation_wrapper = ex_in.impl_validate_func_wrapper
@@ -96,7 +100,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                     f"Function: {record['func_name']}, Line: {record['lineno']}, File: {record['filename']}"
                 )
             r.text(f"{algo_name}-validation-query{data}", "\n".join(validation_details))
-            return Ex03PerformanceResult(accuracy=0.0, solve_time=0.0, heuristic_efficiency=float("inf")), r
+            return Ex03PerformanceResult(accuracy=0.0, solve_time=0.0, search_efficiency=float("inf")), r
     # run algo looping over all queries
     for i, query in enumerate(test_queries):
         nc = [
@@ -105,15 +109,21 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         ]
         # Ground truth
         msg = f"Start: {query[0]},\tGoal: {query[1]}\n"
-        search_algo = informed_graph_search_algo[algo_name](wG)             # new instance for each query
+        counting_weights = WeightLookupCounter(wG.weights)
+        instrumented_graph = replace(wG, weights=counting_weights)
+        search_algo = informed_graph_search_algo[algo_name](instrumented_graph)
         rfig = r.figure(cols=2)
         # Your algo
         start = process_time()
         path = search_algo.path(query[0], query[1])
         solve_time = process_time() - start
-        heuristic_count, path_heuristic_val = heuristic_count_fn(search_algo, query[0], query[1])
+        student_weight_calls = counting_weights.count
         # ground truths
-        gt_path, trivial_heuristic_count = ex_out[i]
+        expected = ex_out[i]
+        gt_path = expected.path
+        reference_ucs_weight_calls = expected.reference_ucs_weight_calls
+        gt_path_str = str_from_path(gt_path) if gt_path else "Solution not given"
+        gt_path_cost = compute_path_cost(wG, gt_path) if gt_path else 0.0
         if path:
             path_str = str_from_path(path)
             path_cost = compute_path_cost(wG, path)
@@ -308,64 +318,19 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                             show=False,
                             close=False,
                         )
-            # Compare your algo to ground truth
-            if gt_path == path:
-                # Validate student's heuristic
-                if path_heuristic_val is not None:
-                    if path_heuristic_val:  # non-empty
-                        cross_path_cost = compute_path_cost(wG, path_heuristic_val)
-                    else:  # empty path
-                        cross_path_cost = 0.0
 
-                    if cross_path_cost != gt_path_cost:
-                        msg += (
-                            "CORRECT solution but heuristic function is NOT ADMISSIBLE outside local astar: "
-                            f"astar + local heuristic cost {cross_path_cost} != astar + admissible heuristic cost {gt_path_cost}\n"
-                        )
-                        r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
-                        return Ex03PerformanceResult(
-                            accuracy=0.0,
-                            solve_time=solve_time,
-                            heuristic_efficiency=float("inf"),
-                        ), r
+        is_correct = gt_path == path
+        accuracy.append(1.0 if is_correct else 0.0)
+        solve_times.append(solve_time)
+        msg += "Student solution : CORRECT\n" if is_correct else "Student solution : WRONG\n"
 
-                # validated
-                accuracy.append(1.0)
-                msg += "Student solution : CORRECT\n"
-            else:
-                accuracy.append(0.0)
-                msg += "Student solution : WRONG\n"
-            solve_times.append(solve_time)
-
-            if algo_name == Astar.__name__:
-                # This section of code can be reached under two circumstances.
-                # 1. The server is evaluating the code. Then the trivial_heuristic_count
-                #    is a strictly positive number, which is calculated using the server's
-                #    implementation of Astar with a heuristic of 0
-                # 2. The code is being evaluated locally. This is indicated by setting
-                #    the trivial_heuristic_count to 0. To find the true value of the
-                #    trivial_heuristic_count, we must rerun the student's Astar implementation
-                #    with a heuristic of 0.
-
-                if trivial_heuristic_count == 0:
-                    # We must calculate the trivial heuristic count.
-                    # Tell the student's algorithm to use the trivial heuristic rather than the one
-                    # the implemented.
-                    search_algo.heuristic_counter = 0
-                    search_algo.use_trivial_heuristic = True
-                    # Rerun Astar, counting how many times the heuristic was invoked
-                    search_algo.path(query[0], query[1])
-                    trivial_heuristic_count, _ = heuristic_count_fn(search_algo, query[0], query[1])
-                if len(gt_path) == 1:
-                    # Case when start = goal
-                    heuristic_performance.append(0.0)
-                elif trivial_heuristic_count == 0:
-                    # This case is only hit of the student never calls the heuristic.
-                    heuristic_performance.append(float("inf"))
-                else:
-                    heuristic_performance.append(heuristic_count / trivial_heuristic_count)
-            else:
-                heuristic_performance.append(0.0)
+        # Efficiency is aggregated only over correct, non-trivial queries.
+        if is_correct and reference_ucs_weight_calls > 0:
+            weight_calls.append(student_weight_calls)
+            reference_weight_calls.append(reference_ucs_weight_calls)
+        else:
+            weight_calls.append(0)
+            reference_weight_calls.append(0)
 
         # output path to report
         msg += f"Ground truth path: {gt_path_str}\n"
@@ -374,43 +339,52 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         msg += f"Your path: {path_str}\n"
         msg += f"Your path cost:\t{path_cost:.2f}\n"
 
-        if algo_name == Astar.__name__:
-            msg += f"Your heuristic call counter: {heuristic_count}\n"
-            msg += f"Trivial heuristic call counter: {trivial_heuristic_count}\n"
-        elif algo_name == UniformCostSearch.__name__:
-            msg += f"Your settled node count: {len(search_algo.settled_nodes)}\n"
-        elif algo_name == BidirectionalUniformCostSearch.__name__:
-            forward_count = len(search_algo.settled_nodes_forward)
-            backward_count = len(search_algo.settled_nodes_backward)
-            msg += f"Your forward settled node count: {forward_count}\n"
-            msg += f"Your backward settled node count: {backward_count}\n"
-            msg += f"Your total settled node count: {forward_count + backward_count}\n"
+        msg += f"Your edge-weight accesses: {student_weight_calls}\n"
+        msg += f"Reference UCS edge-weight accesses: {reference_ucs_weight_calls}\n"
+        if is_correct and reference_ucs_weight_calls > 0:
+            query_efficiency = student_weight_calls / reference_ucs_weight_calls
+            msg += f"Search-efficiency ratio: {query_efficiency:.4f}\n"
+        else:
+            msg += "Search-efficiency ratio: not included in aggregation\n"
 
         r.text(f"{algo_name}-query{i}", text=remove_escapes(msg))
 
     # aggregate performance of each query
-    query_perf = list(map(Ex03PerformanceResult, accuracy, solve_times, heuristic_performance))
+    query_perf = [
+        Ex03PerformanceResult(
+            accuracy=query_accuracy,
+            solve_time=query_time,
+            search_efficiency=(calls / reference_calls if reference_calls else 0.0),
+            weight_calls=calls,
+            reference_weight_calls=reference_calls,
+        )
+        for query_accuracy, query_time, calls, reference_calls in zip(
+            accuracy, solve_times, weight_calls, reference_weight_calls
+        )
+    ]
     perf = ex3_perf_aggregator(query_perf)
     return perf, r
 
 
 def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03PerformanceResult:
-    # Very similar to ex2 perf aggregator, except now we include the heuristic performance
+    if not perf:
+        return Ex03PerformanceResult(accuracy=0.0, solve_time=0.0)
 
-    # perfomance for valid results
-    valid_acc = [p.accuracy for p in perf]
-    valid_time = [p.solve_time for p in perf]
-    valid_heuristic_efficiency = [p.heuristic_efficiency for p in perf if p.heuristic_efficiency != 0]
+    accuracy = sum(p.accuracy for p in perf) / len(perf)
+    solve_time = sum(p.solve_time for p in perf) / len(perf)
+    total_weight_calls = sum(p.weight_calls for p in perf)
+    total_reference_calls = sum(p.reference_weight_calls for p in perf)
+    search_efficiency = (
+        total_weight_calls / total_reference_calls if total_reference_calls else 0.0
+    )
 
-    avgs = []
-    for valid_result in [valid_acc, valid_time, valid_heuristic_efficiency]:
-        try:
-            avg_result = sum(valid_result) / float(len(valid_result))
-        except ZeroDivisionError:
-            avg_result = 0.0
-        avgs.append(avg_result)
-
-    return Ex03PerformanceResult(accuracy=avgs[0], solve_time=avgs[1], heuristic_efficiency=avgs[2])
+    return Ex03PerformanceResult(
+        accuracy=accuracy,
+        solve_time=solve_time,
+        search_efficiency=search_efficiency,
+        weight_calls=total_weight_calls,
+        reference_weight_calls=total_reference_calls,
+    )
 
 
 def validate_impl_wrapper(func: Callable, disallowed_dependencies: dict[str, set[str]]) -> Callable:
@@ -468,30 +442,16 @@ def get_exercise3() -> Exercise:
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
     test_values = list()
 
-    def uniform_cost_heuristic_counter(search_algo: UniformCostSearch, start: X, goal: X) -> Tuple[int, list]:
-        # There is no heuristic in UCS, so we just return 0
-        return 0, None
-
-    def bidirectional_uniform_cost_heuristic_counter(
-        search_algo: BidirectionalUniformCostSearch, start: X, goal: X
-    ) -> Tuple[int, list]:
-        # There is no heuristic in bidirectional UCS, so we just return 0
-        return 0, None
-
-    def astar_heuristic_counter(search_algo: Astar, start: X, goal: X) -> Tuple[int, list]:
-        return search_algo.heuristic_counter, None
-
     algos = [
-        (UniformCostSearch.__name__, uniform_cost_heuristic_counter),
-        (BidirectionalUniformCostSearch.__name__, bidirectional_uniform_cost_heuristic_counter),
-        (Astar.__name__, astar_heuristic_counter),
+        UniformCostSearch.__name__,
+        BidirectionalUniformCostSearch.__name__,
+        Astar.__name__,
     ]
 
-    for prob, (algo_name, algo_func) in product(test_wgraphs, algos):
+    for prob, algo_name in product(test_wgraphs, algos):
         test_values.append(TestValueEx3(
             problem=prob,
             algo_name=algo_name,
-            h_count_fn=algo_func,
             impl_validate_func_wrapper=validate_impl_wrapper,     # else None
             disallowed_dependencies=disallowed_dependencies       # else None
     ))
