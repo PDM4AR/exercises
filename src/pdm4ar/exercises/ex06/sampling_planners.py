@@ -1,6 +1,6 @@
 """Sampling-based motion-planning interfaces for Exercise 06.
 
-The planners use the collision checker implemented in Tasks 4--8. PRM is
+The planners use the collision checker implemented in Tasks 1--5. PRM is
 given a deterministic set of samples, while RRT* owns its sampling strategy.
 """
 
@@ -8,7 +8,7 @@ from pdm4ar.exercises_def.ex06.structures import AABB, GeoPrimitive, Path, Point
 
 
 class SamplingBasedPlanner:
-    """Student API for the planning applications in Tasks 9 and 10."""
+    """Student API for the planning applications in Tasks 6 and 7."""
 
     @staticmethod
     def prm(
@@ -26,7 +26,7 @@ class SamplingBasedPlanner:
         path must use only valid configurations from ``samples``. Return an
         empty ``Path`` for a query that cannot be solved.
         """
-        # TODO: Task 9
+        # TODO: Task 6
         raise NotImplementedError
 
     @staticmethod
@@ -47,5 +47,5 @@ class SamplingBasedPlanner:
         Sampling may be implemented in any way, but using ``seed`` must make a
         run reproducible. Return ``Path([])`` if no solution is found.
         """
-        # TODO: Task 10
+        # TODO: Task 7
         raise NotImplementedError

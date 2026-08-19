@@ -1,12 +1,12 @@
 import random
 import timeit
 from dataclasses import dataclass
+from numbers import Integral
 from typing import Any, Callable, Optional, Sequence
 
 import numpy as np
 from dg_commons import SE2Transform
 from pdm4ar.exercises.ex06.collision_checker import CollisionChecker
-from pdm4ar.exercises.ex06.collision_primitives import CollisionPrimitives_SeparateAxis
 from pdm4ar.exercises_def.ex06.data import DataGenerator
 from pdm4ar.exercises_def.ex06.sampling_data import (
     PUBLIC_PRM_CASES,
@@ -15,17 +15,13 @@ from pdm4ar.exercises_def.ex06.sampling_data import (
 )
 from pdm4ar.exercises_def.ex06.structures import Path, Point, Polygon
 from pdm4ar.exercises_def.ex06.visualization import (
-    visualize_axis_poly,
     visualize_map_path,
     visualize_planning_problem,
     visualize_prm_problem,
     visualize_robot_frame_map,
-    visualize_SAT_poly,
-    visualize_SAT_poly_circle,
 )
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 from reprep import Report
-from shapely.geometry import LineString
 
 RANDOM_SEED = 0
 
@@ -116,45 +112,40 @@ def _collision_check_rep(
         if not is_valid:
             raise RuntimeError(error_msg)
 
+        # Validators execute student code and may consume random state. Restore the
+        # seed so that every implementation is evaluated on the same test data.
+        set_random_seed(RANDOM_SEED)
+
     accuracy_list = []
     solve_times = []
+    test_data = [
+        algo_in.sample_generator(ex_num)
+        for ex_num in range(algo_in.number_of_test_cases)
+    ]
 
-    for ex_num in range(algo_in.number_of_test_cases):
-        data = algo_in.sample_generator(ex_num)
+    for ex_num, data in enumerate(test_data):
         start = timeit.default_timer()
         estimate = algo_in.ex_function(*data[:-1])
         stop = timeit.default_timer()
         solve_times.append(stop - start)
 
-        # get size of the estimate:
-        if isinstance(estimate, tuple):
-            # print("Estimate is a tuple!")
-            accuracy_list.append(algo_in.eval_function(data, estimate[0]))
-            try:
-                algo_in.visualizer(
-                    r, f"step-{algo_in.step_id}-{ex_num}", data, estimate[1]
-                )
-            except:
-                algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
-            r.text(
-                f"{algo_in.str_id()}-{ex_num}",
-                f"Ground Truth = {data[-1]} | Estimation = {_summarize_estimate(estimate[0])} | Execution Time = {round(stop - start, 5)}",
+        accuracy_list.append(algo_in.eval_function(data, estimate))
+        try:
+            algo_in.visualizer(
+                r, f"step-{algo_in.step_id}-{ex_num}", data, estimate
             )
-
-        else:
-
-            accuracy_list.append(algo_in.eval_function(data, estimate))
+        except TypeError:
             try:
-                algo_in.visualizer(
-                    r, f"step-{algo_in.step_id}-{ex_num}", data, estimate
-                )
-            except TypeError:
                 algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
+            except Exception:
+                pass
+        except Exception:
+            pass
 
-            r.text(
-                f"{algo_in.str_id()}-{ex_num}",
-                f"Ground Truth = {data[-1]} | Estimation = {_summarize_estimate(estimate)} | Execution Time = {round(stop - start, 5)}",
-            )
+        r.text(
+            f"{algo_in.str_id()}-{ex_num}",
+            f"Ground Truth = {data[-1]} | Estimation = {_summarize_estimate(estimate)} | Execution Time = {round(stop - start, 5)}",
+        )
 
     r.text(
         f"{algo_in.str_id()}-results",
@@ -189,64 +180,34 @@ def _summarize_estimate(estimate: Any) -> Any:
     return estimate
 
 
-def algo_placeholder(ex_in):
-    return None
-
-
-def float_eval_function(data, estimation):
-    return float(data[-1] == estimation)
-
-
 def idx_list_eval_function(data, estimation):
-    path_len = len(data[0])
-    ground_truth_bool = np.array([i in data[-1] for i in range(path_len - 1)])
-    estimation_bool = np.array([i in estimation for i in range(path_len - 1)])
+    if not isinstance(estimation, list):
+        return 0.0
 
-    return (ground_truth_bool == estimation_bool).mean()
+    segment_count = max(0, len(data[0]) - 1)
+    if any(
+        isinstance(index, bool)
+        or not isinstance(index, Integral)
+        or not 0 <= int(index) < segment_count
+        for index in estimation
+    ):
+        return 0.0
 
+    estimation_indices = {int(index) for index in estimation}
+    if len(estimation_indices) != len(estimation):
+        return 0.0
+    if segment_count == 0:
+        return 1.0
 
-def segment_eval_function(data, estimation):
-    _, _, proj_seg = data
-    cand_seg = estimation
-
-    proj_seg_endpts = [
-        np.array([proj_seg.p1.x, proj_seg.p1.y]),
-        np.array([proj_seg.p2.x, proj_seg.p2.y]),
-    ]
-    cand_seg_endpts = [
-        np.array([cand_seg.p1.x, cand_seg.p1.y]),
-        np.array([cand_seg.p2.x, cand_seg.p2.y]),
-    ]
-
-    # norm distance
-    dist_proj = np.linalg.norm(proj_seg_endpts[0] - proj_seg_endpts[1])
-    dist_cand = np.linalg.norm(cand_seg_endpts[0] - cand_seg_endpts[1])
-
-    dist_diff = np.abs(dist_proj - dist_cand)
-    tol = 1e-2
-    # Check that endpts are the same
-    proj_seg_shapely = LineString(
-        [
-            [proj_seg_endpts[0][0], proj_seg_endpts[0][1]],
-            [proj_seg_endpts[1][0], proj_seg_endpts[1][1]],
-        ]
+    ground_truth_indices = set(data[-1])
+    ground_truth_bool = np.array(
+        [i in ground_truth_indices for i in range(segment_count)]
     )
-    cand_seg_shapely = LineString(
-        [
-            [cand_seg_endpts[0][0], cand_seg_endpts[0][1]],
-            [cand_seg_endpts[1][0], cand_seg_endpts[1][1]],
-        ]
+    estimation_bool = np.array(
+        [i in estimation_indices for i in range(segment_count)]
     )
-    cand_seg_shapely_rev = LineString(
-        [
-            [cand_seg_endpts[1][0], cand_seg_endpts[1][1]],
-            [cand_seg_endpts[0][0], cand_seg_endpts[0][1]],
-        ]
-    )
-    return dist_diff < tol and (
-        proj_seg_shapely.equals_exact(cand_seg_shapely, tolerance=tol)
-        or proj_seg_shapely.equals_exact(cand_seg_shapely_rev, tolerance=tol)
-    )
+
+    return float((ground_truth_bool == estimation_bool).mean())
 
 
 def _path_cost(path: Path) -> float:
@@ -477,39 +438,6 @@ def get_exercise6() -> Exercise:
         TestCollisionCheck(
             5,
             1,
-            "Project Polygon Check",
-            DataGenerator.generate_axis_polygon,
-            visualize_axis_poly,
-            CollisionPrimitives_SeparateAxis.proj_polygon,
-            segment_eval_function,
-            eval_weights=(5, 5),
-            impl_validator=disallowed_validator,
-        ),  # Task 1: proj polygon.
-        TestCollisionCheck(
-            10,
-            2,
-            "Separating Axis Thm",
-            DataGenerator.generate_SAT_poly,
-            visualize_SAT_poly,
-            CollisionPrimitives_SeparateAxis.separating_axis_thm,
-            float_eval_function,
-            eval_weights=(20, 20),
-            impl_validator=disallowed_validator,
-        ),  # Task 2: Separate Axis Theorem.
-        TestCollisionCheck(
-            6,
-            3,
-            "Separating Axis Thm with Circles",
-            DataGenerator.generate_SAT_poly_circle,
-            visualize_SAT_poly_circle,
-            CollisionPrimitives_SeparateAxis.separating_axis_thm,
-            float_eval_function,
-            eval_weights=(20, 20),
-            impl_validator=disallowed_validator,
-        ),  # Task 3: Extended Separate Axis Theorem for circles.
-        TestCollisionCheck(
-            5,
-            4,
             "Path Collision Check",
             lambda x: DataGenerator().generate_random_robot_map_and_path(8, x),
             visualize_map_path,
@@ -517,50 +445,50 @@ def get_exercise6() -> Exercise:
             idx_list_eval_function,
             (20, 20),
             impl_validator=disallowed_validator,
-        ),  # Task 4 - Path Collision Check
+        ),  # Task 1 - Path Collision Check
         TestCollisionCheck(
             5,
-            5,
+            2,
             "Path Collision Check - Occupancy Grid",
             lambda x: DataGenerator().generate_random_robot_map_and_path(9, x),
             visualize_map_path,
             CollisionChecker().path_collision_check_occupancy_grid,
             idx_list_eval_function,
             (20, 20),
-        ),  # Task 5 - Path Collision Check - Occupancy Grid
+        ),  # Task 2 - Path Collision Check - Occupancy Grid
         TestCollisionCheck(
             5,
-            6,
+            3,
             "Path Collision Check - R-Tree",
             lambda x: DataGenerator().generate_random_robot_map_and_path(10, x),
             visualize_map_path,
             CollisionChecker().path_collision_check_r_tree,
             idx_list_eval_function,
             (30, 30),
-        ),  # Task 6 - Path Collision Check - R-Tree
+        ),  # Task 3 - Path Collision Check - R-Tree
         TestCollisionCheck(
             5,
-            7,
+            4,
             "Collision Check - Rigid Body Transformation",
             DataGenerator().generate_robot_frame_data,
             visualize_robot_frame_map,
             collision_check_robot_frame_loop,
             idx_list_eval_function,
             (20, 20),
-        ),  # Task 7 - Collision Check - Rigid Body Transformation
+        ),  # Task 4 - Collision Check - Rigid Body Transformation
         TestCollisionCheck(
             5,
-            8,
+            5,
             "Path Collision Check - Optimization-based Collision Detection",
             lambda x: DataGenerator().generate_random_robot_map_and_path(12, x),
             visualize_map_path,
             CollisionChecker().path_collision_check_opt,
             idx_list_eval_function,
             (30, 30),
-        ),  # Task 8 - Path Collision Check - Optimization-based Collision Detection
+        ),  # Task 5 - Path Collision Check - Optimization-based Collision Detection
         TestCollisionCheck(
             PUBLIC_PRM_CASES,
-            9,
+            6,
             "Probabilistic Roadmap (PRM)",
             SamplingDataGenerator.generate_prm,
             visualize_prm_problem,
@@ -571,7 +499,7 @@ def get_exercise6() -> Exercise:
         ),
         TestCollisionCheck(
             PUBLIC_RRT_STAR_CASES,
-            10,
+            7,
             "Rapidly-exploring Random Tree Star (RRT*)",
             SamplingDataGenerator.generate_rrt_star,
             visualize_planning_problem,

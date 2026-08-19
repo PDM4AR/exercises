@@ -204,114 +204,6 @@ class DataGenerator:
             point = DataGenerator.generate_random_point(circle.radius, 2 * circle.radius, circle.center)
             return (circle, point, False)
 
-    @staticmethod  # New method.
-    def generate_axis_polygon(
-        index: int,  # pylint: disable=unused-argument
-    ) -> tuple[Polygon, Segment, Segment]:  # 2nd segment is the expected result.
-
-        # Generate random polygon
-        poly = DataGenerator.generate_random_polygon(center=Point(5, 5), avg_radius=3.0)
-        # Generate 2 points for a random segment. These 2 points are not end points of the segment.
-        pt1 = np.array([0.0, np.random.uniform(0, 8)])
-        pt2 = np.array([10.0, np.random.uniform(0, 8)])
-        diff = pt2 - pt1
-
-        # Make the segment long enough to ensure the projection falls within the bounds of the segment. 20 is arbitrary big enough number.
-        extended_p1 = Point(pt1[0] - 20 * diff[0], pt1[1] - 20 * diff[1])
-        extended_p2 = Point(pt2[0] + 20 * diff[0], pt2[1] + 20 * diff[1])
-
-        # Final project segment
-        seg = Segment(p1=extended_p1, p2=extended_p2)
-
-        # Project the polygon onto the segment.
-        seg_shapely = geometry.LineString([[seg.p1.x, seg.p1.y], [seg.p2.x, seg.p2.y]])
-        projected_dists = []
-        for vertex in poly.vertices:
-            vertex_shapely = geometry.Point(vertex.x, vertex.y)
-            dist = seg_shapely.project(vertex_shapely)
-            assert 0 < dist < seg_shapely.length, "Projection distance is out of bounds."
-            projected_dists.append(dist)
-
-        min_proj_pt = seg_shapely.interpolate(min(projected_dists))
-        max_proj_pt = seg_shapely.interpolate(max(projected_dists))
-        proj_seg = Segment(Point(min_proj_pt.x, min_proj_pt.y), Point(max_proj_pt.x, max_proj_pt.y))
-
-        return (poly, seg, proj_seg)
-
-    @staticmethod
-    def generate_SAT_poly(index: int) -> tuple[Polygon, Polygon, bool]:  # pylint: disable=unused-argument,invalid-name
-        # Generate polygons
-        randflag = True
-        randnum = np.random.uniform()
-        if randnum < 0.4:
-            centerpt1 = Point(0, 0)
-            centerpt2 = Point(5, 5)
-            r1 = 3.0
-            r2 = 2.0
-        elif randnum >= 0.4 and randnum < 0.6:
-            centerpt1 = Point(5, 5)
-            centerpt2 = Point(5, 5)
-            r1 = 4.0
-            r2 = 2.0
-        elif randnum >= 0.6 and randnum < 0.8:
-            centerpt1 = Point(3, 3)
-            centerpt2 = Point(2, 2)
-            r1 = 3.0
-            r2 = 3.0
-        else:
-            centerpt1 = Point(3, 3)
-            centerpt2 = Point(3, 3)
-            r1 = 3.0
-            r2 = 3.0
-            randflag = False
-
-        if randflag:
-            poly1 = DataGenerator.generate_random_polygon(center=centerpt1, avg_radius=r1)
-            poly2 = DataGenerator.generate_random_polygon(center=centerpt2, avg_radius=r2)
-        else:
-            poly1 = DataGenerator.generate_random_polygon(center=centerpt1, avg_radius=r1)
-            vertices_poly2 = poly1.vertices[0:2]
-
-            vertices_poly2.append(
-                Point(
-                    x=vertices_poly2[0].x + vertices_poly2[1].x + 2.0,
-                    y=vertices_poly2[0].y + 2.0,
-                ),
-            )
-
-            poly2 = Polygon(vertices_poly2)
-        poly1_shapely = geometry.Polygon([[p.x, p.y] for p in poly1.vertices])
-        poly2_shapely = geometry.Polygon([[p.x, p.y] for p in poly2.vertices])
-        ans = poly1_shapely.intersects(poly2_shapely)
-        return poly1, poly2, ans
-
-    @staticmethod
-    def generate_SAT_poly_circle(  # pylint: disable=invalid-name
-        index: int,  # pylint: disable=unused-argument
-    ) -> tuple[Polygon, Circle, bool]:
-        # Generate polygons
-        randnum = np.random.uniform()
-        if randnum < 0.5:
-            centerpt1 = Point(0, 0)
-            centerpt2 = Point(5, 5)
-            r1 = 3.0
-            r2 = 2.0
-        else:
-            centerpt1 = Point(5, 5)
-            centerpt2 = Point(5, 5)
-            r1 = 4.0
-            r2 = 2.0
-
-        poly1 = DataGenerator.generate_random_polygon(center=centerpt1, avg_radius=r1)
-        circ = DataGenerator.generate_random_circle(center=centerpt2, min_radius=r2)
-
-        poly1_shapely = geometry.Polygon([[p.x, p.y] for p in poly1.vertices])
-        circ_shapely = geometry.Point(circ.center.x, circ.center.y).buffer(circ.radius)
-        ans = poly1_shapely.intersects(
-            circ_shapely
-        )  # sorry students, we WILL be checkig if you used shapely for this exercise :(
-        return poly1, circ, ans
-
     @staticmethod
     def generate_triangle_point_collision_data(
         index: int,  # pylint: disable=unused-argument
@@ -532,12 +424,18 @@ class DataGenerator:
             else:
                 raise ValueError("Obstacle must be Polygon, Triangle, or Circle")
         observations = []
-        for pose in poses:
+        for pose_index, pose in enumerate(poses):
             observations.append([])
+            sensing_distance = observation_radius
+            if pose_index + 1 < len(poses):
+                sensing_distance = max(
+                    sensing_distance,
+                    float(np.linalg.norm(poses[pose_index + 1].p - pose.p)),
+                )
             # Check distance to obstacles
             shapely_point = geometry.Point(pose.p[0], pose.p[1])
             for shapely_obs, obs in zip(shapely_obstacles, obstacles):
-                if shapely_point.distance(shapely_obs) < observation_radius + r:
+                if shapely_point.distance(shapely_obs) <= sensing_distance + r:
                     # Calculate position of the obstacle in robot frame
                     robot_frame_poly = obs.apply_SE2transform(inv(pose.as_SE2()))
                     observations[-1].append(robot_frame_poly)

@@ -8,11 +8,11 @@
 
 ## Exercise Overview
 
-In this exercise, you will build a comprehensive collision detection system for a circular differential drive robot navigating through environments with various obstacles. This exercise progresses from fundamental geometric algorithms to advanced spatial data structures and optimization-based methods. 
+In this exercise, you will build a comprehensive collision detection system for a circular differential drive robot navigating through environments with various obstacles. This exercise progresses from baseline collision checking to advanced spatial data structures, optimization-based methods, and sampling-based planning.
 
 ### What You Will Implement
 
-- **Geometric Collision Detection**: Implement the Separating Axis Theorem (SAT) for polygon-polygon and polygon-circle collision detection
+- **Geometric Collision Detection**: Implement collision checking for a circular robot moving along a path
 - **Discretization Methods**: Apply occupancy grids for collision checking in continuous spaces
 - **Spatial Data Structures**: Use R-trees for efficient collision queries in environments with many obstacles  
 - **Coordinate Frame Transformations**: Handle collision detection with sensor data in robot coordinate frames
@@ -20,85 +20,7 @@ In this exercise, you will build a comprehensive collision detection system for 
 
 Unless otherwise specified, you are **NOT allowed** to use any geometry libraries like `shapely` for geometric operations and collision detection. :warning: <span style="color:red">We will check your implementation for this.</span> :warning:
 
-## Part 1: Collision Checking Primitives with Separating Axis Theorem
-
-### Recap: Separating Axis Theorem (SAT)
-
-**Key Concept:** Two convex shapes do not collide if there exists a separating axis where their projections do not overlap.
-
-**How it works:**
-1. **Find candidate axes** - typically perpendicular to edges of the shapes
-2. **Project both shapes** onto each axis
-3. **Check for overlap** - if any axis shows no overlap, shapes don't collide
-4. **Collision occurs** only if projections overlap on ALL axes
-
-#### Task 1: Project a Polygon onto a Segment
-
-First, implement the `proj_polygon` function inside the `CollisionPrimitives_SeparateAxis` class in the `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
-
-It projects a polygon onto an axis and returns the projection segment.
-
-You can use the `numpy` library for linear algebra operations, but you should not use any geometry libraries like `shapely` in this task. 
-
-**Notes:**
-- We use a line segment (bounded by two points) to represent a straight line/axis (extending infinitely in both directions) containing the segment
-- The axis does not necessarily pass through the origin
-- The projection is a segment bounded by two endpoints on the axis
-- Projection accuracy is verified by segment length and endpoint precision
-- Function signature also accepts `Circle` input for later use in `Task 3`
-
-#### Task 2a: Determine if Two Segments Overlap or Not
-
-Implement the `overlap` function inside the `CollisionPrimitives_SeparateAxis` class in the `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
-
-It checks if two line segments overlap (intersect), i.e., if they share any points.
-
-**Note:** This function will be used in later tasks for SAT implementation, but is not directly tested by the checker. We encourage you to test it yourself.
-
-#### Task 2b: Return a List of Candidate Separating Axes
-Implement a function that gets candidate separating axes given two polygons.
-
-You will implement the `get_axes` function inside the `CollisionPrimitives_SeparateAxis` class in the `src/pdm4ar/exercises/ex06/collision_primitives.py` file.
-
-If two polygons do not intersect, there are potentially infinite separating axes that can be computed. As a hint, we recommend returning axes that are orthogonal to the edges of each polygon only. 
-
-**Note:** The checker will not verify your implementation for this task, so we encourage that you do your own testing. 
-
-#### Task 2c: Separating Axis Theorem for Two Polygons
-
-In this task, we bring it all together and implement the SAT for two polygons.
-
-We will be modifying the **first** case in the `separating_axis_thm` function.
-
-Using the methods you have previously implemented: `get_axes`, `proj_polygon`, and `overlap`, determine if two polygons intersect with each other or not using the SAT.
-
-The `separating_axis_thm` function takes two polygons as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
-
-The first argument is a `bool` that is *True* if the polygons collide, and *False* if they do not. 
-
-The second argument is an optional `Segment` which you can use to visualize which segment you are projecting against in your implementation of the SAT. 
-
-#### Task 3a: Return a List of Candidate Separating Axes for a Polygon and a Circle
-We now move to computing separating axes for a polygon and a circle.
-
-You will implement the function `get_axes_cp` that takes a `Circle` *circ* and a `Polygon` *poly* as inputs and returns a list of segments representing the candidate separating axes.
-
-**Hint**: Notice that the circle is a polygon with an infinite number of edges. Fortunately we do not need to check all axes normal to the edges.
-It's sufficient to check the axes normal to the polygon edges plus ONE axis formed by the circle center and the closest vertex of the polygon.
-
-**Note**: The checker will not verify your implementation for this task, so we encourage that you do your own testing.
-
-#### Task 3b: Separating Axis Theorem for a Polygon and a Circle
-
-We will be modifying the **second** case in the `separating_axis_thm` function. 
-
-The `separating_axis_thm` function takes a polygon and a circle as inputs: *p1* and *p2* and returns a tuple with a mandatory argument and an optional argument. 
-
-The first argument is a `bool` that is *True* if the shapes collide, and *False* if they do not. 
-
-The second argument is an optional `Segment` which you can use to visualize which segment you are projecting against in your implementation of the Separating Axis Theorem. 
-
-## Part 2: Collision Check Module
+## Part 1: Collision Check Module
 
 In this part, you will implement a collision checking module for a circle-shaped differential drive robot navigating through obstacles.
 
@@ -106,9 +28,7 @@ In this part, you will implement a collision checking module for a circle-shaped
 
 **Goal:** Implement different collision detection methods to check if robot paths are collision-free. Each method should use a unique approach to solve the collision-checking problem.
 
-**Available Tools:** 
-- All collision check primitives implemented in `Part 1`
-- Collision check primitives between [circle, polygon, triangle] and [point, segment] provided in the `CollisionPrimitives` class (`src/pdm4ar/exercises/ex06/collision_primitives.py`).
+**Available Tools:** Collision check primitives between [circle, polygon, triangle] and [point, segment] are provided in the `CollisionPrimitives` class (`src/pdm4ar/exercises/ex06/collision_primitives.py`).
 
 **Path Representation:** Robot path is represented using the following data structure (`src/pdm4ar/exercises_def/ex06/structures.py`):
 
@@ -122,7 +42,7 @@ Unlike `Polygon` which connects first and last vertices, `Path` does not connect
 
 You will implement functions in the `CollisionChecker` class (`src/pdm4ar/exercises/ex06/collision_checker.py`) using different collision detection strategies.
 
-#### Task 4: Collision Checking Procedure for Circle-shaped Robot
+#### Task 1: Collision Checking Procedure for Circle-shaped Robot
 
 In this task, you will implement a baseline collision checking method using the available collision check primitives. You are **not allowed** to use any geometry libraries like `shapely` in this task.
 
@@ -132,13 +52,11 @@ You will implement the `path_collision_check` function which returns the indices
 - **Input:** `Path` *t*, robot radius *r*, list of obstacles
 - **Output:** List of indices representing the `Segment`s of the `Path` that collide with any obstacles
 
-**Implementation approaches:** To account for the robot's radius, you can either:
-1. **Inflate obstacles** by the robot's radius (creating a larger "danger zone") and convert robot-vs-obstacle collision checks into point-vs-inflated-obstacle checks
-2. Or, **Inflate path segments** by the robot's radius and reuse the polygon-polygon and polygon-circle collision check primitives implemented in Part 1
+**Implementation approach:** To account for the robot's radius, inflate obstacles by the robot's radius (creating a larger "danger zone") and convert robot-vs-obstacle collision checks into point-vs-inflated-obstacle checks using the provided primitives.
 
-#### Task 5: Collision Checking via Occupancy Grid
+#### Task 2: Collision Checking via Occupancy Grid
 
-The goal and all assumptions are the same as `Task 4`.
+The goal and all assumptions are the same as `Task 1`.
 
 Implement collision checking using an occupancy grid approach. You may use `shapely` to create the occupancy grid, but you are not allowed to use it for checking collisions between the path segments and obstacles directly.
 
@@ -151,9 +69,9 @@ You will implement the `path_collision_check_occupancy_grid` function which retu
 
 **Note:** Due to the discrete nature of occupancy grids, perfect accuracy of 1.0 is not expected. You may tweak the grid resolution to balance accuracy and performance.
 
-#### Task 6: Collision Checking using R-Trees
+#### Task 3: Collision Checking using R-Trees
 
-The goal and all assumptions are the same as `Task 4`.
+The goal and all assumptions are the same as `Task 1`.
 
 In this task, you will use R-Trees to improve the query time performance of your collision checking module.
 
@@ -168,7 +86,7 @@ You may use the functionalities of `shapely` here, including `STRtree` for R-Tre
 
 You will implement the `path_collision_check_r_tree` function which returns the indices of `Segment`s from the given `Path` that collide with any obstacles.
 
-#### Task 7: Collision Checking in Robot Frame
+#### Task 4: Collision Checking in Robot Frame
 
 Raw sensor data are often provided in the sensor frame of the robot. 
 In this task, you receive the current pose of the robot and the next pose of the robot in the world frame (planning is done with respect to the world frame), but the observed obstacles are given in the robot's sensor frame. 
@@ -184,9 +102,9 @@ The function needs to check if there is a collision during the robot's movement 
 In this task, you will implement the `collision_check_robot_frame` function which returns *True* if the robot will collide with any of the fixed obstacles during its movement to the next pose. 
 This function takes the robot radius *r*, current pose `SE2Transform`, next pose `SE2Transform`, and a list of observed obstacles in the robot frame as arguments.
 
-#### Task 8: Collision Checking with Optimization-based Collision Checking
+#### Task 5: Collision Checking with Optimization-based Collision Checking
 
-The goal and all assumptions are the same as in Task 4. 
+The goal and all assumptions are the same as in Task 1.
 
 However, in this task, you are required to implement the [Differentiable Collision Detection (DCDL)](https://arxiv.org/abs/2207.00669) framework that formulates collision detection as a convex optimization problem. This method solves for the minimum uniform scaling applied to each primitive before they intersect, providing a uniform collision detection between a set of convex primitives.
 
@@ -198,14 +116,14 @@ You can use the code structure of the `OptCollisionCheckingPrimitives` class in 
 
 We will only call the `path_collision_check_opt` function during the evaluation.
 
-## Part 3: Sampling-based Planning Applications
+## Part 2: Sampling-based Planning Applications
 
-Tasks 9 and 10 are implemented in `src/pdm4ar/exercises/ex06/sampling_planners.py`
-and reuse the collision checker from Tasks 4-8. Direct calls to libraries that
+Tasks 6 and 7 are implemented in `src/pdm4ar/exercises/ex06/sampling_planners.py`
+and reuse the collision checker from Tasks 1-5. Direct calls to libraries that
 already implement PRM or RRT* are not allowed.
 Planning problems may combine `Circle`, `Polygon`, and `Triangle` obstacles.
 
-### Task 9: Probabilistic Roadmap (PRM)
+### Task 6: Probabilistic Roadmap (PRM)
 
 Implement `SamplingBasedPlanner.prm`. The evaluator supplies a deterministic
 list of configurations generated with a fixed seed; some configurations may
@@ -215,7 +133,7 @@ a shortest path for every supplied start-goal query. Every returned waypoint
 must come from the supplied samples. Return `Path([])` when a query cannot be
 solved.
 
-### Task 10: Rapidly-exploring Random Tree Star (RRT*)
+### Task 7: Rapidly-exploring Random Tree Star (RRT*)
 
 Implement `SamplingBasedPlanner.rrt_star`. You may choose the sampling strategy,
 but the same inputs and seed must produce the same result. The implementation
@@ -229,15 +147,13 @@ For this exercise our performance metric is accuracy and execution time.
 
 **Test Data Generation:**
 - For each task, random inputs are generated with the algorithm provided in `src/pdm4ar/exercises_def/ex06/data.py`
-- Tasks 9-10 use deterministic planning problems from `src/pdm4ar/exercises_def/ex06/sampling_data.py`
+- Tasks 6-7 use deterministic planning problems from `src/pdm4ar/exercises_def/ex06/sampling_data.py`
 - Each task contains multiple test cases
 
 **Accuracy Calculation:**
-- **Tasks 1-3:** Accuracies are calculated by the ratio of correct answers
-- **Tasks 4-8:** Lists of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path
-- **Tasks 4-8:** Accuracies are calculated by the average of the accuracy of test cases
-- **Task 9:** Paths are checked for endpoints, sample membership, bounds, collision-free edges, and shortest-path cost
-- **Task 10:** Paths are checked for endpoints, bounds, collision-free edges, reproducibility, and cost suboptimality
+- **Tasks 1-5:** Lists of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path; accuracies are averaged across test cases
+- **Task 6:** Paths are checked for endpoints, sample membership, bounds, collision-free edges, and shortest-path cost
+- **Task 7:** Paths are checked for endpoints, bounds, collision-free edges, reproducibility, and cost suboptimality
 
 **Execution Time:**
 - Execution time of each task is calculated as an average of its test cases
@@ -245,13 +161,13 @@ For this exercise our performance metric is accuracy and execution time.
 
 | Task **ID** | **Average Solving Time** |
 |-------------|---------------------------|
-| 04          | 0.0028s                      |
-| 05          | 1.0879s                      |
-| 06          | 0.0002s                      |
-| 07          | 0.0030s                      |
-| 08          | 0.1639s                      |
-| 09          | TODO                          |
-| 10          | TODO                          |
+| 01          | 0.0028s                      |
+| 02          | 1.0879s                      |
+| 03          | 0.0002s                      |
+| 04          | 0.0030s                      |
+| 05          | 0.1639s                      |
+| 06          | TODO                          |
+| 07          | TODO                          |
 
 
 **Final Scoring:**

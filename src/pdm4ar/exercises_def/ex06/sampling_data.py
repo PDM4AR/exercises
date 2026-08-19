@@ -90,7 +90,7 @@ class SamplingDataGenerator:
         count: int,
         required_points: list[Point],
     ) -> list[Point]:
-        """Return fixed raw samples; collision filtering belongs to Task 9."""
+        """Return fixed raw samples; collision filtering belongs to Task 6."""
         rng = np.random.default_rng(seed)
         random_samples = [
             Point(
