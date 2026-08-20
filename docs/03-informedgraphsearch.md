@@ -113,16 +113,14 @@ pending backward cost. Expand only the direction with the smaller minimum;
 do not expand both queues in the same iteration. Apart from its direction,
 each expansion follows the usual UCS logic.
 
-In addition, note that we now need to maintain `mu`, the cost of the cheapest complete start-to-goal
-path found so far, initially infinity. Whenever the two searches connect at a
-node `x`, they define a complete candidate path with cost
+In addition, maintain `mu`, the cost of the cheapest complete start-to-goal path found so far, initially infinity. Whenever discovering or improving the distance to a node `x`, check whether `x` has already been discovered by the search in the opposite direction. If so, the two searches define a complete candidate path through `x`, with cost:
 
 ```text
 distance_forward[x] + distance_backward[x]
 ```
 
 If this value is smaller than `mu`, update `mu` and remember `x` as the best
-meeting point so that the two path halves can eventually be joined. However, the first
+meeting point so that the two path halves can eventually be joined. Note that the first
 connection is not necessarily an optimal path, so the algorithm must not stop
 as soon as the searches meet.
 
@@ -131,7 +129,7 @@ A safe termination condition (may only be used only after `mu` is finite) is:
 ```text
 minimum_forward_queue_cost + minimum_backward_queue_cost >= mu
 ```
-(Food for thought: why is this a safe termination condition for an optimal path?)
+(Why is this a safe termination condition for an optimal path?)
 At this point, we can join the forward and backward parts of the best path associated with `mu` and return it.
 
 Compared with your UCS code, the intended workflow is therefore:
