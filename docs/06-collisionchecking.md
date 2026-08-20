@@ -119,27 +119,67 @@ We will only call the `path_collision_check_opt` function during the evaluation.
 ## Part 2: Sampling-based Planning Applications
 
 Tasks 6 and 7 are implemented in `src/pdm4ar/exercises/ex06/sampling_planners.py`
-and reuse the collision checker from Tasks 1-5. Direct calls to libraries that
-already implement PRM or RRT* are not allowed.
-Planning problems may combine `Circle`, `Polygon`, and `Triangle` obstacles.
+and reuse the collision checker from Tasks 1-5 for both configurations and
+complete edges. Planning problems may combine `Circle`, `Polygon`, and
+`Triangle` obstacles. You must implement the planning logic yourself: direct
+calls to libraries that already provide complete PRM or RRT* implementations
+are not allowed.
 
 ### Task 6: Probabilistic Roadmap (PRM)
 
 Implement `SamplingBasedPlanner.prm`. The evaluator supplies a deterministic
-list of configurations generated with a fixed seed; some configurations may
-be in collision. Discard invalid configurations, connect pairs within
-`connection_radius` only when the complete edge is collision-free, and return
-a shortest path for every supplied start-goal query. Every returned waypoint
-must come from the supplied samples. Return `Path([])` when a query cannot be
-solved.
+list of configurations generated with a fixed seed, together with one or more
+start-goal queries. Some supplied configurations may be in collision and must
+be discarded. Build the roadmap by connecting valid pairs within
+`connection_radius`, but only when the complete edge is collision-free. Then
+return a shortest path for every query. Every returned waypoint must come from
+the supplied samples: do not generate or interpolate additional points. Return
+`Path([])` when a query is invalid or no connection can be found.
+
+#### Suggested PRM procedure
+
+1. Remove samples that are outside `bounds` or in collision.
+2. Create an undirected graph whose vertices are the remaining samples.
+3. Connect two samples when their distance is at most `connection_radius` and
+   `Path([a, b])` is collision-free. Use their Euclidean distance as edge cost.
+4. For each query, check that start and goal are valid supplied samples, then
+   use Dijkstra or A* to find the shortest path.
+5. Return the original sample points in order, or `Path([])` if no route exists.
+
+Build the roadmap only once and reuse it for every query. Always check the full
+edge, not only its endpoints.
 
 ### Task 7: Rapidly-exploring Random Tree Star (RRT*)
 
 Implement `SamplingBasedPlanner.rrt_star`. You may choose the sampling strategy,
-but the same inputs and seed must produce the same result. The implementation
-must perform collision checking, lowest-cost parent selection, and rewiring of
-nearby nodes. Return `Path([])` when the endpoints are invalid or no solution
-is found within the iteration budget.
+but the same inputs and seed must always produce the same result. Grow a tree
+from the start while rejecting configurations and edges in collision. For each
+new node, select the valid nearby parent with the lowest total cost and rewire
+nearby nodes whenever the new connection reduces their cost. These two steps
+are required: a basic RRT implementation is not sufficient. Return `Path([])`
+when the endpoints are invalid or no solution is found within the iteration
+budget.
+
+#### Suggested RRT* procedure
+
+Keep each node's point, parent, and total cost from the start. Use a local random
+generator initialized with `seed`.
+
+For every iteration:
+
+1. Sample the goal with probability `goal_bias`; otherwise sample inside
+   `bounds`.
+2. Find the nearest tree node and move toward the sample by at most `step_size`.
+   Reject the new point if its configuration or connecting edge collides.
+3. Among nodes within `rewire_radius`, choose the collision-free parent that
+   gives the lowest total cost.
+4. Rewire nearby nodes through the new node when this lowers their cost, and
+   update the costs of their descendants.
+5. Record collision-free connections to the goal and keep the cheapest one.
+
+Finally, follow parent links from the goal back to the start and reverse the
+result. Return `Path([])` if the endpoints are invalid or the goal was not
+reached.
 
 ### Evaluation
 
@@ -175,19 +215,13 @@ For this exercise our performance metric is accuracy and execution time.
 
 | Task **ID** | **Number of Test Cases** | *Accuracy Weight* | *Solving Time Weight* |
 |-------------|--------------------------|-------------------|-----------------------|
-| 01          | 05                       | 05                | 0                     |
-| 2a          | 00                       | 00                | 0                     |
-| 2b          | 00                       | 00                | 0                     |
-| 2c          | 10                       | 20                | 0                     |
-| 3a          | 00                       | 00                | 0                     |
-| 3b          | 06                       | 20                | 0                     |
+| 01          | 05                       | 20                | 20                    |
+| 02          | 05                       | 20                | 20                    |
+| 03          | 05                       | 30                | 30                    |
 | 04          | 05                       | 20                | 20                    |
-| 05          | 05                       | 20                | 20                    |
-| 06          | 05                       | 30                | 30                    |
-| 07          | 05                       | 20                | 20                    |
-| 08          | 05                       | 30                | 30                    |
-| 09          | 05                       | 20                | 20                    |
-| 10          | 10                       | 20                | 20                    |
+| 05          | 05                       | 30                | 30                    |
+| 06          | 05                       | 20                | 20                    |
+| 07          | 10                       | 20                | 20                    |
 
 ### Advice
 
