@@ -148,7 +148,7 @@ Its benefit depends on the graph, the query, and how the two search frontiers
 develop. Even a correct and efficient Bi-UCS implementation may therefore
 have a search-efficiency ratio greater than `1.0` for an individual query.
 The reported ratio is intended to show the observed benefit across the test
-cases, not to impose a per-query guarantee.
+cases, not to impose a per-query guarantee. For more information about Bidirectional UCS (sometimes referred to as Bi-directional Dijkstra): ([MIT 6.006 notes](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2008/resources/lec18/)), ([Princeton shortest-path notes](https://www.cs.princeton.edu/courses/archive/spr06/cos423/Handouts/EPP%20shortest%20path%20algorithms.pdf)). This material is only for reference and the conventions above might slightly differ. 
 
 ### A*
 Unlike UCS, A* is an informed algorithm thus requires implementing a heuristic function. While worst time complexity is the same for UCS and A*, the use of an admissible heuristic often leads to a lower number of explored nodes to find the shortest path. If no path is found, your algorithms should return an empty list.
@@ -179,7 +179,7 @@ For every query, your count is divided by the number of edge-weight accesses mad
 search efficiency = your edge-weight accesses / reference UCS edge-weight accesses
 ```
 
-The same definition is used for UCS, Bi-UCS and A*, both locally and during private evaluation. A value below 1 means that your implementation examined fewer edges than the reference UCS baseline. Only correct, non-trivial queries are included, and counts are summed across queries before the final ratio is computed. Always use the public weighted-graph interface and do not access the private NetworkX graph `_G`.
+The same ratio is reported for UCS, Bi-UCS and A*, both locally and during private evaluation. A value below 1 means that your implementation examined fewer edges than the reference UCS baseline. The UCS ratio is diagnostic only: the aggregated search-efficiency score includes only Bi-UCS and A*. Only correct, non-trivial queries are included, and their counts are summed before the final ratio is computed. Always use the public weighted-graph interface and do not access the private NetworkX graph `_G`.
 
 (HINT 1) The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. 
 Under which condition will the time metric be admissible?
@@ -220,7 +220,7 @@ These test cases are not graded but serve as a guideline for how the exercise wi
 
 The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, efficiency>:
 * **Accuracy**: UCS, Bi-UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
-* **Efficiency**: Your efficiency score incorporates both solve time and search efficiency. The report shows your edge-weight accesses, the reference UCS count, and their ratio for each query.
+* **Efficiency**: Your efficiency score incorporates both solve time and search efficiency. The report shows your edge-weight accesses, the reference UCS count, and their ratio for each query. Only the Bi-UCS and A* ratios contribute to the aggregated search-efficiency score; the UCS ratio is shown for diagnostic purposes.
 
 
 ### Useful remarks from last year Q&A

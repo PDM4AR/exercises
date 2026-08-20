@@ -324,8 +324,12 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         solve_times.append(solve_time)
         msg += "Student solution : CORRECT\n" if is_correct else "Student solution : WRONG\n"
 
-        # Efficiency is aggregated only over correct, non-trivial queries.
-        if is_correct and reference_ucs_weight_calls > 0:
+        # Efficiency is aggregated only for correct, non-trivial Bi-UCS and A* queries.
+        include_in_efficiency = algo_name in {
+            BidirectionalUniformCostSearch.__name__,
+            Astar.__name__,
+        }
+        if include_in_efficiency and is_correct and reference_ucs_weight_calls > 0:
             weight_calls.append(student_weight_calls)
             reference_weight_calls.append(reference_ucs_weight_calls)
         else:
@@ -344,6 +348,8 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         if is_correct and reference_ucs_weight_calls > 0:
             query_efficiency = student_weight_calls / reference_ucs_weight_calls
             msg += f"Search-efficiency ratio: {query_efficiency:.4f}\n"
+            if not include_in_efficiency:
+                msg += "Search-efficiency ratio: diagnostic only; UCS is excluded from aggregation\n"
         else:
             msg += "Search-efficiency ratio: not included in aggregation\n"
 
@@ -436,7 +442,7 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: dict[str, set
 
 
 def get_exercise3() -> Exercise:
-    disallowed_dependencies = {"networkx": {"astar_path", "shortest_path", "bidirectional_dijkstra"},
+    disallowed_dependencies = {"networkx": {"astar_path", "shortest_path", "dijkstra_path", "bidirectional_dijkstra"},
                                "ctypes": set()}    # ctypes is disallowed in its entirety
 
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
