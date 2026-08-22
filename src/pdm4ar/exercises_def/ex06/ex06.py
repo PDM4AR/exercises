@@ -13,7 +13,7 @@ from pdm4ar.exercises_def.ex06.sampling_data import (
     PUBLIC_RRT_STAR_CASES,
     SamplingDataGenerator,
 )
-from pdm4ar.exercises_def.ex06.structures import Path, Point, Polygon
+from pdm4ar.exercises_def.ex06.structures import Circle, Path, Point, Polygon, Triangle
 from pdm4ar.exercises_def.ex06.visualization import (
     visualize_map_path,
     visualize_planning_problem,
@@ -22,6 +22,7 @@ from pdm4ar.exercises_def.ex06.visualization import (
 )
 from pdm4ar.exercises_def.structures import Exercise, ExIn, PerformanceResults
 from reprep import Report
+from shapely import geometry
 
 RANDOM_SEED = 0
 
@@ -219,6 +220,35 @@ def _path_cost(path: Path) -> float:
     )
 
 
+def _evaluation_path_has_collision(path: Path, radius: float, obstacles) -> bool:
+    path_geometry = geometry.LineString(
+        [(point.x, point.y) for point in path.waypoints]
+    )
+    for obstacle in obstacles:
+        if isinstance(obstacle, Circle):
+            obstacle_geometry = geometry.Point(obstacle.center.x, obstacle.center.y)
+            clearance = radius + obstacle.radius
+        elif isinstance(obstacle, Polygon):
+            obstacle_geometry = geometry.Polygon(
+                [(vertex.x, vertex.y) for vertex in obstacle.vertices]
+            )
+            clearance = radius
+        elif isinstance(obstacle, Triangle):
+            obstacle_geometry = geometry.Polygon(
+                [
+                    (obstacle.v1.x, obstacle.v1.y),
+                    (obstacle.v2.x, obstacle.v2.y),
+                    (obstacle.v3.x, obstacle.v3.y),
+                ]
+            )
+            clearance = radius
+        else:
+            raise TypeError(f"Unsupported obstacle type: {type(obstacle).__name__}")
+        if path_geometry.distance(obstacle_geometry) <= clearance:
+            return True
+    return False
+
+
 def _valid_path(
     path: Path,
     start: Point,
@@ -242,7 +272,7 @@ def _valid_path(
         for point in path.waypoints
     ):
         return False
-    return not CollisionChecker.path_collision_check(path, radius, obstacles)
+    return not _evaluation_path_has_collision(path, radius, obstacles)
 
 
 def prm_eval_function(data, estimation):
