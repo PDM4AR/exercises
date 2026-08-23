@@ -19,12 +19,24 @@ class SamplingBasedPlanner:
         obstacles: list[GeoPrimitive],
         connection_radius: float,
     ) -> list[Path]:
-        """Build a collision-free roadmap and solve every start--goal query.
+        """Build a collision-free roadmap and solve all start--goal queries.
 
-        ``samples`` is generated deterministically by the evaluator and may
-        contain configurations that collide with obstacles. Every returned
-        path must use only valid configurations from ``samples``. Return an
-        empty ``Path`` for a query that cannot be solved.
+        Filter invalid samples, connect collision-free pairs within
+        ``connection_radius``, and reuse the weighted undirected roadmap to
+        find a shortest path for each query. Returned waypoints must be taken
+        from ``samples``.
+
+        Args:
+            samples: Deterministically generated candidate configurations.
+            queries: Start--goal pairs to solve using the same roadmap.
+            bounds: Valid planning area.
+            robot_radius: Radius used for configuration and edge checks.
+            obstacles: Circle, polygon, or triangle obstacles.
+            connection_radius: Maximum length of a roadmap edge.
+
+        Returns:
+            One ``Path`` per query, or ``Path([])`` when a query is invalid or
+            unreachable.
         """
         # TODO: Task 6
         raise NotImplementedError
@@ -42,10 +54,27 @@ class SamplingBasedPlanner:
         goal_bias: float = 0.1,
         seed: int = 0,
     ) -> Path:
-        """Plan a path with RRT*, including parent selection and rewiring.
+        """Plan a collision-free path using deterministic RRT*.
 
-        Sampling may be implemented in any way, but using ``seed`` must make a
-        run reproducible. Return ``Path([])`` if no solution is found.
+        Grow a tree from ``start`` using valid configurations and complete
+        edges. For each new node, select the lowest-cost valid nearby parent,
+        rewire neighbors whose cost improves, and update descendant costs.
+
+        Args:
+            start: Initial configuration.
+            goal: Target configuration.
+            bounds: Valid planning area.
+            robot_radius: Radius used for configuration and edge checks.
+            obstacles: Circle, polygon, or triangle obstacles.
+            max_iterations: Maximum number of tree-expansion attempts.
+            step_size: Maximum distance added by one expansion.
+            rewire_radius: Radius used for parent selection and rewiring.
+            goal_bias: Probability of sampling the goal.
+            seed: Seed that must make repeated runs deterministic.
+
+        Returns:
+            The cheapest path found from start to goal, or ``Path([])`` if the
+            endpoints are invalid or no solution is found.
         """
         # TODO: Task 7
         raise NotImplementedError

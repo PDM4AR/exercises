@@ -20,6 +20,26 @@ In this exercise, you will build a comprehensive collision detection system for 
 
 Unless otherwise specified, you are **NOT allowed** to use any geometry libraries like `shapely` for geometric operations and collision detection. :warning: <span style="color:red">We will check your implementation for this.</span> :warning:
 
+### Files to Complete and Recommended Order
+
+Work through the student files in this order:
+
+1. In `src/pdm4ar/exercises/ex06/collision_checker.py`, complete the five
+   `CollisionChecker` methods marked `TODO: Task 1` through `TODO: Task 5`.
+2. For Task 5, you may also complete or add helpers in
+   `src/pdm4ar/exercises/ex06/opt_collision_checking_primitives.py`, class
+   `OptCollisionCheckingPrimitives`.
+3. After Tasks 1-5 work, open
+   `src/pdm4ar/exercises/ex06/sampling_planners.py` and complete
+   `SamplingBasedPlanner.prm` (Task 6), followed by
+   `SamplingBasedPlanner.rrt_star` (Task 7). Both planners should reuse your
+   collision checker for configurations and complete edges.
+
+The data types and provided geometric primitives are in
+`src/pdm4ar/exercises_def/ex06/structures.py` and
+`src/pdm4ar/exercises/ex06/collision_primitives.py`; they are supporting code,
+not additional tasks.
+
 ## Part 1: Collision Check Module
 
 In this part, you will implement a collision checking module for a circle-shaped differential drive robot navigating through obstacles.
