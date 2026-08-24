@@ -1,6 +1,6 @@
 from itertools import product
 from typing import Tuple, Any, Sequence, Callable
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 
 import osmnx as ox
 from time import process_time
@@ -18,7 +18,8 @@ from pdm4ar.exercises.ex03 import (
 )
 from pdm4ar.exercises_def.ex02 import str_from_path
 from pdm4ar.exercises.ex02.structures import X, Path
-from pdm4ar.exercises.ex03.structures import WeightLookupCounter, WeightedGraph
+from pdm4ar.exercises.ex03.structures import WeightedGraph
+from pdm4ar.exercises_def.ex03.instrumentation import instrument_weight_lookups
 from pdm4ar.exercises_def.ex03.data import (
     ex3_compute_expected_results,
     get_test_informed_gsproblem,
@@ -83,7 +84,8 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
     accuracy = []
     weight_calls = []
     reference_weight_calls = []
-    search_algo = informed_graph_search_algo[algo_name](wG)
+    validation_graph, _ = instrument_weight_lookups(wG)
+    search_algo = informed_graph_search_algo[algo_name](validation_graph)
     # Validate implementation
     validation_wrapper = ex_in.impl_validate_func_wrapper
     disallowed_deps = ex_in.disallowed_dependencies
@@ -109,8 +111,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
         ]
         # Ground truth
         msg = f"Start: {query[0]},\tGoal: {query[1]}\n"
-        counting_weights = WeightLookupCounter(wG.weights)
-        instrumented_graph = replace(wG, weights=counting_weights)
+        instrumented_graph, counting_weights = instrument_weight_lookups(wG)
         search_algo = informed_graph_search_algo[algo_name](instrumented_graph)
         rfig = r.figure(cols=2)
         # Your algo
@@ -393,21 +394,141 @@ def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03Performanc
     )
 
 
+def _static_impl_violations(func: Callable) -> list[dict[str, Any]]:
+    """Find source-level attempts to bypass the public weighted-graph API."""
+
+    import ast  # pylint: disable=import-outside-toplevel
+    import inspect  # pylint: disable=import-outside-toplevel
+    from pathlib import Path  # pylint: disable=import-outside-toplevel
+
+    forbidden_attributes = {
+        "_G",
+        "weights",
+        "_weights",
+        "__dict__",
+        "__code__",
+        "__closure__",
+        "__self__",
+        "__globals__",
+        "__getattribute__",
+        "__subclasses__",
+        "__traceback__",
+        "_getframe",
+        "ag_frame",
+        "cr_frame",
+        "f_back",
+        "f_globals",
+        "f_locals",
+        "gi_frame",
+        "tb_frame",
+    }
+    forbidden_calls = {"eval", "exec", "globals", "locals", "vars", "__import__"}
+    forbidden_imports = {"cloudpickle", "ctypes", "dill", "gc", "importlib", "inspect", "pickle", "sys"}
+    forbidden_import_prefixes = ("pdm4ar.exercises_def", "pdm4ar_sol")
+
+    source_path_str = inspect.getsourcefile(func)
+    if source_path_str is None:
+        return [
+            {
+                "library": "implementation validation",
+                "func_name": "source unavailable",
+                "lineno": 0,
+                "filename": "<unknown>",
+            }
+        ]
+
+    source_path = Path(source_path_str)
+    try:
+        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+    except (OSError, SyntaxError) as exc:
+        return [
+            {
+                "library": "implementation validation",
+                "func_name": f"source inspection failed: {type(exc).__name__}",
+                "lineno": 0,
+                "filename": source_path.name,
+            }
+        ]
+
+    violations: list[dict[str, Any]] = []
+    detected: set[tuple[str, str, int]] = set()
+
+    def add_violation(category: str, detail: str, lineno: int) -> None:
+        identifier = (category, detail, lineno)
+        if identifier in detected:
+            return
+        detected.add(identifier)
+        violations.append(
+            {
+                "library": category,
+                "func_name": detail,
+                "lineno": lineno,
+                "filename": source_path.name,
+            }
+        )
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and node.attr in forbidden_attributes:
+            add_violation("private graph/evaluator state", f"attribute .{node.attr}", node.lineno)
+
+        elif isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id in forbidden_calls:
+                add_violation("runtime introspection", f"call {node.func.id}()", node.lineno)
+            elif (
+                isinstance(node.func, ast.Name)
+                and node.func.id == "getattr"
+                and len(node.args) >= 2
+                and isinstance(node.args[1], ast.Constant)
+                and node.args[1].value in forbidden_attributes
+            ):
+                add_violation(
+                    "private graph/evaluator state",
+                    f"getattr(..., {node.args[1].value!r})",
+                    node.lineno,
+                )
+
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                module = alias.name
+                if module.split(".")[0] in forbidden_imports or module.startswith(forbidden_import_prefixes):
+                    add_violation("disallowed import", module, node.lineno)
+
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            if module.split(".")[0] in forbidden_imports or module.startswith(forbidden_import_prefixes):
+                add_violation("disallowed import", module, node.lineno)
+
+    return violations
+
+
 def validate_impl_wrapper(func: Callable, disallowed_dependencies: dict[str, set[str]]) -> Callable:
     called_funcs = []
     detected_funcs = set()  # Track already detected libraries
+    static_violations = _static_impl_violations(func)
+    effective_disallowed_dependencies = {
+        **disallowed_dependencies,
+        "ctypes": set(),
+        "gc": set(),
+        "importlib": set(),
+        "inspect": set(),
+        "sys": {"_getframe", "setprofile", "settrace"},
+    }
 
     def trace_calls(frame, event, arg):  # pylint: disable=unused-argument
         import traceback  # pylint: disable=import-outside-toplevel
 
-        if event != "call":
+        if event not in ("call", "c_call"):
             return
         module = frame.f_globals.get("__name__", "")
-        func_name = frame.f_code.co_name
-        for lib in disallowed_dependencies:
-            if module.startswith(lib):
+        called_module = (getattr(arg, "__module__", "") or "") if event == "c_call" else ""
+        func_name = getattr(arg, "__name__", frame.f_code.co_name) if event == "c_call" else frame.f_code.co_name
+        for lib in effective_disallowed_dependencies:
+            if module.startswith(lib) or called_module.startswith(lib):
                 # print(f"Found call to {lib}")
-                if not disallowed_dependencies[lib] or func_name in disallowed_dependencies[lib]:
+                if (
+                    not effective_disallowed_dependencies[lib]
+                    or func_name in effective_disallowed_dependencies[lib]
+                ):
                     # print(f"Detected disallowed dependency: {lib}.{func_name}")
                     identifier = (lib, func_name)
                     if identifier not in detected_funcs:
@@ -431,6 +552,8 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: dict[str, set
     def wrapper(*args, **kwargs):
         import sys  # pylint: disable=import-outside-toplevel
 
+        if static_violations:
+            return static_violations
         sys.setprofile(trace_calls)
         try:
             func(*args, **kwargs)

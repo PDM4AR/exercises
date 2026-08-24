@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, unique
-from collections.abc import Iterator, Mapping
+from collections.abc import Mapping
 from typing import Optional, Any
 
 from networkx import MultiDiGraph
@@ -14,24 +14,6 @@ class EdgeNotFound(Exception):
 
 class NodePropertyNotFound(Exception):
     pass
-
-
-class WeightLookupCounter(Mapping[tuple[X, X], float]):
-    """Transparent weight mapping that counts edge-weight lookups."""
-
-    def __init__(self, weights: Mapping[tuple[X, X], float]):
-        self._weights = weights
-        self.count = 0
-
-    def __getitem__(self, edge: tuple[X, X]) -> float:
-        self.count += 1
-        return self._weights[edge]
-
-    def __iter__(self) -> Iterator[tuple[X, X]]:
-        return iter(self._weights)
-
-    def __len__(self) -> int:
-        return len(self._weights)
 
 
 @unique
