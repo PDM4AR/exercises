@@ -6,6 +6,9 @@ X = TypeVar("X")
 AdjacencyList = Mapping[X, Set[X]]
 """An adjacency list from node to a set of nodes."""
 
+DistanceDict = Mapping[X, int | float]
+"""A dictionary storing the distance from a node to a goal."""
+
 Query = Tuple[X, X]
 """A query as a tuple of start and goal nodes."""
 
