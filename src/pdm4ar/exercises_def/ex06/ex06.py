@@ -79,16 +79,9 @@ class CollisionCheckPerformance(PerformanceResults):
         if len(eval_list) == 0:
             return CollisionCheckWeightedPerformance(0.0, np.inf, {})
 
-        total_acccuracy = np.sum(
-            [eval.accuracy * eval.weights[0] for eval in eval_list]
-        )
-        total_solve_time = np.sum(
-            [eval.solve_time * eval.weights[1] for eval in eval_list]
-        )
-        performances = {
-            eval.step_id: {"accuracy": eval.accuracy, "solve_time": eval.solve_time}
-            for eval in eval_list
-        }
+        total_acccuracy = np.sum([eval.accuracy * eval.weights[0] for eval in eval_list])
+        total_solve_time = np.sum([eval.solve_time * eval.weights[1] for eval in eval_list])
+        performances = {eval.step_id: {"accuracy": eval.accuracy, "solve_time": eval.solve_time} for eval in eval_list}
 
         return CollisionCheckWeightedPerformance(
             total_acccuracy / total_weights[0],
@@ -97,9 +90,7 @@ class CollisionCheckPerformance(PerformanceResults):
         )
 
 
-def _collision_check_rep(
-    algo_in: TestCollisionCheck, alg_out: Any
-) -> tuple[CollisionCheckPerformance, Report]:
+def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[CollisionCheckPerformance, Report]:
 
     # Set Random Seed
     set_random_seed(RANDOM_SEED)
@@ -119,10 +110,7 @@ def _collision_check_rep(
 
     accuracy_list = []
     solve_times = []
-    test_data = [
-        algo_in.sample_generator(ex_num)
-        for ex_num in range(algo_in.number_of_test_cases)
-    ]
+    test_data = [algo_in.sample_generator(ex_num) for ex_num in range(algo_in.number_of_test_cases)]
 
     for ex_num, data in enumerate(test_data):
         start = timeit.default_timer()
@@ -132,9 +120,7 @@ def _collision_check_rep(
 
         accuracy_list.append(algo_in.eval_function(data, estimate))
         try:
-            algo_in.visualizer(
-                r, f"step-{algo_in.step_id}-{ex_num}", data, estimate
-            )
+            algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data, estimate)
         except TypeError:
             try:
                 algo_in.visualizer(r, f"step-{algo_in.step_id}-{ex_num}", data)
@@ -151,10 +137,7 @@ def _collision_check_rep(
     r.text(
         f"{algo_in.str_id()}-results",
         "\n".join(
-            [
-                f"Accuracy #{ex_num}: {ex_perf}"
-                for ex_num, ex_perf in enumerate(accuracy_list)
-            ]
+            [f"Accuracy #{ex_num}: {ex_perf}" for ex_num, ex_perf in enumerate(accuracy_list)]
             + [f"Total Accuracy = {np.mean(accuracy_list)}"]
             + [f"Average Solving Time = {np.mean(solve_times)}"]
         ),
@@ -187,9 +170,7 @@ def idx_list_eval_function(data, estimation):
 
     segment_count = max(0, len(data[0]) - 1)
     if any(
-        isinstance(index, bool)
-        or not isinstance(index, Integral)
-        or not 0 <= int(index) < segment_count
+        isinstance(index, bool) or not isinstance(index, Integral) or not 0 <= int(index) < segment_count
         for index in estimation
     ):
         return 0.0
@@ -201,12 +182,8 @@ def idx_list_eval_function(data, estimation):
         return 1.0
 
     ground_truth_indices = set(data[-1])
-    ground_truth_bool = np.array(
-        [i in ground_truth_indices for i in range(segment_count)]
-    )
-    estimation_bool = np.array(
-        [i in estimation_indices for i in range(segment_count)]
-    )
+    ground_truth_bool = np.array([i in ground_truth_indices for i in range(segment_count)])
+    estimation_bool = np.array([i in estimation_indices for i in range(segment_count)])
 
     return float((ground_truth_bool == estimation_bool).mean())
 
@@ -221,17 +198,13 @@ def _path_cost(path: Path) -> float:
 
 
 def _evaluation_path_has_collision(path: Path, radius: float, obstacles) -> bool:
-    path_geometry = geometry.LineString(
-        [(point.x, point.y) for point in path.waypoints]
-    )
+    path_geometry = geometry.LineString([(point.x, point.y) for point in path.waypoints])
     for obstacle in obstacles:
         if isinstance(obstacle, Circle):
             obstacle_geometry = geometry.Point(obstacle.center.x, obstacle.center.y)
             clearance = radius + obstacle.radius
         elif isinstance(obstacle, Polygon):
-            obstacle_geometry = geometry.Polygon(
-                [(vertex.x, vertex.y) for vertex in obstacle.vertices]
-            )
+            obstacle_geometry = geometry.Polygon([(vertex.x, vertex.y) for vertex in obstacle.vertices])
             clearance = radius
         elif isinstance(obstacle, Triangle):
             obstacle_geometry = geometry.Polygon(
@@ -265,10 +238,7 @@ def _valid_path(
         not isinstance(point, Point)
         or not np.isfinite(point.x)
         or not np.isfinite(point.y)
-        or not (
-            bounds.p_min.x <= point.x <= bounds.p_max.x
-            and bounds.p_min.y <= point.y <= bounds.p_max.y
-        )
+        or not (bounds.p_min.x <= point.x <= bounds.p_max.x and bounds.p_min.y <= point.y <= bounds.p_max.y)
         for point in path.waypoints
     ):
         return False
@@ -301,11 +271,7 @@ def prm_eval_function(data, estimation):
             scores.append(0.0)
             continue
         candidate_cost = float(sum(edge_lengths))
-        scores.append(
-            1.0
-            if not np.isfinite(reference_cost)
-            else min(1.0, reference_cost / max(candidate_cost, 1e-12))
-        )
+        scores.append(1.0 if not np.isfinite(reference_cost) else min(1.0, reference_cost / max(candidate_cost, 1e-12)))
     return float(np.mean(scores))
 
 
@@ -317,11 +283,7 @@ def rrt_star_eval_function(data, estimation):
     if not _valid_path(estimation, start, goal, bounds, radius, obstacles):
         return 0.0
     candidate_cost = _path_cost(estimation)
-    return (
-        1.0
-        if not np.isfinite(reference_cost)
-        else min(1.0, reference_cost / max(candidate_cost, 1e-12))
-    )
+    return 1.0 if not np.isfinite(reference_cost) else min(1.0, reference_cost / max(candidate_cost, 1e-12))
 
 
 def collision_check_robot_frame_loop(
@@ -336,12 +298,8 @@ def collision_check_robot_frame_loop(
     collision_checker = CollisionChecker()
     # Iterate Over Path
     result = []
-    for i, (pose, next_pose, observed_obstacles) in enumerate(
-        zip(poses[:-1], poses[1:], observed_obstacles_list)
-    ):
-        if collision_checker.collision_check_robot_frame(
-            r, pose, next_pose, observed_obstacles
-        ):
+    for i, (pose, next_pose, observed_obstacles) in enumerate(zip(poses[:-1], poses[1:], observed_obstacles_list)):
+        if collision_checker.collision_check_robot_frame(r, pose, next_pose, observed_obstacles):
             result.append(i)
     return result
 
@@ -378,9 +336,7 @@ def disallowed_validator(func: Callable, *args, **kwargs) -> tuple[bool, str]:
         module = frame.f_globals.get("__name__", "")
         c_module = getattr(arg, "__module__", "") or ""  # For C functions
         for lib in disallowed_dependencies:
-            if lib not in detected_libs and (
-                module.startswith(lib) or c_module.startswith(lib)
-            ):
+            if lib not in detected_libs and (module.startswith(lib) or c_module.startswith(lib)):
                 # Only record each library once
                 detected_libs.add(lib)
 
@@ -392,9 +348,7 @@ def disallowed_validator(func: Callable, *args, **kwargs) -> tuple[bool, str]:
                                 "library": lib,
                                 "func_name": trace.name,
                                 "lineno": trace.lineno,
-                                "filename": trace.filename.split("/")[
-                                    -1
-                                ],  # Get the filename only
+                                "filename": trace.filename.split("/")[-1],  # Get the filename only
                             }
                         )
                         break
@@ -411,9 +365,7 @@ def disallowed_validator(func: Callable, *args, **kwargs) -> tuple[bool, str]:
         return True, ""
     else:
         validation_details = []
-        validation_details.append(
-            "Implementation validation failed. Disallowed dependencies detected:"
-        )
+        validation_details.append("Implementation validation failed. Disallowed dependencies detected:")
         for record in called_funcs:
             validation_details.append(
                 f"  - Library: {record['library']}, "
@@ -548,9 +500,7 @@ def get_exercise6() -> Exercise:
     return Exercise[TestCollisionCheck, Any](
         desc="This exercise covers collision checking and sampling-based planning.",
         evaluation_fun=_collision_check_rep,
-        perf_aggregator=lambda x: CollisionCheckPerformance.perf_aggregator(
-            x, total_weights
-        ),
+        perf_aggregator=lambda x: CollisionCheckPerformance.perf_aggregator(x, total_weights),
         test_values=test_values,
         expected_results=None,
     )

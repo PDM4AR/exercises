@@ -8,8 +8,6 @@ from pdm4ar.exercises_def.ex06.structures import AABB, GeoPrimitive, Path, Point
 
 
 class SamplingBasedPlanner:
-    """Student API for the planning applications in Tasks 6 and 7."""
-
     @staticmethod
     def prm(
         samples: list[Point],

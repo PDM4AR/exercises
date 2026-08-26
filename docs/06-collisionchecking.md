@@ -17,6 +17,7 @@ In this exercise, you will build a comprehensive collision detection system for 
 - **Spatial Data Structures**: Use R-trees for efficient collision queries in environments with many obstacles  
 - **Coordinate Frame Transformations**: Handle collision detection with sensor data in robot coordinate frames
 - **Optimization-based Methods**: Implement Differentiable Collision Detection (DCDL) for continuous collision measures
+- **Sampling-based Motion Planning**: Implement PRM shortest-path queries and RRT* with parent selection and rewiring
 
 Unless otherwise specified, you are **NOT allowed** to use any geometry libraries like `shapely` for geometric operations and collision detection. :warning: <span style="color:red">We will check your implementation for this.</span> :warning:
 
@@ -226,8 +227,8 @@ For this exercise our performance metric is accuracy and execution time.
 | 03          | 0.0002s                      |
 | 04          | 0.0030s                      |
 | 05          | 0.1639s                      |
-| 06          | TODO                          |
-| 07          | TODO                          |
+| 06          | 0.4861s                       |
+| 07          | 3.1413s                       |
 
 
 **Final Scoring:**
