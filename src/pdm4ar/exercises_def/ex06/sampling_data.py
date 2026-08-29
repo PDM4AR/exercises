@@ -105,9 +105,7 @@ class SamplingDataGenerator:
     def generate_prm(index: int):
         if not 0 <= index < PUBLIC_PRM_CASES:
             raise IndexError(f"public PRM case must be in [0, {PUBLIC_PRM_CASES})")
-        start, goal, bounds, radius, obstacles = SamplingDataGenerator._environment(
-            index
-        )
+        start, goal, bounds, radius, obstacles = SamplingDataGenerator._environment(index)
         queries = [
             (start, goal),
             (Point(0.7, 9.3), Point(9.3, 0.7)),
@@ -116,21 +114,15 @@ class SamplingDataGenerator:
         required = [point for query in queries for point in query]
         samples = SamplingDataGenerator._samples(bounds, 20_000 + index, 320, required)
         expected = (
-            SamplingDataGenerator._PRM_REFERENCE_COSTS[index]
-            if SamplingDataGenerator._PRM_REFERENCE_COSTS
-            else ()
+            SamplingDataGenerator._PRM_REFERENCE_COSTS[index] if SamplingDataGenerator._PRM_REFERENCE_COSTS else ()
         )
         return samples, queries, bounds, radius, obstacles, 1.7, expected
 
     @staticmethod
     def generate_rrt_star(index: int):
         if not 0 <= index < PUBLIC_RRT_STAR_CASES:
-            raise IndexError(
-                f"public RRT* case must be in [0, {PUBLIC_RRT_STAR_CASES})"
-            )
-        start, goal, bounds, radius, obstacles = SamplingDataGenerator._environment(
-            index
-        )
+            raise IndexError(f"public RRT* case must be in [0, {PUBLIC_RRT_STAR_CASES})")
+        start, goal, bounds, radius, obstacles = SamplingDataGenerator._environment(index)
         reference_cost = (
             SamplingDataGenerator._RRT_STAR_REFERENCE_COSTS[index]
             if SamplingDataGenerator._RRT_STAR_REFERENCE_COSTS

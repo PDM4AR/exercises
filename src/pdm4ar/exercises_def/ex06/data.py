@@ -376,13 +376,7 @@ class DataGenerator:
     @staticmethod
     def generate_robot_frame_data(
         index: int,
-    ) -> tuple[
-        list[SE2Transform],
-        float,
-        list[list[GeoPrimitive]],
-        list[GeoPrimitive],
-        list[int],
-    ]:
+    ) -> tuple[list[SE2Transform], float, list[list[GeoPrimitive]], list[GeoPrimitive], list[int],]:
         # Initialize Random Map
         (
             path,

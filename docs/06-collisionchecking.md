@@ -14,9 +14,9 @@ In this exercise, you will build a comprehensive collision detection system for 
 
 - **Geometric Collision Detection**: Implement collision checking for a circular robot moving along a path
 - **Discretization Methods**: Apply occupancy grids for collision checking in continuous spaces
-- **Spatial Data Structures**: Use R-trees for efficient collision queries in environments with many obstacles  
+- **Spatial Data Structures**: Use R-trees for efficient collision queries in environments with many obstacles
 - **Coordinate Frame Transformations**: Handle collision detection with sensor data in robot coordinate frames
-- **Optimization-based Methods**: Implement Differentiable Collision Detection (DCDL) for continuous collision measures
+- **Optimization-based Methods**: Implement Differentiable Collision Detection (DCOL) for continuous collision measures
 - **Sampling-based Motion Planning**: Implement PRM shortest-path queries and RRT* with parent selection and rewiring
 
 Unless otherwise specified, you are **NOT allowed** to use any geometry libraries like `shapely` for geometric operations and collision detection. :warning: <span style="color:red">We will check your implementation for this.</span> :warning:
@@ -109,8 +109,8 @@ You will implement the `path_collision_check_r_tree` function which returns the 
 
 #### Task 4: Collision Checking in Robot Frame
 
-Raw sensor data are often provided in the sensor frame of the robot. 
-In this task, you receive the current pose of the robot and the next pose of the robot in the world frame (planning is done with respect to the world frame), but the observed obstacles are given in the robot's sensor frame. 
+Raw sensor data are often provided in the sensor frame of the robot.
+In this task, you receive the current pose of the robot and the next pose of the robot in the world frame (planning is done with respect to the world frame), but the observed obstacles are given in the robot's sensor frame.
 At each step, the robot will observe obstacles in the 2D world.
 The function needs to check if there is a collision during the robot's movement to its next pose. You may use the functionalities of `shapely` here.
 
@@ -120,20 +120,20 @@ The function needs to check if there is a collision during the robot's movement 
     <em>Sensor frame diagram</em>
 </p>
 
-In this task, you will implement the `collision_check_robot_frame` function which returns *True* if the robot will collide with any of the fixed obstacles during its movement to the next pose. 
+In this task, you will implement the `collision_check_robot_frame` function which returns *True* if the robot will collide with any of the fixed obstacles during its movement to the next pose.
 This function takes the robot radius *r*, current pose `SE2Transform`, next pose `SE2Transform`, and a list of observed obstacles in the robot frame as arguments.
 
 #### Task 5: Collision Checking with Optimization-based Collision Checking
 
 The goal and all assumptions are the same as in Task 1.
 
-However, in this task, you are required to implement the [Differentiable Collision Detection (DCDL)](https://arxiv.org/abs/2207.00669) framework that formulates collision detection as a convex optimization problem. This method solves for the minimum uniform scaling applied to each primitive before they intersect, providing a uniform collision detection between a set of convex primitives.
+However, in this task, you are required to implement the [Differentiable Collision Detection (DCOL)](https://arxiv.org/abs/2207.00669) framework that formulates collision detection as a convex optimization problem. This method solves for the minimum uniform scaling applied to each primitive before they intersect, providing a uniform collision detection between a set of convex primitives.
 
-> Compared to the previous methods, DCDL provides not only a binary collision check but also a derivative of a continuous measure of how close the primitives are to colliding, namely the scaling, with respect to the problem parameters, in this case the path segments' and obstacles' positions and orientations. This gradient information provides a direction of how to "pull" the path segments away from the obstacles, which can be beneficial for the downstream planning and control tasks. However, we won't use this information in this exercise. Interested readers can refer to the paper for more details.
+> Compared to the previous methods, DCOL provides not only a binary collision check but also a derivative of a continuous measure of how close the primitives are to colliding, namely the scaling, with respect to the problem parameters, in this case the path segments' and obstacles' positions and orientations. This gradient information provides a direction of how to "pull" the path segments away from the obstacles, which can be beneficial for the downstream planning and control tasks. However, we won't use this information in this exercise. Interested readers can refer to the paper for more details.
 
 In this task, you will implement the `path_collision_check_opt` function which returns the `Segment` indices of the given `Path` which collide with any of the given obstacles.
 
-You can use the code structure of the `OptCollisionCheckingPrimitives` class in `src/pdm4ar/exercises/ex06/opt_collision_checking_primitives.py` and implement the corresponding methods to solve the optimization problem. Or you can implement your own `DCDL` framework from scratch.
+You can use the code structure of the `OptCollisionCheckingPrimitives` class in `src/pdm4ar/exercises/ex06/opt_collision_checking_primitives.py` and implement the corresponding methods to solve the optimization problem. Or you can implement your own `DCOL` framework from scratch.
 
 We will only call the `path_collision_check_opt` function during the evaluation.
 
@@ -214,7 +214,7 @@ For this exercise our performance metric is accuracy and execution time.
 **Accuracy Calculation:**
 - **Tasks 1-5:** Lists of indices are converted into a boolean list which represents whether there is a collision on each line segment of the path; accuracies are averaged across test cases
 - **Task 6:** Paths are checked for endpoints, sample membership, bounds, collision-free edges, and shortest-path cost
-- **Task 7:** Paths are checked for endpoints, bounds, collision-free edges, reproducibility, and cost suboptimality
+- **Task 7:** Paths are checked for endpoints, bounds, collision-free edges, and cost suboptimality; reproducibility is spot-checked on validation scenarios before evaluation
 
 **Execution Time:**
 - Execution time of each task is calculated as an average of its test cases

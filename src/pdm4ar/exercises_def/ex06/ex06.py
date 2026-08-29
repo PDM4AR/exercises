@@ -1,5 +1,6 @@
 import random
 import timeit
+from copy import deepcopy
 from dataclasses import dataclass
 from numbers import Integral
 from typing import Any, Callable, Optional, Sequence
@@ -99,10 +100,13 @@ def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[Col
 
     # Validate implementation
     if algo_in.impl_validator is not None:
-        data = algo_in.sample_generator(0)
-        is_valid, error_msg = algo_in.impl_validator(algo_in.ex_function, *data[:-1])
-        if not is_valid:
-            raise RuntimeError(error_msg)
+        # The first planning case can be trivial; also validate one case with obstacles.
+        validation_indices = (0, 1) if algo_in.impl_validator is sampling_planner_validator else (0,)
+        for validation_index in validation_indices:
+            data = algo_in.sample_generator(validation_index)
+            is_valid, error_msg = algo_in.impl_validator(algo_in.ex_function, *deepcopy(data[:-1]))
+            if not is_valid:
+                raise RuntimeError(error_msg)
 
         # Validators execute student code and may consume random state. Restore the
         # seed so that every implementation is evaluated on the same test data.
@@ -113,8 +117,9 @@ def _collision_check_rep(algo_in: TestCollisionCheck, alg_out: Any) -> tuple[Col
     test_data = [algo_in.sample_generator(ex_num) for ex_num in range(algo_in.number_of_test_cases)]
 
     for ex_num, data in enumerate(test_data):
+        student_args = deepcopy(data[:-1])
         start = timeit.default_timer()
-        estimate = algo_in.ex_function(*data[:-1])
+        estimate = algo_in.ex_function(*student_args)
         stop = timeit.default_timer()
         solve_times.append(stop - start)
 
@@ -400,14 +405,14 @@ def sampling_planner_validator(func: Callable, *args, **kwargs) -> tuple[bool, s
 
     sys.setprofile(trace_calls)
     try:
-        first_result = func(*args, **kwargs)
+        first_result = func(*deepcopy(args), **deepcopy(kwargs))
     finally:
         sys.setprofile(None)
 
     if detected:
         libraries = ", ".join(sorted(detected))
         return False, f"Direct motion-planning library call detected: {libraries}."
-    if first_result != func(*args, **kwargs):
+    if first_result != func(*deepcopy(args), **deepcopy(kwargs)):
         return False, "The same input and seed must produce the same samples or path."
     return True, ""
 
