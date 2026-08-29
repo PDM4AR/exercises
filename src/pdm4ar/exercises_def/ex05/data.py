@@ -171,7 +171,6 @@ def get_ex7_chow_rank_test_values() -> DubinsProblem:
     ]
     queries.extend(
         [
-            (unicycle_fields, [x, y, theta], {x: 0, y: 0, theta: 0}, 1),
             (
                 unicycle_fields,
                 [x, y, theta],
@@ -186,9 +185,7 @@ def get_ex7_chow_rank_test_values() -> DubinsProblem:
         sp.Matrix([sp.cos(theta), sp.sin(theta), sp.tan(phi) / 2, 0]),
         sp.Matrix([0, 0, 0, 1]),
     ]
-    queries.append(
-        (bicycle_fields, [x, y, theta, phi], {x: 0, y: 0, theta: 0, phi: 0}, 2)
-    )
+    queries.append((bicycle_fields, [x, y, theta, phi], {x: 0, y: 0, theta: 0, phi: 0}, 2))
 
     x, y, z = sp.symbols("x y z", real=True)
     depth_fields = [sp.Matrix([1, 0, 0]), sp.Matrix([0, 1, x**2])]
@@ -196,7 +193,6 @@ def get_ex7_chow_rank_test_values() -> DubinsProblem:
         [
             (depth_fields, [x, y, z], {x: 0, y: 0, z: 0}, 1),
             (depth_fields, [x, y, z], {x: 1, y: -2, z: 4}, 1),
-            (depth_fields, [x, y, z], {x: 0, y: 7, z: -3}, 2),
         ]
     )
 
@@ -207,9 +203,10 @@ def get_ex7_chow_rank_test_values() -> DubinsProblem:
         queries=queries,
         id_num=7,
         id_str="Chow Controllability Rank Test",
-        algo_fun=algo.compute_chow_rank,
+        algo_fun=algo.compute_chow_closure,
         eval_fun=ex7_chow_rank_eval,
         eval_weight=EX_7_CHOW_WEIGHT,
+        plot_fun=ex7_chow_rank_plot_fun,
     )
 
 

@@ -130,11 +130,10 @@ def compute_lie_bracket(
     return sp.zeros(len(state_vars), 1)
 
 
-def compute_chow_rank(
+def compute_chow_closure(
     vector_fields: Sequence[sp.Matrix],
     state_vars: Sequence[sp.Symbol],
-    eval_point: dict[sp.Symbol, sp.Expr],
     max_bracket_depth: int,
-) -> int:
+) -> sp.Matrix:
     # TODO implement here your solution
-    return 0
+    return sp.Matrix.hstack(*vector_fields)

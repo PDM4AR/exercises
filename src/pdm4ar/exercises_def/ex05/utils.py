@@ -1,8 +1,11 @@
+import html
+import xml.etree.ElementTree as ET
 from typing import List
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import sympy as sp
 from dg_commons import SE2Transform
 from matplotlib.lines import Line2D
 from matplotlib.patches import Circle
@@ -48,6 +51,7 @@ def interpolate_curve_points(curve: Curve, number_of_points: float) -> List[SE2T
     return pts_list
 
 
+# useful helpers for students for task 4
 def update_arc_length(curve: Curve) -> None:
     """Updates a curve's arc angle and length in place."""
     reverse_sign = curve.gear.value
@@ -75,6 +79,7 @@ def get_heading_angle_point_on_curve(curve: Curve, point: np.ndarray) -> float:
     return theta
 
 
+# worth taking a look at
 def compute_middle_curve(circle_start: Curve, circle_end: Curve, radius: float) -> list[Curve]:
     """Computes the middle turning arc connecting two turning circles of equal radius based on their centers and types.
     This helper is used in the construction of CCC-type Dubins/Reeds-Shepp paths"""
@@ -162,6 +167,7 @@ def se2_points_to_np_array(se2_list: List[SE2Transform]):
     return np.array([[point.p[0], point.p[1], point.theta] for point in se2_list])
 
 
+# plotting functions
 def plot_2d_path(pts_array: np.ndarray, ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
     if ax is None:
         fig, ax = plt.subplots()
@@ -214,6 +220,143 @@ def plot_circle_tangents(
             ax.quiver(t_start[0], t_start[1], np.cos(tangent.start_config.theta), np.sin(tangent.start_config.theta))
             ax.quiver(t_end[0], t_end[1], np.cos(tangent.end_config.theta), np.sin(tangent.end_config.theta))
     return ax
+
+
+# plotting functions for task7: chow controllability
+def chow_query_to_str(query) -> str:
+    """Formats SymPy matrices compactly instead of using their multiline repr."""
+    vector_fields, variables, evaluation_point, max_depth = query
+    fields_str = "[" + ", ".join(str(field) for field in vector_fields) + "]"
+    variables_str = "[" + ", ".join(str(variable) for variable in variables) + "]"
+    point_str = "{" + ", ".join(f"{key}: {value}" for key, value in evaluation_point.items()) + "}"
+    return f"({fields_str}, {variables_str}, {point_str}, {max_depth})"
+
+
+def _mathml_core_fragment(expression: sp.Expr) -> str:
+    """Converts SymPy presentation MathML to the MathML Core subset used by browsers."""
+    unsafe_symbol = any(not symbol.name.isidentifier() for symbol in expression.free_symbols)
+    unsafe_function = any(not function.func.__name__.isidentifier() for function in expression.atoms(sp.Function))
+    if unsafe_symbol or unsafe_function:
+        raise ValueError("Unsupported symbol or function in symbolic output")
+
+    raw_mathml = sp.mathml(expression, printer="presentation").replace("&InvisibleTimes;", "&#x2062;")
+    root = ET.fromstring(f"<root>{raw_mathml}</root>")
+
+    for fenced in reversed(list(root.iter())):
+        if fenced.tag != "mfenced":
+            continue
+        opening_text = fenced.get("open", "(")
+        closing_text = fenced.get("close", ")")
+        separators = fenced.get("separators", ",")
+        fenced.tag = "mrow"
+        fenced.attrib.clear()
+
+        for index in range(len(fenced) - 1, 0, -1):
+            separator = ET.Element("mo", {"separator": "true"})
+            separator.text = separators[min(index - 1, len(separators) - 1)]
+            fenced.insert(index, separator)
+        if opening_text:
+            opening = ET.Element("mo", {"fence": "true", "stretchy": "true"})
+            opening.text = opening_text
+            fenced.insert(0, opening)
+        if closing_text:
+            closing = ET.SubElement(fenced, "mo", {"fence": "true", "stretchy": "true"})
+            closing.text = closing_text
+
+    return "".join(ET.tostring(child, encoding="unicode") for child in root)
+
+
+def _math_svg(
+    body: str,
+    title: str,
+    width: int,
+    height: int,
+    font_size: int,
+    heading: str = "",
+) -> str:
+    """Wraps safe MathML in the shared SVG style."""
+    direction = "flex-direction:column;" if heading else ""
+    heading_html = (
+        f'<div style="font-size:42px;font-weight:600;line-height:1.1;'
+        f'margin-bottom:34px;">{html.escape(heading)}</div>'
+        if heading
+        else ""
+    )
+
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}"
+        viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet">
+        <title>{html.escape(title)}</title>
+        <rect width="100%" height="100%" fill="white"/>
+        <foreignObject x="20" y="20" width="{width - 40}" height="{height - 40}">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                style="width:100%;height:100%;display:flex;{direction}align-items:center;
+                justify-content:center;overflow:auto;box-sizing:border-box;padding:16px;
+                font-family:'STIX Two Math','Cambria Math','DejaVu Serif',serif;">
+                {heading_html}
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"
+                    style="font-size:{font_size}px;">
+                    {body}
+                </math>
+            </div>
+        </foreignObject>
+    </svg>"""
+
+
+def chow_closure_svg(matrix: sp.MatrixBase) -> str:
+    """Creates the student's symbolic-closure SVG."""
+    width = max(1000, min(2200, 260 + 230 * matrix.cols))
+    height = max(360, 180 + 90 * matrix.rows)
+    font_size = 42 if matrix.cols <= 3 else 34 if matrix.cols <= 5 else 27
+
+    return _math_svg(
+        "<mrow><mi>𝒞</mi><mo>(</mo><mi>𝐪</mi><mo>)</mo><mo>=</mo>" f"{_mathml_core_fragment(matrix)}</mrow>",
+        "Student symbolic closure",
+        width,
+        height,
+        font_size,
+    )
+
+
+def chow_control_system_svg(
+    vector_fields: List[sp.Matrix],
+    state_vars: List[sp.Symbol],
+) -> str:
+    """Creates the academic state and control-system equations for a Task 7 query."""
+    state_vector = sp.Matrix(state_vars)
+    if len(state_vars) == 4:
+        system_title = "Kinematic bicycle model"
+    elif any(field.has(sp.sin, sp.cos) for field in vector_fields):
+        system_title = "Unicycle model"
+    elif any(field.free_symbols for field in vector_fields):
+        system_title = "Quadratic Martinet model"
+    else:
+        system_title = "Planar translation model"
+
+    state_mathml = _mathml_core_fragment(state_vector)
+    dynamics_mathml = "<mo>+</mo>".join(
+        f"<msub><mi>u</mi><mn>{index}</mn></msub><mo>⁢</mo>" f"{_mathml_core_fragment(field)}"
+        for index, field in enumerate(vector_fields, start=1)
+    )
+    width = max(1600, min(2400, 800 + 400 * len(vector_fields)))
+    height = max(700, 260 + 110 * len(state_vars))
+    font_size = 44 if len(state_vars) <= 4 else 34
+
+    body = f"""<mtable rowspacing="2.3em" columnalign="center">
+        <mtr>
+            <mtd><mrow><mi>𝐪</mi><mo>=</mo>{state_mathml}</mrow></mtd>
+        </mtr>
+        <mtr>
+            <mtd><mrow><mover><mi>𝐪</mi><mo>˙</mo></mover><mo>=</mo>{dynamics_mathml}</mrow></mtd>
+        </mtr>
+    </mtable>"""
+    return _math_svg(
+        body,
+        f"{system_title} input control system",
+        width,
+        height,
+        font_size,
+        heading=system_title,
+    )
 
 
 if __name__ == "__main__":

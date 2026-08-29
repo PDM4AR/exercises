@@ -2,13 +2,13 @@ from dataclasses import dataclass, fields
 from abc import ABC
 import math
 from typing import Callable, Tuple, Any, List
+import sympy as sp
 from dg_commons import SE2Transform
 from reprep import MIME_PDF
 
 from pdm4ar.exercises_def import PerformanceResults
 from pdm4ar.exercises.ex05.structures import Curve
 from pdm4ar.exercises_def.ex05.comparison import *
-from pdm4ar.exercises.ex05.algo import calculate_dubins_path
 
 PASSED_STR = "PASSED"
 FAILED_STR = "FAILED!"
@@ -134,7 +134,8 @@ def ex5_spline_eval(algo_out, algo_out_tf, expected):
 
 
 def ex7_chow_rank_eval(algo_out, algo_out_tf, expected):
-    correct = algo_out == expected
+    computed_rank = int(algo_out.subs(algo_out_tf).rank())
+    correct = computed_rank == expected
     result_str = PASSED_STR if correct else FAILED_STR
     return int(correct), result_str
 
@@ -247,3 +248,18 @@ def ex5_spline_plot_fun(rfig, query, algo_out, algo_out_tf, expected, success):
         ax.axis("equal")
         ax.legend()
         ax.set_title("Spline vs Dubins")
+
+
+def ex7_chow_rank_plot_fun(rfig, query, algo_out, algo_out_tf, expected, success):
+    if not isinstance(algo_out, sp.MatrixBase):
+        return
+    rfig.data(
+        "Control system",
+        chow_control_system_svg(query[0], query[1]),
+        mime="image/svg+xml",
+    )
+    rfig.data(
+        "Symbolic closure",
+        chow_closure_svg(algo_out),
+        mime="image/svg+xml",
+    )
