@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, unique
-from typing import Mapping, Optional, Any
+from collections.abc import Mapping
+from typing import Optional, Any
 
 from networkx import MultiDiGraph
 
@@ -32,6 +33,7 @@ class TravelSpeed(float, Enum):
 @dataclass
 class WeightedGraph:
     adj_list: AdjacencyList
+    reverse_adj_list: AdjacencyList
     weights: Mapping[tuple[X, X], float]
     _G: MultiDiGraph
 
