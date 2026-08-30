@@ -13,10 +13,8 @@
 
 None of these checks needs (or contains) a solver, so they work on any map you
 generate. They verify NECESSARY properties: passing them all does not prove
-optimality by itself; the one exact certificate, the Bellman residual, is
-deliberately left for you to implement (see the handout). A wrong transition
-model can self-certify, which is what the published worked examples and the
-practice maps are for.
+optimality by itself. A wrong transition model can self-certify, which is what
+the published worked examples and the practice maps are for.
 """
 
 from collections import deque
@@ -236,8 +234,7 @@ def simulate_policy(mdp, policy, value_func, episodes=300, horizon=150,
 def self_check(mdp, case_name, value_func, policy,
                v_pi=None, verbose=True, episodes=300) -> bool:
     """Run every no-answer-key check. Remember: these are necessary
-    conditions; the exact certificate (the Bellman residual) is yours to
-    implement, see the handout."""
+    conditions, not sufficient ones."""
     if verbose:
         print(f"self-check ({case_name}, map {mdp.grid.shape}):")
     ok = check_model(mdp, verbose)

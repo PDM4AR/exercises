@@ -369,9 +369,8 @@ a map scores below 1.0, that map and case is where to look.
 
 ### Make your own maps, and verify without an answer key
 
-You can generate as many extra maps as you like and check your solutions on
-them with no ground truth at all, because an optimal DP solution carries
-checkable certificates:
+You can also generate as many extra maps as you like and run some basic consistency
+checks on your solutions with no ground truth at all:
 
 ```python
 from pdm4ar.exercises_def.ex04.selfcheck import random_map, self_check
@@ -383,33 +382,9 @@ v_pi, p_pi = PolicyIteration.solve(mdp)
 self_check(mdp, "forecast", v_vi, p_vi, v_pi)
 ```
 
-`self_check` runs, using only your own model and solutions:
-- probabilities sum to 1 for every (state, action), and `ABANDON` sends all
-  mass to `START`;
-- V <= 500 everywhere and V(goal) = 500 exactly (the geometric series of the
-  +50 bonus);
-- forecast: V(., CLEAR) >= V(., FOGGY); glitch: V(., OK) >= V(., GLITCHY) at
-  every cell;
-- your Value Iteration and Policy Iteration agree with each other;
-- a Monte-Carlo rollout of your policy under your own model reproduces
-  V(start) within statistical error.
-
-**The one exact certificate is yours to implement.** V is optimal if and only
-if one more Bellman backup changes nothing:
-
-    max over states |V(s) - max over a of sum over s' P(s'|s,a) [r + gamma V(s')]| ~ 0
-
-and your policy is greedy with respect to V. Apply one sweep of your own
-backup to your converged V; if anything moves by more than your convergence
-tolerance, you are not done. We deliberately do not ship this check as code:
-writing it is five lines you already wrote inside Value Iteration, and it is
-the honest answer to "how do I know I am finished" for any DP problem.
-
-Two caveats to keep in mind: all of these checks verify your solution against
-YOUR transition model, so a systematically wrong model can pass them; the
-published worked examples above and the practice maps (with real answers) are
-your anchors for the model itself. And passing every check is necessary, not
-sufficient; the Bellman certificate is the one that closes the argument.
+See `exercises_def/ex04/selfcheck.py` for what it verifies. These checks are run against
+your own transition model, so they are a sanity check, not a proof of correctness; the
+worked examples above and the practice maps are your anchors for the model itself.
 
 ### Test cases and performance criteria
 
