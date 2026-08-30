@@ -109,17 +109,6 @@ The state becomes `(i, j, z)` where `z` is defined per case, and your value func
 policy become arrays of shape `(M, N, Z)`: one grid slice per value of `z`. Each case is
 solved and graded separately.
 
-### Warm-up (not graded)
-
-To see the method once, suppose a contract required picking up a package at a cell P before
-the goal counts. The robot's cell alone is not Markov anymore: two robots in the same cell,
-one carrying the package and one not, have different futures. The fix is to remember the task
-progress, `q in {not_yet, carrying}`, and plan on the product state `(i, j, q)`: the value
-function becomes two stacked grids, the transition from `q = not_yet` to `q = carrying`
-happens exactly when the robot enters P, and your Part-1 solver runs on the bigger state set
-without any change to the algorithm. Every case below follows this pattern with a
-different `z`.
-
 ### Case 1: Momentum ("the robot keeps rolling")
 
 The robots' wheels carry momentum: slips lean toward wherever the robot moved last hour, and
