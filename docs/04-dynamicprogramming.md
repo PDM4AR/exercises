@@ -255,14 +255,32 @@ class GlitchGridMdp(AugmentedGridMdp): ...     # Z = 2
 Feel free to add more methods in case you need to.
 You must not change the names and signatures of `get_transition_prob` and `stage_reward`.
 
-### Value Iteration and Policy Iteration
+#### Value Iteration
 
-Implement `solve` in ``exercises/ex04/value_iteration.py`` and
+We'll start with value iteration. You need to implement the `solve` method in
+``exercises/ex04/value_iteration.py``:
+
+```python
+class ValueIteration(GridMdpSolver):
+    @staticmethod
+    @time_function
+    def solve(grid_mdp: AnyGridMdp, max_iters: Optional[int] = None) -> tuple[ValueFunc, Policy]:
+        # todo implement here
+        ...
+```
+
+#### Policy iteration
+
+For policy iteration, you need to implement the `solve` method in
 ``exercises/ex04/policy_iteration.py``:
 
 ```python
-def solve(grid_mdp, max_iters: int | None = None) -> tuple[ValueFunc, Policy]:
-    ...
+class PolicyIteration(GridMdpSolver):
+    @staticmethod
+    @time_function
+    def solve(grid_mdp: AnyGridMdp, max_iters: Optional[int] = None) -> tuple[ValueFunc, Policy]:
+        # todo implement here
+        ...
 ```
 
 One solver serves both parts: if you write it to iterate over "the states of the MDP" it runs
@@ -271,14 +289,39 @@ state of your algorithm after exactly k iterations (k synchronous sweeps for VI;
 evaluate-improve cycles for PI), starting from V = 0 and, for PI, from the first admissible
 action per state, breaking ties by action order.
 
+#### Expected outcome
+
+For both _Value_ and _Policy iterations_, you need to return the optimal `ValueFunc` and
+**one of the optimal `Policy`** for the given MDP.
+
 > **Note**: The optimal value function is unique, but the optimal policy is not. You can
-> return any optimal policy; the ground truth stores all optimal actions per state, so your
-> tie-breaking never costs you.
+> return any optimal policy that satisfies the Bellman optimality equation; the ground truth
+> stores all optimal actions per state, so your tie-breaking never costs you.
+
+To keep the format consistent, the value function and policy should be returned as numpy
+arrays where each cell corresponds to the value of the state or the action to be taken in the
+state, respectively: _MxN_ matrices in Part 1 and _MxNxZ_ arrays in Part 2. The value
+function and policy of `CLIFF` cells will be excluded for evaluation. This is because you are
+never in `CLIFF`.
+
+If your algorithm works, in the report you should find some results similar to this:
+
+{: #example-picture}
+![image](img/ex04_example.png)
+
+<span style="text-align: center; display: block;">
+Figure 1: Visualization of the optimal value function and policy for the 5x5 example.
+</span>
+
+On the left the Value function is visualized as a heatmap.
+On the right you can see the map with the original cells and the corresponding optimal policy
+(arrows for movement actions, X for the ``ABANDON`` action).
 
 ### Help for modeling the MDP
 
 Correctly modeling the MDPs is crucial. For Part 1 we provide the admissible action set and
-ground truth transition probabilities and rewards for selected cells of the 5x5 example map;
+ground truth transition probabilities and rewards for selected cells of the
+[5x5 example](#example-picture) map;
 for Part 2, `get_transition_prob` is additionally evaluated on sampled augmented triples.
 The coordinates of the cells are given in the format `(row, column)` starting from the top
 left corner of the grid. All axes are 0-indexed.
