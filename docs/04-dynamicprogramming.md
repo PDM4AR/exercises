@@ -181,6 +181,17 @@ class Action(IntEnum):
 State = tuple[int, int]
 """The Part-1 state is a tuple of two ints."""
 
+
+@unique
+class Cell(IntEnum):
+    GOAL = 0
+    START = 1
+    GRASS = 2
+    SWAMP = 3
+    WONDERLAND = 4
+    CLIFF = 5
+
+
 AugmentedState = tuple[int, int, int]
 """The Part-2 state is (i, j, z); z orderings are fixed by these enums:"""
 
@@ -200,6 +211,14 @@ class Gear(IntEnum):
 
 ValueFunc = NDArray[np.float64]   # (M, N) in Part 1, (M, N, Z) in Part 2
 Policy = NDArray[np.int64]        # (M, N) in Part 1, (M, N, Z) in Part 2
+
+OptimalActions = NDArray[np.object_]
+"""
+Type Alias for the all optimal actions per state. It is a numpy array of list objects where
+each list contains the optimal actions that are equally good for a given state. It is the
+type of the ground truth policy that your solution will be compared against. You are not
+required to use this type in your solution.
+"""
 ```
 
 (`Cell.WONDERLAND` still exists in the `Cell` enum for legacy reasons, but no map in this
