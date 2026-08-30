@@ -109,7 +109,21 @@ The state becomes `(i, j, z)` where `z` is defined per case, and your value func
 policy become arrays of shape `(M, N, Z)`: one grid slice per value of `z`. Each case is
 solved and graded separately.
 
-### Case 1: Momentum ("the robot keeps rolling")
+### Case 1: Forecast ("the base radios the fog")
+
+Each hour the base transmits a forecast for the coming hour's fog. Forecasts are independent
+across hours, with `P(FOGGY) = 0.3`. The forecast does not change the world; it only tells
+you how this hour's move will behave:
+
+| forecast f | GRASS intended / each slip | SWAMP intended / each slip | stay | break |
+|---|---|---|---|---|
+| CLEAR | 0.75 / 0.25 ÷ 3 (as in Part 1) | 0.50 / 0.25 ÷ 3 | 0.20 | 0.05 |
+| FOGGY | 0.55 / 0.15 | 0.30 / 0.15 | 0.20 | 0.05 |
+
+(The forecast's accuracy is already folded into these numbers.) Think carefully about whether
+something that changes nothing physical still needs to be part of the state.
+
+### Case 2: Momentum ("the robot keeps rolling")
 
 The robots' wheels carry momentum: slips lean toward wherever the robot moved last hour, and
 turning around against your own motion is hard.
@@ -146,20 +160,6 @@ After the hour: `h` becomes the direction the robot **actually moved** - not the
 commanded. If you command EAST and the robot slips NORTH, next hour `h = NORTH`. If it
 stayed in place, or broke down, or you chose `ABANDON` (a fresh robot is deployed at START,
 and a fresh robot has no momentum), then `h = -`.
-
-### Case 2: Forecast ("the base radios the fog")
-
-Each hour the base transmits a forecast for the coming hour's fog. Forecasts are independent
-across hours, with `P(FOGGY) = 0.3`. The forecast does not change the world; it only tells
-you how this hour's move will behave:
-
-| forecast f | GRASS intended / each slip | SWAMP intended / each slip | stay | break |
-|---|---|---|---|---|
-| CLEAR | 0.75 / 0.25 ÷ 3 (as in Part 1) | 0.50 / 0.25 ÷ 3 | 0.20 | 0.05 |
-| FOGGY | 0.55 / 0.15 | 0.30 / 0.15 | 0.20 | 0.05 |
-
-(The forecast's accuracy is already folded into these numbers.) Think carefully about whether
-something that changes nothing physical still needs to be part of the state.
 
 ### Case 3: Glitch ("bad wheel days")
 

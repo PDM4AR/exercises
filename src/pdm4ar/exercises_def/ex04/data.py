@@ -301,8 +301,8 @@ from pdm4ar.exercises.ex04.mdp import (AugmentedGridMdp, FogGridMdp,  # noqa: E4
 from pdm4ar.exercises.ex04.structures import AugmentedState  # noqa: E402
 
 AUG_CASES: list[tuple[str, Type[AugmentedGridMdp]]] = [
-    ("momentum", MomentumGridMdp),
     ("forecast", FogGridMdp),
+    ("momentum", MomentumGridMdp),
     ("glitch", GlitchGridMdp),
 ]
 

@@ -40,11 +40,11 @@ class AugmentedGridMdp:
         """Discount factor"""
 
 
-class MomentumGridMdp(AugmentedGridMdp):
-    """Case 1: slips lean toward the direction the robot moved last hour
-    (z = Heading; see the handout table)."""
+class FogGridMdp(AugmentedGridMdp):
+    """Case 1: each hour the base radios a fog forecast for the coming hour
+    (z = Fog; forecasts iid with P_FOGGY)."""
 
-    Z = 5
+    Z = 2
 
     def get_transition_prob(self, state: AugmentedState, action: Action, next_state: AugmentedState) -> float:
         """Returns P(next_state | state, action)"""
@@ -56,11 +56,11 @@ class MomentumGridMdp(AugmentedGridMdp):
         pass
 
 
-class FogGridMdp(AugmentedGridMdp):
-    """Case 2: each hour the base radios a fog forecast for the coming hour
-    (z = Fog; forecasts iid with P_FOGGY)."""
+class MomentumGridMdp(AugmentedGridMdp):
+    """Case 2: slips lean toward the direction the robot moved last hour
+    (z = Heading; see the handout table)."""
 
-    Z = 2
+    Z = 5
 
     def get_transition_prob(self, state: AugmentedState, action: Action, next_state: AugmentedState) -> float:
         """Returns P(next_state | state, action)"""
