@@ -222,12 +222,23 @@ required to use this type in your solution.
 
 ### The MDP models
 
-Implement the two methods of `GridMdp` (Part 1) and of each Part-2 class in
-`exercises/ex04/mdp.py`. The signatures are identical across all four classes; only the
-`State` widens in Part 2:
+The first subtask is to implement the missing methods in `exercises/ex04/mdp.py`.
+These methods will be useful when implementing value and policy iteration.
+
+For each class you need to fill in `get_transition_prob`, which returns the probability of
+transitioning from a state to another given an action, and `stage_reward`, which returns the
+reward for that transition. The signatures are identical across all four classes; only the
+`State` widens to `AugmentedState` in Part 2:
 
 ```python
 class GridMdp:
+    def __init__(self, grid: NDArray[np.int64], gamma: float = 0.9):
+        assert len(grid.shape) == 2, "Map is invalid"
+        self.grid = grid
+        """The map"""
+        self.gamma: float = gamma
+        """Discount factor"""
+
     def get_transition_prob(self, state: State, action: Action, next_state: State) -> float:
         """Returns P(next_state | state, action)"""
         # todo
@@ -241,7 +252,8 @@ class FogGridMdp(AugmentedGridMdp): ...        # Z = 2
 class GlitchGridMdp(AugmentedGridMdp): ...     # Z = 2
 ```
 
-You must not change the names and signatures of these methods.
+Feel free to add more methods in case you need to.
+You must not change the names and signatures of `get_transition_prob` and `stage_reward`.
 
 ### Value Iteration and Policy Iteration
 
