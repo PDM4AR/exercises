@@ -119,7 +119,18 @@ Let `h` be the direction the robot **actually moved** last hour, one of
 fresh robot was just deployed). When the robot chooses a movement action `u`:
 
 The movement outcomes are: the **intended** direction `u`, a **slip toward `h`** (when it
-differs from `u`), and a slip to **each remaining** direction. On ``GRASS``:
+differs from `u`), and a slip to **each remaining** direction. Depending on how `h` relates
+to `u`:
+
+- **`h = -`**: no momentum; exactly the Part-1 distribution.
+- **`h = u`**: intended +0.10; the remaining movement mass splits uniformly, 0.05 per other
+  direction.
+- **`h` opposite of `u`**: intended -0.10; the slip leans backward: 0.25 toward `h`, 0.05
+  toward each perpendicular direction.
+- **`h` perpendicular to `u`**: intended unchanged; the slip leans sideways: 0.15 toward
+  `h`, 0.05 toward each of the other two directions.
+
+For example, on ``GRASS`` this gives:
 
 | last heading h | intended u | slip toward h | each remaining direction |
 |---|---|---|---|
@@ -130,15 +141,7 @@ differs from `u`), and a slip to **each remaining** direction. On ``GRASS``:
 
 On ``SWAMP`` the intended probability is 0.50 / 0.60 / 0.40 / 0.50 in the same four rows,
 the slip probabilities are identical, and stay (0.20) and break (0.05) keep their Part-1
-values in every row. In words:
-
-- **`h = -`**: no momentum; exactly the Part-1 distribution.
-- **`h = u`**: intended +0.10; the remaining movement mass splits uniformly, 0.05 per other
-  direction.
-- **`h` opposite of `u`**: intended -0.10; the slip leans backward: 0.25 toward `h`, 0.05
-  toward each perpendicular direction.
-- **`h` perpendicular to `u`**: intended unchanged; the slip leans sideways: 0.15 toward
-  `h`, 0.05 toward each of the other two directions.
+values in every row.
 
 As in Part 1, a slip that would take the robot off the map or into a ``CLIFF`` cell is a
 breakdown (a new robot is deployed at ``START``).
