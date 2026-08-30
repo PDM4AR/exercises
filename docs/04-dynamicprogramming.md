@@ -407,16 +407,38 @@ worked examples above and the practice maps are your anchors for the model itsel
 
 ### Test cases and performance criteria
 
-The algorithms are tested on the maps of both parts. After running the exercise, you will
-find the reports in `out/04/` for each test case; Part-2 reports show one heatmap per z
-slice, so you can literally see how the optimal route changes between a CLEAR and a FOGGY
-forecast, or how momentum makes the robot prefer not to turn around.
+The algorithms are going to be tested on different MDPs of both parts.
+You will be able to test your algorithms on some test cases with given solution, the outputted `Policy` and `ValueFunc` will be compared to the solution.
+After running the exercise, you will find the reports in `out/04/` for each test case.
+There you will be able to visualize the MDPs, your output and the expected solution; Part-2
+reports show one heatmap per z slice, so you can see how the optimal route changes between a
+CLEAR and a FOGGY forecast, or how momentum makes the robot prefer not to turn around.
+These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
 
-The final evaluation combines, exactly as before: ratio of completed cases,
-transition_prob_accuracy, average policy_accuracy, average value_func_R2, and average
-solve_time. Policy accuracy counts an action as correct if it is any optimal action of that
-state. The value function and policy of `CLIFF` cells are excluded from the evaluation.
+The final evaluation will combine the following metrics: ratio of completed cases, transition_prob_accuracy, average policy_accuracy, average value_func_R2, and average solve_time:
+* **ratio of completed cases**: $\frac{N_{completed}}{N}$
+* **transition_prob_accuracy**: This metric will evaluate the accuracy of your transition probability, in particular, for different cases (state, action, next_state), it considers 1.0 if the probability is equal (up to numerical errors) to the ground truth, 0.0 otherwise. Then it averages the results.
+* **policy_accuracy**: This metric will evaluate the accuracy of your `Policy`, in particular, it averages for each state of the MDP the number of correct actions (# of correct actions)/(# of states). An action counts as correct if it is any optimal action of that state, so your tie-breaking never costs you. Thus, policy_accuracy will be in the interval [0, 1].
+* **value_func_R2**: This metric will evaluate the accuracy of your `ValueFunc`. It is a measure of how well your `ValueFunc` approximates the ground truth `ValueFunc`. It is computed as $R^2 = 1 - \frac{\sum_{s \in S} (VF^{gt}(s) - VF(s))^2}{\sum_{s \in S} (VF^{gt}(s) - \bar{VF^{gt}})^2}$ where $VF^{gt}$ is the ground truth `ValueFunc`, $VF$ is your `ValueFunc`, and $\bar{VF^{gt}}$ is the mean of the ground truth `ValueFunc`. With negative values being clipped to 0, this metric will be in the interval [0, 1].
+* **solve_time**: As your algorithms will be tested on MDPs of increasing size, the efficiency of your code will be measured in terms of process time required (in seconds).
+
+The value function and policy of `CLIFF` cells are excluded from the evaluation.
 
 Note: both algorithms must be your own. The grader compares your Value and Policy Iteration
 submissions against each other, and requesting intermediate iterates (`max_iters`) makes the
 two algorithms distinguishable even though they agree at convergence.
+
+<!-- The final score will be computed as follows: $score = \frac{N_{completed}}{N} \cdot \left((\frac{policy\_accuracy + value\_func\_R2}{2} - 0.0025 \cdot solve\_time) * 0.8 + transition\_prob\_accuracy * 0.2\right)$
+
+In the report you will find the average of each metric for all the test cases (`perf_result`), value iteration test cases (`value_iteration`), policy iteration test cases (`policy_iteration`) and transition probability test cases (`transition_prob`).
+The score is calculated based on all the test cases (`perf_result`) plus (`transition_prob`). -->
+
+<!-- TODO re-measure on the server for the 2026 test set (the numbers below are from the old, Part-1-only exercise):
+
+Solving time reference:
+
+| Algorithm           | Solving time[s] |
+|---------------------|-----------------|
+| ValueIteration      | 8.714           |
+| PolicyIteration     | 4.263           | -->
+
