@@ -125,8 +125,32 @@ fresh robot was just deployed). When the robot chooses a movement action `u`:
 | h opposite of u | -0.10 (grass 0.65, swamp 0.40) | h: 0.25, others: 0.05 | Part 1 | Part 1 |
 | h perpendicular to u | unchanged | h: 0.15, others: 0.05 | Part 1 | Part 1 |
 
-After the hour: `h` becomes the direction the robot actually moved. If it stayed in place, or
-broke down, or you chose `ABANDON` (a fresh robot is deployed at START), then `h = -`.
+Only the split of the movement mass among the four directions changes with `h`; the **stay**
+and **break** columns keep exactly their Part-1 values in every row (grass: 0 / 0;
+swamp: 0.20 / 0.05). Row by row:
+
+- **`h = -`** (no momentum): exactly Part 1. The intended direction gets 0.75 (grass) or
+  0.50 (swamp), and each of the 3 other directions gets 0.25/3.
+- **`h = u`** (rolling the way you command): the wheels help. The intended probability gets
+  +0.10 (grass 0.85, swamp 0.60), and the remaining movement mass splits uniformly over the
+  other 3 directions: on grass (1 - 0.85)/3 = 0.05 each; on swamp the leftover after stay
+  and break, 1 - 0.60 - 0.20 - 0.05 = 0.15, again 0.05 each.
+- **`h` opposite of `u`** (an about-face): the hardest maneuver. The intended probability
+  drops by 0.10 (grass 0.65, swamp 0.40), and the slip is not uniform - the momentum drags
+  the robot backward: 0.25 toward `h` (the direction you came from), 0.05 each for the two
+  perpendicular directions. Check (grass): 0.65 + 0.25 + 0.05 + 0.05 = 1.
+- **`h` perpendicular to `u`** (a 90 degree turn): the intended probability is unchanged
+  (grass 0.75, swamp 0.50), but the slip leans sideways toward the old motion: 0.15 toward
+  `h`, 0.05 each for the other two directions.
+  Check (grass): 0.75 + 0.15 + 0.05 + 0.05 = 1.
+
+As in Part 1, a slip that would take the robot off the map or into a ``CLIFF`` cell is a
+breakdown (a new robot is deployed at ``START``).
+
+After the hour: `h` becomes the direction the robot **actually moved** - not the one you
+commanded. If you command EAST and the robot slips NORTH, next hour `h = NORTH`. If it
+stayed in place, or broke down, or you chose `ABANDON` (a fresh robot is deployed at START,
+and a fresh robot has no momentum), then `h = -`.
 
 ### Case 2: Forecast ("the base radios the fog")
 
