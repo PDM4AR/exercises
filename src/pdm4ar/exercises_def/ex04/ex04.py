@@ -103,8 +103,6 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
             for j in range(MAP_SHAPE[1]):
                 if grid_mdp.grid[i, j] == Cell.CLIFF:
                     ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="k"))
-                elif grid_mdp.grid[i, j] == Cell.WONDERLAND:
-                    ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="purple"))
                 else:
                     ax.text(j, i, f"{value_func[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
 
@@ -121,8 +119,8 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Poli
         ax.tick_params(axis="both", labelsize=font_size + 3)
         for i in range(MAP_SHAPE[0]):
             for j in range(MAP_SHAPE[1]):
-                # Skip cliff and wonderlands
-                if grid_mdp.grid[i, j] == Cell.CLIFF or grid_mdp.grid[i, j] == Cell.WONDERLAND:
+                # Skip cliff cells
+                if grid_mdp.grid[i, j] == Cell.CLIFF:
                     continue
                 # Get optimal actions. If policy is a single action, convert it to a list
                 if policy.dtype == object:
@@ -133,9 +131,7 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Poli
                     raise ValueError("Invalid policy type")
 
                 for action in optimal_actions:
-                    if grid_mdp.grid[i, j] == Cell.WONDERLAND:
-                        ax.text(j, i, "O", size=2.5 * font_size, ha="center", va="center", color="k", weight="bold")
-                    elif action == Action.ABANDON:
+                    if action == Action.ABANDON:
                         ax.text(j, i, "X", size=2.5 * font_size, ha="center", va="center", color="k", weight="bold")
                     else:
                         arrow = action2arrow[action]
@@ -175,7 +171,7 @@ def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceRe
     plot_report_figure(r, grid_mdp, value_func, policy, algo_name)
 
     if ex_out is not None:
-        all_states_mask = (grid_mdp.grid != Cell.CLIFF) & (grid_mdp.grid != Cell.WONDERLAND)
+        all_states_mask = grid_mdp.grid != Cell.CLIFF
         # ground truth
         value_func_gt, policy_gt = ex_out
         # evaluate accuracy
@@ -186,7 +182,6 @@ def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceRe
         elif policy_gt.dtype == object:  # policy_gt contains all optimal actions per state
             correct_policy = 0
             for user_policy, gt_policy in zip(policy[all_states_mask], policy_gt[all_states_mask]):
-                # Put a random action to put O in the wonderland cell
                 if gt_policy is None:
                     gt_policy = [Action.ABANDON]
                 if user_policy is None:

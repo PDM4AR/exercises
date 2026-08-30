@@ -24,7 +24,6 @@ class Cell(IntEnum):
     START = 1
     GRASS = 2
     SWAMP = 3
-    WONDERLAND  = 4
     CLIFF = 5
 
 

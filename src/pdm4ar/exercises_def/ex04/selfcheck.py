@@ -36,15 +36,14 @@ _MOVES = {Action.NORTH: (-1, 0), Action.WEST: (0, -1),
 # ------------------------------------------------------------------ maps
 def random_map(shape=(10, 10), n_cliff: Optional[int] = None,
                seed: Optional[int] = None) -> np.ndarray:
-    """A random wonderland-free map. Resamples until the goal is reachable
+    """A random map. Resamples until the goal is reachable
     from the start (plain connectivity, no probabilities involved)."""
     if seed is None:
         seed = int(np.random.default_rng().integers(1, 10**6))
     if n_cliff is None:
         n_cliff = max(2, round(0.08 * shape[0] * shape[1]))
     for s in range(seed, seed + 200):
-        grid = generate_map(shape, 0.2, n_wonderland=0,
-                            n_cliff=n_cliff, n_seed=s)
+        grid = generate_map(shape, 0.2, n_cliff=n_cliff, n_seed=s)
         if _reachable(grid):
             return grid
     raise RuntimeError("no reachable map found; try another seed/shape")

@@ -188,7 +188,6 @@ class Cell(IntEnum):
     START = 1
     GRASS = 2
     SWAMP = 3
-    WONDERLAND = 4
     CLIFF = 5
 
 
@@ -220,9 +219,6 @@ type of the ground truth policy that your solution will be compared against. You
 required to use this type in your solution.
 """
 ```
-
-(`Cell.WONDERLAND` still exists in the `Cell` enum for legacy reasons, but no map in this
-exercise contains one.)
 
 ### The MDP models
 
@@ -325,7 +321,7 @@ checkable certificates:
 ```python
 from pdm4ar.exercises_def.ex04.selfcheck import random_map, self_check
 
-grid = random_map((10, 10), seed=7)      # wonderland-free, goal reachable
+grid = random_map((10, 10), seed=7)      # goal always reachable
 mdp = FogGridMdp(grid)
 v_vi, p_vi = ValueIteration.solve(mdp)
 v_pi, p_pi = PolicyIteration.solve(mdp)

@@ -42,13 +42,13 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]]
     test_maps = []
     swamp_ratio = 0.2
     test_maps.append(get_simple_test_grid())
-    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_wonderland=0, n_cliff=10, n_seed=5))
-    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_wonderland=0, n_cliff=15, n_seed=110))
+    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_cliff=10, n_seed=5))
+    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_cliff=15, n_seed=110))
 
     # additional maps for evaluation
     for map_info in evaluation_tests:
         test_maps.append(
-            generate_map(map_info[0], swamp_ratio, n_wonderland=map_info[1], n_cliff=map_info[2], n_seed=map_info[3])
+            generate_map(map_info[0], swamp_ratio, n_cliff=map_info[1], n_seed=map_info[2])
         )
 
     discount = 0.9
