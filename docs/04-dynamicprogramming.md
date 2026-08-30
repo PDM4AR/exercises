@@ -164,20 +164,28 @@ and a fresh robot has no momentum), then `h = -`.
 ### Case 3: Glitch ("bad wheel days")
 
 The robots' wheels sometimes glitch, and once the glitching starts it tends to last a while.
-Let `g in {OK, GLITCHY}`:
+Let `g in {OK, GLITCHY}` be the current condition of the wheels.
 
-- Movement: when `g = OK`, exactly as in Part 1. When `g = GLITCHY`, the intended-direction
-  probability drops by 0.15 and the slip is uniform (grass 0.60 intended / 0.1333 each slip;
-  swamp 0.35 intended / 0.1333).
-- The glitch evolves on its own each hour: `P(OK -> GLITCHY) = 0.1` and
-  `P(GLITCHY -> OK) = 0.3`.
-- A freshly deployed robot has new wheels: after a breakdown or `ABANDON`, `g = OK`.
+How the robot moves this hour depends on the current `g`:
+
+- **`g = OK`**: exactly the Part-1 distribution.
+- **`g = GLITCHY`**: the intended probability drops by 0.15 and the freed mass splits
+  uniformly over the other 3 directions (0.05 more per slip). On ``GRASS``: 0.60 intended,
+  0.40/3 per slip. On ``SWAMP``: 0.35 intended, 0.40/3 per slip; stay (0.20) and break
+  (0.05) are unchanged.
+
+Unlike the forecast, the glitch has memory. At the end of the hour `g` evolves:
+
+- after a normal hour (the robot moved or stayed in place):
+  `P(OK -> GLITCHY) = 0.1` and `P(GLITCHY -> OK) = 0.3`;
+- after a breakdown or `ABANDON`, a fresh robot is deployed at ``START``, and a fresh robot
+  has new wheels: `g = OK` with probability 1, whatever the old robot's wheels were doing.
   (Yes, this has a consequence worth noticing.)
 
-**Modeling statement (required, before the code).** For each case, a few sentences: what your
-state is, why the grid alone stops being Markov, and why your state restores it. This is
-graded by a short rubric; it is where wrong state choices get caught and discussed instead of
-silently punished.
+**Something to think about.** Before writing code for each case, try to answer for yourself:
+what is your state, why does the grid alone stop being Markov, and why does your state
+restore it? A wrong state choice is much easier to catch in a few sentences than in a
+heatmap.
 
 ## Tasks
 
