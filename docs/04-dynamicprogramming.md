@@ -214,7 +214,7 @@ class Cell(IntEnum):
     START = 1
     GRASS = 2
     SWAMP = 3
-    CLIFF = 5
+    CLIFF = 4
 
 
 AugmentedState = tuple[int, int, int]
@@ -290,7 +290,7 @@ We'll start with value iteration. You need to implement the `solve` method in
 class ValueIteration(GridMdpSolver):
     @staticmethod
     @time_function
-    def solve(grid_mdp: AnyGridMdp, max_iters: Optional[int] = None) -> tuple[ValueFunc, Policy]:
+    def solve(grid_mdp: AnyGridMdp) -> tuple[ValueFunc, Policy]:
         # todo implement here
         ...
 ```
@@ -304,16 +304,13 @@ For policy iteration, you need to implement the `solve` method in
 class PolicyIteration(GridMdpSolver):
     @staticmethod
     @time_function
-    def solve(grid_mdp: AnyGridMdp, max_iters: Optional[int] = None) -> tuple[ValueFunc, Policy]:
+    def solve(grid_mdp: AnyGridMdp) -> tuple[ValueFunc, Policy]:
         # todo implement here
         ...
 ```
 
 One solver serves both parts: if you write it to iterate over "the states of the MDP" it runs
-on Part 2 unchanged; only the model underneath grows. If `max_iters = k` is given, return the
-state of your algorithm after exactly k iterations (k synchronous sweeps for VI; k
-evaluate-improve cycles for PI), starting from V = 0 and, for PI, from the first admissible
-action per state, breaking ties by action order.
+on Part 2 unchanged; only the model underneath grows.
 
 #### Expected outcome
 
@@ -431,9 +428,8 @@ The final evaluation will combine the following metrics: ratio of completed case
 
 The value function and policy of `CLIFF` cells are excluded from the evaluation.
 
-Note: both algorithms must be your own. The grader compares your Value and Policy Iteration
-submissions against each other, and requesting intermediate iterates (`max_iters`) makes the
-two algorithms distinguishable even though they agree at convergence.
+Note: both algorithms must be your own; the grader compares your Value and Policy Iteration
+submissions against each other.
 
 <!-- The final score will be computed as follows: $score = \frac{N_{completed}}{N} \cdot \left((\frac{policy\_accuracy + value\_func\_R2}{2} - 0.0025 \cdot solve\_time) * 0.8 + transition\_prob\_accuracy * 0.2\right)$
 

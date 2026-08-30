@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -42,7 +42,7 @@ class AugmentedGridMdp:
 
 class FogGridMdp(AugmentedGridMdp):
     """Case 1: each hour the base radios a fog forecast for the coming hour
-    (z = Fog; forecasts iid with P_FOGGY)."""
+    (z = Fog; forecasts are iid each hour)."""
 
     Z = 2
 
@@ -94,5 +94,5 @@ AnyGridMdp = Union[GridMdp, AugmentedGridMdp]
 class GridMdpSolver(ABC):
     @staticmethod
     @abstractmethod
-    def solve(grid_mdp: AnyGridMdp, max_iters: Optional[int] = None) -> tuple[ValueFunc, Policy]:
+    def solve(grid_mdp: AnyGridMdp) -> tuple[ValueFunc, Policy]:
         pass

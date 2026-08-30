@@ -24,7 +24,7 @@ class Cell(IntEnum):
     START = 1
     GRASS = 2
     SWAMP = 3
-    CLIFF = 5
+    CLIFF = 4
 
 
 Policy = NDArray[np.int64]
@@ -75,18 +75,3 @@ class Gear(IntEnum):
 AugmentedState = tuple[int, int, int]
 """Part-2 state: (i, j, z). The meaning and ordering of z is fixed per case
 (Heading / Fog / Gear); your (M, N, Z) output arrays must use these orderings."""
-
-P_FOGGY = 0.3
-"""A-priori probability of a FOGGY forecast (forecasts are iid each hour)."""
-FOGGY_EXTRA_SLIP = 0.20
-"""Extra slip mass under a FOGGY forecast, taken from the intended direction."""
-P_GEAR_BREAK_IN = 0.1
-"""P(OK -> GLITCHY) each hour."""
-P_GEAR_RECOVER = 0.3
-"""P(GLITCHY -> OK) each hour."""
-GLITCH_EXTRA_SLIP = 0.15
-"""Extra slip mass while GLITCHY, taken from the intended direction."""
-MOMENTUM_ALIGNED_BONUS = 0.10
-"""Added to the intended-direction probability when commanding along h."""
-MOMENTUM_OPPOSED_MALUS = 0.10
-"""Removed from the intended-direction probability when commanding against h."""
