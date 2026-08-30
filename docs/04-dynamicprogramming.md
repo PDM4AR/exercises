@@ -118,47 +118,27 @@ Let `h` be the direction the robot **actually moved** last hour, one of
 `{-, NORTH, WEST, SOUTH, EAST}`, where `-` means it did not move (it stayed in place, or a
 fresh robot was just deployed). When the robot chooses a movement action `u`:
 
-The four movement outcomes are: the **intended** direction `u`, a **slip toward `h`** (the
-direction of the old motion, when it differs from `u`), a slip to **each remaining**
-direction, and, on swamp, **staying** in place or **breaking down**. The full distribution,
-depending on how `h` relates to `u`:
+The movement outcomes are: the **intended** direction `u`, a **slip toward `h`** (when it
+differs from `u`), and a slip to **each remaining** direction. On ``GRASS``:
 
-On ``GRASS`` (never stays, never breaks down):
+| last heading h | intended u | slip toward h | each remaining direction |
+|---|---|---|---|
+| `-` (no momentum) | 0.75 | - | 0.25/3 each (3 directions) |
+| h = u (same direction) | 0.85 | - | 0.05 each (3 directions) |
+| h opposite of u | 0.65 | 0.25 | 0.05 each (2 directions) |
+| h perpendicular to u | 0.75 | 0.15 | 0.05 each (2 directions) |
 
-| last heading h | intended u | slip toward h | each remaining direction | sum |
-|---|---|---|---|---|
-| `-` (no momentum) | 0.75 | - | 0.25/3 each (3 directions) | 1.0 |
-| h = u (same direction) | 0.85 | - | 0.05 each (3 directions) | 1.0 |
-| h opposite of u | 0.65 | 0.25 | 0.05 each (2 directions) | 1.0 |
-| h perpendicular to u | 0.75 | 0.15 | 0.05 each (2 directions) | 1.0 |
+On ``SWAMP`` the intended probability is 0.50 / 0.60 / 0.40 / 0.50 in the same four rows,
+the slip probabilities are identical, and stay (0.20) and break (0.05) keep their Part-1
+values in every row. In words:
 
-On ``SWAMP`` (stay and break keep their Part-1 values in every row):
-
-| last heading h | intended u | slip toward h | each remaining direction | stay | break | sum |
-|---|---|---|---|---|---|---|
-| `-` (no momentum) | 0.50 | - | 0.25/3 each (3 directions) | 0.20 | 0.05 | 1.0 |
-| h = u (same direction) | 0.60 | - | 0.05 each (3 directions) | 0.20 | 0.05 | 1.0 |
-| h opposite of u | 0.40 | 0.25 | 0.05 each (2 directions) | 0.20 | 0.05 | 1.0 |
-| h perpendicular to u | 0.50 | 0.15 | 0.05 each (2 directions) | 0.20 | 0.05 | 1.0 |
-
-Only the split of the movement mass among the four directions changes with `h`; compared to
-Part 1, the intended probability moves by +0.10 (same direction), -0.10 (opposite), or not
-at all (perpendicular or no momentum). Row by row:
-
-- **`h = -`** (no momentum): exactly Part 1. The intended direction gets 0.75 (grass) or
-  0.50 (swamp), and each of the 3 other directions gets 0.25/3.
-- **`h = u`** (rolling the way you command): the wheels help. The intended probability gets
-  +0.10 (grass 0.85, swamp 0.60), and the remaining movement mass splits uniformly over the
-  other 3 directions: on grass (1 - 0.85)/3 = 0.05 each; on swamp the leftover after stay
-  and break, 1 - 0.60 - 0.20 - 0.05 = 0.15, again 0.05 each.
-- **`h` opposite of `u`** (an about-face): the hardest maneuver. The intended probability
-  drops by 0.10 (grass 0.65, swamp 0.40), and the slip is not uniform - the momentum drags
-  the robot backward: 0.25 toward `h` (the direction you came from), 0.05 each for the two
-  perpendicular directions. Check (grass): 0.65 + 0.25 + 0.05 + 0.05 = 1.
-- **`h` perpendicular to `u`** (a 90 degree turn): the intended probability is unchanged
-  (grass 0.75, swamp 0.50), but the slip leans sideways toward the old motion: 0.15 toward
-  `h`, 0.05 each for the other two directions.
-  Check (grass): 0.75 + 0.15 + 0.05 + 0.05 = 1.
+- **`h = -`**: no momentum; exactly the Part-1 distribution.
+- **`h = u`**: intended +0.10; the remaining movement mass splits uniformly, 0.05 per other
+  direction.
+- **`h` opposite of `u`**: intended -0.10; the slip leans backward: 0.25 toward `h`, 0.05
+  toward each perpendicular direction.
+- **`h` perpendicular to `u`**: intended unchanged; the slip leans sideways: 0.15 toward
+  `h`, 0.05 toward each of the other two directions.
 
 As in Part 1, a slip that would take the robot off the map or into a ``CLIFF`` cell is a
 breakdown (a new robot is deployed at ``START``).
