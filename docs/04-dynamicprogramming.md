@@ -118,16 +118,32 @@ Let `h` be the direction the robot **actually moved** last hour, one of
 `{-, NORTH, WEST, SOUTH, EAST}`, where `-` means it did not move (it stayed in place, or a
 fresh robot was just deployed). When the robot chooses a movement action `u`:
 
-| last heading h | intended u | slip directions | stay | break |
-|---|---|---|---|---|
-| `-` | as in Part 1 (grass 0.75, swamp 0.50) | uniform, as in Part 1 | Part 1 | Part 1 |
-| h = u | +0.10 (grass 0.85, swamp 0.60) | uniform over the rest | Part 1 | Part 1 |
-| h opposite of u | -0.10 (grass 0.65, swamp 0.40) | h: 0.25, others: 0.05 | Part 1 | Part 1 |
-| h perpendicular to u | unchanged | h: 0.15, others: 0.05 | Part 1 | Part 1 |
+The four movement outcomes are: the **intended** direction `u`, a **slip toward `h`** (the
+direction of the old motion, when it differs from `u`), a slip to **each remaining**
+direction, and, on swamp, **staying** in place or **breaking down**. The full distribution,
+depending on how `h` relates to `u`:
 
-Only the split of the movement mass among the four directions changes with `h`; the **stay**
-and **break** columns keep exactly their Part-1 values in every row (grass: 0 / 0;
-swamp: 0.20 / 0.05). Row by row:
+On ``GRASS`` (never stays, never breaks down):
+
+| last heading h | intended u | slip toward h | each remaining direction | sum |
+|---|---|---|---|---|
+| `-` (no momentum) | 0.75 | - | 0.25/3 each (3 directions) | 1.0 |
+| h = u (same direction) | 0.85 | - | 0.05 each (3 directions) | 1.0 |
+| h opposite of u | 0.65 | 0.25 | 0.05 each (2 directions) | 1.0 |
+| h perpendicular to u | 0.75 | 0.15 | 0.05 each (2 directions) | 1.0 |
+
+On ``SWAMP`` (stay and break keep their Part-1 values in every row):
+
+| last heading h | intended u | slip toward h | each remaining direction | stay | break | sum |
+|---|---|---|---|---|---|---|
+| `-` (no momentum) | 0.50 | - | 0.25/3 each (3 directions) | 0.20 | 0.05 | 1.0 |
+| h = u (same direction) | 0.60 | - | 0.05 each (3 directions) | 0.20 | 0.05 | 1.0 |
+| h opposite of u | 0.40 | 0.25 | 0.05 each (2 directions) | 0.20 | 0.05 | 1.0 |
+| h perpendicular to u | 0.50 | 0.15 | 0.05 each (2 directions) | 0.20 | 0.05 | 1.0 |
+
+Only the split of the movement mass among the four directions changes with `h`; compared to
+Part 1, the intended probability moves by +0.10 (same direction), -0.10 (opposite), or not
+at all (perpendicular or no momentum). Row by row:
 
 - **`h = -`** (no momentum): exactly Part 1. The intended direction gets 0.75 (grass) or
   0.50 (swamp), and each of the 3 other directions gets 0.25/3.
