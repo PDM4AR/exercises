@@ -180,7 +180,6 @@ Unlike the forecast, the glitch has memory. At the end of the hour `g` evolves:
   `P(OK -> GLITCHY) = 0.1` and `P(GLITCHY -> OK) = 0.3`;
 - after a breakdown or `ABANDON`, a fresh robot is deployed at ``START``, and a fresh robot
   has new wheels: `g = OK` with probability 1, whatever the old robot's wheels were doing.
-  (Yes, this has a consequence worth noticing.)
 
 **Something to think about.** Before writing code for each case, try to answer for yourself:
 what is your state, why does the grid alone stop being Markov, and why does your state

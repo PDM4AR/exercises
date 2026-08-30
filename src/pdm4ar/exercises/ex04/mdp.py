@@ -95,10 +95,4 @@ class GridMdpSolver(ABC):
     @staticmethod
     @abstractmethod
     def solve(grid_mdp: AnyGridMdp, max_iters: Optional[int] = None) -> tuple[ValueFunc, Policy]:
-        """Part 1 mdps expect (M, N) outputs, Part 2 mdps (M, N, Z).
-        If max_iters is given, return the state of your algorithm after
-        exactly max_iters iterations (synchronous sweeps for VI; full
-        evaluate-improve cycles for PI), starting from V = 0 and, for PI,
-        from the first admissible action per state, ties broken by action
-        order."""
         pass
