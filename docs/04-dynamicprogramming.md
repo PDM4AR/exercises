@@ -139,10 +139,6 @@ For example, on ``GRASS`` this gives:
 | h opposite of u | 0.65 | 0.25 | 0.05 each (2 directions) |
 | h perpendicular to u | 0.75 | 0.15 | 0.05 each (2 directions) |
 
-On ``SWAMP`` the intended probability is 0.50 / 0.60 / 0.40 / 0.50 in the same four rows,
-the slip probabilities are identical, and stay (0.20) and break (0.05) keep their Part-1
-values in every row.
-
 As in Part 1, a slip that would take the robot off the map or into a ``CLIFF`` cell is a
 breakdown (a new robot is deployed at ``START``).
 
