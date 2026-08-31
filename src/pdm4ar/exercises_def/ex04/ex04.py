@@ -347,7 +347,9 @@ def _plot_aug_slice_values(rfig, mdp, value_slice, title: str):
         ax.set_title(title, fontsize=font_size + 4)
         for i in range(value_slice.shape[0]):
             for j in range(value_slice.shape[1]):
-                if np.isfinite(value_slice[i, j]):
+                if mdp.grid[i, j] == Cell.CLIFF:
+                    ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="k"))
+                elif np.isfinite(value_slice[i, j]):
                     ax.text(j, i, f"{value_slice[i, j]:.1f}", size=font_size,
                             ha="center", va="center", color="k")
 
@@ -362,6 +364,9 @@ def _plot_aug_slice_policy(rfig, mdp, policy_slice, title: str):
         ax.set_title(title, fontsize=font_size + 4)
         for i in range(policy_slice.shape[0]):
             for j in range(policy_slice.shape[1]):
+                # Skip cliff cells, as in the Part-1 plots
+                if mdp.grid[i, j] == Cell.CLIFF:
+                    continue
                 a = policy_slice[i, j]
                 if a < 0:
                     continue
