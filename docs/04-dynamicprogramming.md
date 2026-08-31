@@ -409,8 +409,7 @@ The final evaluation will combine the following metrics: ratio of completed case
 
 The value function and policy of `CLIFF` cells are excluded from the evaluation.
 
-Note: both algorithms must be your own; the grader compares your Value and Policy Iteration
-submissions against each other.
+Note: both algorithms must be your own implementations.
 
 <!-- The final score will be computed as follows: $score = \frac{N_{completed}}{N} \cdot \left((\frac{policy\_accuracy + value\_func\_R2}{2} - 0.0025 \cdot solve\_time) * 0.8 + transition\_prob\_accuracy * 0.2\right)$
 

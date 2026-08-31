@@ -1,3 +1,4 @@
+import hashlib
 from dataclasses import dataclass
 from time import process_time
 from typing import Any, Sequence, Type, Union, Optional, cast
@@ -44,10 +45,11 @@ class TestValueEx4(ExIn):
     def str_id(self) -> str:
         return f"{self.algo.__name__}-{self.case_name}{self.testId}"
 
-# VI results cached per (case_name, testId) so the PI run of the same MDP can
-# be compared against them (automated VI/PI coincidence check).
-_VI_CACHE: dict = {}
-COINCIDENCE_TOL = 1e-11
+def _value_checksum(value_func) -> str:
+    """Checksum of the value function's exact bytes, recorded with each result
+    for reproducibility and post-evaluation screening."""
+    arr = np.ascontiguousarray(np.asarray(value_func, dtype=np.float64))
+    return hashlib.md5(arr.tobytes()).hexdigest()
 
 AUG_Z_LABELS = {
     "momentum": ["h=-", "h=N", "h=W", "h=S", "h=E"],
@@ -61,8 +63,12 @@ class Ex04Performance(PerformanceResults):
     policy_accuracy: float
     value_func_r2: float
     solve_time: float
+    # which (case, map) this result belongs to, and a checksum of the
+    # submitted value function (see _value_checksum)
+    case_key: Optional[str] = None
+    value_checksum: Optional[str] = None
 
-    def __post__init__(self):
+    def __post_init__(self):
         assert self.policy_accuracy <= 1, self.policy_accuracy
         assert self.solve_time >= 0, self.solve_time
 
@@ -71,7 +77,7 @@ class Ex04Performance(PerformanceResults):
 class Ex04TransitionProbPerformance(PerformanceResults):
     transition_prob_accuracy: float
 
-    def __post__init__(self):
+    def __post_init__(self):
         assert self.transition_prob_accuracy <= 1, self.transition_prob_accuracy
 
 
@@ -135,7 +141,7 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Poli
                 # Get optimal actions. If policy is a single action, convert it to a list
                 if policy.dtype == object:
                     optimal_actions = policy[i, j]
-                elif policy.dtype == int:
+                elif np.issubdtype(policy.dtype, np.integer):
                     optimal_actions = [policy[i, j]]
                 else:
                     raise ValueError("Invalid policy type")
@@ -197,7 +203,11 @@ def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceRe
                     gt_policy = [Action.ABANDON]
                 if user_policy is None:
                     user_policy = [Action.ABANDON]
-                correct_policy += 1 if user_policy in gt_policy else 0
+                # accept a single action or a list of actions from the student
+                if not isinstance(user_policy, (list, tuple)):
+                    user_policy = [user_policy]
+                gt_set = {int(a) for a in gt_policy}
+                correct_policy += 1 if user_policy and all(int(a) in gt_set for a in user_policy) else 0
             policy_accuracy = float(correct_policy) / policy_gt[all_states_mask].size
         else:
             raise ValueError("Invalid policy_gt type")
@@ -214,12 +224,16 @@ def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceRe
 
         msg = f"policy_accuracy: {policy_accuracy}\n"
         msg += f"value_func_r2:{value_func_r2:.3f}\n"
-        msg += _coincidence_msg(ex_in, np.asarray(value_func, dtype=float),
-                                all_states_mask, solve_time)
 
         r.text(f"{algo_name}", text=remove_escapes(msg))
 
-    result = Ex04Performance(policy_accuracy=policy_accuracy, value_func_r2=value_func_r2, solve_time=solve_time)
+    result = Ex04Performance(
+        policy_accuracy=policy_accuracy,
+        value_func_r2=value_func_r2,
+        solve_time=solve_time,
+        case_key=f"{ex_in.case_name}{ex_in.testId}",
+        value_checksum=_value_checksum(value_func),
+    )
     if isinstance(solver, PolicyIteration):
         perf = Ex04PerformanceResult(policy_iteration=result)
     elif isinstance(solver, ValueIteration):
@@ -254,19 +268,14 @@ def ex4_transition_prob_evaluation(ex_in: TestTransitionProbEx4, ex_out=None) ->
 
 def ex4_single_perf_aggregator(perf: Sequence[Ex04Performance]) -> Ex04Performance:
     # perfomance for valid results
-    policy_accuracy = [p.policy_accuracy for p in perf]
-    value_func_r2 = [p.value_func_r2 for p in perf]
-    solve_time = [p.solve_time for p in perf]
-    try:
-        # average accuracy and solve_time, rounding to 3 decimal places
-        avg_policy_accuracy = round(np.mean(policy_accuracy), 3)
-        avg_value_func_r2 = round(np.mean(value_func_r2), 3)
-        avg_solve_time = round(np.mean(solve_time), 3)
-    except ZeroDivisionError:
-        # None if gt wasn't provided
-        avg_policy_accuracy = 0
-        avg_value_func_r2 = 0
-        avg_solve_time = 0
+    if not perf:
+        # all of this algorithm's test cases failed (np.mean([]) would be NaN)
+        return Ex04Performance(policy_accuracy=0.0, value_func_r2=0.0, solve_time=0.0)
+
+    # average accuracy and solve_time, rounding to 3 decimal places
+    avg_policy_accuracy = round(np.mean([p.policy_accuracy for p in perf]), 3)
+    avg_value_func_r2 = round(np.mean([p.value_func_r2 for p in perf]), 3)
+    avg_solve_time = round(np.mean([p.solve_time for p in perf]), 3)
 
     return Ex04Performance(
         policy_accuracy=float(avg_policy_accuracy),
@@ -314,30 +323,6 @@ def ex4_perf_aggregator(perf: Sequence[Ex04PerformanceResult | Ex04TransitionPro
 # ---------------------------------------------------------------------------
 # Part 2: augmented cases
 # ---------------------------------------------------------------------------
-def _coincidence_msg(ex_in: TestValueEx4, value_func, mask, solve_time) -> str:
-    """Cache the VI result; on the matching PI run, compare the converged
-    matrices and emit a review label if they agree to bit level."""
-    from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration as _PI
-    from pdm4ar.exercises.ex04.value_iteration import ValueIteration as _VI
-
-    key = (ex_in.case_name, ex_in.testId)
-    if issubclass(ex_in.algo, _VI):
-        _VI_CACHE[key] = (value_func.copy(), solve_time)
-        return ""
-    if issubclass(ex_in.algo, _PI) and key in _VI_CACHE:
-        v_vi, t_vi = _VI_CACHE[key]
-        d = np.abs(v_vi[mask] - value_func[mask])
-        max_diff = float(d.max()) if d.size else 0.0
-        ratio = t_vi / solve_time if solve_time > 0 else float("inf")
-        if max_diff < COINCIDENCE_TOL:
-            return (f"LABEL vi_pi_identical_suspected: the two submitted "
-                    f"value functions agree to {max_diff:.1e} (bit level; no "
-                    f"honest tolerance explains this). solve_time ratio "
-                    f"VI/PI = {ratio:.2f}. Please review manually.\n")
-        return f"vi_pi_coincidence_check: clean (max diff {max_diff:.1e})\n"
-    return ""
-
-
 def _plot_aug_slice_values(rfig, mdp, value_slice, title: str):
     font_size = get_font_size(mdp)
     with rfig.plot(nid=f"{title}-value", mime=MIME_PDF, figsize=None) as _:
@@ -439,12 +424,13 @@ def ex4_evaluation_algo_aug(ex_in: TestValueEx4, ex_out=None) -> tuple[Performan
 
         msg = f"policy_accuracy: {policy_accuracy}\n"
         msg += f"value_func_r2:{value_func_r2:.3f}\n"
-        msg += _coincidence_msg(ex_in, value_func, mask3, solve_time)
         r.text(f"{algo_name}", text=remove_escapes(msg))
 
     result = Ex04Performance(policy_accuracy=policy_accuracy,
                              value_func_r2=value_func_r2,
-                             solve_time=solve_time)
+                             solve_time=solve_time,
+                             case_key=f"{ex_in.case_name}{ex_in.testId}",
+                             value_checksum=_value_checksum(value_func))
     if isinstance(solver, PolicyIteration):
         return Ex04PerformanceResult(policy_iteration=result), r
     elif isinstance(solver, ValueIteration):
