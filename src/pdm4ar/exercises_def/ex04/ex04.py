@@ -180,6 +180,7 @@ def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceRe
     solve_time = process_time() - t
     plot_report_figure(r, grid_mdp, value_func, policy, algo_name)
 
+    policy_accuracy, value_func_r2 = 0.0, 0.0
     if ex_out is not None:
         all_states_mask = grid_mdp.grid != Cell.CLIFF
         # ground truth
@@ -233,6 +234,7 @@ def ex4_transition_prob_evaluation(ex_in: TestTransitionProbEx4, ex_out=None) ->
     test_name = ex_in.str_id()
     r = Report(f"Ex4-{test_name}")
 
+    accuracy = 0.0
     if ex_out is not None:
         expected_prob = ex_out
         msg = f"State: {ex_in.state}, Action: {ex_in.action.name}, Next State: {ex_in.next_state}\n"
@@ -484,7 +486,7 @@ def get_exercise4(all_maps: Optional[bool] = None) -> Exercise:
     expected_results_algo = get_expected_results_algo(map_ids)
 
     # transition probes always run on the 5x5 example map (fast)
-    transition_test_cases = get_transition_prob_test_cases(get_test_grids()[:1])
+    transition_test_cases = get_transition_prob_test_cases(grid_mdps[:1])
     transition_expected_results = get_expected_results_transition(transition_test_cases)
 
     # Part 2: the augmented cases on the same maps

@@ -111,17 +111,6 @@ def generate_map(shape: tuple[int, int], swamp_percentage: float, n_cliff: int, 
     return grid_map
 
 
-def is_too_close_to_rift_or_border(coord: tuple[int, int], grid_map: np.ndarray) -> bool:
-    row, col = coord
-    # Check if the cell is within the border
-    if row < 2 or row >= grid_map.shape[0] - 2 or col < 2 or col >= grid_map.shape[1] - 2:
-        return True
-    # Check if the cell is near the cliff
-    if grid_map[row - 1 : row + 2, col - 1 : col + 2].max() == Cell.CLIFF:
-        return True
-    return False
-
-
 def map2image(map: np.ndarray) -> np.ndarray:
     shape = (*map.shape, 3)
     image = np.zeros(shape)

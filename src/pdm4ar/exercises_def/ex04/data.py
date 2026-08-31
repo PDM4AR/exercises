@@ -1,7 +1,5 @@
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Dict, Tuple, Optional
-import pickle
 
 import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
@@ -44,7 +42,7 @@ def get_small_test_grids() -> list[GridMdp]:
     return [GridMdp(grid=random_map(shape, seed=seed), gamma=0.9) for shape, seed in SMALL_TEST_MAP_SPECS]
 
 
-def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]] = []) -> list[GridMdp]:
+def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = []) -> list[GridMdp]:
     MAP_SHAPE_2 = (10, 10)
     MAP_SHAPE_3 = (40, 40)
 
@@ -181,107 +179,6 @@ def get_expected_results_algo(map_ids: tuple = (0, 1, 2)) -> list[tuple[ValueFun
     one_pass = [(all_data[f"value_func_{mi}"], all_data[f"policy_{mi}"]) for mi in map_ids]
     # once for ValueIteration, once for PolicyIteration
     return one_pass + one_pass
-
-
-def load_transition_matrix() -> Dict:
-    """Load the complete transition matrix for the first grid"""
-    data_dir = Path(__file__).parent
-    try:
-        with open(data_dir / "data/expected_transition_matrix.pkl", "rb") as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError("Transition matrix file not found. Run generate_expected_results.py to create it.")
-
-
-def get_transition_probability(state: State, action: Action, next_state: State) -> float:
-    """
-    Get the transition probability P(s'|s,a) for the first grid.
-
-    Args:
-        state: Current state (row, col)
-        action: Action taken
-        next_state: Next state (row, col)
-
-    Returns:
-        Transition probability (0.0 if transition is not possible)
-    """
-    matrix_data = load_transition_matrix()
-    transition_matrix = matrix_data["transition_matrix"]
-
-    if (
-        state in transition_matrix
-        and action in transition_matrix[state]
-        and next_state in transition_matrix[state][action]
-    ):
-        return transition_matrix[state][action][next_state]
-    else:
-        return 0.0
-
-
-def get_all_transitions_from_state(state: State) -> Dict[Action, Dict[State, float]]:
-    """
-    Get all possible transitions from a given state.
-
-    Args:
-        state: Current state (row, col)
-
-    Returns:
-        Dictionary mapping actions to {next_state: probability} dictionaries
-    """
-    matrix_data = load_transition_matrix()
-    transition_matrix = matrix_data["transition_matrix"]
-
-    if state in transition_matrix:
-        return transition_matrix[state]
-    else:
-        return {}
-
-
-def get_valid_actions_for_state(state: State) -> list[Action]:
-    """
-    Get all valid actions from a given state.
-
-    Args:
-        state: Current state (row, col)
-
-    Returns:
-        List of valid actions from this state
-    """
-    transitions = get_all_transitions_from_state(state)
-    return list(transitions.keys())
-
-
-def get_possible_next_states(state: State, action: Action) -> Dict[State, float]:
-    """
-    Get all possible next states and their probabilities for a given state-action pair.
-
-    Args:
-        state: Current state (row, col)
-        action: Action taken
-
-    Returns:
-        Dictionary mapping next_states to their transition probabilities
-    """
-    transitions = get_all_transitions_from_state(state)
-    if action in transitions:
-        return transitions[action]
-    else:
-        return {}
-
-
-def get_grid_info() -> Dict:
-    """
-    Get basic information about the grid.
-
-    Returns:
-        Dictionary with grid_shape, start_pos, goal_pos
-    """
-    matrix_data = load_transition_matrix()
-    return {
-        "grid_shape": matrix_data["grid_shape"],
-        "start_pos": matrix_data["start_pos"],
-        "goal_pos": matrix_data["goal_pos"],
-    }
 
 
 # ---------------------------------------------------------------------------
