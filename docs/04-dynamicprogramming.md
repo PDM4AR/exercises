@@ -374,20 +374,11 @@ left corner of the grid. All axes are 0-indexed.
 
 ### Practice maps (not graded)
 
-Besides the graded test maps, we publish 12 extra practice maps of varied sizes with full
-solutions for Part 1 and every Part-2 case, so you can check your implementation yourself:
-
-```python
-from pdm4ar.exercises.ex04.value_iteration import ValueIteration
-from pdm4ar.exercises_def.ex04.practice import check_solution
-
-check_solution(ValueIteration)                       # everything
-check_solution(ValueIteration, cases=["base"])       # Part 1 only
-check_solution(ValueIteration, cases=["forecast"])   # one Part-2 case
-```
-
-It prints, per map, the same policy accuracy and value R2 the graded evaluation computes. If
-a map scores below 1.0, that map and case is where to look.
+Besides the test maps above, the built-in run also includes three extra practice maps of
+varied sizes (they appear in the reports as maps 3, 4 and 5), with full solutions for Part 1
+and every Part-2 case. They are scored with the same policy accuracy and value R2 as
+everything else but are not graded; if one of them scores below 1.0, that map and case is
+where to look.
 
 
 ### Make your own maps, and verify without an answer key

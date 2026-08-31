@@ -364,6 +364,35 @@ AUG_PROBES = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Practice maps: extra ungraded maps that run in the same built-in flow as the
+# public test maps. They regenerate deterministically from (shape, seed), so
+# only their solutions ship in data/expected_results_practice.npz.
+# ---------------------------------------------------------------------------
+PRACTICE_MAP_SPECS: list[tuple[tuple[int, int], int]] = [((6, 6), 1), ((9, 9), 2), ((12, 12), 1)]
+
+
+def get_practice_grids() -> list[np.ndarray]:
+    from pdm4ar.exercises_def.ex04.selfcheck import random_map
+
+    return [random_map(shape, seed=seed) for shape, seed in PRACTICE_MAP_SPECS]
+
+
+def get_expected_results_practice() -> list[tuple[ValueFunc, OptimalActions]]:
+    """Aligned with get_exercise4's practice test order: base on every
+    practice map, then each Part-2 case on every practice map, once for
+    ValueIteration and once for PolicyIteration."""
+    data_dir = Path(__file__).parent
+    data = np.load(data_dir / "data/expected_results_practice.npz", allow_pickle=True)
+    cases = ["base"] + [case_name for case_name, _ in AUG_CASES]
+    one_pass = [
+        (data[f"practice_{case_name}_value_{k}"], data[f"practice_{case_name}_policy_{k}"])
+        for case_name in cases
+        for k in range(len(PRACTICE_MAP_SPECS))
+    ]
+    return one_pass + one_pass
+
+
 def get_transition_prob_test_cases_aug() -> list[TestTransitionProbAug]:
     grid = get_simple_test_grid()
     classes = dict(AUG_CASES)
