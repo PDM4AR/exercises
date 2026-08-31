@@ -102,17 +102,19 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
     with rfig.plot(nid=f"{algo_name}-value", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         # mask CLIFF cells (not states) so the color scale spans only real
-        # values and matches between the student's and the ground-truth panel
+        # values and matches between the student's and the ground-truth panel;
+        # the colormap renders the masked cells black (part of the raster, so
+        # no seams from patch overlays)
         plot_v = np.where(grid_mdp.grid == Cell.CLIFF, np.nan, np.asarray(value_func, dtype=float))
-        ax.imshow(plot_v, aspect="equal")
+        cmap = plt.get_cmap().copy()
+        cmap.set_bad("k")
+        ax.imshow(plot_v, aspect="equal", cmap=cmap)
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         ax.tick_params(axis="both", labelsize=font_size + 3)
         for i in range(MAP_SHAPE[0]):
             for j in range(MAP_SHAPE[1]):
-                if grid_mdp.grid[i, j] == Cell.CLIFF:
-                    ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="k"))
-                else:
+                if grid_mdp.grid[i, j] != Cell.CLIFF:
                     ax.text(j, i, f"{value_func[i, j]:.1f}", size=font_size, ha="center", va="center", color="k")
 
 
@@ -340,16 +342,17 @@ def _plot_aug_slice_values(rfig, mdp, value_slice, title: str):
     with rfig.plot(nid=f"{title}-value", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
         # mask CLIFF cells (not states) so the color scale spans only real
-        # values and matches between the student's and the ground-truth panels
+        # values and matches between the student's and the ground-truth panels;
+        # the colormap renders the masked cells black (no patch-overlay seams)
         plot_v = np.where(mdp.grid == Cell.CLIFF, np.nan, np.asarray(value_slice, dtype=float))
-        ax.imshow(plot_v, aspect="equal")
+        cmap = plt.get_cmap().copy()
+        cmap.set_bad("k")
+        ax.imshow(plot_v, aspect="equal", cmap=cmap)
         ax.tick_params(axis="both", labelsize=font_size + 3)
         ax.set_title(title, fontsize=font_size + 4)
         for i in range(value_slice.shape[0]):
             for j in range(value_slice.shape[1]):
-                if mdp.grid[i, j] == Cell.CLIFF:
-                    ax.add_patch(Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="k"))
-                elif np.isfinite(value_slice[i, j]):
+                if mdp.grid[i, j] != Cell.CLIFF and np.isfinite(value_slice[i, j]):
                     ax.text(j, i, f"{value_slice[i, j]:.1f}", size=font_size,
                             ha="center", va="center", color="k")
 
