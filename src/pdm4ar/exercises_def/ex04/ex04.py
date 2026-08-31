@@ -101,7 +101,10 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
     font_size = get_font_size(grid_mdp)
     with rfig.plot(nid=f"{algo_name}-value", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
-        ax.imshow(value_func, aspect="equal")
+        # mask CLIFF cells (not states) so the color scale spans only real
+        # values and matches between the student's and the ground-truth panel
+        plot_v = np.where(grid_mdp.grid == Cell.CLIFF, np.nan, np.asarray(value_func, dtype=float))
+        ax.imshow(plot_v, aspect="equal")
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         ax.tick_params(axis="both", labelsize=font_size + 3)
@@ -336,7 +339,10 @@ def _plot_aug_slice_values(rfig, mdp, value_slice, title: str):
     font_size = get_font_size(mdp)
     with rfig.plot(nid=f"{title}-value", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
-        ax.imshow(value_slice, aspect="equal")
+        # mask CLIFF cells (not states) so the color scale spans only real
+        # values and matches between the student's and the ground-truth panels
+        plot_v = np.where(mdp.grid == Cell.CLIFF, np.nan, np.asarray(value_slice, dtype=float))
+        ax.imshow(plot_v, aspect="equal")
         ax.tick_params(axis="both", labelsize=font_size + 3)
         ax.set_title(title, fontsize=font_size + 4)
         for i in range(value_slice.shape[0]):
