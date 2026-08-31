@@ -24,10 +24,8 @@ class GridMdp:
         pass
 
 
-# --------------------------------------------------------------------------
-# Part 2: augmented states. Movement, swamps, cliffs, breakdowns, and all
-# rewards behave exactly as in Part 1; see the handout for the z per case.
-# --------------------------------------------------------------------------
+# Part 2: augmented states. Everything behaves as in Part 1; see the
+# handout for the z of each case.
 class AugmentedGridMdp:
     Z: int = 1
     """Number of values the z component takes (fixed per case)."""

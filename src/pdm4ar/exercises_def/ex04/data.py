@@ -235,10 +235,8 @@ class TestTransitionProbAug(ExIn):
         return f"TransitionProb-{self.case_name}{self.testId}"
 
 
-# (case, (i, j, z), action, (i', j', z')) probes on the 5x5 example map; the
-# expected probabilities are looked up in data/expected_transition_results_aug.npz,
-# which covers every (state, action, next_state) triple per case - so, as in
-# Part 1, you can add your own probes here to check edge cases.
+# Probes on the 5x5 map; expected values come from the full-coverage
+# data/expected_transition_results_aug.npz, so you can add your own probes.
 AUG_PROBES = [
     ("forecast", (2, 1, 0), Action.EAST, (2, 2, 0)),
     ("forecast", (2, 1, 1), Action.EAST, (2, 2, 1)),

@@ -106,10 +106,8 @@ def plot_grid_values(rfig, grid_mdp: GridMdp, value_func: np.ndarray, algo_name:
     font_size = get_font_size(grid_mdp)
     with rfig.plot(nid=f"{algo_name}-value", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
-        # mask CLIFF cells (not states) so the color scale spans only real
-        # values and matches between the student's and the ground-truth panel;
-        # the colormap renders the masked cells black (part of the raster, so
-        # no seams from patch overlays)
+        # CLIFF cells are not states: mask them so both panels share a color
+        # scale, and render them black via the colormap
         plot_v = np.where(grid_mdp.grid == Cell.CLIFF, np.nan, np.asarray(value_func, dtype=float))
         cmap = plt.get_cmap().copy()
         cmap.set_bad("k")
@@ -327,9 +325,8 @@ def _plot_aug_slice_values(rfig, mdp, value_slice, title: str):
     font_size = get_font_size(mdp)
     with rfig.plot(nid=f"{title}-value", mime=MIME_PDF, figsize=None) as _:
         ax = plt.gca()
-        # mask CLIFF cells (not states) so the color scale spans only real
-        # values and matches between the student's and the ground-truth panels;
-        # the colormap renders the masked cells black (no patch-overlay seams)
+        # CLIFF cells are not states: mask them so both panels share a color
+        # scale, and render them black via the colormap
         plot_v = np.where(mdp.grid == Cell.CLIFF, np.nan, np.asarray(value_slice, dtype=float))
         cmap = plt.get_cmap().copy()
         cmap.set_bad("k")
