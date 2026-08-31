@@ -291,8 +291,12 @@ class ValueIteration(GridMdpSolver):
     @staticmethod
     @time_function
     def solve(grid_mdp: AnyGridMdp) -> tuple[ValueFunc, Policy]:
+        value_func = np.zeros_like(grid_mdp.grid).astype(float)
+        policy = np.zeros_like(grid_mdp.grid).astype(int)
+
         # todo implement here
-        ...
+
+        return value_func, policy
 ```
 
 #### Policy iteration
@@ -305,9 +309,16 @@ class PolicyIteration(GridMdpSolver):
     @staticmethod
     @time_function
     def solve(grid_mdp: AnyGridMdp) -> tuple[ValueFunc, Policy]:
+        value_func = np.zeros_like(grid_mdp.grid).astype(float)
+        policy = np.zeros_like(grid_mdp.grid).astype(int)
+
         # todo implement here
-        ...
+
+        return value_func, policy
 ```
+
+(For Part 2 you will need arrays of shape `(M, N, Z)` instead - adapt the initialization
+accordingly.)
 
 One solver serves both parts: if you write it to iterate over "the states of the MDP" it runs
 on Part 2 unchanged; only the model underneath grows.
