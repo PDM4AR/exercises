@@ -1,9 +1,52 @@
+from collections import deque
 from itertools import product
 from random import sample, seed
+from typing import Optional
 
 import numpy as np
-from pdm4ar.exercises.ex04.structures import Cell
+from pdm4ar.exercises.ex04.structures import Action, Cell
 from pdm4ar.exercises_def.ex04.utils import cell2color
+
+_MOVES = {Action.NORTH: (-1, 0), Action.WEST: (0, -1),
+          Action.SOUTH: (1, 0), Action.EAST: (0, 1)}
+
+
+def random_map(shape=(10, 10), n_cliff: Optional[int] = None,
+               seed: Optional[int] = None) -> np.ndarray:
+    """A random map, resampled until the goal is reachable from the start
+    (plain connectivity, no probabilities involved)."""
+    if seed is None:
+        seed = int(np.random.default_rng().integers(1, 10**6))
+    if n_cliff is None:
+        n_cliff = max(2, round(0.08 * shape[0] * shape[1]))
+    for s in range(seed, seed + 200):
+        grid = generate_map(shape, 0.2, n_cliff=n_cliff, n_seed=s)
+        if _reachable(grid):
+            return grid
+    raise RuntimeError("no reachable map found; try another seed/shape")
+
+
+def _find_cell(grid, cell_type):
+    pos = np.argwhere(grid == cell_type)
+    return tuple(pos[0]) if len(pos) else None
+
+
+def _reachable(grid) -> bool:
+    start, goal = _find_cell(grid, Cell.START), _find_cell(grid, Cell.GOAL)
+    if start is None or goal is None:
+        return False
+    seen, frontier = {start}, deque([start])
+    while frontier:
+        i, j = frontier.popleft()
+        if (i, j) == goal:
+            return True
+        for di, dj in _MOVES.values():
+            n = (i + di, j + dj)
+            if (0 <= n[0] < grid.shape[0] and 0 <= n[1] < grid.shape[1]
+                    and grid[n] != Cell.CLIFF and n not in seen):
+                seen.add(n)
+                frontier.append(n)
+    return False
 
 
 def generate_map(shape: tuple[int, int], swamp_percentage: float, n_cliff: int, n_seed) -> np.ndarray:

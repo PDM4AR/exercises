@@ -373,7 +373,7 @@ PRACTICE_MAP_SPECS: list[tuple[tuple[int, int], int]] = [((6, 6), 1), ((9, 9), 2
 
 
 def get_practice_grids() -> list[np.ndarray]:
-    from pdm4ar.exercises_def.ex04.selfcheck import random_map
+    from pdm4ar.exercises_def.ex04.map import random_map
 
     return [random_map(shape, seed=seed) for shape, seed in PRACTICE_MAP_SPECS]
 

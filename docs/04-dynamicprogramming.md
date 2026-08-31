@@ -378,27 +378,9 @@ Besides the test maps above, the built-in run also includes three extra practice
 varied sizes (they appear in the reports as maps 3, 4 and 5), with full solutions for Part 1
 and every Part-2 case. They are scored with the same policy accuracy and value R2 as
 everything else but are not graded; if one of them scores below 1.0, that map and case is
-where to look.
+where to look. If you want even more maps to experiment on, `random_map(shape, seed=...)` in
+`exercises_def/ex04/map.py` generates random maps with the goal guaranteed reachable.
 
-
-### Make your own maps, and verify without an answer key
-
-You can also generate as many extra maps as you like and run some basic consistency
-checks on your solutions with no ground truth at all:
-
-```python
-from pdm4ar.exercises_def.ex04.selfcheck import random_map, self_check
-
-grid = random_map((10, 10), seed=7)      # goal always reachable
-mdp = FogGridMdp(grid)
-v_vi, p_vi = ValueIteration.solve(mdp)
-v_pi, p_pi = PolicyIteration.solve(mdp)
-self_check(mdp, "forecast", v_vi, p_vi, v_pi)
-```
-
-See `exercises_def/ex04/selfcheck.py` for what it verifies. These checks are run against
-your own transition model, so they are a sanity check, not a proof of correctness; the
-worked examples above and the practice maps are your anchors for the model itself.
 
 ### Test cases and performance criteria
 
