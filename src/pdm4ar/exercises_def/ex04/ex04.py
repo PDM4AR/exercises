@@ -5,7 +5,6 @@ from zuper_commons.text import remove_escapes
 
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator
 from pdm4ar.exercises.ex04.mdp import AugmentedGridMdp, GridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.policy_iteration import PolicyIteration
