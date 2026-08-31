@@ -6,7 +6,7 @@ import pickle
 import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
 from pdm4ar.exercises.ex04.structures import OptimalActions, ValueFunc, Cell, Action, State
-from pdm4ar.exercises_def.ex04.map import generate_map
+from pdm4ar.exercises_def.ex04.map import generate_map, random_map
 from pdm4ar.exercises_def import ExIn
 
 
@@ -35,6 +35,10 @@ def get_simple_test_grid() -> np.ndarray:
     return simple_map
 
 
+SMALL_TEST_MAP_SPECS: list[tuple[tuple[int, int], int]] = [((6, 6), 1), ((9, 9), 2), ((12, 12), 1)]
+"""Three smaller public test maps (maps 3-5), regenerated deterministically."""
+
+
 def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]] = []) -> list[GridMdp]:
     MAP_SHAPE_2 = (10, 10)
     MAP_SHAPE_3 = (40, 40)
@@ -44,6 +48,8 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]]
     test_maps.append(get_simple_test_grid())
     test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_cliff=10, n_seed=5))
     test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_cliff=15, n_seed=110))
+    for shape, seed in SMALL_TEST_MAP_SPECS:
+        test_maps.append(random_map(shape, seed=seed))
 
     # additional maps for evaluation
     for map_info in evaluation_tests:
@@ -168,26 +174,10 @@ def get_expected_results_transition(test_cases: list[TestTransitionProbEx4]) -> 
 def get_expected_results_algo() -> list[tuple[ValueFunc, OptimalActions]]:
     data_dir = Path(__file__).parent
     all_data = np.load(data_dir / "data/expected_results.npz", allow_pickle=True)
-
-    value_func_0 = all_data["value_func_0"]
-    policy_0 = all_data["policy_0"]
-
-    value_func_1 = all_data["value_func_1"]
-    policy_1 = all_data["policy_1"]
-
-    value_func_2 = all_data["value_func_2"]
-    policy_2 = all_data["policy_2"]
-
-    expected_results = [
-        (value_func_0, policy_0),
-        (value_func_1, policy_1),
-        (value_func_2, policy_2),
-        (value_func_0, policy_0),
-        (value_func_1, policy_1),
-        (value_func_2, policy_2),
-    ]
-
-    return expected_results
+    n_maps = sum(1 for k in all_data.keys() if k.startswith("value_func_"))
+    one_pass = [(all_data[f"value_func_{mi}"], all_data[f"policy_{mi}"]) for mi in range(n_maps)]
+    # once for ValueIteration, once for PolicyIteration
+    return one_pass + one_pass
 
 
 def load_transition_matrix() -> Dict:
@@ -318,14 +308,15 @@ def get_test_mdps_aug() -> list[tuple[str, int, AugmentedGridMdp]]:
 
 
 def get_expected_results_algo_aug() -> list[tuple[ValueFunc, OptimalActions]]:
-    """Aligned with get_exercise4's Part-2 test order: the 9 (case, map)
-    pairs once for ValueIteration, once for PolicyIteration."""
+    """Aligned with get_exercise4's Part-2 test order: every (case, map)
+    pair once for ValueIteration, once for PolicyIteration."""
     data_dir = Path(__file__).parent
     data = np.load(data_dir / "data/expected_results_aug.npz", allow_pickle=True)
+    n_maps = sum(1 for k in data.keys() if k.startswith("forecast_value_"))
     one_pass = [
         (data[f"{case_name}_value_{mi}"], data[f"{case_name}_policy_{mi}"])
         for case_name, _ in AUG_CASES
-        for mi in range(3)
+        for mi in range(n_maps)
     ]
     return one_pass + one_pass
 
@@ -362,35 +353,6 @@ AUG_PROBES = [
     ("glitch", (2, 1, 0), Action.EAST, (2, 2, 1), 0.0750000000),
     ("glitch", (3, 1, 1), Action.NORTH, (2, 2, 0), 0.0500000000),
 ]
-
-
-# ---------------------------------------------------------------------------
-# Practice maps: extra ungraded maps that run in the same built-in flow as the
-# public test maps. They regenerate deterministically from (shape, seed), so
-# only their solutions ship in data/expected_results_practice.npz.
-# ---------------------------------------------------------------------------
-PRACTICE_MAP_SPECS: list[tuple[tuple[int, int], int]] = [((6, 6), 1), ((9, 9), 2), ((12, 12), 1)]
-
-
-def get_practice_grids() -> list[np.ndarray]:
-    from pdm4ar.exercises_def.ex04.map import random_map
-
-    return [random_map(shape, seed=seed) for shape, seed in PRACTICE_MAP_SPECS]
-
-
-def get_expected_results_practice() -> list[tuple[ValueFunc, OptimalActions]]:
-    """Aligned with get_exercise4's practice test order: base on every
-    practice map, then each Part-2 case on every practice map, once for
-    ValueIteration and once for PolicyIteration."""
-    data_dir = Path(__file__).parent
-    data = np.load(data_dir / "data/expected_results_practice.npz", allow_pickle=True)
-    cases = ["base"] + [case_name for case_name, _ in AUG_CASES]
-    one_pass = [
-        (data[f"practice_{case_name}_value_{k}"], data[f"practice_{case_name}_policy_{k}"])
-        for case_name in cases
-        for k in range(len(PRACTICE_MAP_SPECS))
-    ]
-    return one_pass + one_pass
 
 
 def get_transition_prob_test_cases_aug() -> list[TestTransitionProbAug]:

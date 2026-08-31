@@ -372,19 +372,12 @@ left corner of the grid. All axes are 0-indexed.
 - ((3, 3), WEST):    ((3, 2), 0.5, -2), ((2, 3), 0.0833, -2), ((3, 4), 0.0833, -2), ((4, 3), 0.0833, -2), ((3, 3), 0.2, -2), ((2, 2), 0.05, -12)
 ```
 
-### Practice maps (not graded)
-
-Besides the test maps above, the built-in run also includes three extra practice maps of
-varied sizes (they appear in the reports as maps 3, 4 and 5), with full solutions for Part 1
-and every Part-2 case. They are scored with the same policy accuracy and value R2 as
-everything else but are not graded; if one of them scores below 1.0, that map and case is
-where to look. If you want even more maps to experiment on, `random_map(shape, seed=...)` in
-`exercises_def/ex04/map.py` generates random maps with the goal guaranteed reachable.
-
-
 ### Test cases and performance criteria
 
-The algorithms are going to be tested on different MDPs of both parts.
+The algorithms are going to be tested on different MDPs of both parts. The public test set
+contains six maps: the 5x5 example, larger 10x10 and 40x40 maps, and smaller 6x6, 9x9 and
+12x12 maps. If you want more maps to experiment on, `random_map(shape, seed=...)` in
+`exercises_def/ex04/map.py` generates random maps with the goal guaranteed reachable.
 You will be able to test your algorithms on some test cases with given solution, the outputted `Policy` and `ValueFunc` will be compared to the solution.
 After running the exercise, you will find the reports in `out/04/` for each test case.
 There you will be able to visualize the MDPs, your output and the expected solution; Part-2

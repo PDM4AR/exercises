@@ -13,13 +13,10 @@ from pdm4ar.exercises.ex04.value_iteration import ValueIteration
 from pdm4ar.exercises.ex04.structures import Action, OptimalActions, Cell, Policy
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex04.data import (
-    AUG_CASES,
     get_expected_results_algo,
     get_expected_results_algo_aug,
-    get_expected_results_practice,
     get_expected_results_transition,
     get_expected_results_transition_aug,
-    get_practice_grids,
     get_test_grids,
     get_test_mdps_aug,
     get_transition_prob_test_cases,
@@ -475,33 +472,11 @@ def get_exercise4() -> Exercise:
     aug_transition_cases = get_transition_prob_test_cases_aug()
     aug_transition_expected = get_expected_results_transition_aug()
 
-    # Practice maps: extra ungraded maps in the same flow, numbered after the
-    # public maps (map indices 3, 4, 5 in the reports)
-    practice_grids = get_practice_grids()
-    n_public = len(grid_mdps)
-    # per algo: base on every practice map first, then each Part-2 case,
-    # matching the order of get_expected_results_practice
-    test_values_practice = [
-        TestValueEx4(algo=algo, grid=cls(grid=grid, gamma=0.9), testId=n_public + k, case_name=case_name)
-        for algo in algos
-        for case_name, cls in [("base", GridMdp)] + AUG_CASES
-        for k, grid in enumerate(practice_grids)
-    ]
-    expected_results_practice = get_expected_results_practice()
-
     all_test_values = (
-        transition_test_cases
-        + aug_transition_cases
-        + test_values_algo
-        + test_values_aug
-        + test_values_practice
+        transition_test_cases + aug_transition_cases + test_values_algo + test_values_aug
     )
     all_expected_results = (
-        transition_expected_results
-        + aug_transition_expected
-        + expected_results_algo
-        + expected_results_aug
-        + expected_results_practice
+        transition_expected_results + aug_transition_expected + expected_results_algo + expected_results_aug
     )
 
     return Exercise[Any, Any](
