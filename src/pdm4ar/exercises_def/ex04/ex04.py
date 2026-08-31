@@ -450,12 +450,11 @@ def ex4_transition_prob_evaluation_aug(ex_in: TestTransitionProbAug, ex_out=None
     return Ex04TransitionProbPerformance(transition_prob_accuracy=accuracy), r
 
 
-def get_exercise4(quick: bool = False) -> Exercise:
+def get_exercise4(all_maps: bool = False) -> Exercise:
     algos = [ValueIteration, PolicyIteration]
-    # quick mode ("--exercise 04quick") runs the same pipeline on three
-    # smaller maps for fast iteration while developing
-    map_ids = (3, 4, 5) if quick else (0, 1, 2)
-    grid_mdps = get_small_test_grids() if quick else get_test_grids()
+    # "--exercise 04all" additionally runs three smaller maps (ids 3-5)
+    map_ids = (0, 1, 2, 3, 4, 5) if all_maps else (0, 1, 2)
+    grid_mdps = get_test_grids() + (get_small_test_grids() if all_maps else [])
 
     # Part 1: the base MDP
     test_values_algo = [
@@ -496,6 +495,6 @@ def get_exercise4(quick: bool = False) -> Exercise:
     )
 
 
-def get_exercise4_quick() -> Exercise:
-    """Exercise id "04quick": the same tests on three smaller maps only."""
-    return get_exercise4(quick=True)
+def get_exercise4_all() -> Exercise:
+    """Exercise id "04all": the default maps plus three smaller ones (ids 3-5)."""
+    return get_exercise4(all_maps=True)
