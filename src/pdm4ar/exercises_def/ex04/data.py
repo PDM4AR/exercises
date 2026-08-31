@@ -36,7 +36,12 @@ def get_simple_test_grid() -> np.ndarray:
 
 
 SMALL_TEST_MAP_SPECS: list[tuple[tuple[int, int], int]] = [((6, 6), 1), ((9, 9), 2), ((12, 12), 1)]
-"""Three smaller public test maps (maps 3-5), regenerated deterministically."""
+"""The three smaller maps of the quick run (map ids 3-5), regenerated deterministically."""
+
+
+def get_small_test_grids() -> list[GridMdp]:
+    """The quick-run maps (ids 3-5), used by exercise id "04quick"."""
+    return [GridMdp(grid=random_map(shape, seed=seed), gamma=0.9) for shape, seed in SMALL_TEST_MAP_SPECS]
 
 
 def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]] = []) -> list[GridMdp]:
@@ -48,8 +53,6 @@ def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]]
     test_maps.append(get_simple_test_grid())
     test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_cliff=10, n_seed=5))
     test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_cliff=15, n_seed=110))
-    for shape, seed in SMALL_TEST_MAP_SPECS:
-        test_maps.append(random_map(shape, seed=seed))
 
     # additional maps for evaluation
     for map_info in evaluation_tests:
@@ -171,11 +174,11 @@ def get_expected_results_transition(test_cases: list[TestTransitionProbEx4]) -> 
     return res
 
 
-def get_expected_results_algo() -> list[tuple[ValueFunc, OptimalActions]]:
+def get_expected_results_algo(map_ids: tuple = (0, 1, 2)) -> list[tuple[ValueFunc, OptimalActions]]:
+    """Solutions for the given map ids (0-2: public maps, 3-5: quick-run maps)."""
     data_dir = Path(__file__).parent
     all_data = np.load(data_dir / "data/expected_results.npz", allow_pickle=True)
-    n_maps = sum(1 for k in all_data.keys() if k.startswith("value_func_"))
-    one_pass = [(all_data[f"value_func_{mi}"], all_data[f"policy_{mi}"]) for mi in range(n_maps)]
+    one_pass = [(all_data[f"value_func_{mi}"], all_data[f"policy_{mi}"]) for mi in map_ids]
     # once for ValueIteration, once for PolicyIteration
     return one_pass + one_pass
 
@@ -297,26 +300,27 @@ AUG_CASES: list[tuple[str, Type[AugmentedGridMdp]]] = [
 ]
 
 
-def get_test_mdps_aug() -> list[tuple[str, int, AugmentedGridMdp]]:
-    """(case_name, map_index, mdp) over the same maps as Part 1."""
-    maps = [g.grid for g in get_test_grids()]
+def get_test_mdps_aug(map_ids: tuple = (0, 1, 2)) -> list[tuple[str, int, AugmentedGridMdp]]:
+    """(case_name, map_id, mdp) over the requested maps (0-2: public,
+    3-5: quick-run)."""
+    grids = get_test_grids() if max(map_ids) <= 2 else get_small_test_grids()
+    maps = list(zip(map_ids, [g.grid for g in grids]))
     out = []
     for case_name, cls in AUG_CASES:
-        for mi, grid in enumerate(maps):
+        for mi, grid in maps:
             out.append((case_name, mi, cls(grid=grid, gamma=0.9)))
     return out
 
 
-def get_expected_results_algo_aug() -> list[tuple[ValueFunc, OptimalActions]]:
+def get_expected_results_algo_aug(map_ids: tuple = (0, 1, 2)) -> list[tuple[ValueFunc, OptimalActions]]:
     """Aligned with get_exercise4's Part-2 test order: every (case, map)
     pair once for ValueIteration, once for PolicyIteration."""
     data_dir = Path(__file__).parent
     data = np.load(data_dir / "data/expected_results_aug.npz", allow_pickle=True)
-    n_maps = sum(1 for k in data.keys() if k.startswith("forecast_value_"))
     one_pass = [
         (data[f"{case_name}_value_{mi}"], data[f"{case_name}_policy_{mi}"])
         for case_name, _ in AUG_CASES
-        for mi in range(n_maps)
+        for mi in map_ids
     ]
     return one_pass + one_pass
 

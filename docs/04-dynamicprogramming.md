@@ -375,8 +375,12 @@ left corner of the grid. All axes are 0-indexed.
 ### Test cases and performance criteria
 
 The algorithms are going to be tested on different MDPs of both parts. The public test set
-contains six maps: the 5x5 example, larger 10x10 and 40x40 maps, and smaller 6x6, 9x9 and
-12x12 maps. If you want more maps to experiment on, `random_map(shape, seed=...)` in
+contains three maps: the 5x5 example plus randomly generated 10x10 and 40x40 maps.
+
+While developing, a full run can take a while (the 40x40 Part-2 maps are large). For fast
+iteration, run `--exercise 04quick` instead: the same tests and metrics on three smaller
+maps (6x6, 9x9 and 12x12, with published solutions), which finishes in a fraction of the
+time. If you want more maps to experiment on, `random_map(shape, seed=...)` in
 `exercises_def/ex04/map.py` generates random maps with the goal guaranteed reachable.
 You will be able to test your algorithms on some test cases with given solution, the outputted `Policy` and `ValueFunc` will be compared to the solution.
 After running the exercise, you will find the reports in `out/04/` for each test case.

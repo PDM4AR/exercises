@@ -14,6 +14,7 @@ from pdm4ar.exercises.ex04.structures import Action, OptimalActions, Cell, Polic
 from pdm4ar.exercises_def import Exercise, ExIn
 from pdm4ar.exercises_def.ex04.data import (
     get_expected_results_algo,
+    get_small_test_grids,
     get_expected_results_algo_aug,
     get_expected_results_transition,
     get_expected_results_transition_aug,
@@ -449,26 +450,33 @@ def ex4_transition_prob_evaluation_aug(ex_in: TestTransitionProbAug, ex_out=None
     return Ex04TransitionProbPerformance(transition_prob_accuracy=accuracy), r
 
 
-def get_exercise4() -> Exercise:
+def get_exercise4(quick: bool = False) -> Exercise:
     algos = [ValueIteration, PolicyIteration]
-    grid_mdps = get_test_grids()
+    # quick mode ("--exercise 04quick") runs the same pipeline on three
+    # smaller maps for fast iteration while developing
+    map_ids = (3, 4, 5) if quick else (0, 1, 2)
+    grid_mdps = get_small_test_grids() if quick else get_test_grids()
 
     # Part 1: the base MDP
     test_values_algo = [
-        TestValueEx4(algo=algo, grid=grid_mdp, testId=i) for algo in algos for i, grid_mdp in enumerate(grid_mdps)
+        TestValueEx4(algo=algo, grid=grid_mdp, testId=mi)
+        for algo in algos
+        for mi, grid_mdp in zip(map_ids, grid_mdps)
     ]
-    expected_results_algo = get_expected_results_algo()
-    transition_test_cases = get_transition_prob_test_cases(grid_mdps[:1])  # Test on first grid only
+    expected_results_algo = get_expected_results_algo(map_ids)
+
+    # transition probes always run on the 5x5 example map (fast)
+    transition_test_cases = get_transition_prob_test_cases(get_test_grids()[:1])
     transition_expected_results = get_expected_results_transition(transition_test_cases)
 
     # Part 2: the augmented cases on the same maps
-    aug_mdps = get_test_mdps_aug()
+    aug_mdps = get_test_mdps_aug(map_ids)
     test_values_aug = [
         TestValueEx4(algo=algo, grid=mdp, testId=mi, case_name=case_name)
         for algo in algos
         for (case_name, mi, mdp) in aug_mdps
     ]
-    expected_results_aug = get_expected_results_algo_aug()
+    expected_results_aug = get_expected_results_algo_aug(map_ids)
     aug_transition_cases = get_transition_prob_test_cases_aug()
     aug_transition_expected = get_expected_results_transition_aug()
 
@@ -486,3 +494,8 @@ def get_exercise4() -> Exercise:
         test_values=all_test_values,
         expected_results=all_expected_results,
     )
+
+
+def get_exercise4_quick() -> Exercise:
+    """Exercise id "04quick": the same tests on three smaller maps only."""
+    return get_exercise4(quick=True)
