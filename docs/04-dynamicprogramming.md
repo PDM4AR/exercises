@@ -377,14 +377,9 @@ left corner of the grid. All axes are 0-indexed.
 The algorithms are going to be tested on different MDPs of both parts. The public test set
 contains three maps: the 5x5 example plus randomly generated 10x10 and 40x40 maps.
 
-If you want broader coverage, set the environment variable `PDM4AR_EX04_ALL_MAPS=1` to run
-the same tests and metrics on three additional smaller maps (6x6, 9x9 and 12x12, with
-published solutions) on top of the three public ones:
-
-```bash
-PDM4AR_EX04_ALL_MAPS=1 python3 src/pdm4ar/main.py --exercise 04
-```
-
+If you want broader coverage, set `ALL_MAPS = True` at the top of
+`exercises_def/ex04/ex04.py` to run the same tests and metrics on three additional smaller
+maps (6x6, 9x9 and 12x12, with published solutions) on top of the three public ones.
 For even more maps to experiment on, `random_map(shape, seed=...)` in
 `exercises_def/ex04/map.py` generates random maps with the goal guaranteed reachable.
 You will be able to test your algorithms on some test cases with given solution, the outputted `Policy` and `ValueFunc` will be compared to the solution.

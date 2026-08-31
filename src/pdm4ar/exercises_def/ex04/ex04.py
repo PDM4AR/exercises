@@ -1,4 +1,3 @@
-import os
 from dataclasses import dataclass
 from time import process_time
 from typing import Any, Sequence, Type, Union, Optional, cast
@@ -30,6 +29,11 @@ from pdm4ar.exercises_def.ex04.map import map2image
 from pdm4ar.exercises_def.ex04.utils import action2arrow, head_width
 from pdm4ar.exercises_def.structures import PerformanceResults
 from reprep import MIME_PDF, Report
+
+ALL_MAPS = False
+"""Set to True to additionally run three smaller test maps (6x6, 9x9, 12x12,
+report ids 3-5) with published solutions, on top of the three public maps."""
+
 
 @dataclass
 class TestValueEx4(ExIn):
@@ -453,9 +457,8 @@ def ex4_transition_prob_evaluation_aug(ex_in: TestTransitionProbAug, ex_out=None
 
 def get_exercise4(all_maps: Optional[bool] = None) -> Exercise:
     algos = [ValueIteration, PolicyIteration]
-    # set PDM4AR_EX04_ALL_MAPS=1 to additionally run three smaller maps (ids 3-5)
     if all_maps is None:
-        all_maps = os.environ.get("PDM4AR_EX04_ALL_MAPS", "0").lower() not in ("0", "", "false")
+        all_maps = ALL_MAPS
     map_ids = (0, 1, 2, 3, 4, 5) if all_maps else (0, 1, 2)
     grid_mdps = get_test_grids() + (get_small_test_grids() if all_maps else [])
 

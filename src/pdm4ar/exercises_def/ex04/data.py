@@ -40,7 +40,7 @@ SMALL_TEST_MAP_SPECS: list[tuple[tuple[int, int], int]] = [((6, 6), 1), ((9, 9),
 
 
 def get_small_test_grids() -> list[GridMdp]:
-    """The optional extra maps (ids 3-5), enabled with PDM4AR_EX04_ALL_MAPS=1."""
+    """The optional extra maps (ids 3-5), enabled with ALL_MAPS in ex04.py."""
     return [GridMdp(grid=random_map(shape, seed=seed), gamma=0.9) for shape, seed in SMALL_TEST_MAP_SPECS]
 
 
