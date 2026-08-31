@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from time import process_time
 from typing import Any, Sequence, Type, Union, Optional, cast
@@ -450,9 +451,11 @@ def ex4_transition_prob_evaluation_aug(ex_in: TestTransitionProbAug, ex_out=None
     return Ex04TransitionProbPerformance(transition_prob_accuracy=accuracy), r
 
 
-def get_exercise4(all_maps: bool = False) -> Exercise:
+def get_exercise4(all_maps: Optional[bool] = None) -> Exercise:
     algos = [ValueIteration, PolicyIteration]
-    # "--exercise 04all" additionally runs three smaller maps (ids 3-5)
+    # set PDM4AR_EX04_ALL_MAPS=1 to additionally run three smaller maps (ids 3-5)
+    if all_maps is None:
+        all_maps = os.environ.get("PDM4AR_EX04_ALL_MAPS", "0").lower() not in ("0", "", "false")
     map_ids = (0, 1, 2, 3, 4, 5) if all_maps else (0, 1, 2)
     grid_mdps = get_test_grids() + (get_small_test_grids() if all_maps else [])
 
@@ -493,8 +496,3 @@ def get_exercise4(all_maps: bool = False) -> Exercise:
         test_values=all_test_values,
         expected_results=all_expected_results,
     )
-
-
-def get_exercise4_all() -> Exercise:
-    """Exercise id "04all": the default maps plus three smaller ones (ids 3-5)."""
-    return get_exercise4(all_maps=True)

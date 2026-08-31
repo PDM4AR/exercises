@@ -36,11 +36,11 @@ def get_simple_test_grid() -> np.ndarray:
 
 
 SMALL_TEST_MAP_SPECS: list[tuple[tuple[int, int], int]] = [((6, 6), 1), ((9, 9), 2), ((12, 12), 1)]
-"""The three extra maps of the "04all" run (map ids 3-5), regenerated deterministically."""
+"""The three optional extra test maps (ids 3-5), regenerated deterministically."""
 
 
 def get_small_test_grids() -> list[GridMdp]:
-    """The extra maps (ids 3-5) that "--exercise 04all" adds to the test set."""
+    """The optional extra maps (ids 3-5), enabled with PDM4AR_EX04_ALL_MAPS=1."""
     return [GridMdp(grid=random_map(shape, seed=seed), gamma=0.9) for shape, seed in SMALL_TEST_MAP_SPECS]
 
 
@@ -175,7 +175,7 @@ def get_expected_results_transition(test_cases: list[TestTransitionProbEx4]) -> 
 
 
 def get_expected_results_algo(map_ids: tuple = (0, 1, 2)) -> list[tuple[ValueFunc, OptimalActions]]:
-    """Solutions for the given map ids (0-2: public maps, 3-5: the extra 04all maps)."""
+    """Solutions for the given map ids (0-2: public maps, 3-5: the optional extra maps)."""
     data_dir = Path(__file__).parent
     all_data = np.load(data_dir / "data/expected_results.npz", allow_pickle=True)
     one_pass = [(all_data[f"value_func_{mi}"], all_data[f"policy_{mi}"]) for mi in map_ids]
@@ -302,7 +302,7 @@ AUG_CASES: list[tuple[str, Type[AugmentedGridMdp]]] = [
 
 def get_test_mdps_aug(map_ids: tuple = (0, 1, 2)) -> list[tuple[str, int, AugmentedGridMdp]]:
     """(case_name, map_id, mdp) over the requested maps (ids 0-2: the public
-    maps, ids 3-5: the extra "04all" maps)."""
+    maps, ids 3-5: the optional extra maps)."""
     grids_by_id = get_test_grids() + (get_small_test_grids() if max(map_ids) > 2 else [])
     maps = [(mi, grids_by_id[mi].grid) for mi in map_ids]
     out = []
