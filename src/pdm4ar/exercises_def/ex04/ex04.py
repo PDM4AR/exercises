@@ -484,7 +484,7 @@ def get_exercise4(all_maps: Optional[bool] = None) -> Exercise:
     ]
     expected_results_aug = get_expected_results_algo_aug(map_ids)
     aug_transition_cases = get_transition_prob_test_cases_aug()
-    aug_transition_expected = get_expected_results_transition_aug()
+    aug_transition_expected = get_expected_results_transition_aug(aug_transition_cases)
 
     all_test_values = (
         transition_test_cases + aug_transition_cases + test_values_algo + test_values_aug

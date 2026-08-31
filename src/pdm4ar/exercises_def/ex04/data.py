@@ -235,24 +235,26 @@ class TestTransitionProbAug(ExIn):
         return f"TransitionProb-{self.case_name}{self.testId}"
 
 
-# (case, (i, j, z), action, (i', j', z'), expected probability)
-# Computed from the validated reference implementation on the 5x5 map.
+# (case, (i, j, z), action, (i', j', z')) probes on the 5x5 example map; the
+# expected probabilities are looked up in data/expected_transition_results_aug.npz,
+# which covers every (state, action, next_state) triple per case - so, as in
+# Part 1, you can add your own probes here to check edge cases.
 AUG_PROBES = [
-    ("forecast", (2, 1, 0), Action.EAST, (2, 2, 0), 0.5250000000),
-    ("forecast", (2, 1, 1), Action.EAST, (2, 2, 1), 0.1650000000),
-    ("forecast", (1, 2, 0), Action.NORTH, (0, 2, 1), 0.2250000000),
-    ("forecast", (3, 3, 1), Action.WEST, (3, 3, 0), 0.1400000000),
-    ("forecast", (1, 2, 1), Action.ABANDON, (2, 2, 0), 0.7000000000),
-    ("momentum", (2, 1, 0), Action.EAST, (2, 2, 4), 0.7500000000),
-    ("momentum", (2, 1, 4), Action.EAST, (2, 2, 4), 0.8500000000),
-    ("momentum", (2, 1, 2), Action.EAST, (2, 1, 0), 0.0000000000),
-    ("momentum", (2, 1, 2), Action.EAST, (2, 0, 2), 0.2500000000),
-    ("momentum", (2, 3, 1), Action.EAST, (1, 3, 1), 0.1500000000),
-    ("momentum", (3, 3, 1), Action.WEST, (3, 3, 0), 0.2000000000),
-    ("glitch", (2, 1, 0), Action.EAST, (2, 2, 0), 0.6750000000),
-    ("glitch", (2, 1, 1), Action.EAST, (2, 2, 1), 0.4200000000),
-    ("glitch", (2, 1, 0), Action.EAST, (2, 2, 1), 0.0750000000),
-    ("glitch", (3, 1, 1), Action.NORTH, (2, 2, 0), 0.0500000000),
+    ("forecast", (2, 1, 0), Action.EAST, (2, 2, 0)),
+    ("forecast", (2, 1, 1), Action.EAST, (2, 2, 1)),
+    ("forecast", (1, 2, 0), Action.NORTH, (0, 2, 1)),
+    ("forecast", (3, 3, 1), Action.WEST, (3, 3, 0)),
+    ("forecast", (1, 2, 1), Action.ABANDON, (2, 2, 0)),
+    ("momentum", (2, 1, 0), Action.EAST, (2, 2, 4)),
+    ("momentum", (2, 1, 4), Action.EAST, (2, 2, 4)),
+    ("momentum", (2, 1, 2), Action.EAST, (2, 1, 0)),
+    ("momentum", (2, 1, 2), Action.EAST, (2, 0, 2)),
+    ("momentum", (2, 3, 1), Action.EAST, (1, 3, 1)),
+    ("momentum", (3, 3, 1), Action.WEST, (3, 3, 0)),
+    ("glitch", (2, 1, 0), Action.EAST, (2, 2, 0)),
+    ("glitch", (2, 1, 1), Action.EAST, (2, 2, 1)),
+    ("glitch", (2, 1, 0), Action.EAST, (2, 2, 1)),
+    ("glitch", (3, 1, 1), Action.NORTH, (2, 2, 0)),
 ]
 
 
@@ -261,7 +263,7 @@ def get_transition_prob_test_cases_aug() -> list[TestTransitionProbAug]:
     classes = dict(AUG_CASES)
     cases = []
     counters: dict = {}
-    for case_name, state, action, next_state, _ in AUG_PROBES:
+    for case_name, state, action, next_state in AUG_PROBES:
         tid = counters.get(case_name, 0)
         counters[case_name] = tid + 1
         cases.append(
@@ -277,5 +279,13 @@ def get_transition_prob_test_cases_aug() -> list[TestTransitionProbAug]:
     return cases
 
 
-def get_expected_results_transition_aug() -> list[float]:
-    return [expected for *_ignored, expected in AUG_PROBES]
+def get_expected_results_transition_aug(test_cases: list[TestTransitionProbAug]) -> list[float]:
+    """Load pre-computed Part-2 transition probabilities for the given test
+    cases, mirroring the Part-1 mechanism."""
+    data_dir = Path(__file__).parent
+    all_data = np.load(data_dir / "data/expected_transition_results_aug.npz", allow_pickle=True)
+    transition_probs: dict = all_data["transition_probs"].item()
+    return [
+        transition_probs[(test.case_name, test.state, test.action, test.next_state)]
+        for test in test_cases
+    ]
