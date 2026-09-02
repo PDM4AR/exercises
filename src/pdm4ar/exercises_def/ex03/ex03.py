@@ -28,6 +28,15 @@ from pdm4ar.exercises_def.ex03.data import (
     TestValueEx3,
 )
 
+# To avoid spamming warnings into the terminal
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"The expected order of coordinates in `bbox` will change.*",
+    category=FutureWarning,
+)
+
 
 @dataclass(frozen=True)
 class Ex03PerformanceResult(PerformanceResults):
@@ -54,6 +63,7 @@ def compute_path_cost(wG: WeightedGraph, path: Path):
         inc = wG.get_weight(path[i - 1], path[i])
         total += inc
     return total
+
 
 def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex03PerformanceResult, Report]:
     # ex properties
@@ -90,7 +100,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
     validation_wrapper = ex_in.impl_validate_func_wrapper
     disallowed_deps = ex_in.disallowed_dependencies
     if validation_wrapper is not None and disallowed_deps is not None:
-        data = next(iter(test_queries))                                     # Use one of the available queries for validation
+        data = next(iter(test_queries))  # Use one of the available queries for validation
         check = validation_wrapper(search_algo.path, disallowed_deps)
         called_funcs = check(*data)
         if called_funcs:
@@ -133,7 +143,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                 if graph_dimensions(wG._G)[0] > 1:
                     # print("printing double")
                     centers = find_center_of_cities(wG._G)
-                    print(f"center city {centers[0]}")
+                    # print(f"center city {centers[0]}")
                     with rfig.plot(nid=f"YourPath{i}-{algo_name}", mime=MIME_PDF, figsize=figsize) as _:
                         ax = plt.gca()
                         # function needed to display one of the combined
@@ -214,7 +224,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
                             show=False,
                             close=False,
                         )
-        elif not gt_path:                  # No ground truth path found, so it doesn't exist --> set default values
+        elif not gt_path:  # No ground truth path found, so it doesn't exist --> set default values
             path_str = "Your algo did not find any path, because it does not exist."
             gt_path_str = "Solution not given"
             path_cost = 0.0
@@ -224,7 +234,7 @@ def ex3_evaluation(ex_in: TestValueEx3, ex_out=None, plotGraph=True) -> Tuple[Ex
             path_cost = float("inf")
             path = []
         # compare to ground truth only for admissible heuristic
-        if gt_path:                 # if gt_path is not empty
+        if gt_path:  # if gt_path is not empty
             # Compute gt path cost
             gt_path_cost = compute_path_cost(wG, gt_path)
             gt_path_str = str_from_path(gt_path)
@@ -381,9 +391,7 @@ def ex3_perf_aggregator(perf: Sequence[Ex03PerformanceResult]) -> Ex03Performanc
     solve_time = sum(p.solve_time for p in perf) / len(perf)
     total_weight_calls = sum(p.weight_calls for p in perf)
     total_reference_calls = sum(p.reference_weight_calls for p in perf)
-    search_efficiency = (
-        total_weight_calls / total_reference_calls if total_reference_calls else 0.0
-    )
+    search_efficiency = total_weight_calls / total_reference_calls if total_reference_calls else 0.0
 
     return Ex03PerformanceResult(
         accuracy=accuracy,
@@ -525,10 +533,7 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: dict[str, set
         for lib in effective_disallowed_dependencies:
             if module.startswith(lib) or called_module.startswith(lib):
                 # print(f"Found call to {lib}")
-                if (
-                    not effective_disallowed_dependencies[lib]
-                    or func_name in effective_disallowed_dependencies[lib]
-                ):
+                if not effective_disallowed_dependencies[lib] or func_name in effective_disallowed_dependencies[lib]:
                     # print(f"Detected disallowed dependency: {lib}.{func_name}")
                     identifier = (lib, func_name)
                     if identifier not in detected_funcs:
@@ -565,8 +570,10 @@ def validate_impl_wrapper(func: Callable, disallowed_dependencies: dict[str, set
 
 
 def get_exercise3() -> Exercise:
-    disallowed_dependencies = {"networkx": {"astar_path", "shortest_path", "dijkstra_path", "bidirectional_dijkstra"},
-                               "ctypes": set()}    # ctypes is disallowed in its entirety
+    disallowed_dependencies = {
+        "networkx": {"astar_path", "shortest_path", "dijkstra_path", "bidirectional_dijkstra"},
+        "ctypes": set(),
+    }  # ctypes is disallowed in its entirety
 
     test_wgraphs = get_test_informed_gsproblem(n_queries=1, n_seed=4)
     test_values = list()
@@ -578,13 +585,14 @@ def get_exercise3() -> Exercise:
     ]
 
     for prob, algo_name in product(test_wgraphs, algos):
-        test_values.append(TestValueEx3(
-            problem=prob,
-            algo_name=algo_name,
-            impl_validate_func_wrapper=validate_impl_wrapper,     # else None
-            disallowed_dependencies=disallowed_dependencies       # else None
-    ))
-
+        test_values.append(
+            TestValueEx3(
+                problem=prob,
+                algo_name=algo_name,
+                impl_validate_func_wrapper=validate_impl_wrapper,  # else None
+                disallowed_dependencies=disallowed_dependencies,  # else None
+            )
+        )
 
     expected_results = ex3_compute_expected_results(test_values)
 
