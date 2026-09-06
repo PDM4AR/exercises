@@ -1,14 +1,55 @@
+from collections import deque
 from itertools import product
 from random import sample, seed
+from typing import Optional
 
 import numpy as np
-from pdm4ar.exercises.ex04.structures import Cell
+from pdm4ar.exercises.ex04.structures import Action, Cell
 from pdm4ar.exercises_def.ex04.utils import cell2color
 
+_MOVES = {Action.NORTH: (-1, 0), Action.WEST: (0, -1),
+          Action.SOUTH: (1, 0), Action.EAST: (0, 1)}
 
-def generate_map(
-    shape: tuple[int, int], swamp_percentage: float, n_wonderland: int, n_cliff: int, n_seed
-) -> np.ndarray:
+
+def random_map(shape=(10, 10), n_cliff: Optional[int] = None,
+               seed: Optional[int] = None) -> np.ndarray:
+    """A random map, resampled until the goal is reachable from the start
+    (plain connectivity, no probabilities involved)."""
+    if seed is None:
+        seed = int(np.random.default_rng().integers(1, 10**6))
+    if n_cliff is None:
+        n_cliff = max(2, round(0.08 * shape[0] * shape[1]))
+    for s in range(seed, seed + 200):
+        grid = generate_map(shape, 0.2, n_cliff=n_cliff, n_seed=s)
+        if _reachable(grid):
+            return grid
+    raise RuntimeError("no reachable map found; try another seed/shape")
+
+
+def _find_cell(grid, cell_type):
+    pos = np.argwhere(grid == cell_type)
+    return tuple(pos[0]) if len(pos) else None
+
+
+def _reachable(grid) -> bool:
+    start, goal = _find_cell(grid, Cell.START), _find_cell(grid, Cell.GOAL)
+    if start is None or goal is None:
+        return False
+    seen, frontier = {start}, deque([start])
+    while frontier:
+        i, j = frontier.popleft()
+        if (i, j) == goal:
+            return True
+        for di, dj in _MOVES.values():
+            n = (i + di, j + dj)
+            if (0 <= n[0] < grid.shape[0] and 0 <= n[1] < grid.shape[1]
+                    and grid[n] != Cell.CLIFF and n not in seen):
+                seen.add(n)
+                frontier.append(n)
+    return False
+
+
+def generate_map(shape: tuple[int, int], swamp_percentage: float, n_cliff: int, n_seed) -> np.ndarray:
     # map dimensions should be at least 5x5
     assert shape[0] >= 5 and shape[1] >= 5, "Map dimensions should be at least 5x5"
 
@@ -41,27 +82,6 @@ def generate_map(
         goal_coords = (goal_coords[0] + 1, goal_coords[1])
     grid_map[goal_coords] = Cell.GOAL
 
-    # Select n_wonderland of wonderlands from all grass cells.
-    grass_cells = np.where(grid_map == Cell.GRASS)
-    grass_cells_coords = list(zip(grass_cells[0], grass_cells[1]))
-    assert len(grass_cells_coords) >= n_wonderland, "Not enough grass cells to place wonderland"
-    wonderland_coords = sample(grass_cells_coords, k=n_wonderland)
-
-    # Place wonderland on the map
-    for coord in wonderland_coords:
-        grid_map[coord] = Cell.WONDERLAND
-
-    # Check if 2 wonderlands are not one next to another, if they are, put one of them back to grass
-    for i, coord1 in enumerate(wonderland_coords):
-        for coord2 in wonderland_coords[i + 1 :]:
-            if _are_states_adjacent(coord1, coord2):
-                grid_map[coord2] = Cell.GRASS
-
-    # Check that a wonderland is at least 3 cells away from the start
-    for coord in wonderland_coords:
-        if np.sqrt((coord[0] - start_coords[0]) ** 2 + (coord[1] - start_coords[1]) ** 2) <= 2:
-            grid_map[coord] = Cell.GRASS
-
     # Select n_cliff of cliffs from all grass & swamp cells except the 3 by 3 grid centered at the start
     # and four cells exactly 2 cells away from the start.
     grass_swamp_cells = np.where((grid_map == Cell.GRASS) | (grid_map == Cell.SWAMP))
@@ -89,25 +109,6 @@ def generate_map(
         grid_map[coord] = Cell.CLIFF
 
     return grid_map
-
-
-def is_too_close_to_rift_or_border(coord: tuple[int, int], grid_map: np.ndarray) -> bool:
-    row, col = coord
-    # Check if the cell is within the border
-    if row < 2 or row >= grid_map.shape[0] - 2 or col < 2 or col >= grid_map.shape[1] - 2:
-        return True
-    # Check if the cell is near the cliff
-    if grid_map[row - 1 : row + 2, col - 1 : col + 2].max() == Cell.CLIFF:
-        return True
-    return False
-
-
-def _are_states_adjacent(state1, state2) -> bool:
-    return (
-        (abs(state1[0] - state2[0]) == 1 and state1[1] == state2[1])
-        or (abs(state1[1] - state2[1]) == 1 and state1[0] == state2[0])
-        or (abs(state1[0] - state2[0]) == 1 and abs(state1[1] - state2[1]) == 1)
-    )
 
 
 def map2image(map: np.ndarray) -> np.ndarray:

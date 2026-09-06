@@ -1,12 +1,10 @@
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Dict, Tuple, Optional
-import pickle
 
 import numpy as np
 from pdm4ar.exercises.ex04.mdp import GridMdp
 from pdm4ar.exercises.ex04.structures import OptimalActions, ValueFunc, Cell, Action, State
-from pdm4ar.exercises_def.ex04.map import generate_map
+from pdm4ar.exercises_def.ex04.map import generate_map, random_map
 from pdm4ar.exercises_def import ExIn
 
 
@@ -26,29 +24,38 @@ def get_simple_test_grid() -> np.ndarray:
     simple_map = np.array(
         [
             [Cell.CLIFF, Cell.GRASS, Cell.GRASS, Cell.GRASS, Cell.CLIFF],
-            [Cell.WONDERLAND, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.WONDERLAND],
+            [Cell.GRASS, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.GRASS],
             [Cell.GRASS, Cell.GRASS, Cell.START, Cell.GRASS, Cell.GOAL],
-            [Cell.WONDERLAND, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.WONDERLAND],
+            [Cell.GRASS, Cell.SWAMP, Cell.GRASS, Cell.SWAMP, Cell.GRASS],
             [Cell.CLIFF, Cell.GRASS, Cell.GRASS, Cell.GRASS, Cell.CLIFF],
         ]
     )
     return simple_map
 
 
-def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int, int]] = []) -> list[GridMdp]:
+SMALL_TEST_MAP_SPECS: list[tuple[tuple[int, int], int]] = [((6, 6), 1), ((9, 9), 2), ((12, 12), 1)]
+"""The three optional extra test maps (ids 3-5), regenerated deterministically."""
+
+
+def get_small_test_grids() -> list[GridMdp]:
+    """The optional extra maps (ids 3-5), enabled with ALL_MAPS in ex04.py."""
+    return [GridMdp(grid=random_map(shape, seed=seed), gamma=0.9) for shape, seed in SMALL_TEST_MAP_SPECS]
+
+
+def get_test_grids(evaluation_tests: list[tuple[tuple[int, int], int, int]] = []) -> list[GridMdp]:
     MAP_SHAPE_2 = (10, 10)
     MAP_SHAPE_3 = (40, 40)
 
     test_maps = []
     swamp_ratio = 0.2
     test_maps.append(get_simple_test_grid())
-    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_wonderland=4, n_cliff=10, n_seed=5))
-    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_wonderland=5, n_cliff=15, n_seed=110))
+    test_maps.append(generate_map(MAP_SHAPE_2, swamp_ratio, n_cliff=10, n_seed=5))
+    test_maps.append(generate_map(MAP_SHAPE_3, swamp_ratio, n_cliff=15, n_seed=110))
 
     # additional maps for evaluation
     for map_info in evaluation_tests:
         test_maps.append(
-            generate_map(map_info[0], swamp_ratio, n_wonderland=map_info[1], n_cliff=map_info[2], n_seed=map_info[3])
+            generate_map(map_info[0], swamp_ratio, n_cliff=map_info[1], n_seed=map_info[2])
         )
 
     discount = 0.9
@@ -165,127 +172,118 @@ def get_expected_results_transition(test_cases: list[TestTransitionProbEx4]) -> 
     return res
 
 
-def get_expected_results_algo() -> list[tuple[ValueFunc, OptimalActions]]:
+def get_expected_results_algo(map_ids: tuple = (0, 1, 2)) -> list[tuple[ValueFunc, OptimalActions]]:
+    """Solutions for the given map ids (0-2: public maps, 3-5: the optional extra maps)."""
     data_dir = Path(__file__).parent
     all_data = np.load(data_dir / "data/expected_results.npz", allow_pickle=True)
-
-    value_func_0 = all_data["value_func_0"]
-    policy_0 = all_data["policy_0"]
-
-    value_func_1 = all_data["value_func_1"]
-    policy_1 = all_data["policy_1"]
-
-    value_func_2 = all_data["value_func_2"]
-    policy_2 = all_data["policy_2"]
-
-    expected_results = [
-        (value_func_0, policy_0),
-        (value_func_1, policy_1),
-        (value_func_2, policy_2),
-        (value_func_0, policy_0),
-        (value_func_1, policy_1),
-        (value_func_2, policy_2),
-    ]
-
-    return expected_results
+    one_pass = [(all_data[f"value_func_{mi}"], all_data[f"policy_{mi}"]) for mi in map_ids]
+    # once for ValueIteration, once for PolicyIteration
+    return one_pass + one_pass
 
 
-def load_transition_matrix() -> Dict:
-    """Load the complete transition matrix for the first grid"""
+# ---------------------------------------------------------------------------
+# Part 2: augmented cases (momentum / forecast / glitch)
+# ---------------------------------------------------------------------------
+from typing import Type  # noqa: E402
+
+from pdm4ar.exercises.ex04.mdp import (AugmentedGridMdp, FogGridMdp,  # noqa: E402
+                                       GlitchGridMdp, MomentumGridMdp)
+from pdm4ar.exercises.ex04.structures import AugmentedState  # noqa: E402
+
+AUG_CASES: list[tuple[str, Type[AugmentedGridMdp]]] = [
+    ("forecast", FogGridMdp),
+    ("momentum", MomentumGridMdp),
+    ("glitch", GlitchGridMdp),
+]
+
+
+def get_test_mdps_aug(map_ids: tuple = (0, 1, 2)) -> list[tuple[str, int, AugmentedGridMdp]]:
+    """(case_name, map_id, mdp) over the requested maps (ids 0-2: the public
+    maps, ids 3-5: the optional extra maps)."""
+    grids_by_id = get_test_grids() + (get_small_test_grids() if max(map_ids) > 2 else [])
+    maps = [(mi, grids_by_id[mi].grid) for mi in map_ids]
+    out = []
+    for case_name, cls in AUG_CASES:
+        for mi, grid in maps:
+            out.append((case_name, mi, cls(grid=grid, gamma=0.9)))
+    return out
+
+
+def get_expected_results_algo_aug(map_ids: tuple = (0, 1, 2)) -> list[tuple[ValueFunc, OptimalActions]]:
+    """Aligned with get_exercise4's Part-2 test order: every (case, map)
+    pair once for ValueIteration, once for PolicyIteration."""
     data_dir = Path(__file__).parent
-    try:
-        with open(data_dir / "data/expected_transition_matrix.pkl", "rb") as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError("Transition matrix file not found. Run generate_expected_results.py to create it.")
+    data = np.load(data_dir / "data/expected_results_aug.npz", allow_pickle=True)
+    one_pass = [
+        (data[f"{case_name}_value_{mi}"], data[f"{case_name}_policy_{mi}"])
+        for case_name, _ in AUG_CASES
+        for mi in map_ids
+    ]
+    return one_pass + one_pass
 
 
-def get_transition_probability(state: State, action: Action, next_state: State) -> float:
-    """
-    Get the transition probability P(s'|s,a) for the first grid.
+@dataclass
+class TestTransitionProbAug(ExIn):
+    mdp: AugmentedGridMdp
+    case_name: str
+    state: AugmentedState
+    action: Action
+    next_state: AugmentedState
+    testId: int = 0
 
-    Args:
-        state: Current state (row, col)
-        action: Action taken
-        next_state: Next state (row, col)
-
-    Returns:
-        Transition probability (0.0 if transition is not possible)
-    """
-    matrix_data = load_transition_matrix()
-    transition_matrix = matrix_data["transition_matrix"]
-
-    if (
-        state in transition_matrix
-        and action in transition_matrix[state]
-        and next_state in transition_matrix[state][action]
-    ):
-        return transition_matrix[state][action][next_state]
-    else:
-        return 0.0
+    def str_id(self) -> str:
+        return f"TransitionProb-{self.case_name}{self.testId}"
 
 
-def get_all_transitions_from_state(state: State) -> Dict[Action, Dict[State, float]]:
-    """
-    Get all possible transitions from a given state.
-
-    Args:
-        state: Current state (row, col)
-
-    Returns:
-        Dictionary mapping actions to {next_state: probability} dictionaries
-    """
-    matrix_data = load_transition_matrix()
-    transition_matrix = matrix_data["transition_matrix"]
-
-    if state in transition_matrix:
-        return transition_matrix[state]
-    else:
-        return {}
-
-
-def get_valid_actions_for_state(state: State) -> list[Action]:
-    """
-    Get all valid actions from a given state.
-
-    Args:
-        state: Current state (row, col)
-
-    Returns:
-        List of valid actions from this state
-    """
-    transitions = get_all_transitions_from_state(state)
-    return list(transitions.keys())
+# Probes on the 5x5 map; expected values come from the full-coverage
+# data/expected_transition_results_aug.npz, so you can add your own probes.
+AUG_PROBES = [
+    ("forecast", (2, 1, 0), Action.EAST, (2, 2, 0)),
+    ("forecast", (2, 1, 1), Action.EAST, (2, 2, 1)),
+    ("forecast", (1, 2, 0), Action.NORTH, (0, 2, 1)),
+    ("forecast", (3, 3, 1), Action.WEST, (3, 3, 0)),
+    ("forecast", (1, 2, 1), Action.ABANDON, (2, 2, 0)),
+    ("momentum", (2, 1, 0), Action.EAST, (2, 2, 4)),
+    ("momentum", (2, 1, 4), Action.EAST, (2, 2, 4)),
+    ("momentum", (2, 1, 2), Action.EAST, (2, 1, 0)),
+    ("momentum", (2, 1, 2), Action.EAST, (2, 0, 2)),
+    ("momentum", (2, 3, 1), Action.EAST, (1, 3, 1)),
+    ("momentum", (3, 3, 1), Action.WEST, (3, 3, 0)),
+    ("glitch", (2, 1, 0), Action.EAST, (2, 2, 0)),
+    ("glitch", (2, 1, 1), Action.EAST, (2, 2, 1)),
+    ("glitch", (2, 1, 0), Action.EAST, (2, 2, 1)),
+    ("glitch", (3, 1, 1), Action.NORTH, (2, 2, 0)),
+]
 
 
-def get_possible_next_states(state: State, action: Action) -> Dict[State, float]:
-    """
-    Get all possible next states and their probabilities for a given state-action pair.
+def get_transition_prob_test_cases_aug() -> list[TestTransitionProbAug]:
+    grid = get_simple_test_grid()
+    classes = dict(AUG_CASES)
+    cases = []
+    counters: dict = {}
+    for case_name, state, action, next_state in AUG_PROBES:
+        tid = counters.get(case_name, 0)
+        counters[case_name] = tid + 1
+        cases.append(
+            TestTransitionProbAug(
+                mdp=classes[case_name](grid=grid, gamma=0.9),
+                case_name=case_name,
+                state=state,
+                action=action,
+                next_state=next_state,
+                testId=tid,
+            )
+        )
+    return cases
 
-    Args:
-        state: Current state (row, col)
-        action: Action taken
 
-    Returns:
-        Dictionary mapping next_states to their transition probabilities
-    """
-    transitions = get_all_transitions_from_state(state)
-    if action in transitions:
-        return transitions[action]
-    else:
-        return {}
-
-
-def get_grid_info() -> Dict:
-    """
-    Get basic information about the grid.
-
-    Returns:
-        Dictionary with grid_shape, start_pos, goal_pos
-    """
-    matrix_data = load_transition_matrix()
-    return {
-        "grid_shape": matrix_data["grid_shape"],
-        "start_pos": matrix_data["start_pos"],
-        "goal_pos": matrix_data["goal_pos"],
-    }
+def get_expected_results_transition_aug(test_cases: list[TestTransitionProbAug]) -> list[float]:
+    """Load pre-computed Part-2 transition probabilities for the given test
+    cases, mirroring the Part-1 mechanism."""
+    data_dir = Path(__file__).parent
+    all_data = np.load(data_dir / "data/expected_transition_results_aug.npz", allow_pickle=True)
+    transition_probs: dict = all_data["transition_probs"].item()
+    return [
+        transition_probs[(test.case_name, test.state, test.action, test.next_state)]
+        for test in test_cases
+    ]

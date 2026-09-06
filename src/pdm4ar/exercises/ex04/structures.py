@@ -24,17 +24,51 @@ class Cell(IntEnum):
     START = 1
     GRASS = 2
     SWAMP = 3
-    WONDERLAND  = 4
-    CLIFF = 5
+    CLIFF = 4
 
 
 Policy = NDArray[np.int64]
 """Type Alias for the policy.It is the expected type of the policy that your solution should return."""
 OptimalActions = NDArray[np.object_]
-"""
-Type Alias for the all optimal actions per state. It is a numpy array of list objects where each list contains the
-optimal actions that are equally good for a given state. It is the type of the ground truth policy that your
-solution will be compared against. You are not required to use this type in your solution.
-"""
+"""All optimal actions per state (object array of lists): the ground-truth
+policy type your solution is compared against. You need not use it."""
 ValueFunc = NDArray[np.float64]
 """Type Alias for the value function. It is the expected type of the value function that your solution should return."""
+
+
+# --------------------------------------------------------------------------
+# Part 2: augmented states (momentum / forecast / glitch)
+# --------------------------------------------------------------------------
+from enum import IntEnum, unique  # noqa: E402
+
+
+@unique
+class Heading(IntEnum):
+    """Momentum case: the direction the robot actually moved last hour."""
+
+    NONE = 0
+    NORTH = 1
+    WEST = 2
+    SOUTH = 3
+    EAST = 4
+
+
+@unique
+class Fog(IntEnum):
+    """Forecast case: this hour's fog forecast."""
+
+    CLEAR = 0
+    FOGGY = 1
+
+
+@unique
+class Gear(IntEnum):
+    """Glitch case: the state of the robot's wheels."""
+
+    OK = 0
+    GLITCHY = 1
+
+
+AugmentedState = tuple[int, int, int]
+"""Part-2 state: (i, j, z). The meaning and ordering of z is fixed per case
+(Heading / Fog / Gear); your (M, N, Z) output arrays must use these orderings."""

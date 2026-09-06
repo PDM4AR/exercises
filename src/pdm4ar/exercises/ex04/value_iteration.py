@@ -1,5 +1,6 @@
 import numpy as np
-from pdm4ar.exercises.ex04.mdp import GridMdp, GridMdpSolver
+
+from pdm4ar.exercises.ex04.mdp import AnyGridMdp, GridMdpSolver
 from pdm4ar.exercises.ex04.structures import Policy, ValueFunc
 from pdm4ar.exercises_def.ex04.utils import time_function
 
@@ -7,9 +8,14 @@ from pdm4ar.exercises_def.ex04.utils import time_function
 class ValueIteration(GridMdpSolver):
     @staticmethod
     @time_function
-    def solve(grid_mdp: GridMdp) -> tuple[ValueFunc, Policy]:
-        value_func = np.zeros_like(grid_mdp.grid).astype(float)
-        policy = np.zeros_like(grid_mdp.grid).astype(int)
+    def solve(grid_mdp: AnyGridMdp) -> tuple[ValueFunc, Policy]:
+        # Part 1 mdps (GridMdp) expect (M, N) outputs; Part 2 mdps
+        # (AugmentedGridMdp, with a Z attribute) expect (M, N, Z)
+        shape = grid_mdp.grid.shape
+        if hasattr(grid_mdp, "Z"):
+            shape = (*shape, grid_mdp.Z)
+        value_func = np.zeros(shape, dtype=float)
+        policy = np.zeros(shape, dtype=int)
 
         # todo implement here
 
