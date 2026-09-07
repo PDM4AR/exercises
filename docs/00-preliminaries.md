@@ -34,25 +34,24 @@ You will submit your solutions via your private GitHub repository. Detailed subm
 
 **Important information**:
 
-* Each exercise has a limited submission window for 2-3 weeks.
+* Each exercise has a limited submission window for 3-4 weeks.
 * Only the last **VALID** submission (i.e., processed by the server regardless of the outcome) within the exercise time window counts toward your exercise grade. A missing submission counts as 0.
-* Your score will be determined by the performance metrics specified in the exercise description. While multiple metrics are considered, **CORRECTNESS** is the most important factor. For students who wish to pursue higher performance(e.g. in solving time), we provide reference values based on the TA solution and/or historical data. The mapping from scores to grades will **NOT** be disclosed in advance.
+* Your score will be determined by the performance metrics specified in the exercise description. For students who wish to pursue higher performance(e.g. in solving time), we provide reference values for the full grade based on the TA solution. 
 * Only your best **_N-1_** exercise results contribute to 30% of your final grade, where _N_ is the total number of graded weekly exercises (N=5).
 * For each exercise, you have a limited number of server submissions. You can test locally as much as you want. Consider this a learning experience for robotics; field tests are expensive.
 * Here you can see a temporary schedule (will be completed on the fly):
 
-| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**        | Note                                                                  | **Deadline status** | Available Submissions |
+| Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**        |**Deadline status** | Available Submissions |
 | --------------- | --------------------- | -------------------- | ---------------------------- | --------------------------------------------------------------------- | ------------------- | --------------------- |
-| 02              | Graph Search          | 24th of September    | 14th of October (23:59 CET)  |                                                                       | confirmed           | 10                    |
-| 03              | Informed Graph Search | 24th of September    | 14th of October (23:59 CET)  |                                                                       | confirmed           | 10                    |
-| 04              | Dynamic Programming   | 1st of October       | 26th of October (23:59 CET)  | Submission before 19th of Oct. is strongly suggested (see note below) | confirmed           | 10                    |
-| 05              | Steering (Dubins)     | 15th of October      | 2nd of November (23:59 CET)  |                                                                       | confirmed           | 10                    |
-| 06              | Collision Checking    | 29th of October      | 11th of November (23:59 CET) |                                                                       | confirmed           | 10                    |
+| 02              | Graph Search          | 23rd of September    | 20th of October (23:59 CET)  |  tentative           | 10                    |
+| 03              | Informed Graph Search | 23rd of September    | 20th of October (23:59 CET)  |  tentative           | 10                    |
+| 04              | Dynamic Programming   | 30th of September       | 27th of October (23:59 CET)  |  tentative           | 10                    |
+| 05              | Steering (Dubins)     | 14th of October      | 3rd of November (23:59 CET)  |  tentative           | 10                    |
+| 06              | Collision Checking    | 21th of October      | 10th of November (23:59 CET) |   tentative           | 10                    |
 
 * Most of these exercises are already accessible before the official evaluation opens.
   You are free to engage with them earlier, but be aware that changes may occur up until the official opening.
   After the evaluation opens, the exercise is "frozen", and you can solve and submit it.
-* <span style="color: red">**NOTE**: The server will be down between 20th Oct. and 24th Oct. due to equipment inspection of ETH. Your submissions during this period will **NOT** be stored or evaluated.</span>
 
 #### **Finals** exercises, graded
 
@@ -62,8 +61,8 @@ Instructions on group formation are provided via Piazza.
 
 | Exercise **ID** | **Topic**                   | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
 | --------------- | --------------------------- | -------------------- | ---------------------------- | ------------------- | --------------------- |
-| 13              | Satellite Docking           | 12th of November     | 2nd of December (23:59 CET)  | Confirmed           | 10                    |
-| 14              | Multi-agent Goal Collection | 3rd of December      | 23rd of December (23:59 CET) | Confirmed           | 10                    |
+| 13              | Satellite Docking           | 11th of November     | 1st of December (23:59 CET)  | tentative           | 10                    |
+| 14              | Multi-agent Goal Collection | 2nd of December      | 22nd of December (23:59 CET) |  tentative           | 10                    |
 
 #### **Extra** exercises from previous years, not graded
 
@@ -81,13 +80,30 @@ You can have a look at the finals from last year and challenge yourself.
 ## Plagiarism and dishonest conduct
 
 We take plagiarism and dishonest conduct very seriously.
-The exercises are meant to be solved **individually** and **without excessive reliance on AI tools**.
+The exercises are meant to be solved **individually**.
 We will check for plagiarism with automated software and human help.
 Violating the [ETH plagiarism etiquette](https://ethz.ch/content/dam/ethz/main/education/rechtliches-abschluesse/leistungskontrollen/plagiarism-citationetiquette.pdf) will result in disciplinary actions as per ETH regulations.
 > "C. The consequences of plagiarism Pursuant to Art. 2 Para. b of the ETH Zurich Disciplinary Code (RSETHZ 361.1)
 > plagiarism constitutes a disciplinary violation and will result in disciplinary procedures.
 > Detailed information regarding these procedures and their jurisdiction may be found in the ETH Zurich Disciplinary
 > Code (RSETHZ 361.1 / www.rechtssammlung.ethz.ch)."
+
+## AI usage
+
+AI coding assistants are becoming a legitimate part of a modern robotics workflow. Therefore we encourage you to learn how to use them to accelerate your development.
+
+The following assistants are preinstalled in the development environment:
+
+- **VS Code extensions**: [Claude Code](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code), [Codex](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt), and [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=github.copilot-chat);
+- **CLI tool**: [Antigravity](https://antigravity.google/product/antigravity-cli?_gl=1*1xexg3z*_up*MQ..*_ga*MTYzMjM5MzAzMC4xNzg4ODA4MDAx*_ga_47V54ZJ3EV*czE3ODg4MDgwMDAkbzEkZzAkdDE3ODg4MDgwMDkkajUxJGwwJGgw) (`agy`, backed by Google Gemini).
+
+Each of these requires your own account, and we unfortunately cannot provide any paid quota. We recommend starting with the free plans and only then deciding whether a subscription is worthwhile for you. You are also free to use any other assistant.
+
+**What is acceptable.** Using an assistant for the supporting parts of the work: looking up documentation and APIs, writing tests, debugging, and profiling or optimizing an implementation you have already designed.
+
+**What is not acceptable.** Delegating the design and implementation of an algorithm to an AI assistant. The purpose of these exercises is that *you* can reason about, implement, and debug planning algorithms. 
+
+We will check for excessive reliance on AI and for a lack of familiarity with the content of the exercises. 
 
 ## Getting started
 
@@ -169,8 +185,8 @@ For __Windows__ users,
 
 Notes for __Windows__ users:
 - VS Code with Dev Container extension(see below) automatically forwards your cached credential from Windows to the container. This means you can perform all Git operations both on Windows and inside the container without re-authenticating.
-- If you clone the repository on Windows (as instructed above), remember that our Linux-based container will access the files through the Windows filesystem. This causes significant overhead for file-intensive operations (e.g., I/O, dependency installation). **For this course, the impact is negligible since no bulky I/O operations are expected.**
-- Cloning the repository inside WSL instead of Windows avoids the overhead for file-intensive operations. It requires configuring GCM on WSL separately. If you are interested in following this approach (not necessary for this course). instructions are available [here](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended).
+- If you clone the repository on Windows, remember that our Linux-based container will access the files through the Windows filesystem. This causes significant overhead for file-intensive operations (e.g., I/O, dependency installation). **For this course, the impact is negligible since no bulky I/O operations are expected.**
+- Cloning the repository inside WSL instead of Windows avoids the overhead for file-intensive operations. However, it requires configuring GCM on WSL separately. If you are interested in following this approach (not necessary for this course). instructions are available [here](https://github.com/git-ecosystem/git-credential-manager/blob/release/docs/wsl.md#configuring-wsl-with-git-for-windows-recommended).
 
 #### _Resources_
 {: #git-resources}

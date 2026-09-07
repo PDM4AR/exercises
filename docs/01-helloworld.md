@@ -11,14 +11,18 @@ layout: default
 </table>
 
 
-The exercises will be carried out with the help of Github classrooms.
-We give you a link for a "homework". 
-By accepting it, you will create you personal private repository from the exercise template.
+We monitor all exercises via our GitHub Organization: PRM4AR.
+At the beginning of the semester, we will be asked to fill in a form to be added to the GitHub organization. You will then be instructed to create your exercise repository within the organization and submit your implementation.
 
 ## Create your repository
 
-On Piazza you will find an invitation link to the Github Classroom exercise.
-With a few clicks  you will associate your Github account to your _Legi_ number and create your own private repository.
+On Piazza you will find a link to the template repository of the exercises.
+
+Click the green botton `Use this template` and then click create a new repository. Create repository with the following configurations:
+- You must select `PDM4AR` as the repository owner.
+- The repository needs to follow the naming convention `student-pdm4ar-2026hs-ex[id]-[github username]`. The `[id]` should be the same as in the name of the template repository and `[github username]` should be replaced with your own github username.
+- The repository must be **Private**. 
+- You may keep the other configurations as default.
 
 Once your repository is created, clone it on your local computer and open it in VS Code:
 
