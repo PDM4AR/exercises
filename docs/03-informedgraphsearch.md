@@ -108,12 +108,11 @@ adding the same search logic in the backward direction. Maintain the same
 information that your UCS implementation needs separately for the two
 directions.
 
-At each iteration, compare the minimum pending forward cost with the minimum
-pending backward cost. Expand only the direction with the smaller minimum;
+At each iteration, compare the cost of the highest priority element in the forward queue (the minimum forward cost) with the one in the backward queue. Expand only the direction with the smaller minimum;
 do not expand both queues in the same iteration. Apart from its direction,
 each expansion follows the usual UCS logic.
 
-In addition, maintain `mu`, the cost of the cheapest complete start-to-goal path found so far, initially infinity. Whenever discovering or improving the distance to a node `x`, check whether `x` has already been discovered by the search in the opposite direction. If so, the two searches define a complete candidate path through `x`, with cost:
+In addition, maintain `mu`, the cost of the cheapest complete start-to-goal path found so far, initially infinity. Whenever discovering or improving the distance to a node `x`, check if `x` has already been discovered by the search in the opposite direction. If so, the two searches define a complete candidate path through `x`, with cost:
 
 ```text
 distance_forward[x] + distance_backward[x]
@@ -129,12 +128,12 @@ A safe termination condition (may only be used only after `mu` is finite) is:
 ```text
 minimum_forward_queue_cost + minimum_backward_queue_cost >= mu
 ```
-(Why is this a safe termination condition for an optimal path?)
-At this point, we can join the forward and backward parts of the best path associated with `mu` and return it.
+
+At this point, we can join the forward and backward parts of the best path associated with `mu` and return it (why is this a safe termination condition for an optimal path?).
 
 Compared with your UCS code, the intended workflow is therefore:
 
-1. use your UCS logic once in the forward direction and once in the backward
+1. use your UCS logic in the forward direction and in the backward
    direction;
 2. expand only the direction whose queue currently has the smaller minimum
    cost;
@@ -143,10 +142,8 @@ Compared with your UCS code, the intended workflow is therefore:
 
 Bi-UCS is **not guaranteed to examine fewer edges than UCS on every query**.
 Its benefit depends on the graph, the query, and how the two search frontiers
-develop. Even a correct and efficient Bi-UCS implementation may therefore
-have a search-efficiency ratio greater than `1.0` for an individual query.
-The reported ratio is intended to show the observed benefit across the test
-cases, not to impose a per-query guarantee. For more information about Bidirectional UCS (sometimes referred to as Bi-directional Dijkstra): ([MIT 6.006 notes](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2008/resources/lec18/)), ([Princeton shortest-path notes](https://www.cs.princeton.edu/courses/archive/spr06/cos423/Handouts/EPP%20shortest%20path%20algorithms.pdf)). This material is only for reference and the conventions above might slightly differ. 
+develop. Even a correct and efficient Bi-UCS implementation may have a search-efficiency ratio greater than `1.0` for an individual query.
+For more information about Bidirectional UCS (sometimes referred to as Bi-directional Dijkstra): ([MIT 6.006 notes](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2008/resources/lec18/)), ([Princeton shortest-path notes](https://www.cs.princeton.edu/courses/archive/spr06/cos423/Handouts/EPP%20shortest%20path%20algorithms.pdf)). This material is only for reference and the conventions above might slightly differ. 
 
 ### A*
 Unlike UCS, A* is an informed algorithm thus requires implementing a heuristic function. While worst time complexity is the same for UCS and A*, the use of an admissible heuristic often leads to a lower number of explored nodes to find the shortest path. If no path is found, your algorithms should return an empty list.
@@ -169,7 +166,7 @@ class TravelSpeed(float, Enum):
 
 You are **NOT allowed** to use any existing graph search function implemented in the libraries such as `networkx`.
 
-In addition to path correctness, the evaluator measures search efficiency by counting edge-weight accesses made by your implementation. Calls through `WeightedGraph.get_weight()` are counted automatically; you do not need to maintain a counter yourself. The count reflects how many logical edges your search examines, including repeated examinations. This is a valuable proxy for the efficiency of the algorithm, as fewer weight calls correspond to a smaller number of explored nodes.
+In addition to path correctness, the evaluator measures search efficiency by counting edge-weight accesses made by your implementation. Calls through `WeightedGraph.get_weight()` are counted automatically; you do not need to maintain a counter yourself. The count reflects how many edges your search examines, including repeated examinations. This is a valuable proxy for the efficiency of the algorithm, as fewer weight calls correspond to a smaller number of explored nodes.
 
 For every query, your count is divided by the number of edge-weight accesses made by a reference NetworkX UCS run on the same graph and query:
 
@@ -177,16 +174,17 @@ For every query, your count is divided by the number of edge-weight accesses mad
 search efficiency = your edge-weight accesses / reference UCS edge-weight accesses
 ```
 
-The same ratio is reported for UCS, Bi-UCS and A*, both locally and during private evaluation. A value below 1 means that your implementation examined fewer edges than the reference UCS baseline. The UCS ratio is diagnostic only: the aggregated search-efficiency score includes only Bi-UCS and A*. Only correct, non-trivial queries are included, and their counts are summed before the final ratio is computed. Always use the public weighted-graph interface and do not access the private NetworkX graph `_G`.
+The same ratio is reported for UCS, Bi-UCS and A*, both locally and during private evaluation. A value below 1 means that your implementation examined fewer edges than the reference UCS baseline. The aggregated search-efficiency score includes only Bi-UCS and A*. Only correct, non-trivial queries are included, and their counts are summed before the final ratio is computed. Always use the public weighted-graph interface and do not access the private NetworkX graph `_G`.
 
-(HINT 1) The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. 
+Some hints that may help you during the implementation of the algorithms: 
+* The edge weight is the travel time between the 2 nodes, hence you should think about converting travel distance into travel time. 
 Under which condition will the time metric be admissible?
 
-(HINT 2) To obtain the distance between 2 coordinates, you may find useful the function `osmnx.distance.great_circle_vec()`.
+* To obtain the distance between 2 coordinates, you may find useful the function `osmnx.distance.great_circle()`.
 
-(HINT 3) For UCS, Bi-UCS and Astar, you may find Python's `heapq` module useful.
+* For UCS, Bi-UCS and Astar, you may find Python's `heapq` module useful.
 
-(HINT 4) You might want to organise your queue as `queue = [ (<priority>, <i = insertion order>, <node>, <cost-to-reach>, <parent_node>) ]`
+* You might want to organise your queue as `queue = [ (<priority>, <i = insertion order>, <node>, <cost-to-reach>, <parent_node>) ]`
 
 In addition, we provide you with a script to allow you to increase and personalise your local test cases on the existing graphs. You can choose the `(start_node, goal_node)` tuples of int as query for your search algorithm without worrying they actually exist, as they will be checked and filtered. Moreover, a predefined function will generate existing random queries if you set a positive integer in the `n_random_queries` dict. Edit `src/pdm4ar/exercises_def/ex03/local_queries.py` in the apposite window:
 
@@ -212,18 +210,26 @@ def get_local_queries(G: WeightedGraph, id: str) -> set[Query]:
 ### Test cases and performance criteria
 
 The algorithms are going to be tested on different graphs, each containing randomly generated queries (start & goal node).
-You will be able to test your algorithms on some test cases with given solution, the outputted `Path` will be compared to the solution. 
+You will be able to test your algorithms on some test cases with given solution; the output `Path` will be compared to the solution. 
 After running the exercise, you'll find reports in `out/[exercise]/` for each test case. There you'll be able to visualize the graphs, your output and the solution.
 These test cases are not graded but serve as a guideline for how the exercise will be graded overall.
 
 The final evaluation will combine 3 metrics lexicographically <number of solved cases, accuracy, efficiency>:
 * **Accuracy**: UCS, Bi-UCS and A* will be evaluated. A `Path` to be considered correct has to **fully** match the correct solution. Averaging over the test cases we compute an accuracy metric as (# of correct paths)/(# of paths). Thus, accuracy will be in the interval [0, 1].
-* **Efficiency**: Your efficiency score incorporates both solve time and search efficiency. The report shows your edge-weight accesses, the reference UCS count, and their ratio for each query. Only the Bi-UCS and A* ratios contribute to the aggregated search-efficiency score; the UCS ratio is shown for diagnostic purposes.
+* **Efficiency**: Your efficiency score incorporates **both solve time and search efficiency**. The report shows your edge-weight accesses, the reference UCS count, and their ratio for each query. Only the Bi-UCS and A* ratios contribute to the aggregated search-efficiency score; the UCS ratio is shown for your convenience, to showcase your implementation's efficiency compared to the networkx baseline.
 
+For reference, the TA’s solution achieves the following efficiency and solving times on the server:
+
+| Metric              | Values      |
+|---------------------|-------------|
+| Search efficiency   |     0.7483  |
+| Solve time [s]      |     0.0016  |
+
+Use these numbers as a guideline to understand the order of magnitude of expected performance for a decently optimized solution.
 
 ### Useful remarks from last year Q&A
 * Please, use the provided templates to implement your functions, without modifying the arguments and output numbers and types, unless stated otherwise.
-* If not explicitly instructed otherwise, you may use anything included in the Docker environment to simplify your calculations.
+* If not explicitly instructed otherwise, you may use anything included in the Docker environment to simplify your calculations. However, the evaluator blocks certain imports to prevent access to internal evaluation data or manipulation of recorded counts. Check the list of disallowed dependencies carefully, as using one will result in a score of zero.
 * Since Uniform Cost Search is a special case of the A* algorithm, it is allowed to use A* implementation for UCS too, writing the code in the correct place and setting heuristic function = 0.
 * **BE CAREFUL**: in the A* algorithm, the heuristic is summed to the cost-to-reach only for the ranking step in the queue, but you must **not** update the cost-to-reach with the heuristic estimate!
 * For debugging, please keep in mind that your code has to work in all possible scenarios. Find them all!

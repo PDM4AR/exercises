@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import heapq    # you may find this helpful
+import heapq  # you may find this helpful
 
-from osmnx.distance import great_circle_vec
+from osmnx.distance import great_circle
 
 from pdm4ar.exercises.ex02.structures import X, Path
 from pdm4ar.exercises.ex03.structures import WeightedGraph, TravelSpeed

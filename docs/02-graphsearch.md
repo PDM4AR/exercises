@@ -8,9 +8,9 @@
 
 ## Breadth/Depth first search
 
-As a first exercise we are going to implement Breadth and Depth First Search. Moreover, we are going to see Wavefront Planning and Iterative Deepening as practical variants of the algorithms.
+As a first exercise we are going to implement Breadth and Depth First Search (BFS, DFS). Moreover, we are going to see Wavefront Planning and Iterative Deepening (ID) as practical variants of the algorithms.
 
-#### Graph structures
+### Graph structures
 
 In this exercise we represent a directed graph via an *adjacency list*. Note that this is not the only possible representation (e.g. adjacency matrices,...) but it is a very convenient one for graph search problems if the graph is known a priori.
 
@@ -20,7 +20,7 @@ Given a generic type `X` for the nodes we associate to each node the list of suc
 AdjacencyList = Mapping[X, Set[X]]
 ```
 
-#### Task
+### Search algorithms - DFS, BFS, ID
 
 The first part of the task is to implement the _abstractmethod_ `search` for the different search techniques (`exercises/ex02/algo.py`). Given a graph, a starting node, and a goal node the task is to return a sequence of states (_transitions_) from start to goal.
 
@@ -45,7 +45,9 @@ When solving the graph search problem, the following conventions should hold:
 Ex: The current queue is `Q = [0]`, if nodes to be added in DFS fashion are `{2, 1}` then the new queue will be `Q = [1, 2, 0]`. 
 If a successor of the expanded node is already in the queue, it should not be added newly. I.e., given `Q = [0]`, with successors `{2, 1, 0}` then the new queue will be `Q = [1, 2, 0]`.
 
-In the second part of the exercise, you will explore Wavefront Planning. Wavefront Planning applies Breadth-First Search (BFS) to a planning problem. Starting from the goal, BFS explores the graph and assigns each node a cost equal to the minimum number of moves required to reach the goal. The resulting cost-to-go map can then be reused to extract shortest paths from multiple starting positions. 
+### Wavefront Planning
+
+In the second part of the exercise, you will explore Wavefront Planning. Wavefront Planning applies BFS to a planning problem. Starting from the goal, BFS explores the graph and assigns each node a cost equal to the minimum number of moves required to reach the goal. The resulting cost-to-go map can then be reused to extract shortest paths from multiple starting positions. 
 
 Consider for example a warehouse robot that must reach a fixed drop-off point but may begin at any free location. Instead of performing a separate graph search for every possible starting position, the Wavefront Planner computes the cost-to-go map once and uses it to efficiently generate a path from any start node.
 You are asked to implement two additional methods: `compute_cost_to_go` and `extract_path`.
@@ -83,7 +85,7 @@ The `extract_path` function is used for multiple start queries on the same graph
 
 <img src="img/extracted_paths_ex02_graph.png" alt="Extracted Paths example" width="500">
 
-For more information on the Wavefront Planner, here are some references you might want to look at: ([Tufts wavefront planner](https://www.cs.tufts.edu/comp/150IR/labs/wavefront.html)), ([CMU motion-planning lab](https://www.cs.cmu.edu/~16311/f05/labs/lab05/)). The problem definitions in these resources may differ slightly, so follow the specification in this documentation and treat the links as references only.
+For more information on the Wavefront Planner, here are some references you might want to look at: ([Tufts wavefront planner](https://www.cs.tufts.edu/comp/150IR/labs/wavefront.html)), ([CMU motion-planning lab](https://www.cs.cmu.edu/~16311/f05/labs/lab05/)). The problem definitions in these resources may differ slightly, so follow the specifications in this documentation and treat the links as references only.
 
 
 When solving the problem, the following conventions should hold: 
@@ -102,7 +104,6 @@ The first set of local tests are graph search problems designed to check whether
 This means a grid search problem can be transformed into a standard graph search problem using an adjacency list. This transformation has already been done for you; the grid is simply used to provide a more intuitive visual representation of how the algorithms operate. 
 
 Note: In the transformation from grid to adjacency mentioned above, squares become nodes numbered according to their position on the grid, starting at 1 in the top-left corner. Numbering proceeds left to right across each row, and then continues row by row from top to bottom, up to n*n (where n is the grid size).
-
 
 Below is an example of a grid: the start node is shown in orange, the goal in blue, the path in red, the opened nodes in green and the black squares represent obstacles. Movement is restricted to one step at a time, either vertically or horizontally.
 
@@ -184,9 +185,10 @@ For reference, the TA’s solution achieves the following average solving times 
 
 | Algorithm           | Solving time[s] |
 |---------------------|-----------------|
-| DepthFirst          | 0.000485        |
-| BreadthFirst        | 0.000239        |
-| IterativeDeepening  | 0.000867        |
+| DepthFirst          | 0.000300        |
+| BreadthFirst        | 0.000108        |
+| IterativeDeepening  | 0.000482        |
+| WavefrontPlanner    | 0.000189        |
 
 Use these numbers as a guideline to understand the order of magnitude of expected performance for a decently optimized solution.
 
