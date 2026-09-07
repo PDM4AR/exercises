@@ -28,6 +28,9 @@
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
+				"anthropic.claude-code",
+				"openai.chatgpt",
+				"github.copilot-chat",
 				"ms-python.python",
 				"ms-python.pylint",
 				"ms-python.black-formatter",

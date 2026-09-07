@@ -49,10 +49,28 @@ USER vscode
 #    | tar xzvpf - --no-same-owner --strip-components=1 -C SuiteSparse
 #ENV CVXOPT_SUITESPARSE_SRC_DIR=${WORKDIR_PATH}/SuiteSparse
 
-# Install the Antigravity CLI (`agy`). It ships as a self-contained native
-# binary (no Node runtime needed) into /home/vscode/.local/bin, which is
-# already on PATH. Run as `vscode` so ownership is correct.
+# Install the Antigravity CLI (`agy`). 
 RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
+
+# Install the Claude Code CLI (`claude`) and the Codex CLI (`codex`) so the
+# terminal tooling matches the `anthropic.claude-code` / `openai.chatgpt`
+# VS Code extensions installed by devcontainer.json.
+# RUN curl -fsSL https://claude.ai/install.sh | bash
+# RUN curl -fsSL https://github.com/openai/codex/releases/latest/download/install.sh \
+#     | CODEX_NON_INTERACTIVE=true sh
+
+# # Install the GitHub Copilot CLI (`copilot`) from its release tarball rather than
+# # the `@github/copilot` npm package, which would need a Node runtime this image
+# # does not have. Asset names carry no version, so `latest/download` stays current.
+# RUN case "$(uname -m)" in \
+#     aarch64) COPILOT_ARCH=arm64 ;; \
+#     x86_64) COPILOT_ARCH=x64 ;; \
+#     *) echo "Unsupported architecture for Copilot CLI: $(uname -m)" >&2; exit 1 ;; \
+#     esac \
+#     && mkdir -p ${WORKDIR_PATH}/.local/bin \
+#     && curl -fsSL "https://github.com/github/copilot-cli/releases/latest/download/copilot-linux-${COPILOT_ARCH}.tar.gz" \
+#     | tar xz -C ${WORKDIR_PATH}/.local/bin \
+#     && chmod +x ${WORKDIR_PATH}/.local/bin/copilot
 
 # Install poetry
 RUN pipx install poetry==${POETRY_VERSION}
