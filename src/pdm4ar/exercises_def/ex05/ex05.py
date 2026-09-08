@@ -48,13 +48,16 @@ def exercise_dubins_eval(
         query_str = chow_query_to_str(query) if prob.id_num == 7 else str((*query,))
         msg += f"Input: \t {query_str} \n"
         msg += pre_msg
-        comp_out = (
-            [
-                *algo_out,
-            ]
-            if isinstance(algo_out, Iterable)
-            else str(algo_out)
-        )
+        if prob.id_num == 7:
+            comp_out = compute_chow_rank_at_point(algo_out, algo_out_tf)
+        else:
+            comp_out = (
+                [
+                    *algo_out,
+                ]
+                if isinstance(algo_out, Iterable)
+                else str(algo_out)
+            )
         msg += f"Computed: \t {comp_out} \n"
         if expected is not None:
             one_of_many = False
@@ -88,7 +91,7 @@ def exercise_dubins_eval(
 
         if prob.plot_fun is not None:
             figsize = None
-            rfig = r.figure(cols=1)
+            rfig = r.figure(cols=2 if prob.id_num == 7 else 1)
             prob.plot_fun(rfig, query, algo_out, algo_out_tf, expected[i] if expected is not None else None, sucess)
 
     msg = f"You got {correct_answers: .3f}/{len(test_queries)} correct results!"

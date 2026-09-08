@@ -266,6 +266,14 @@ def _mathml_core_fragment(expression: sp.Expr) -> str:
     return "".join(ET.tostring(child, encoding="unicode") for child in root)
 
 
+_CHOW_SVG_WIDTH = 720
+
+
+def _chow_svg_height(n_rows):
+    """Uses the same report canvas proportions for both Task 7 images."""
+    return max(420, 220 + 60 * n_rows)
+
+
 def _math_svg(
     body: str,
     title: str,
@@ -277,8 +285,8 @@ def _math_svg(
     """Wraps safe MathML in the shared SVG style."""
     direction = "flex-direction:column;" if heading else ""
     heading_html = (
-        f'<div style="font-size:42px;font-weight:600;line-height:1.1;'
-        f'margin-bottom:34px;">{html.escape(heading)}</div>'
+        f'<div style="width:100%;font-size:32px;font-weight:600;line-height:1.1;'
+        f'text-align:center;margin-bottom:24px;flex:0 0 auto;">{html.escape(heading)}</div>'
         if heading
         else ""
     )
@@ -289,14 +297,16 @@ def _math_svg(
         <rect width="100%" height="100%" fill="white"/>
         <foreignObject x="20" y="20" width="{width - 40}" height="{height - 40}">
             <div xmlns="http://www.w3.org/1999/xhtml"
-                style="width:100%;height:100%;display:flex;{direction}align-items:center;
-                justify-content:center;overflow:auto;box-sizing:border-box;padding:16px;
+                style="width:100%;height:100%;display:flex;{direction}align-items:stretch;
+                justify-content:center;overflow:hidden;box-sizing:border-box;padding:16px;
                 font-family:'STIX Two Math','Cambria Math','DejaVu Serif',serif;">
                 {heading_html}
-                <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"
-                    style="font-size:{font_size}px;">
-                    {body}
-                </math>
+                <div style="width:100%;overflow:auto;text-align:center;box-sizing:border-box;">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"
+                        style="width:100%;font-size:{font_size}px;">
+                        {body}
+                    </math>
+                </div>
             </div>
         </foreignObject>
     </svg>"""
@@ -304,9 +314,9 @@ def _math_svg(
 
 def chow_closure_svg(matrix: sp.MatrixBase) -> str:
     """Creates the student's symbolic-closure SVG."""
-    width = max(1000, min(2200, 260 + 230 * matrix.cols))
-    height = max(360, 180 + 90 * matrix.rows)
-    font_size = 42 if matrix.cols <= 3 else 34 if matrix.cols <= 5 else 27
+    width = _CHOW_SVG_WIDTH
+    height = _chow_svg_height(matrix.rows)
+    font_size = 30 if matrix.cols <= 3 else 25 if matrix.cols <= 5 else 20 if matrix.cols <= 8 else 16
 
     return _math_svg(
         "<mrow><mi>𝒞</mi><mo>(</mo><mi>𝐪</mi><mo>)</mo><mo>=</mo>" f"{_mathml_core_fragment(matrix)}</mrow>",
@@ -337,9 +347,9 @@ def chow_control_system_svg(
         f"<msub><mi>u</mi><mn>{index}</mn></msub><mo>⁢</mo>" f"{_mathml_core_fragment(field)}"
         for index, field in enumerate(vector_fields, start=1)
     )
-    width = max(1600, min(2400, 800 + 400 * len(vector_fields)))
-    height = max(700, 260 + 110 * len(state_vars))
-    font_size = 44 if len(state_vars) <= 4 else 34
+    width = _CHOW_SVG_WIDTH
+    height = _chow_svg_height(len(state_vars))
+    font_size = 26 if len(state_vars) <= 4 else 22
 
     body = f"""<mtable rowspacing="2.3em" columnalign="center">
         <mtr>

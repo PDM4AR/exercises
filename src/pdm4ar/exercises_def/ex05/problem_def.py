@@ -133,8 +133,12 @@ def ex5_spline_eval(algo_out, algo_out_tf, expected):
     return correct, result_str
 
 
+def compute_chow_rank_at_point(algo_out, eval_point):
+    return int(algo_out.subs(eval_point).rank())
+
+
 def ex7_chow_rank_eval(algo_out, algo_out_tf, expected):
-    computed_rank = int(algo_out.subs(algo_out_tf).rank())
+    computed_rank = compute_chow_rank_at_point(algo_out, algo_out_tf)
     correct = computed_rank == expected
     result_str = PASSED_STR if correct else FAILED_STR
     return int(correct), result_str
@@ -254,12 +258,12 @@ def ex7_chow_rank_plot_fun(rfig, query, algo_out, algo_out_tf, expected, success
     if not isinstance(algo_out, sp.MatrixBase):
         return
     rfig.data(
-        "Control system",
+        "Input control system",
         chow_control_system_svg(query[0], query[1]),
         mime="image/svg+xml",
     )
     rfig.data(
-        "Symbolic closure",
+        "Student symbolic closure (before evaluation)",
         chow_closure_svg(algo_out),
         mime="image/svg+xml",
     )
