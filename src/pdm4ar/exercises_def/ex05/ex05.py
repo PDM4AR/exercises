@@ -5,14 +5,7 @@ from zuper_commons.text import remove_escapes
 from pdm4ar.exercises_def.ex05.data import get_example_test_values
 from pdm4ar.exercises_def.structures import Exercise
 from pdm4ar.exercises_def.ex05.problem_def import *
-from collections.abc import Iterable
-
-from reprep import Report
-from zuper_commons.text import remove_escapes
-
-from pdm4ar.exercises_def.ex05.data import get_example_test_values
-from pdm4ar.exercises_def.ex05.problem_def import *
-from pdm4ar.exercises_def.structures import Exercise
+from pdm4ar.exercises_def.ex05.utils import chow_query_to_str
 
 
 def exercise_dubins_eval(
@@ -26,11 +19,17 @@ def exercise_dubins_eval(
     r = Report(prob.id_str)
     for i, query in enumerate(test_queries):
         sucess = False
-        algo_out = prob.algo_fun(*query)
 
-        if prob.pre_tf_fun is not None:
-            pre_success, algo_out_tf, pre_msg = prob.pre_tf_fun(algo_out)
+        if prob.id_num == 7:
+            algo_out = prob.algo_fun(query[0], query[1], query[3])
+            pre_success = True
+            algo_out_tf = query[2]
+            pre_msg = ""
         else:
+            algo_out = prob.algo_fun(*query)
+        if prob.id_num != 7 and prob.pre_tf_fun is not None:
+            pre_success, algo_out_tf, pre_msg = prob.pre_tf_fun(algo_out)
+        elif prob.id_num != 7:
             pre_success = True
             algo_out_tf = None
             pre_msg = ""
@@ -46,15 +45,19 @@ def exercise_dubins_eval(
             result_msg = "Solution unavailable \n"
 
         msg = ""
-        msg += f"Input: \t {*query,} \n"
+        query_str = chow_query_to_str(query) if prob.id_num == 7 else str((*query,))
+        msg += f"Input: \t {query_str} \n"
         msg += pre_msg
-        comp_out = (
-            [
-                *algo_out,
-            ]
-            if isinstance(algo_out, Iterable)
-            else str(algo_out)
-        )
+        if prob.id_num == 7:
+            comp_out = compute_chow_rank_at_point(algo_out, algo_out_tf)
+        else:
+            comp_out = (
+                [
+                    *algo_out,
+                ]
+                if isinstance(algo_out, Iterable)
+                else str(algo_out)
+            )
         msg += f"Computed: \t {comp_out} \n"
         if expected is not None:
             one_of_many = False
@@ -88,7 +91,7 @@ def exercise_dubins_eval(
 
         if prob.plot_fun is not None:
             figsize = None
-            rfig = r.figure(cols=1)
+            rfig = r.figure(cols=2 if prob.id_num == 7 else 1)
             prob.plot_fun(rfig, query, algo_out, algo_out_tf, expected[i] if expected is not None else None, sucess)
 
     msg = f"You got {correct_answers: .3f}/{len(test_queries)} correct results!"
@@ -115,6 +118,8 @@ def exercise_dubins_perf_aggregator(perf_outs: List[DubinsPerformance]) -> Dubin
             accuracy_dict["accuracy_spline"] = el.accuracy
         elif el.id_ == 6:
             accuracy_dict["accuracy_reeds"] = el.accuracy
+        elif el.id_ == 7:
+            accuracy_dict["accuracy_chow"] = el.accuracy
     return DubinsFinalPerformance(accuracy_combined=accuracy_combined, individual_accuracies=accuracy_dict)
 
 
