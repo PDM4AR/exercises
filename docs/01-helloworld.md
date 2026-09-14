@@ -12,7 +12,7 @@ layout: default
 
 
 We monitor all exercises via our GitHub Organization: PRM4AR.
-At the beginning of the semester, we will be asked to fill in a form to be added to the GitHub organization. You will then be instructed to create your exercise repository within the organization and submit your implementation.
+After creating your GitHub account, fill in the `PDM4AR GitHub Onboarding Form` under Piazza homework session to be added to our organization. Once you have accepted the invitation, follow the instruction below to create your exercise repositories within the organization and submit your implementations.
 
 ## Create your repository
 
