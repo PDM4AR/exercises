@@ -234,12 +234,6 @@ def get_graph_search_problems(
         GridSearchProblem(graph=grid_to_adjacency_list(grid02), grid=grid02, queries=grid02_queries, graph_id=grid_id)
     )
 
-    # Custom test graph with one query, following docs/02-graphsearch.md.
-    custom01_id = "custom01"
-    custom01: AdjacencyList = {1: {2, 3}, 2: {4}, 3: {4}, 4: set()}
-    custom01_queries = {(1, 4)}
-    graphsearch_prob.append(GraphSearchProblem(graph=custom01, queries=custom01_queries, graph_id=custom01_id))
-
     for extra_problem in extra_test_graph_problems:
         graphsearch_prob.append(extra_problem)
     return graphsearch_prob
@@ -2810,15 +2804,5 @@ def ex2_get_expected_results() -> list[Optional[list[tuple[Path, OpenedNodes]]]]
             },
         ),
     }
-
-    # Debugging placeholders as documented; these do not check correctness.
-    # custom test dfs
-    expected_results[16] = [([], [])]
-    # custom test bfs
-    expected_results[17] = [([], [])]
-    # custom test id
-    expected_results[18] = [([], [])]
-    # custom test Wavefront Planner
-    expected_results[19] = {}
 
     return expected_results
