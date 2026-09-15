@@ -38,12 +38,17 @@ def search(self, graph: AdjacencyList, start: X, goal: X) -> Tuple[Path, OpenedN
     pass
 ```
 
-The `search` method has to be implemented for 3 different algorithms: Breadth First Search, Depth First Search and Iterative Deepening. The method should return the Path from start to end node (empty list `[]` if not found) and the opened nodes `OpenedNodes` during the search. More specifically, `OpenedNodes` should contain nodes in the order that they are popped from the search queue. Note: for Iterative Deepening, as the search state is reset at each iteration, `OpenedNodes` should only contain the nodes opened during the last iteration.
+The `search` method has to be implemented for 3 different algorithms: Breadth First Search, Depth First Search and Iterative Deepening. The method should return the Path from start to end node (empty list `[]` if not found) and the opened nodes `OpenedNodes` during the search. More specifically, `OpenedNodes` should contain nodes in the order that they are popped from the search queue. 
 When solving the graph search problem, the following conventions should hold:
 * Nodes are represented by Integers.
 * When a node is expanded, its neighbours are sorted in increasing order (from smaller to larger Int) and then added in block to the queue. Only the neighbours (if not already in the queue) shall be sorted when added and not the nodes already in the queue.
 Ex: The current queue is `Q = [0]`, if nodes to be added in DFS fashion are `{2, 1}` then the new queue will be `Q = [1, 2, 0]`. 
-If a successor of the expanded node is already in the queue, it should not be added newly. I.e., given `Q = [0]`, with successors `{2, 1, 0}` then the new queue will be `Q = [1, 2, 0]`.
+For BFS and DFS, if a successor of the expanded node is already in the queue, it should not be added newly. I.e., given `Q = [0]`, with successors `{2, 1, 0}` then the new queue will be `Q = [1, 2, 0]`.
+ 
+For Iterative Deepening specifically:
+* As the search state is reset at each iteration, `OpenedNodes` should only contain the nodes opened during the last iteration.
+* Keep a visited set for each branch of the search: only skip a successor if it has already occurred on the current DFS path. Nodes explored in other branches remain eligible. For this reason, a node might appear multiple times in the `OpenedNodes` sequence (if revisited through different branches).
+
 
 ### Wavefront Planning
 
@@ -146,7 +151,7 @@ grid02_queries = generate_queries_grid(grid02, 3, seed=n_seed)
 graphsearch_prob.append(GridSearchProblem(graph=grid_to_adjacency_list(grid02), grid=grid02, queries=grid02_queries, graph_id=grid_id))
 ```
 
-If you add or remove local test cases, don’t forget to update the ex2_get_expected_results function accordingly. Specifically, if you're adding a custom test for debugging purposes, it’s recommended to insert an empty list as a placeholder for its expected results. For example, for the graph search problems, if you add a new test case with one query at the end, you should append an empty list to the returned structure. For Wavefront, replace `custom_queries` with the query-set variable used by the custom problem. This creates all goal and start keys required by the evaluator.
+If you add or remove local test cases, don’t forget to update the `ex2_get_expected_results` function accordingly. For a custom graph search problem, add one `([], [])` placeholder per query for each search algorithm. For Wavefront, use an empty dictionary `{}`: the evaluator uses an empty cost-to-go map and empty paths for missing expected results, including any automatically added starts. These placeholders let you generate a report for debugging; replace them with actual expected results to check correctness.
 
 ```python
 # custom test dfs
@@ -156,13 +161,7 @@ expected_results[17] = [([], [])]
 # custom test id
 expected_results[18] = [([], [])]
 # custom test Wavefront Planner
-expected_results[19] = {
-    goal: (
-        {},
-        {start: [] for start, query_goal in custom_queries if query_goal == goal},
-    )
-    for goal in {goal for _, goal in custom_queries}
-}
+expected_results[19] = {}
 ```
 
 ### final evaluation
