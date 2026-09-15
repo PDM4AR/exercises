@@ -186,8 +186,8 @@ For reference, the TA’s solution achieves the following average solving times 
 |---------------------|-----------------|
 | DepthFirst          | 0.000300        |
 | BreadthFirst        | 0.000108        |
-| IterativeDeepening  | 0.000482        |
-| WavefrontPlanner    | 0.000189        |
+| IterativeDeepening  | 0.304349        |
+| WavefrontPlanner    | 0.000183        |
 
 Use these numbers as a guideline to understand the order of magnitude of expected performance for a decently optimized solution.
 
