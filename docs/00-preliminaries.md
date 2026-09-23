@@ -43,8 +43,8 @@ You will submit your solutions via your private GitHub repository. Detailed subm
 
 | Exercise **ID** | **Topic**             | Evaluation **opens** | Evaluation **closes**        |**Deadline status** | Available Submissions |
 | --------------- | --------------------- | -------------------- | ---------------------------- | --------------------------------------------------------------------- | ------------------- | --------------------- |
-| 02              | Graph Search          | 23rd of September    | 20th of October (23:59 CET)  |  tentative           | 10                    |
-| 03              | Informed Graph Search | 23rd of September    | 20th of October (23:59 CET)  |  tentative           | 10                    |
+| 02              | Graph Search          | 23rd of September    | 20th of October (23:59 CET)  |  confirmed           | 10                    |
+| 03              | Informed Graph Search | 23rd of September    | 20th of October (23:59 CET)  |  confirmed           | 10                    |
 | 04              | Dynamic Programming   | 30th of September       | 27th of October (23:59 CET)  |  tentative           | 10                    |
 | 05              | Steering (Dubins)     | 14th of October      | 3rd of November (23:59 CET)  |  tentative           | 10                    |
 | 06              | Collision Checking    | 21th of October      | 10th of November (23:59 CET) |   tentative           | 10                    |
