@@ -15,7 +15,6 @@ action2arrow = frozendict(
         Action.WEST: (0, -arrow_size),
         Action.SOUTH: (arrow_size, 0),
         Action.EAST: (0, arrow_size),
-        Action.STAY: (0, 0),
     }
 )
 

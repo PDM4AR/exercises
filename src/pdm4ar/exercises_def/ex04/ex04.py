@@ -1,4 +1,3 @@
-import hashlib
 from dataclasses import dataclass
 from time import process_time
 from typing import Any, Sequence, Type, Union, Optional, cast
@@ -45,12 +44,6 @@ class TestValueEx4(ExIn):
     def str_id(self) -> str:
         return f"{self.algo.__name__}-{self.case_name}{self.testId}"
 
-def _value_checksum(value_func) -> str:
-    """Checksum of the value function's exact bytes, recorded with each result
-    for reproducibility and post-evaluation screening."""
-    arr = np.ascontiguousarray(np.asarray(value_func, dtype=np.float64))
-    return hashlib.md5(arr.tobytes()).hexdigest()
-
 AUG_Z_LABELS = {
     "momentum": ["h=-", "h=N", "h=W", "h=S", "h=E"],
     "forecast": ["CLEAR", "FOGGY"],
@@ -63,10 +56,6 @@ class Ex04Performance(PerformanceResults):
     policy_accuracy: float
     value_func_r2: float
     solve_time: float
-    # which (case, map) this result belongs to, and a checksum of the
-    # submitted value function (see _value_checksum)
-    case_key: Optional[str] = None
-    value_checksum: Optional[str] = None
 
     def __post_init__(self):
         assert self.policy_accuracy <= 1, self.policy_accuracy
@@ -147,6 +136,9 @@ def plot_grid_policy(rfig, grid_mdp: GridMdp, policy: Union[OptimalActions, Poli
                 for action in optimal_actions:
                     if action == Action.ABANDON:
                         ax.text(j, i, "X", size=2.5 * font_size, ha="center", va="center", color="k", weight="bold")
+                    elif action == Action.STAY:
+                        # a dot: STAY is only admissible at the GOAL (same marker as the Part-2 plots)
+                        ax.plot(j, i, "o", color="k", markersize=1.2 * font_size)
                     else:
                         arrow = action2arrow[action]
                         ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width, color="k")
@@ -225,13 +217,7 @@ def ex4_evaluation_algo(ex_in: TestValueEx4, ex_out=None) -> tuple[PerformanceRe
 
         r.text(f"{algo_name}", text=remove_escapes(msg))
 
-    result = Ex04Performance(
-        policy_accuracy=policy_accuracy,
-        value_func_r2=value_func_r2,
-        solve_time=solve_time,
-        case_key=f"{ex_in.case_name}{ex_in.testId}",
-        value_checksum=_value_checksum(value_func),
-    )
+    result = Ex04Performance(policy_accuracy=policy_accuracy, value_func_r2=value_func_r2, solve_time=solve_time)
     if isinstance(solver, PolicyIteration):
         perf = Ex04PerformanceResult(policy_iteration=result)
     elif isinstance(solver, ValueIteration):
@@ -361,8 +347,7 @@ def _plot_aug_slice_policy(rfig, mdp, policy_slice, title: str):
                     ax.text(j, i, "X", size=font_size + 2, ha="center",
                             va="center", color="k")
                 elif a == Action.STAY:
-                    ax.text(j, i, "G", size=font_size + 2, ha="center",
-                            va="center", color="k")
+                    ax.plot(j, i, "o", color="k", markersize=1.2 * font_size)
                 else:
                     arrow = action2arrow[a]
                     ax.arrow(j, i, arrow[1], arrow[0], head_width=head_width,
@@ -423,11 +408,7 @@ def ex4_evaluation_algo_aug(ex_in: TestValueEx4, ex_out=None) -> tuple[Performan
         msg += f"value_func_r2:{value_func_r2:.3f}\n"
         r.text(f"{algo_name}", text=remove_escapes(msg))
 
-    result = Ex04Performance(policy_accuracy=policy_accuracy,
-                             value_func_r2=value_func_r2,
-                             solve_time=solve_time,
-                             case_key=f"{ex_in.case_name}{ex_in.testId}",
-                             value_checksum=_value_checksum(value_func))
+    result = Ex04Performance(policy_accuracy=policy_accuracy, value_func_r2=value_func_r2, solve_time=solve_time)
     if isinstance(solver, PolicyIteration):
         return Ex04PerformanceResult(policy_iteration=result), r
     elif isinstance(solver, ValueIteration):
