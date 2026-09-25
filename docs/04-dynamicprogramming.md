@@ -349,7 +349,7 @@ Figure 1: Visualization of the optimal value function and policy for the 5x5 exa
 
 On the left the Value function is visualized as a heatmap.
 On the right you can see the map with the original cells and the corresponding optimal policy
-(arrows for movement actions, X for the ``ABANDON`` action).
+(arrows for movement actions, X for the ``ABANDON`` action, a dot for ``STAY`` at the goal).
 
 ### Help for modeling the MDP
 
