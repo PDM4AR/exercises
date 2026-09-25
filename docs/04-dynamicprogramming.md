@@ -416,12 +416,14 @@ Note: both algorithms must be your own implementations.
 In the report you will find the average of each metric for all the test cases (`perf_result`), value iteration test cases (`value_iteration`), policy iteration test cases (`policy_iteration`) and transition probability test cases (`transition_prob`).
 The score is calculated based on all the test cases (`perf_result`) plus (`transition_prob`). -->
 
-<!-- TODO re-measure on the server for the 2026 test set (the numbers below are from the old, Part-1-only exercise):
+For reference, the TA's solution achieves the following on the server, averaged over all
+Part-1 and Part-2 test cases (its policy_accuracy, value_func_R2 and
+transition_prob_accuracy are all 1.0):
 
-Solving time reference:
+| Algorithm        | Solve time [s] |
+|------------------|----------------|
+| ValueIteration   | 0.500          |
+| PolicyIteration  | 0.423          |
 
-| Algorithm           | Solving time[s] |
-|---------------------|-----------------|
-| ValueIteration      | 8.714           |
-| PolicyIteration     | 4.263           | -->
-
+Use these numbers as a guideline for the order of magnitude of a correct, plainly written
+implementation (Python loops over dictionaries, no vectorisation).
