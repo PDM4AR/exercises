@@ -1,12 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from dg_commons.sim.models.spaceship import SpaceshipState
 from dg_commons import DgSampledSequence
 import os
 from pdm4ar.exercises_def.structures import out_dir
 
 
-def plot_traj(computed: DgSampledSequence, actual: list = None):
+def plot_traj(
+    computed: DgSampledSequence[SpaceshipState], actual: list[SpaceshipState] | None = None
+):
     """
     Example of simple plotting function to help you debug your code.
     Feel free to modify it or create your own plotting functions.
