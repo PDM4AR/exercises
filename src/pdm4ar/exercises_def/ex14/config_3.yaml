@@ -5,18 +5,21 @@ agents:
       y: 2.967390075775155
       psi: -1.3439048784363092
     color: saddlebrown
+    capacity: 2
   PDM4AR_2:
     state:
       x: -1.5251068413680393
       y: -1.401735529530372
       psi: 3.1107935149598713
     color: steelblue
+    capacity: 1
   PDM4AR_3:
     state:
       x: 2.3199999404150393
       y: -1.3142018173186614
       psi: 0.8763115224888205
     color: firebrick
+    capacity: 2
 static_obstacles:
 - - - 1.2703945759730217
     - 2.5092471896670387
@@ -139,6 +142,7 @@ shared_goals:
   - 1.3850088340396045
   radius: 0.3
   value: 60
+  assigned_robot: PDM4AR_1
 - id: goal_2
   center:
   - 0.4602973304929421
@@ -151,6 +155,7 @@ shared_goals:
   - 0.14940274105502915
   radius: 0.3
   value: 90
+  assigned_robot: PDM4AR_2
 - id: goal_4
   center:
   - -9.401447596751952
@@ -163,12 +168,14 @@ shared_goals:
   - -2.217126098063792
   radius: 0.3
   value: 40
+  assigned_robot: PDM4AR_3
 - id: goal_6
   center:
   - 2.798794077573321
   - 6.475519672566612
   radius: 0.3
   value: 100
+  assigned_robot: PDM4AR_1
 - id: goal_7
   center:
   - 3.6197783016160763
@@ -187,6 +194,7 @@ shared_goals:
   - 4.234483128885415
   radius: 0.3
   value: 70
+  assigned_robot: PDM4AR_2
 - id: goal_10
   center:
   - 8.694660953957733
@@ -199,6 +207,7 @@ shared_goals:
   - -3.614321927025384
   radius: 0.3
   value: 30
+  assigned_robot: PDM4AR_3
 - id: goal_12
   center:
   - -3.7225126944369205

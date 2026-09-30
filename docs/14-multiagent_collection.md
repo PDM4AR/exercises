@@ -1,7 +1,7 @@
 # Multi-agent Goal Collection [Final '25]
 
 ## Problem description
-Your task is to implement a planning and control system for a fleet of differential drive robots. The robots must autonomously navigate a warehouse environment to collect goals and deliver them to designated collection points. Robots automatically pick up a goal when they reach a close proximity and deposit it upon entering the collection area. Each robot has a maximum capacity of **ONE** goal at a time.
+Your task is to implement a planning and control system for a fleet of differential drive robots. The robots must autonomously navigate a warehouse environment to collect goals and deliver them to designated collection points. Robots automatically pick up a goal when they reach a close proximity and deposit it upon entering the collection area. Each robot has a scenario-defined carrying capacity. A robot automatically unloads its complete inventory when it enters a collection point.
 
 To test your agent, you are provided with a simulation environment. The environment provides observations to each agent at each time step and expects control commands in return. Additionally, an one-time global planning phase occurs before the simulation starts, allowing you to coordinate all agents to maximize overall efficiency.
 
@@ -27,12 +27,11 @@ To help to define and serialize/deserialize structured message (i.e., the global
 
 #### Available Data Structures:
 
-Under `dg_commons/sim/`:
-
-`simulator_structures.py::InitSimGlobalObservations` contains the following information:
+`src/pdm4ar/exercises_def/ex14/simulator.py::Ex14InitSimGlobalObservations` extends the base `dg_commons` observation for this exercise and contains:
 - Initial positions of all robots
-- Locations and values of all goals (as `shared_goals.py::SharedPolygonGoal` objects; each goal has a `value` attribute in dollars, see [Goal values](#rules-and-mechanics))
+- Locations and values of all goals (as local `ValuedSharedPolygonGoal` objects; each goal also exposes its optional `assigned_robot`)
 - Locations of all collection points (as `shared_goals.py::CollectionPoint` objects)
+- The carrying capacity of each robot in `agent_capacities`
 - All map information (boundaries and static obstacles)
 
 `src/pdm4ar/exercises/ex14/agent.py::GlobalPlanMessage` is an example `Pydantic` model for defining a structured global plan message. You can modify it or create your own structure as needed.
@@ -50,11 +49,11 @@ After the global planning phase, the simulation starts. Each robot is controlled
 
 2. **Overriding `on_receive_global_plan(serialized_msg: str)`**: This method receives the string returned by the global planner's `send_plan(...)` method. You can deserialize it here and store the information for use during execution.
 
-3. **Overriding `get_commands(sim_obs: SimObservations) -> DiffDriveCommands`**: This method is called every `dt_commands` seconds (0.1s by default) and must return control commands. The `SimObservations` object contains:
+3. **Overriding `get_commands(sim_obs: Ex14SimObservations) -> DiffDriveCommands`**: This method is called every `dt_commands` seconds (0.1s by default) and must return control commands. `Ex14SimObservations` extends the base `dg_commons` observation with:
    - `players`: A mapping of player names to `PlayerObservations` objects, which contain:
      - `state`: The player's current state (e.g., `DiffDriveState`)
      - `occupancy`: The player's footprint polygon
-     - `collected_goal_id`: The ID of the goal currently being carried by this player (if any)
+     - `collected_goal_ids`: The IDs of the goals currently carried by this player
    - `time`: The current simulation time
    - `available_goals`: A mapping of goal IDs to `SharedGoalObservation` objects (only includes goals not yet collected), each containing:
      - `occupancy`: The goal's polygon footprint
@@ -87,21 +86,23 @@ The available observations in `sim_obs.players` will only include robots within 
 
 1. **No communication after global planning**: After the initial global planning phase, each robot operates independently based on its local observations and the pre-computed global plan. **No further communication or coordination between robots is allowed (No global variables, no shared memory, no inter-agent messaging, no file sharing, etc.).**
 
-2. **Automatic goal collection**: When a robot that is not currently carrying a goal comes within range of a goal (i.e., the robot's position enters the goal's polygon), it automatically picks up that goal. This is handled by the `SharedPolygonGoalsManager` in the simulator.
+2. **Automatic goal collection**: When a robot with spare capacity enters a goal's polygon, it automatically picks up that goal. This is handled by the `SharedPolygonGoalsManager` in the simulator.
 
-3. **Automatic goal delivery**: When a robot carrying a goal enters a collection point's polygon, it automatically drops off the goal. This is also handled by the `SharedPolygonGoalsManager`.
+3. **Automatic goal delivery**: When a robot with a non-empty inventory enters a collection point's polygon, it automatically drops off every carried goal. This is also handled by the `SharedPolygonGoalsManager`.
 
-4. **Single goal capacity**: Each robot can carry at most one goal at a time. To pick up another goal, it must first deliver its current goal to a collection point.
+4. **Varying capacity**: Each robot's capacity is defined by the scenario and is available to the global planner through `agent_capacities`.
 
-5. **Goal values**: Every goal has an integer `value` between 10 and 100 dollars. The revenue earned for a goal decays linearly with the time at which it is **delivered** (not picked up):
+5. **Goal ownership**: A goal may have an `assigned_robot`. Any robot can collect and deliver it, but its time-dependent revenue is earned only when the assigned robot delivers it. Goals without an assignment can earn revenue for any robot.
+
+6. **Goal values**: Every goal has an integer `value` between 10 and 100 dollars. The revenue earned for a goal decays linearly with the time at which it is **delivered** (not picked up):
    ```python
    revenue_i = value_i * max(0.2, 1.0 - t_i / max_sim_time)
    ```
    where `t_i` is the delivery time and `max_sim_time` is 60 s. A late delivery still earns at least 20% of the goal's value, while a goal that is never delivered earns nothing. The order in which the goals are delivered therefore matters: delivering valuable goals early pays off.
 
-6. **Disable after collision**: If a robot collides with an obstacle (static or another robot), it is considered "disabled" and can no longer move or collect/deliver goals for the remainder of the simulation.
+7. **Disable after collision**: If a robot collides with an obstacle (static or another robot), it is considered "disabled" and can no longer move or collect/deliver goals for the remainder of the simulation.
 
-7. **Decentralized execution**: Each agent instance runs the same policy you design, acting only on local observations without direct communication.
+8. **Decentralized execution**: Each agent instance runs the same policy you design, acting only on local observations without direct communication.
 
 ### Termination Conditions
 The *simulation terminates* upon one of the following cases:
