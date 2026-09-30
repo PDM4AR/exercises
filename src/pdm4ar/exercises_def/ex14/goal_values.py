@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from dg_commons import PlayerName
 from dg_commons.sim.shared_goals import SharedPolygonGoal
 
 GOAL_VALUE_MIN: int = 10
@@ -13,9 +14,11 @@ REVENUE_FLOOR: float = 0.2
 
 @dataclass
 class ValuedSharedPolygonGoal(SharedPolygonGoal):
-    """A shared goal carrying a value (in dollars) that decays with its delivery time."""
+    """A shared goal carrying a value (in dollars) that decays with its delivery time. The goal can be assigned 
+    to a specific robot. If a robot which is not the assigned one happens to deliver that goal, the revenue is 0"""
 
     value: float = 0.0
+    assigned_robot: PlayerName | None = None
 
 
 def goal_revenue(value: float, delivery_time: float | None, max_sim_time: float) -> float:
