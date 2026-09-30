@@ -17,6 +17,7 @@ from dg_commons.sim.sim_perception import FovObsFilter, ObsFilter
 from dg_commons.sim.simulator import SimContext
 from pdm4ar.exercises.ex14.agent import Pdm4arAgent, Pdm4arGlobalPlanner
 from pdm4ar.exercises_def.ex14.agent_process import AgentProcess
+from pdm4ar.exercises_def.ex14.goal_values import ValuedSharedPolygonGoal, validate_goal_value
 from shapely import LinearRing, Point, Polygon
 
 
@@ -25,6 +26,8 @@ def load_config(file_path: str) -> Mapping[str, Any]:
         config: dict[str, Any] = yaml.safe_load(file)
         if "config_name" not in config:
             config["config_name"] = file_path.split("/")[-1].split(".")[0]
+        for goal_data in config.get("shared_goals", []):
+            validate_goal_value(goal_data)
     return fd(config)
 
 
@@ -68,7 +71,9 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
         shared_goals: List[SharedPolygonGoal] = []
         for goal_data in config["shared_goals"]:
             goal_poly = Point(goal_data["center"]).buffer(goal_data["radius"])
-            shared_goal = SharedPolygonGoal(goal_id=goal_data["id"], polygon=goal_poly)
+            shared_goal = ValuedSharedPolygonGoal(
+                goal_id=goal_data["id"], polygon=goal_poly, value=validate_goal_value(goal_data)
+            )
             shared_goals.append(shared_goal)
 
         # Parse collection points

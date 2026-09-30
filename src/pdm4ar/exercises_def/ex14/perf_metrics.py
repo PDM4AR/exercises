@@ -7,7 +7,13 @@ from dg_commons import DgSampledSequence, PlayerName, iterate_with_dt, seq_integ
 from dg_commons.sim.models.diff_drive import DiffDriveState
 from dg_commons.sim.simulator import SimContext
 from pdm4ar.exercises_def import PerformanceResults
+from pdm4ar.exercises_def.ex14.goal_values import goal_revenue
 from shapely.geometry import Point, Polygon
+
+DELIVERY_REWARD: float = 50.0
+"""Flat reward per delivered goal, independent of its value and delivery time."""
+REVENUE_WEIGHT: float = 1.0
+"""Weight of the time-dependent revenue (in dollars) in the score."""
 
 
 @dataclass(frozen=True)
@@ -18,6 +24,8 @@ class PlayerMetrics(PerformanceResults):
     """Has the player crashed?"""
     num_goal_delivered: int
     """Number of goals delivered by the player."""
+    revenue: float
+    """Time-dependent revenue earned by the goals delivered by the player."""
     travelled_distance: float
     """Distance travelled by the player."""
     actuation_effort: float
@@ -32,6 +40,8 @@ class AllPlayerMetrics(PerformanceResults):
     """Number of players that crashed."""
     num_goals_delivered: int
     """Number of goals delivered by all players."""
+    total_revenue: float
+    """Time-dependent revenue earned by all delivered goals."""
     total_travelled_distance: float
     """Total distance travelled by all players."""
     max_sim_time: float
@@ -55,7 +65,8 @@ class AllPlayerMetrics(PerformanceResults):
 
     def reduce_to_score(self) -> float:
         """Higher is better"""
-        score = self.num_goals_delivered * 100
+        score = self.num_goals_delivered * DELIVERY_REWARD
+        score += self.total_revenue * REVENUE_WEIGHT
         score -= self.num_collided_players * 500
         score += (self.max_sim_time - self.task_accomplishment_time) * 10
         score -= self.total_travelled_distance * 0.5
@@ -72,6 +83,7 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
         collided_players.update((cr.players.keys()))
 
     goal_manager = sim_context.shared_goals_manager
+    max_sim_time = float(sim_context.param.max_sim_time)
     for player_name, agent_log in sim_context.log.items():
         if "PDM4AR" not in player_name:
             continue
@@ -79,6 +91,17 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
         goals_delivered = goal_manager.get_goals_delivered_by_agent(player_name)
         # number of goals delivered
         num_goal_delivered = len(goals_delivered)
+        # time-dependent revenue of the delivered goals
+        revenue = float(
+            sum(
+                goal_revenue(
+                    value=getattr(goal_manager.all_goals[goal_id], "value", 0.0),
+                    delivery_time=goal_manager.all_goals[goal_id].delivery_time,
+                    max_sim_time=max_sim_time,
+                )
+                for goal_id in goals_delivered
+            )
+        )
         # collision
         has_collided = True if player_name in collided_players else False
 
@@ -102,22 +125,23 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
             player_name=player_name,
             collided=has_collided,
             num_goal_delivered=num_goal_delivered,
+            revenue=revenue,
             travelled_distance=dist,
             actuation_effort=actuation_effort,
             avg_computation_time=avg_comp_time,
         )
         agents_perf.append(pm)
 
-    max_sim_time = float(sim_context.param.max_sim_time)
     task_accomplishment_time = 0
     for goal_id in goal_manager.all_goals.keys():
         if goal_manager.all_goals[goal_id].delivery_time is None:
-            task_accomplishment_time = 60.0
+            task_accomplishment_time = max_sim_time
             break
         else:
             task_accomplishment_time = max(task_accomplishment_time, goal_manager.all_goals[goal_id].delivery_time)
     num_collided_players = [p.collided for p in agents_perf].count(True)
     num_goals_delivered = sum([p.num_goal_delivered for p in agents_perf])
+    total_revenue = sum([p.revenue for p in agents_perf])
     total_travelled_distance = sum([p.travelled_distance for p in agents_perf])
     total_actuation_effort = sum([p.actuation_effort for p in agents_perf])
     avg_computation_time = sum([p.avg_computation_time for p in agents_perf]) / len(agents_perf)
@@ -126,6 +150,7 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
     all_player_metrics = AllPlayerMetrics(
         num_collided_players=num_collided_players,
         num_goals_delivered=num_goals_delivered,
+        total_revenue=total_revenue,
         total_travelled_distance=total_travelled_distance,
         max_sim_time=max_sim_time,
         task_accomplishment_time=task_accomplishment_time,

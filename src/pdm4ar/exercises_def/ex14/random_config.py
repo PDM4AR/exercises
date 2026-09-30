@@ -11,6 +11,8 @@ from shapely.affinity import rotate, translate
 from shapely.geometry import Point, Polygon, box
 from shapely.geometry.base import BaseGeometry
 
+from pdm4ar.exercises_def.ex14.goal_values import GOAL_VALUE_MAX, GOAL_VALUE_MIN, validate_goal_value
+
 DEFAULT_BOUNDARY: list[list[float]] = [
     [-11.0, -11.0],
     [-11.0, 11.0],
@@ -40,6 +42,7 @@ class GenerationParams:
     collection_radius: float = 0.8
     obstacle_size_range: tuple[float, float] = (2.0, 10.0)
     max_attempts: int = 1000
+    goal_value_range: tuple[int, int] = (GOAL_VALUE_MIN, GOAL_VALUE_MAX)
 
 
 def generate_random_config(
@@ -140,6 +143,10 @@ def generate_random_config(
             "color": DEFAULT_AGENT_COLORS[idx % len(DEFAULT_AGENT_COLORS)],
         }
 
+    # Goal values are sampled after the geometry so that the layout for a given seed is unchanged
+    for goal in shared_goals:
+        goal["value"] = _sample_goal_value(params, rng)
+
     config: dict[str, Any] = {
         "agents": agents,
         "static_obstacles": [_polygon_to_coords(o) for o in obstacles],
@@ -171,6 +178,7 @@ def validate_config(config: Mapping[str, Any], robot_width: float, margin: float
         _assert_point_clear(pos, footprint_clearance, boundary_poly, obstacle_polys, label=f"agent {pn}")
 
     for entry in config.get("shared_goals", []):
+        validate_goal_value(entry)
         pos = Point(entry["center"])
         radius = entry.get("radius", 0.0) + footprint_clearance
         _assert_point_clear(pos, radius, boundary_poly, obstacle_polys, label=f"shared_goal {entry.get('id')}")
@@ -247,6 +255,16 @@ def _sample_obstacles(
             raise RuntimeError("Failed to place all obstacles without violating clearance constraints.")
 
     return obstacles
+
+
+def _sample_goal_value(params: GenerationParams, rng: random.Random) -> int:
+    lo, hi = params.goal_value_range
+    if not GOAL_VALUE_MIN <= lo <= hi <= GOAL_VALUE_MAX:
+        raise ValueError(f"goal_value_range must lie within [{GOAL_VALUE_MIN}, {GOAL_VALUE_MAX}].")
+    candidates = list(range(math.ceil(lo / 10) * 10, hi + 1, 10))
+    if not candidates:
+        raise ValueError("goal_value_range contains no multiple of 10.")
+    return rng.choice(candidates)
 
 
 def _sample_point(

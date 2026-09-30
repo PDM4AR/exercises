@@ -31,7 +31,7 @@ Under `dg_commons/sim/`:
 
 `simulator_structures.py::InitSimGlobalObservations` contains the following information:
 - Initial positions of all robots
-- Locations of all goals (as `shared_goals.py::SharedPolygonGoal` objects)
+- Locations and values of all goals (as `shared_goals.py::SharedPolygonGoal` objects; each goal has a `value` attribute in dollars, see [Goal values](#rules-and-mechanics))
 - Locations of all collection points (as `shared_goals.py::CollectionPoint` objects)
 - All map information (boundaries and static obstacles)
 
@@ -93,9 +93,15 @@ The available observations in `sim_obs.players` will only include robots within 
 
 4. **Single goal capacity**: Each robot can carry at most one goal at a time. To pick up another goal, it must first deliver its current goal to a collection point.
 
-5. **Disable after collision**: If a robot collides with an obstacle (static or another robot), it is considered "disabled" and can no longer move or collect/deliver goals for the remainder of the simulation.
+5. **Goal values**: Every goal has an integer `value` between 10 and 100 dollars. The revenue earned for a goal decays linearly with the time at which it is **delivered** (not picked up):
+   ```python
+   revenue_i = value_i * max(0.2, 1.0 - t_i / max_sim_time)
+   ```
+   where `t_i` is the delivery time and `max_sim_time` is 60 s. A late delivery still earns at least 20% of the goal's value, while a goal that is never delivered earns nothing. The order in which the goals are delivered therefore matters: delivering valuable goals early pays off.
 
-6. **Decentralized execution**: Each agent instance runs the same policy you design, acting only on local observations without direct communication.
+6. **Disable after collision**: If a robot collides with an obstacle (static or another robot), it is considered "disabled" and can no longer move or collect/deliver goals for the remainder of the simulation.
+
+7. **Decentralized execution**: Each agent instance runs the same policy you design, acting only on local observations without direct communication.
 
 ### Termination Conditions
 The *simulation terminates* upon one of the following cases:
@@ -131,6 +137,7 @@ Your solution will be evaluated based on multiple criteria. The performance metr
 For each player, the following metrics are tracked:
 - **`collided`**: Whether the player crashed into an obstacle or another robot
 - **`num_goal_delivered`**: Number of goals successfully delivered by this player
+- **`revenue`**: Time-dependent revenue of the goals delivered by this player
 - **`travelled_distance`**: Total distance traveled by the player
 - **`actuation_effort`**: Integral of absolute wheel velocities
 - **`avg_computation_time`**: Average time taken by the `get_commands` method
@@ -139,6 +146,7 @@ For each player, the following metrics are tracked:
 The overall performance combines all players' metrics:
 - **`num_collided_players`**: Total number of players that crashed
 - **`num_goals_delivered`**: Total number of goals delivered by all players
+- **`total_revenue`**: Sum of the time-dependent revenues of all delivered goals (see [Goal values](#rules-and-mechanics))
 - **`total_travelled_distance`**: Sum of distances traveled by all players
 - **`max_sim_time`**: Maximum simulation time allowed
 - **`task_accomplishment_time`**: Total time taken to deliver all goals (time when last goal was delivered)
@@ -150,7 +158,8 @@ The overall performance combines all players' metrics:
 The final score is computed by the `reduce_to_score()` method in `AllPlayerMetrics`:
 
 ```python
-score = num_goals_delivered * 100
+score = num_goals_delivered * 50
+score += total_revenue * 1.0
 score -= num_collided_players * 500
 score += (max_sim_time - task_accomplishment_time) * 10
 score -= total_travelled_distance * 0.5
@@ -160,9 +169,10 @@ score -= max(0.0, global_planning_time - 60) * 10
 ```
 
 **Key takeaways**:
-- **Primary objective**: Maximize the number of goals delivered (100 points each)
+- **Primary objective**: Maximize the revenue of the delivered goals. Each delivery earns a flat 50 points plus its time-decayed value, so a valuable goal delivered early is worth about three times a cheap one delivered late
 - **Critical penalty**: Avoid collisions (500 point penalty per collision)
-- **Early completion bonus**: Finish faster to earn bonus points (10 points per second saved)
+- **Plan the order**: Revenue decays with delivery time, so deliver high-value goals first.
+- **Early completion bonus**: Finish the whole task faster to earn bonus points (10 points per second saved)
 - **Efficiency matters**:
   - Minimize travel distance (0.5 point penalty per unit distance - highest weight among efficiency metrics)
   - Minimize actuation effort (0.01 point penalty per unit effort)

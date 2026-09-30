@@ -10,18 +10,23 @@ shared_goals:
   - id: 'goal_1'
     center: [ -5, -5 ]
     radius: 0.3
+    value: 80
   - id: 'goal_2'
     center: [ 4.5, 6 ]
     radius: 0.3
+    value: 20
   - id: 'goal_3'
     center: [ -6, 7 ]
     radius: 0.3
+    value: 40
   - id: 'goal_4'
     center: [ 7, -8.5 ]
     radius: 0.3
+    value: 100
   - id: 'goal_5'
     center: [ 7, -2 ]
     radius: 0.3
+    value: 30
 
 # Collection points where goals should be delivered
 collection_points:

@@ -138,61 +138,73 @@ shared_goals:
   - -2.8848056233297372
   - 1.3850088340396045
   radius: 0.3
+  value: 60
 - id: goal_2
   center:
   - 0.4602973304929421
   - -2.732166348945241
   radius: 0.3
+  value: 20
 - id: goal_3
   center:
   - 5.613681782568225
   - 0.14940274105502915
   radius: 0.3
+  value: 90
 - id: goal_4
   center:
   - -9.401447596751952
   - 7.317296195139345
   radius: 0.3
+  value: 30
 - id: goal_5
   center:
   - -8.946725266731178
   - -2.217126098063792
   radius: 0.3
+  value: 40
 - id: goal_6
   center:
   - 2.798794077573321
   - 6.475519672566612
   radius: 0.3
+  value: 100
 - id: goal_7
   center:
   - 3.6197783016160763
   - 9.424056041461448
   radius: 0.3
+  value: 10
 - id: goal_8
   center:
   - -0.4207890362886886
   - -6.227351231088084
   radius: 0.3
+  value: 50
 - id: goal_9
   center:
   - -7.156889408552868
   - 4.234483128885415
   radius: 0.3
+  value: 70
 - id: goal_10
   center:
   - 8.694660953957733
   - -9.075117712084397
   radius: 0.3
+  value: 20
 - id: goal_11
   center:
   - 7.561491558114859
   - -3.614321927025384
   radius: 0.3
+  value: 30
 - id: goal_12
   center:
   - -3.7225126944369205
   - -1.9948085085540663
   radius: 0.3
+  value: 80
 collection_points:
 - id: collection_1
   center:
