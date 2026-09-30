@@ -43,6 +43,8 @@ class GenerationParams:
     obstacle_size_range: tuple[float, float] = (2.0, 10.0)
     max_attempts: int = 1000
     goal_value_range: tuple[int, int] = (GOAL_VALUE_MIN, GOAL_VALUE_MAX)
+    agent_capacities: tuple[int, ...] = (1, 2)
+    assigned_goal_probability: float = 0.5
 
 
 def generate_random_config(
@@ -143,9 +145,14 @@ def generate_random_config(
             "color": DEFAULT_AGENT_COLORS[idx % len(DEFAULT_AGENT_COLORS)],
         }
 
-    # Goal values are sampled after the geometry so that the layout for a given seed is unchanged
+    # Non-geometric properties are sampled after placement so they do not affect the layout.
+    agent_names = list(agents)
     for goal in shared_goals:
         goal["value"] = _sample_goal_value(params, rng)
+        if agent_names and rng.random() < params.assigned_goal_probability:
+            goal["assigned_robot"] = rng.choice(agent_names)
+    for agent in agents.values():
+        agent["capacity"] = rng.choice(params.agent_capacities)
 
     config: dict[str, Any] = {
         "agents": agents,

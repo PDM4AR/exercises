@@ -100,6 +100,7 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
                     max_sim_time=max_sim_time,
                 )
                 for goal_id in goals_delivered
+                if getattr(goal_manager.all_goals[goal_id], "assigned_robot", None) in (None, player_name)
             )
         )
         # collision

@@ -5,10 +5,11 @@ from typing import Any, List, Mapping, Tuple, Dict
 import numpy as np
 import yaml
 from dg_commons import fd
-from dg_commons.sim.simulator import SimContext, Simulator
+from dg_commons.sim.simulator import SimContext
 from dg_commons.sim.simulator_animation import create_animation
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex14.perf_metrics import ex14_metrics
+from pdm4ar.exercises_def.ex14.simulator import Ex14Simulator
 from pdm4ar.exercises_def.ex14.utils_config import load_config, sim_context_from_config
 from reprep import MIME_MP4, Report
 from collections import defaultdict
@@ -18,7 +19,7 @@ def ex14_evaluation(sim_config: Mapping[str, Any], ex_out=None) -> Tuple[float, 
     sim_context: SimContext = sim_context_from_config(sim_config)
     r = Report("Final25-" + sim_context.description)
     # run simulation
-    sim = Simulator()
+    sim = Ex14Simulator()
     sim.run(sim_context)
     # visualisation
     report = _ex14_vis(sim_context=sim_context)

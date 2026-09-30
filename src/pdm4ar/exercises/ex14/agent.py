@@ -4,7 +4,7 @@ from typing import Mapping, Sequence
 
 import numpy as np
 from dg_commons import PlayerName
-from dg_commons.sim import InitSimGlobalObservations, InitSimObservations, SharedGoalObservation, SimObservations
+from dg_commons.sim import InitSimObservations, SharedGoalObservation
 from dg_commons.sim.agents import Agent, GlobalPlanner
 from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.diff_drive import DiffDriveCommands
@@ -12,6 +12,7 @@ from dg_commons.sim.models.diff_drive_structures import DiffDriveGeometry, DiffD
 from dg_commons.sim.models.obstacles import StaticObstacle
 from numpydantic import NDArray
 from pydantic import BaseModel
+from pdm4ar.exercises_def.ex14.simulator import Ex14InitSimGlobalObservations, Ex14SimObservations
 
 class GlobalPlanMessage(BaseModel):
     # TODO: modify/add here the fields you need to send your global plan
@@ -50,7 +51,7 @@ class Pdm4arAgent(Agent):
         # TODO: process here the received global plan
         global_plan = GlobalPlanMessage.model_validate_json(serialized_msg)
 
-    def get_commands(self, sim_obs: SimObservations) -> DiffDriveCommands:
+    def get_commands(self, sim_obs: Ex14SimObservations) -> DiffDriveCommands:
         """This method is called by the simulator every dt_commands seconds (0.1s by default).
         Do not modify the signature of this method.
 
@@ -77,7 +78,7 @@ class Pdm4arGlobalPlanner(GlobalPlanner):
     def __init__(self):
         pass
 
-    def send_plan(self, init_sim_obs: InitSimGlobalObservations) -> str:
+    def send_plan(self, init_sim_obs: Ex14InitSimGlobalObservations) -> str:
         # TODO: implement here your global planning stack.
         global_plan_message = GlobalPlanMessage(
             fake_id=1,
