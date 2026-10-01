@@ -15,15 +15,17 @@ from collections import defaultdict
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex13.perf_metrics import ex13_metrics
 from pdm4ar.exercises_def.ex13.utils_config import sim_context_from_yaml
+from pdm4ar.exercises_def.ex13.disturbed_satellite import DisturbedSatelliteModel
 from pdm4ar.exercises_def.ex13.get_config import get_config
 
 
 def ex13_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[Tuple[str, float], Report]:
     r = Report("Final25-" + sim_context.description)
+    agents = dict(sim_context.players)
     # run simulation
     run_simulation(sim_context)
     # visualisation
-    report = _ex13_vis(sim_context=sim_context)
+    report = _ex13_vis(sim_context=sim_context, agents=agents)
     # compute metrics
     avg_player_metrics, _ = ex13_metrics(sim_context)
     # report evaluation
@@ -45,7 +47,99 @@ def ex13_performance_aggregator(ex_out: List[Tuple[str, float]]) -> Tuple[str, f
     return scores
 
 
-def _ex13_vis(sim_context: SimContext) -> Report:
+def _plot_controller_events(fig, agent, model) -> None:
+    """Plot plans, tracking errors, replans, and the actual disturbance window."""
+    fig.clear()
+    ax_traj, ax_error, ax_lqr = fig.subplots(1, 3)
+
+    times = np.asarray(agent.command_times, dtype=float)
+    states = agent.actual_trajectory
+    sample_count = min(len(times), len(states))
+    times = times[:sample_count]
+    states = states[:sample_count]
+
+    for index, plan in enumerate(agent.planned_trajectories):
+        plan_values = list(plan._values)
+        ax_traj.plot(
+            [state.x for state in plan_values],
+            [state.y for state in plan_values],
+            linestyle="--",
+            alpha=0.65,
+            label="Initial plan" if index == 0 else f"Replan {index}",
+        )
+
+    if states:
+        actual_x = np.asarray([state.x for state in states])
+        actual_y = np.asarray([state.y for state in states])
+        ax_traj.plot(actual_x, actual_y, color="tab:blue", linewidth=2.0, label="Actual trajectory")
+    else:
+        actual_x = np.asarray([])
+        actual_y = np.asarray([])
+
+    disturbance_window = None
+    if isinstance(model, DisturbedSatelliteModel):
+        start = float(model.disturbance.start_time)
+        end = start + float(model.disturbance.duration)
+        disturbance_window = (start, end)
+        if sample_count:
+            active = (times >= start) & (times < end)
+            disturbed_x = np.where(active, actual_x, np.nan)
+            disturbed_y = np.where(active, actual_y, np.nan)
+            ax_traj.plot(
+                disturbed_x, disturbed_y, color="tab:orange", linewidth=5.0,
+                label=f"Disturbance active ({start:.1f}-{end:.1f} s)",
+            )
+
+    for index, replan_time in enumerate(agent.replanning_times, start=1):
+        if sample_count:
+            state_index = int(np.argmin(np.abs(times - replan_time)))
+            ax_traj.scatter(
+                actual_x[state_index], actual_y[state_index], marker="X", s=110,
+                color="tab:red", edgecolor="black", zorder=10,
+                label="Replanning" if index == 1 else None,
+            )
+            ax_traj.annotate(
+                f"R{index}  t={replan_time:.1f}s",
+                (actual_x[state_index], actual_y[state_index]),
+                xytext=(7, 7), textcoords="offset points", fontsize=8,
+            )
+
+    error_count = min(len(times), len(agent.norm2_errors), len(agent.max_errors))
+    error_times = times[:error_count]
+    ax_error.plot(error_times, agent.norm2_errors[:error_count], label="State error norm")
+    ax_error.plot(error_times, agent.max_errors[:error_count], label="Maximum component error", alpha=0.8)
+    ax_error.axhline(agent.ap.pos_tol, color="0.4", linestyle=":", label="Replan threshold")
+
+    lqr_count = min(len(times), len(agent.LQR_components))
+    if lqr_count:
+        lqr = np.asarray(agent.LQR_components[:lqr_count])
+        ax_lqr.plot(times[:lqr_count], lqr[:, 0], label="Left delta-thrust")
+        ax_lqr.plot(times[:lqr_count], lqr[:, 1], label="Right delta-thrust")
+
+    for axis in (ax_error, ax_lqr):
+        if disturbance_window is not None:
+            axis.axvspan(
+                disturbance_window[0], disturbance_window[1], color="tab:orange", alpha=0.22,
+                label="Disturbance active" if axis is ax_error else None,
+            )
+        for index, replan_time in enumerate(agent.replanning_times, start=1):
+            axis.axvline(
+                replan_time, color="tab:red", linestyle="--", linewidth=1.4,
+                label="Replanning" if axis is ax_error and index == 1 else None,
+            )
+
+    ax_traj.set(title="Trajectory and replanning events", xlabel="x [m]", ylabel="y [m]")
+    ax_traj.set_aspect("equal", adjustable="box")
+    ax_error.set(title="Tracking error and events", xlabel="Simulation time [s]", ylabel="Error")
+    ax_lqr.set(title="LQR correction and events", xlabel="Simulation time [s]", ylabel="Delta-thrust")
+    for axis in (ax_traj, ax_error, ax_lqr):
+        axis.grid(True, alpha=0.3)
+        axis.legend(fontsize=8)
+    fig.tight_layout()
+
+
+def _ex13_vis(sim_context: SimContext, agents=None) -> Report:
+    agents = dict(sim_context.players) if agents is None else agents
     r = Report("EpisodeVisualisation")
     gif_viz = r.figure(cols=1)
     with gif_viz.data_file("Animation", MIME_MP4) as fn:
@@ -64,6 +158,10 @@ def _ex13_vis(sim_context: SimContext) -> Report:
         with r.subsection(f"Player-{pn}-log") as sub:
             with sub.plot(f"{pn}-log", figsize=(20, 15)) as pylab:
                 plot_player_log(log=sim_context.log[pn], fig=pylab.gcf())
+            agent = agents.get(pn)
+            if agent is not None and hasattr(agent, "replanning_times"):
+                with sub.plot(f"{pn}-controller-events", figsize=(24, 8)) as pylab:
+                    _plot_controller_events(pylab.gcf(), agent, sim_context.models[pn])
     return r
 
 

@@ -40,7 +40,6 @@ class SatelliteDyn:
         0x 1y 2psi 3vx 4vy 5dpsi
         """
         # TODO Modify dynamics
-
         f = spy.zeros(self.n_x, 1)  # replace this line by computing the dynamics like in following example
         "f[0] = ..."
         "f[1] = ..."
@@ -53,6 +52,33 @@ class SatelliteDyn:
         # together with symbols, instead of numerical functions from numpy or math.
 
         # Jacobians and matrices of the system (don't need to change)
+
+        # Dynamics:
+        f = spy.zeros(self.n_x, 1)
+
+        x, y, psi, vx, vy, dpsi = self.x
+        thrust_l, thrust_r = self.u
+        lm, m = self.sg.l_m, self.sp.m_v  # Geometry and parameter constants
+        I = self.sg.Iz
+
+        # NOTE: the comments "type: ignore" are here to avoid Pylance errors, because Pylance is unable to evaluate sympy's symbolic expressions
+
+        # 1. Position dynamics
+        f[0] = vx  # type: ignore # dx/dt
+        f[1] = vy  # type: ignore # dy/dt
+
+        # 2. Orientation dynamics
+        f[2] = dpsi  # dpsi/dt
+
+        # 3. Velocity dynamics
+        f[3] = (1 / m) * spy.cos(psi) * (thrust_l + thrust_r)  # type: ignore # dvx/dt
+        f[4] = (1 / m) * spy.sin(psi) * (thrust_l + thrust_r)  # type: ignore # dvy/dt
+
+        # 4. Angular velocity dynamics
+        f[5] = (lm / I) * (thrust_r - thrust_l)  # type: ignore # ddpsi/dt
+
+        f = self.p[0] * f
+
         A = f.jacobian(self.x)
         B = f.jacobian(self.u)
         F = f.jacobian(self.p)

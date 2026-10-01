@@ -74,6 +74,16 @@ The two following figures illustrate the geometrical parameters as well as the s
 ![Spaceship Dynamics](img/satellite-dynamics.png)
 ![Spaceship Dynamics](img/satellite-geometry.png)
 
+### External dynamics disturbances
+
+Some scenarios can include a short external acceleration, representing effects such as solar wind or a micrometeorite
+impact. The disturbance acts on the simulated linear and angular acceleration, but it is not part of the nominal dynamics
+available to the planner. Its effect is visible through the state observations received by the agent.
+
+Your planning stack should therefore operate in closed loop: use a tracking controller for small deviations and consider
+computing a new trajectory when the current state has moved too far from the nominal plan or when the remaining trajectory
+is no longer safe.
+
 ## Constraints
 
 There are several constraints that need to be satisfied, [$x_0, y_0$] is the starting location and [$x_1, y_1$] is the goal location:

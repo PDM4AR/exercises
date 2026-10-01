@@ -25,7 +25,8 @@ from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
-from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, PlanetParams
+from pdm4ar.exercises_def.ex13.disturbed_satellite import DisturbedSatelliteModel
+from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, DynamicsDisturbanceParams, PlanetParams
 
 
 def _load_config(file_path: str) -> dict[str, Any]:
@@ -173,7 +174,20 @@ def sim_context_from_yaml(file_path: str):
     }
 
     # Dynamic obstacles (satellites + asteroids) added to models (as obstacles) and players(their names)
-    models = {playername: SatelliteModel.default(x0)}
+    disturbance_config = config.get("dynamics_disturbance")
+    if disturbance_config is None:
+        satellite_model = SatelliteModel.default(x0)
+    else:
+        disturbance = DynamicsDisturbanceParams(
+            start_time=float(disturbance_config["start_time"]),
+            duration=float(disturbance_config["duration"]),
+            linear_acc_sigma=float(disturbance_config["linear_acc_sigma"]),
+            angular_acc_sigma=float(disturbance_config.get("angular_acc_sigma", 0.0)),
+            seed=int(disturbance_config.get("seed", config["seed"])),
+        )
+        satellite_model = DisturbedSatelliteModel.default(x0=x0, disturbance=disturbance)
+
+    models = {playername: satellite_model}
 
     for p, sagent in satellites_npagents.items():
         players[p] = sagent  # sagent is dg_commons.sim.agents.NPAgent object
