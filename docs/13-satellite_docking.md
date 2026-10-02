@@ -43,29 +43,33 @@ In `exercises_def>ex13` you can find also a `config_local.yaml` file with a coup
 
 ## Spaceship dynamics
 The spaceship's dynamics are represented by the following equations. 
-Note that the pose and velocities are expressed in global frame.
+The pose is expressed in the global frame; the linear velocities are expressed in the body frame.
 
 1. **Position Dynamics:**
-    - $\frac{dx}{dt} = v_x$
-    - $\frac{dy}{dt} = v_y$
+    - $\frac{dx}{dt} = v_x \cos(\psi) - v_y \sin(\psi)$
+    - $\frac{dy}{dt} = v_x \sin(\psi) + v_y \cos(\psi)$
 
 2. **Orientation Dynamics:**
     - $\frac{d\psi}{dt} = \dot{\psi}$
 
 3. **Velocity Dynamics:**
-    - $\frac{dv_x}{dt} = \frac{1}{m} \cos(\psi) \cdot (F_{r} + F_{l})$
-    - $\frac{dv_y}{dt} = \frac{1}{m} \sin(\psi) \cdot (F_{r} + F_{l})$
+    - $\frac{dv_x}{dt} = \frac{T}{m} \cos(\delta) + \dot{\psi} v_y$
+    - $\frac{dv_y}{dt} = \frac{T}{m} \sin(\delta) - \dot{\psi} v_x$
 4. **Angular Velocity Dynamics:**
-    - $\frac{d\dot{\psi}}{dt} = \frac{l_m}{I} \cdot (F_{r} - F_{l})$
+    - $\frac{d\dot{\psi}}{dt} = -\frac{l_r}{I_z} \sin(\delta) T$
 
-If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}]$, and the control inputs 
-are $U = [F_{r}, F_{l}]$, we obtain the following dynamics equations:
+5. **Nozzle and Mass Dynamics:**
+    - $\frac{d\delta}{dt} = u_\delta$
+    - $\frac{dm}{dt} = -C_T T$
+
+The spaceship's state is $X = [x, y, \psi, v_x, v_y, \dot{\psi}, \delta, m]$, and the control inputs
+are $U = [T, u_\delta]$, corresponding to `thrust` and `ddelta`.
 
 1. **Dynamics:**
     - $\frac{dX(t)}{dt} = f(X(t), U(t))$
 
-The satellite you have the control over has two side thrusters where you are able to individually control the amount of thrust to
-produce $F_{r}$ and $F_{l}$. The thrusters are mounted on the side of the satellite. The velocity $v_x$ and $v_y$ are the velocities in the x and y axis direction of the satellite with respect to the world frame x-axis and y-axis. The angle $\psi$ is the angle of the satellite with respect to the x-axis. The length of the spaceship is $l$.
+The spaceship has a steerable rear thruster. Its nozzle angle is $\delta$ and its orientation relative to the global x-axis
+is $\psi$. The state includes the remaining mass $m$; thrust stops when the dry mass is reached.
 
 You may check your implementation of the dynamics in the init function in `planner.py`, right after the creation of the integrator object.
 
@@ -79,6 +83,7 @@ The two following figures illustrate the geometrical parameters as well as the s
 Some scenarios can include a short external acceleration, representing effects such as solar wind or a micrometeorite
 impact. The disturbance acts on the simulated linear and angular acceleration, but it is not part of the nominal dynamics
 available to the planner. Its effect is visible through the state observations received by the agent.
+The sampled linear acceleration is constant in the global frame and rotated into the body frame during integration.
 
 Your planning stack should therefore operate in closed loop: use a tracking controller for small deviations and consider
 computing a new trajectory when the current state has moved too far from the nominal plan or when the remaining trajectory
@@ -99,7 +104,8 @@ There are several constraints that need to be satisfied, [$x_0, y_0$] is the sta
       \end{bmatrix} \right\rVert _{2} < \text{vel\_tol}$
 - The satellite needs to dodge every obstacle in its path: $(x, y) \bigoplus \mathcal{X}_{Rocket}(\psi) \notin Obstacle
   \quad \forall Obstacle \in Obstacles$
-- Control inputs, $F_{l}$ and $F_{r}$ are limited: $F_{l}$ and $F_{r} \in [-F_{\text{max}}, F_{\text{max}}]$.
+- Thrust, nozzle angle, and nozzle rate must respect `thrust_limits`, `delta_limits`, and `ddelta_limits`.
+- The spaceship's mass must remain at or above the dry mass `m_v`.
 - You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
 
 ## Evaluation Metrics
@@ -138,8 +144,8 @@ Use these numbers as a guideline to understand the order of magnitude of expecte
 
 The various data structures needed for the development of the exercise can be inspected in the following files:
 
-- SatelliteState & SatelliteCommands: `dg_commons/sim/models/satellite.py`
-- SatelliteGeometry & SatelliteParameters: `dg_commons/sim/models/satellite_structure.py`
+- SpaceshipState & SpaceshipCommands: `dg_commons/sim/models/spaceship.py`
+- SpaceshipGeometry & SpaceshipParameters: `dg_commons/sim/models/spaceship_structures.py`
 - AsteroidParams & PlanetParams: `src/pdm4ar/exercises_def/ex13/utils_params.py`
 
 ## Code Structure

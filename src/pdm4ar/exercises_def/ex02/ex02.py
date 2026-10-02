@@ -282,6 +282,33 @@ def str_from_path(path: Path) -> str:
     return "".join(list(map(lambda u: f"{u}->", path)))[:-2]
 
 
+def first_opened_mismatch(opened: OpenedNodes, expected: OpenedNodes) -> int | None:
+    """Return the first differing visit, including a missing or extra visit."""
+    opened, expected = opened or [], expected or []
+    for index, (actual_node, expected_node) in enumerate(zip(opened, expected)):
+        if actual_node != expected_node:
+            return index
+    return min(len(opened), len(expected)) if len(opened) != len(expected) else None
+
+
+def str_from_opened_nodes(opened: OpenedNodes, mismatch: int | None = None) -> str:
+    """Show the first 50 visits, or 50 visits on either side of the first mismatch."""
+    opened = opened or []
+    count = len(opened)
+    start = max(0, mismatch - 50) if mismatch is not None else 0
+    end = min(count, mismatch + 51 if mismatch is not None else 50)
+    entries = [f"[{opened[index]}]" if index == mismatch else str(opened[index]) for index in range(start, end)]
+    if mismatch == count:
+        entries.append("[end of sequence]")
+    sequence = "->".join(entries)
+    if start:
+        sequence = f"... ({start:,} omitted) ...->{sequence}"
+    if end < count:
+        sequence += f"->... ({count - end:,} omitted) ..."
+    visit_range = f" (showing visits {start + 1:,}-{end:,})" if start < end else ""
+    return f"{count:,} visits{visit_range}: {sequence}" if sequence else f"{count:,} visits"
+
+
 def wavefront_cost_image(test_graph, cost_to_go, name, pos=None, grid=None, max_cost=None) -> DataNode:
     """Draw a cost-to-go field with costs as node or cell labels."""
     figure_size = 6.0 if grid is not None else max(6.0, min(14.0, test_graph.number_of_nodes() / 10.0))
@@ -478,7 +505,9 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceR
             paths = {start: planner.extract_path(start, test_graph, cost_to_go) for start in starts}
             solve_time = process_time() - start_time
 
-            gt_cost_to_go, gt_paths = ex_out[goal]
+            # Custom tests may omit expected results, including automatically added starts.
+            gt_cost_to_go, expected_paths = ex_out.get(goal, ({}, {}))
+            gt_paths = {start: expected_paths.get(start, []) for start in starts}
             cost_correct = cost_to_go == gt_cost_to_go
             path_accuracy = sum(paths[start] == gt_paths[start] for start in starts) / len(starts)
             group_accuracy = 0.5 * float(cost_correct) + 0.5 * path_accuracy
@@ -588,12 +617,6 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceR
         else:
             path_str = "No path"
             path_edges = []
-        # check opened
-        if opened:
-            opened_str = str_from_path(opened)
-        else:
-            opened_str = "No opened node"
-
         # output message
         msg = f"Start: {query[0]},\tGoal: {query[1]}\n"
 
@@ -605,17 +628,22 @@ def ex2_evaluation(ex_in, ex_out=None, plotGraph=True) -> tuple[Ex02PerformanceR
             accuracy.append({algo_name: correct / 2})
             solve_times.append({algo_name: solve_time})
             gt_path_str = str_from_path(gt_path) if len(gt_path) > 0 else "No path"
-            gt_opened_str = str_from_path(gt_opened)
+            mismatch = first_opened_mismatch(opened, gt_opened)
+            opened_str = str_from_opened_nodes(opened, mismatch)
+            gt_opened_str = str_from_opened_nodes(gt_opened, mismatch)
             gt_path_edges = list(sliding_window(2, gt_path))
             if correct == 2:
                 msg += "Student solution : CORRECT\n"
             else:
                 msg += "Student solution : WRONG\n"
+            if mismatch is not None:
+                msg += f"Opened-node sequences first differ at visit {mismatch + 1:,} (marked in brackets).\n"
         else:
             gt_path_edges = []
             gt_path = []
             gt_path_str = "Solution not given"
             gt_opened_str = "Solution not given"
+            opened_str = str_from_opened_nodes(opened)
 
         msg += f"Your algo path: {path_str}\n"
         msg += f"Your algo opened nodes: {opened_str}\n"

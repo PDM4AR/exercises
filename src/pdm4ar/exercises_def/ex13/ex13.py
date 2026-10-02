@@ -15,7 +15,7 @@ from collections import defaultdict
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex13.perf_metrics import ex13_metrics
 from pdm4ar.exercises_def.ex13.utils_config import sim_context_from_yaml
-from pdm4ar.exercises_def.ex13.disturbed_satellite import DisturbedSatelliteModel
+from pdm4ar.exercises_def.ex13.disturbed_spaceship import DisturbedSpaceshipModel
 from pdm4ar.exercises_def.ex13.get_config import get_config
 
 
@@ -48,9 +48,9 @@ def ex13_performance_aggregator(ex_out: List[Tuple[str, float]]) -> Tuple[str, f
 
 
 def _plot_controller_events(fig, agent, model) -> None:
-    """Plot plans, tracking errors, replans, and the actual disturbance window."""
+    """Plot plans, tracking errors, commands, and the actual disturbance window."""
     fig.clear()
-    ax_traj, ax_error, ax_lqr = fig.subplots(1, 3)
+    ax_traj, ax_error, ax_commands = fig.subplots(1, 3)
 
     times = np.asarray(agent.command_times, dtype=float)
     states = agent.actual_trajectory
@@ -77,7 +77,7 @@ def _plot_controller_events(fig, agent, model) -> None:
         actual_y = np.asarray([])
 
     disturbance_window = None
-    if isinstance(model, DisturbedSatelliteModel):
+    if isinstance(model, DisturbedSpaceshipModel):
         start = float(model.disturbance.start_time)
         end = start + float(model.disturbance.duration)
         disturbance_window = (start, end)
@@ -108,15 +108,14 @@ def _plot_controller_events(fig, agent, model) -> None:
     error_times = times[:error_count]
     ax_error.plot(error_times, agent.norm2_errors[:error_count], label="State error norm")
     ax_error.plot(error_times, agent.max_errors[:error_count], label="Maximum component error", alpha=0.8)
-    ax_error.axhline(agent.ap.pos_tol, color="0.4", linestyle=":", label="Replan threshold")
 
-    lqr_count = min(len(times), len(agent.LQR_components))
-    if lqr_count:
-        lqr = np.asarray(agent.LQR_components[:lqr_count])
-        ax_lqr.plot(times[:lqr_count], lqr[:, 0], label="Left delta-thrust")
-        ax_lqr.plot(times[:lqr_count], lqr[:, 1], label="Right delta-thrust")
+    command_count = min(len(times), len(agent.command_components))
+    if command_count:
+        commands = np.asarray(agent.command_components[:command_count])
+        ax_commands.plot(times[:command_count], commands[:, 0], label="Thrust [N]")
+        ax_commands.plot(times[:command_count], commands[:, 1], label="Nozzle rate [rad/s]")
 
-    for axis in (ax_error, ax_lqr):
+    for axis in (ax_error, ax_commands):
         if disturbance_window is not None:
             axis.axvspan(
                 disturbance_window[0], disturbance_window[1], color="tab:orange", alpha=0.22,
@@ -131,8 +130,8 @@ def _plot_controller_events(fig, agent, model) -> None:
     ax_traj.set(title="Trajectory and replanning events", xlabel="x [m]", ylabel="y [m]")
     ax_traj.set_aspect("equal", adjustable="box")
     ax_error.set(title="Tracking error and events", xlabel="Simulation time [s]", ylabel="Error")
-    ax_lqr.set(title="LQR correction and events", xlabel="Simulation time [s]", ylabel="Delta-thrust")
-    for axis in (ax_traj, ax_error, ax_lqr):
+    ax_commands.set(title="Actuation and events", xlabel="Simulation time [s]", ylabel="Command")
+    for axis in (ax_traj, ax_error, ax_commands):
         axis.grid(True, alpha=0.3)
         axis.legend(fontsize=8)
     fig.tight_layout()

@@ -57,7 +57,19 @@ class SpaceshipTarget(PlanningGoal):
         is_within_orientation = (
             abs(state_psi - target.psi) < dir_tol or 2 * np.pi - abs(state_psi - target.psi) < dir_tol
         )
-        is_within_velocity = np.linalg.norm(np.array([state.vx, state.vy]) - np.array([target.vx, target.vy])) < vel_tol
+        state_velocity_world = np.array(
+            [
+                np.cos(state_psi) * state.vx - np.sin(state_psi) * state.vy,
+                np.sin(state_psi) * state.vx + np.cos(state_psi) * state.vy,
+            ]
+        )
+        target_velocity_world = np.array(
+            [
+                np.cos(target.psi) * target.vx - np.sin(target.psi) * target.vy,
+                np.sin(target.psi) * target.vx + np.cos(target.psi) * target.vy,
+            ]
+        )
+        is_within_velocity = np.linalg.norm(state_velocity_world - target_velocity_world) < vel_tol
 
         return is_within_position and is_within_orientation and is_within_velocity
 
