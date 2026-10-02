@@ -12,10 +12,10 @@ from reprep import MIME_MP4, Report
 from collections import defaultdict
 
 from pdm4ar.exercises_def import Exercise
-from pdm4ar.exercises_def.ex13.perf_metrics import ex13_metrics
-from pdm4ar.exercises_def.ex13.utils_config import sim_context_from_yaml
-from pdm4ar.exercises_def.ex13.disturbed_spaceship import DisturbedSpaceshipModel
-from pdm4ar.exercises_def.ex13.get_config import get_config
+from pdm4ar.exercises_def.ex15.perf_metrics import ex15_metrics
+from pdm4ar.exercises_def.ex15.utils_config import sim_context_from_yaml
+from pdm4ar.exercises_def.ex15.disturbed_spaceship import DisturbedSpaceshipModel
+from pdm4ar.exercises_def.ex15.get_config import get_config
 
 
 def run_simulation(sim_context: SimContext) -> None:
@@ -27,15 +27,15 @@ def run_simulation(sim_context: SimContext) -> None:
     simulator.run(sim_context)
 
 
-def ex13_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[Tuple[str, float], Report]:
-    r = Report("Final25-" + sim_context.description)
+def ex15_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[Tuple[str, float], Report]:
+    r = Report("Exercise15-" + sim_context.description)
     agents = dict(sim_context.players)
     # run simulation
     run_simulation(sim_context)
     # visualisation
-    report = _ex13_vis(sim_context=sim_context, agents=agents)
+    report = _ex15_vis(sim_context=sim_context, agents=agents)
     # compute metrics
-    avg_player_metrics, _ = ex13_metrics(sim_context)
+    avg_player_metrics, _ = ex15_metrics(sim_context)
     # report evaluation
     score: float = avg_player_metrics.reduce_to_score()
     r.text(f"EpisodeEvaluation:", pprint.pformat(avg_player_metrics))
@@ -45,7 +45,7 @@ def ex13_evaluation(sim_context: SimContext, ex_out=None) -> Tuple[Tuple[str, fl
     return (sim_context.description, score), r
 
 
-def ex13_performance_aggregator(ex_out: List[Tuple[str, float]]) -> Tuple[str, float]:
+def ex15_performance_aggregator(ex_out: List[Tuple[str, float]]) -> Tuple[str, float]:
     # Compute the average score for each scenario (string key) in the list of results (ex_out).
     score_dict = defaultdict(list)
     for k, v in ex_out:
@@ -145,7 +145,7 @@ def _plot_controller_events(fig, agent, model) -> None:
     fig.tight_layout()
 
 
-def _ex13_vis(sim_context: SimContext, agents=None) -> Report:
+def _ex15_vis(sim_context: SimContext, agents=None) -> Report:
     agents = dict(sim_context.players) if agents is None else agents
     r = Report("EpisodeVisualisation")
     gif_viz = r.figure(cols=1)
@@ -172,13 +172,13 @@ def _ex13_vis(sim_context: SimContext, agents=None) -> Report:
     return r
 
 
-def load_config_ex13(file_path: Path) -> Mapping:
+def load_config_ex15(file_path: Path) -> Mapping:
     with open(str(file_path)) as f:
         config_dict = yaml.safe_load(f)
     return fd(config_dict)
 
 
-def get_exercise13():
+def get_exercise15():
     config_dir = Path(__file__).parent
     configs = get_config()
 
@@ -189,9 +189,9 @@ def get_exercise13():
         test_values.append(sim_context)
 
     return Exercise[SimContext, None](
-        desc="PDM4ARSpaceship(ex13)",
-        evaluation_fun=ex13_evaluation,
-        perf_aggregator=ex13_performance_aggregator,
+        desc="Robust satellite docking (ex15)",
+        evaluation_fun=ex15_evaluation,
+        perf_aggregator=ex15_performance_aggregator,
         test_values=test_values,
         expected_results=[
             None,

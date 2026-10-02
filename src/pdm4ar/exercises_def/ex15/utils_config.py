@@ -22,9 +22,9 @@ from dg_commons.sim.simulator import SimContext
 from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
-from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
-from pdm4ar.exercises_def.ex13.disturbed_spaceship import DisturbedSpaceshipModel
-from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, DynamicsDisturbanceParams, PlanetParams
+from pdm4ar.exercises_def.ex15.goal import SpaceshipTarget, DockingTarget
+from pdm4ar.exercises_def.ex15.disturbed_spaceship import DisturbedSpaceshipModel
+from pdm4ar.exercises_def.ex15.utils_params import AsteroidParams, DynamicsDisturbanceParams, PlanetParams
 
 
 def _load_config(file_path: str) -> dict[str, Any]:
@@ -98,7 +98,7 @@ def _parse_asteroid(
 
 
 def sim_context_from_yaml(file_path: str):
-    from pdm4ar.exercises.ex13.agent import SpaceshipAgent
+    from pdm4ar.exercises.ex15.agent import SpaceshipAgent
 
     config = _load_config(file_path=file_path)
 

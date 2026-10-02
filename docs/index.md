@@ -21,6 +21,7 @@ Welcome to PDM4AR programming exercises for autonomous robots :airplane: :helico
 #### Group Exercises
 * [Satellite Docking](13-satellite_docking.md)
 * [Multi-agent Goal Collection](14-multiagent_collection.md)
+* [Robust Satellite Docking](15-robust_satellite_docking.md)
 
 #### Previous Exercises
 * [Optimization](07-optimization.md)
