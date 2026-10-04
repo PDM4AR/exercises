@@ -14,7 +14,7 @@ REVENUE_FLOOR: float = 0.2
 
 @dataclass
 class ValuedSharedPolygonGoal(SharedPolygonGoal):
-    """A shared goal carrying a value (in dollars) that decays with its delivery time. The goal can be assigned 
+    """A shared goal carrying a value (in dollars) that decays with its delivery time. The goal can be assigned
     to a specific robot. If a robot which is not the assigned one happens to deliver that goal, the revenue is 0"""
 
     value: float = 0.0
@@ -33,15 +33,18 @@ def goal_revenue(value: float, delivery_time: float | None, max_sim_time: float)
 
 
 def validate_goal_value(goal_data: Mapping[str, Any]) -> float:
-    """Return the value of a `shared_goals` config entry, raising a ValueError if it is missing or invalid."""
+    """Validate a goal value; zero disables revenue for legacy comparisons.
+
+    Generated valued scenarios still use the normal 10-100 range.
+    """
     goal_id = goal_data.get("id")
     if "value" not in goal_data:
         raise ValueError(f"shared_goal {goal_id} has no 'value'.")
     value = goal_data["value"]
     if isinstance(value, bool) or not isinstance(value, int):
         raise ValueError(f"shared_goal {goal_id} value must be an integer, got {value!r}.")
-    if not GOAL_VALUE_MIN <= value <= GOAL_VALUE_MAX:
+    if value != 0 and not GOAL_VALUE_MIN <= value <= GOAL_VALUE_MAX:
         raise ValueError(
-            f"shared_goal {goal_id} value {value} is outside the range [{GOAL_VALUE_MIN}, {GOAL_VALUE_MAX}]."
+            f"shared_goal {goal_id} value must be 0 or in [{GOAL_VALUE_MIN}, {GOAL_VALUE_MAX}], got {value}."
         )
     return float(value)
