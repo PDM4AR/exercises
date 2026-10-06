@@ -10,7 +10,7 @@ from pdm4ar.exercises_def import PerformanceResults
 from pdm4ar.exercises_def.ex14.goal_values import goal_revenue
 from shapely.geometry import Point, Polygon
 
-DELIVERY_REWARD: float = 50.0
+DELIVERY_REWARD: float = 100.0
 """Flat reward per delivered goal, independent of its value and delivery time."""
 REVENUE_WEIGHT: float = 1.0
 """Weight of the time-dependent revenue (in dollars) in the score."""
