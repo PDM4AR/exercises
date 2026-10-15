@@ -6,7 +6,7 @@ import numpy as np
 import yaml
 from dg_commons import fd
 from dg_commons.sim.simulator import SimContext
-from dg_commons.sim.simulator_animation import create_animation
+from pdm4ar.exercises_def.ex14.animation import create_ex14_animation
 from pdm4ar.exercises_def import Exercise
 from pdm4ar.exercises_def.ex14.perf_metrics import ex14_metrics
 from pdm4ar.exercises_def.ex14.simulator import Ex14Simulator
@@ -48,7 +48,7 @@ def _ex14_vis(sim_context: SimContext) -> Report:
     r = Report("EpisodeVisualisation")
     gif_viz = r.figure(cols=1)
     with gif_viz.data_file("Animation", MIME_MP4) as fn:
-        create_animation(
+        create_ex14_animation(
             file_path=fn,
             sim_context=sim_context,
             figsize=(16, 16),
