@@ -92,7 +92,7 @@ The available observations in `sim_obs.players` will only include robots within 
 
 4. **Varying capacity**: Each robot's capacity is defined by the scenario and is available to the global planner through `agent_capacities`.
 
-5. **Goal ownership**: A goal may have an `assigned_robot`. Any robot can collect and deliver it, but its time-dependent revenue is earned only when the assigned robot delivers it. Goals without an assignment can earn revenue for any robot.
+5. **Goal ownership**: A goal may have an `assigned_robot`. Any robot can collect and deliver it, but it counts only when the assigned robot delivers it. If another robot delivers it, the goal earns neither the delivery reward nor its revenue, and the task counts as not accomplished, so the early completion bonus is lost. Goals without an assignment count for any robot.
 
 6. **Goal values**: Every goal has an integer `value` between 10 and 100 dollars. The revenue earned for a goal decays linearly with the time at which it is **delivered** (not picked up):
    ```python
@@ -137,8 +137,8 @@ Your solution will be evaluated based on multiple criteria. The performance metr
 ### Individual Player Metrics (`PlayerMetrics`)
 For each player, the following metrics are tracked:
 - **`collided`**: Whether the player crashed into an obstacle or another robot
-- **`num_goal_delivered`**: Number of goals successfully delivered by this player
-- **`revenue`**: Time-dependent revenue of the goals delivered by this player
+- **`num_goal_delivered`**: Number of goals successfully delivered by this player (goals assigned to another robot are not counted)
+- **`revenue`**: Time-dependent revenue of the goals counted in `num_goal_delivered`
 - **`travelled_distance`**: Total distance traveled by the player
 - **`actuation_effort`**: Integral of absolute wheel velocities
 - **`avg_computation_time`**: Average time taken by the `get_commands` method
@@ -150,7 +150,7 @@ The overall performance combines all players' metrics:
 - **`total_revenue`**: Sum of the time-dependent revenues of all delivered goals (see [Goal values](#rules-and-mechanics))
 - **`total_travelled_distance`**: Sum of distances traveled by all players
 - **`max_sim_time`**: Maximum simulation time allowed
-- **`task_accomplishment_time`**: Total time taken to deliver all goals (time when last goal was delivered)
+- **`task_accomplishment_time`**: Total time taken to deliver all goals (time when last goal was delivered). It equals `max_sim_time` if any goal is not delivered or is delivered by a robot it is not assigned to
 - **`total_actuation_effort`**: Sum of actuation efforts of all players
 - **`avg_computation_time`**: Average computation time across all players (per `get_commands` call)
 - **`global_planning_time`**: Total time spent on global planning (execution time of `send_plan` method)
@@ -159,7 +159,7 @@ The overall performance combines all players' metrics:
 The final score is computed by the `reduce_to_score()` method in `AllPlayerMetrics`:
 
 ```python
-score = num_goals_delivered * 50
+score = num_goals_delivered * 100
 score += total_revenue * 1.0
 score -= num_collided_players * 500
 score += (max_sim_time - task_accomplishment_time) * 10
@@ -170,9 +170,10 @@ score -= max(0.0, global_planning_time - 60) * 10
 ```
 
 **Key takeaways**:
-- **Primary objective**: Maximize the revenue of the delivered goals. Each delivery earns a flat 50 points plus its time-decayed value, so a valuable goal delivered early is worth about three times a cheap one delivered late
+- **Primary objective**: Maximize the revenue of the delivered goals. Each delivery earns a flat 100 points plus its time-decayed value, so a valuable goal delivered early is worth about twice a cheap one delivered late
 - **Critical penalty**: Avoid collisions (500 point penalty per collision)
 - **Plan the order**: Revenue decays with delivery time, so deliver high-value goals first.
+- **Respect assignments**: A goal delivered by a robot it is not assigned to earns nothing and cancels the early completion bonus.
 - **Early completion bonus**: Finish the whole task faster to earn bonus points (10 points per second saved)
 - **Efficiency matters**:
   - Minimize travel distance (0.5 point penalty per unit distance - highest weight among efficiency metrics)

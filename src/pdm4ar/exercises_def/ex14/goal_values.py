@@ -15,7 +15,8 @@ REVENUE_FLOOR: float = 0.2
 @dataclass
 class ValuedSharedPolygonGoal(SharedPolygonGoal):
     """A shared goal carrying a value (in dollars) that decays with its delivery time. The goal can be assigned
-    to a specific robot. If a robot which is not the assigned one happens to deliver that goal, the revenue is 0"""
+    to a specific robot. If a robot which is not the assigned one happens to deliver that goal, it earns neither
+    the delivery reward nor the revenue, and the task counts as not accomplished"""
 
     value: float = 0.0
     assigned_robot: PlayerName | None = None

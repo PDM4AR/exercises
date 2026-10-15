@@ -88,7 +88,12 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
         if "PDM4AR" not in player_name:
             continue
         
-        goals_delivered = goal_manager.get_goals_delivered_by_agent(player_name)
+        # goals assigned to another robot earn nothing when delivered by this one
+        goals_delivered = [
+            goal_id
+            for goal_id in goal_manager.get_goals_delivered_by_agent(player_name)
+            if getattr(goal_manager.all_goals[goal_id], "assigned_robot", None) in (None, player_name)
+        ]
         # number of goals delivered
         num_goal_delivered = len(goals_delivered)
         # time-dependent revenue of the delivered goals
@@ -100,7 +105,6 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
                     max_sim_time=max_sim_time,
                 )
                 for goal_id in goals_delivered
-                if getattr(goal_manager.all_goals[goal_id], "assigned_robot", None) in (None, player_name)
             )
         )
         # collision
@@ -135,7 +139,10 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
 
     task_accomplishment_time = 0
     for goal_id in goal_manager.all_goals.keys():
-        if goal_manager.all_goals[goal_id].delivery_time is None:
+        goal = goal_manager.all_goals[goal_id]
+        # a goal delivered by the wrong robot leaves the task unaccomplished
+        wrong_robot = getattr(goal, "assigned_robot", None) not in (None, goal.collected_by)
+        if goal.delivery_time is None or wrong_robot:
             task_accomplishment_time = max_sim_time
             break
         else:
