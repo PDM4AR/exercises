@@ -55,95 +55,118 @@ def ex15_performance_aggregator(ex_out: List[Tuple[str, float]]) -> Tuple[str, f
     return scores
 
 
-def _plot_controller_events(fig, agent, model) -> None:
-    """Plot plans, tracking errors, commands, and the actual disturbance window."""
-    fig.clear()
-    ax_traj, ax_error, ax_commands = fig.subplots(1, 3)
+def _plot_controller_events(fig, agent, model, sim_context=None) -> None:
+    """Show the executed route, successful replans, docking handoff and controls."""
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Circle
+    from shapely.plotting import plot_polygon
 
+    fig.clear()
+    grid = fig.add_gridspec(2, 2, width_ratios=(1.25, 1), hspace=0.35, wspace=0.25)
+    ax_traj = fig.add_subplot(grid[:, 0])
+    ax_error = fig.add_subplot(grid[0, 1])
+    ax_commands = fig.add_subplot(grid[1, 1])
     times = np.asarray(agent.command_times, dtype=float)
-    states = agent.actual_trajectory
-    sample_count = min(len(times), len(states))
-    times = times[:sample_count]
-    states = states[:sample_count]
+    count = min(len(times), len(agent.actual_trajectory))
+    if not count:
+        return
+    times = times[:count]
+    states = agent.actual_trajectory[:count]
+    xy = np.array([[state.x, state.y] for state in states])
+    end_time = times[-1]
+    route_color, event_color, noise_color = "#177f99", "#bd3b58", "#ed8b36"
+
+    # Give the paths their physical context, including obstacle motion up to arrival.
+    for name, planet in agent.planets.items():
+        ax_traj.add_patch(Circle(planet.center, planet.radius, facecolor="#c4cddd", edgecolor="#8191a8", zorder=2))
+        ax_traj.text(*planet.center, name, ha="center", va="center", fontsize=9, color="#344459")
+    if sim_context is not None:
+        for name, asteroid in agent.asteroids.items():
+            log = sim_context.log[name].states
+            positions = np.array([[state.x, state.y] for time, state in zip(log.timestamps, log.values) if float(time) <= end_time])
+            if len(positions):
+                ax_traj.plot(*positions.T, "--", color="#8865ac", linewidth=1.4, alpha=0.8)
+                for point, alpha in ((positions[0], 0.18), (positions[-1], 0.5)):
+                    ax_traj.add_patch(Circle(point, asteroid.radius, color="#8865ac", alpha=alpha))
+                ax_traj.annotate(name, positions[0], xytext=(0, 12), textcoords="offset points", fontsize=8, color="#694c89")
+                if len(positions) > 1:
+                    ax_traj.annotate("", positions[-1], positions[len(positions)//2], arrowprops=dict(arrowstyle="->", color="#8865ac"))
+    if hasattr(agent.goal, "target"):
+        if hasattr(agent.goal, "get_landing_constraint_points"):
+            plot_polygon(agent.goal.get_plottable_geometry(), ax=ax_traj, add_points=False, color="#315b99", alpha=0.8, zorder=4)
+        target = agent.goal.target
+        ax_traj.scatter(target.x, target.y, marker="*", s=150, color="#e5b04b", edgecolors="#98721e", zorder=8)
+    border = agent.map_borders
+    ax_traj.set(xlim=(border["xmin"]-0.5, border["xmax"]+0.5), ylim=(border["ymin"]-0.5, border["ymax"]+0.5))
 
     for index, plan in enumerate(agent.planned_trajectories):
-        plan_values = list(plan._values)
-        ax_traj.plot(
-            [state.x for state in plan_values],
-            [state.y for state in plan_values],
-            linestyle="--",
-            alpha=0.65,
-            label="Initial plan" if index == 0 else f"Replan {index}",
-        )
+        values = list(plan.values)
+        ax_traj.plot([state.x for state in values], [state.y for state in values], linestyle=":" if index == 0 else "--", color="#a7b4c5", linewidth=1, alpha=0.8, zorder=1)
+    ax_traj.plot(*xy.T, color=route_color, linewidth=2.5, zorder=5)
+    ax_traj.scatter(*xy[0], s=65, color="#249d7b", edgecolors="white", zorder=8)
 
-    if states:
-        actual_x = np.asarray([state.x for state in states])
-        actual_y = np.asarray([state.y for state in states])
-        ax_traj.plot(actual_x, actual_y, color="tab:blue", linewidth=2.0, label="Actual trajectory")
-    else:
-        actual_x = np.asarray([])
-        actual_y = np.asarray([])
-
-    disturbance_window = None
+    window = None
     if isinstance(model, DisturbedSpaceshipModel):
         start = float(model.disturbance.start_time)
         end = start + float(model.disturbance.duration)
-        disturbance_window = (start, end)
-        if sample_count:
-            active = (times >= start) & (times < end)
-            disturbed_x = np.where(active, actual_x, np.nan)
-            disturbed_y = np.where(active, actual_y, np.nan)
-            ax_traj.plot(
-                disturbed_x, disturbed_y, color="tab:orange", linewidth=5.0,
-                label=f"Disturbance active ({start:.1f}-{end:.1f} s)",
-            )
+        window = (start, end)
+        active = (times >= start) & (times <= end)
+        ax_traj.plot(np.where(active, xy[:, 0], np.nan), np.where(active, xy[:, 1], np.nan), color=noise_color, linewidth=5, zorder=6)
 
-    for index, replan_time in enumerate(agent.replanning_times, start=1):
-        if sample_count:
-            state_index = int(np.argmin(np.abs(times - replan_time)))
-            ax_traj.scatter(
-                actual_x[state_index], actual_y[state_index], marker="X", s=110,
-                color="tab:red", edgecolor="black", zorder=10,
-                label="Replanning" if index == 1 else None,
-            )
-            ax_traj.annotate(
-                f"R{index}  t={replan_time:.1f}s",
-                (actual_x[state_index], actual_y[state_index]),
-                xytext=(7, 7), textcoords="offset points", fontsize=8,
-            )
+    # Entry planning is a stage transition; distinguish it from error-triggered replanning.
+    events = list(agent.replanning_times)
+    has_handoff = agent.dock_stage == "entry" and bool(events)
+    for index, event_time in enumerate(events):
+        handoff = has_handoff and index == len(events)-1
+        label = "D" if handoff else f"R{index+1}"
+        color = "#287b6d" if handoff else event_color
+        marker = "D" if handoff else "X"
+        position = xy[int(np.argmin(np.abs(times-event_time)))]
+        ax_traj.scatter(*position, marker=marker, s=100, color=color, edgecolors="white", linewidth=0.8, zorder=10)
+        offset = (12, 30 if index % 2 == 0 else -35)
+        ax_traj.annotate(f"{label} · {event_time:.1f} s", position, xytext=offset, textcoords="offset points", fontsize=9, color=color,
+                         bbox=dict(boxstyle="round,pad=0.3", fc="white", ec=color, alpha=0.95),
+                         arrowprops=dict(arrowstyle="-", color=color, lw=0.8), zorder=11)
+        for axis in (ax_error, ax_commands):
+            axis.axvline(event_time, color=color, linestyle="--", linewidth=1, alpha=0.7)
+        ax_error.text(event_time, 0.95 if index % 2 == 0 else 0.86, label, transform=ax_error.get_xaxis_transform(), ha="center", va="top", color=color, fontsize=8, bbox=dict(facecolor="white", edgecolor="none", alpha=0.8, pad=1))
 
-    error_count = min(len(times), len(agent.norm2_errors), len(agent.max_errors))
-    error_times = times[:error_count]
-    ax_error.plot(error_times, agent.norm2_errors[:error_count], label="State error norm")
-    ax_error.plot(error_times, agent.max_errors[:error_count], label="Maximum component error", alpha=0.8)
-
-    command_count = min(len(times), len(agent.command_components))
-    if command_count:
-        commands = np.asarray(agent.command_components[:command_count])
-        ax_commands.plot(times[:command_count], commands[:, 0], label="Thrust [N]")
-        ax_commands.plot(times[:command_count], commands[:, 1], label="Nozzle rate [rad/s]")
-
+    n = min(count, len(agent.norm2_errors), len(agent.max_errors))
+    ax_error.plot(times[:n], agent.norm2_errors[:n], color=route_color, label="State error norm", linewidth=1.5)
+    ax_error.plot(times[:n], agent.max_errors[:n], color="#8b9aaf", label="Largest component", linewidth=1)
+    n = min(count, len(agent.command_components))
+    if n:
+        commands = np.asarray(agent.command_components[:n])
+        ax_commands.plot(times[:n], commands[:, 0], color=route_color, label="Thrust [N]")
+        ax_commands.plot(times[:n], commands[:, 1], color="#8865ac", label="Nozzle rate [rad/s]")
     for axis in (ax_error, ax_commands):
-        if disturbance_window is not None:
-            axis.axvspan(
-                disturbance_window[0], disturbance_window[1], color="tab:orange", alpha=0.22,
-                label="Disturbance active" if axis is ax_error else None,
-            )
-        for index, replan_time in enumerate(agent.replanning_times, start=1):
-            axis.axvline(
-                replan_time, color="tab:red", linestyle="--", linewidth=1.4,
-                label="Replanning" if axis is ax_error and index == 1 else None,
-            )
-
-    ax_traj.set(title="Trajectory and replanning events", xlabel="x [m]", ylabel="y [m]")
+        if window is not None:
+            axis.axvspan(*window, color=noise_color, alpha=0.17, label="Disturbance")
+        axis.set_xlim(0, end_time)
+        axis.set_xlabel("Simulation time [s]")
+        axis.legend(loc="upper right", fontsize=8, framealpha=0.95)
+    handles = [Line2D([], [], color=route_color, lw=2.5, label="Executed route"),
+               Line2D([], [], color="#a7b4c5", ls="--", label="Planned routes")]
+    if window is not None:
+        handles.append(Line2D([], [], color=noise_color, lw=4, label="Disturbance active"))
+    if len(events) > int(has_handoff):
+        handles.append(Line2D([], [], color=event_color, marker="X", ls="", label="R: successful replan"))
+    if has_handoff:
+        handles.append(Line2D([], [], color="#287b6d", marker="D", ls="", label="D: docking entry plan"))
+    if agent.asteroids:
+        handles.append(Line2D([], [], color="#8865ac", ls="--", label="Moving asteroids"))
+    ax_traj.legend(handles=handles, loc="upper left", fontsize=8, framealpha=0.95)
+    ax_traj.set(title="Route and planning events", xlabel="x [m]", ylabel="y [m]")
     ax_traj.set_aspect("equal", adjustable="box")
-    ax_error.set(title="Tracking error and events", xlabel="Simulation time [s]", ylabel="Error")
-    ax_commands.set(title="Actuation and events", xlabel="Simulation time [s]", ylabel="Command")
+    ax_error.set(title="Tracking error", ylabel="State error")
+    ax_commands.set(title="Applied controls", ylabel="Command")
     for axis in (ax_traj, ax_error, ax_commands):
-        axis.grid(True, alpha=0.3)
-        axis.legend(fontsize=8)
-    fig.tight_layout()
-
+        axis.set_facecolor("#f7f9fc")
+        axis.grid(alpha=0.18)
+        axis.spines[["top", "right"]].set_visible(False)
+    description = sim_context.description if sim_context is not None else "Spaceship controller"
+    fig.suptitle(description.replace("_", " "), fontsize=15, fontweight="bold", y=0.98)
+    fig.subplots_adjust(top=0.90, bottom=0.08, left=0.06, right=0.98)
 
 def _ex15_vis(sim_context: SimContext, agents=None) -> Report:
     agents = dict(sim_context.players) if agents is None else agents
@@ -167,8 +190,8 @@ def _ex15_vis(sim_context: SimContext, agents=None) -> Report:
                 plot_player_log(log=sim_context.log[pn], fig=pylab.gcf())
             agent = agents.get(pn)
             if agent is not None and hasattr(agent, "replanning_times"):
-                with sub.plot(f"{pn}-controller-events", figsize=(24, 8)) as pylab:
-                    _plot_controller_events(pylab.gcf(), agent, sim_context.models[pn])
+                with sub.plot(f"{pn}-controller-events", figsize=(17, 9)) as pylab:
+                    _plot_controller_events(pylab.gcf(), agent, sim_context.models[pn], sim_context)
     return r
 
 
