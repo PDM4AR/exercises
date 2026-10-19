@@ -134,7 +134,7 @@ boundary:
   - -11.0
 - - -11.0
   - -11.0
-seed: 42
+seed: 0
 shared_goals:
 - id: goal_1
   center:

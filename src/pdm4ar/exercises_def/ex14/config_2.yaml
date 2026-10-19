@@ -81,4 +81,4 @@ static_obstacles:
 
 boundary: [ [ -11, -11 ], [ -11, 11 ], [ 11, 11 ], [ 11, -11 ], [ -11, -11 ] ]
 
-seed: 98
+seed: 0
