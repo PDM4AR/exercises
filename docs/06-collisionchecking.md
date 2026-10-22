@@ -77,6 +77,8 @@ You will implement the `path_collision_check` function which returns the indices
 
 **Example (first public test case):** After implementing the function, the following case should return `[0, 1]`:
 
+![First public Task 1 test case: the green path and red obstacles.](img/ex06_task1_public_example.png)
+
 ```python
 from pdm4ar.exercises.ex06.collision_checker import CollisionChecker
 from pdm4ar.exercises_def.ex06.data import DataGenerator
