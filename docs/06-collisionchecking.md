@@ -218,17 +218,19 @@ For this exercise our performance metric is accuracy and execution time.
 
 **Execution Time:**
 - Execution time of each task is calculated as an average of its test cases
-- Below is the table summarizing the execution times of reference implementations on the evaluation dataset.
+- The table reports the optimized reference implementation, averaged over four sequential runs of the official private evaluation suite on 2026-10-22: 10 cases per task for Tasks 1-6 and 12 cases for Task 7. Each run used a fresh Python process.
+- Measurements used Python 3.11.13 in a Linux devcontainer on an AMD Ryzen AI 7 PRO 350. Only solution calls are timed; data generation, implementation checks, and report generation are excluded. Timings depend on hardware and system load.
+- All tasks achieved accuracy 1.0 in all four runs.
 
 | Task **ID** | **Average Solving Time** |
 |-------------|---------------------------|
-| 01          | 0.0028s                      |
-| 02          | 1.0879s                      |
-| 03          | 0.0002s                      |
-| 04          | 0.0030s                      |
-| 05          | 0.1639s                      |
-| 06          | 0.4861s                       |
-| 07          | 3.1413s                       |
+| 01          | 0.0016s                      |
+| 02          | 0.2392s                      |
+| 03          | 0.0005s                      |
+| 04          | 0.0009s                      |
+| 05          | 0.1320s                      |
+| 06          | 0.1934s                       |
+| 07          | 1.7259s                       |
 
 
 **Final Scoring:**
