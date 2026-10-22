@@ -75,21 +75,11 @@ You will implement the `path_collision_check` function which returns the indices
 
 **Implementation approach:** To account for the robot's radius, inflate obstacles by the robot's radius (creating a larger "danger zone") and convert robot-vs-obstacle collision checks into point-vs-inflated-obstacle checks using the provided primitives.
 
-**Example (first public test case):** After implementing the function, the following case should return `[0, 1]`:
+**Example (first public test case):**
 
 ![First public Task 1 test case: the green path and red obstacles.](img/ex06_task1_public_example.png)
 
-```python
-from pdm4ar.exercises.ex06.collision_checker import CollisionChecker
-from pdm4ar.exercises_def.ex06.data import DataGenerator
-from pdm4ar.exercises_def.ex06.ex06 import set_random_seed
-
-set_random_seed(0)
-t, r, obstacles, _ = DataGenerator.generate_random_robot_map_and_path(8, 0)
-CollisionChecker.path_collision_check(t, r, obstacles)  # [0, 1]
-```
-
-Here, the robot radius is `3`. Segment indices start at `0`: segment `0` connects `(0, 0)` to `(30, 45)`, and segment `1` connects `(30, 45)` to `(60, 60)`. Both movements collide with an obstacle when accounting for the robot's radius; the remaining segments (`2`, `3`, and `4`) are collision-free.
+For a robot of radius `3`, the function returns `[0, 1]`: the first two path segments are in collision, while the remaining segments are collision-free. Segment indices start at `0`.
 
 #### Task 2: Collision Checking via Occupancy Grid
 
