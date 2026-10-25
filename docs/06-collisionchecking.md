@@ -38,8 +38,7 @@ Work through the student files in this order:
 
 The data types and provided geometric primitives are in
 `src/pdm4ar/exercises_def/ex06/structures.py` and
-`src/pdm4ar/exercises/ex06/collision_primitives.py`; they are supporting code,
-not additional tasks.
+`src/pdm4ar/exercises/ex06/collision_primitives.py`.
 
 ## Part 1: Collision Check Module
 
@@ -75,6 +74,12 @@ You will implement the `path_collision_check` function which returns the indices
 
 **Implementation approach:** To account for the robot's radius, inflate obstacles by the robot's radius (creating a larger "danger zone") and convert robot-vs-obstacle collision checks into point-vs-inflated-obstacle checks using the provided primitives.
 
+**Example:**
+
+![First public Task 1 test case: the green path and red obstacles.](img/ex06_task1_public_example.png)
+
+For a robot of radius `3`, the function returns `[0, 1]`: the first two path segments are in collision, while the remaining segments are collision-free.
+
 #### Task 2: Collision Checking via Occupancy Grid
 
 The goal and all assumptions are the same as `Task 1`.
@@ -88,7 +93,7 @@ Implement collision checking using an occupancy grid approach. You may use `shap
 
 You will implement the `path_collision_check_occupancy_grid` function which returns the `Segment` indices of colliding path segments.
 
-**Note:** Due to the discrete nature of occupancy grids, perfect accuracy of 1.0 is not expected. You may tweak the grid resolution to balance accuracy and performance.
+**Note:** Due to the discrete nature of occupancy grids, an accuracy of 1.0 is possible but not guaranteed in general. You may tweak the grid resolution to balance accuracy and performance.
 
 #### Task 3: Collision Checking using R-Trees
 
@@ -170,6 +175,12 @@ the supplied samples: do not generate or interpolate additional points. Return
 Build the roadmap only once and reuse it for every query. Always check the full
 edge, not only its endpoints.
 
+**Example:**
+
+![PRM paths for three queries.](img/ex06_prm_public_example.png)
+
+Grey dots are the provided samples; each coloured path connects a start (circle) to its goal (cross) while avoiding the red obstacle. The function returns three collision-free `Path` objects in query order, using only the provided samples.
+
 ### Task 7: Rapidly-exploring Random Tree Star (RRT*)
 
 Implement `SamplingBasedPlanner.rrt_star`. You may choose the sampling strategy,
@@ -202,6 +213,12 @@ Finally, follow parent links from the goal back to the start and reverse the
 result. Return `Path([])` if the endpoints are invalid or the goal was not
 reached.
 
+**Example:**
+
+![RRT* path around an obstacle.](img/ex06_rrt_star_public_example.png)
+
+The black path connects the green start to the blue goal. The returned `Path` contains 14 waypoints and is collision-free for a robot of radius `0.2`.
+
 ### Evaluation
 
 For this exercise our performance metric is accuracy and execution time.
@@ -222,13 +239,13 @@ For this exercise our performance metric is accuracy and execution time.
 
 | Task **ID** | **Average Solving Time** |
 |-------------|---------------------------|
-| 01          | 0.0028s                      |
-| 02          | 1.0879s                      |
-| 03          | 0.0002s                      |
-| 04          | 0.0030s                      |
-| 05          | 0.1639s                      |
-| 06          | 0.4861s                       |
-| 07          | 3.1413s                       |
+| 01          | 0.0119s                      |
+| 02          | 0.2467s                      |
+| 03          | 0.0004s                      |
+| 04          | 0.0008s                      |
+| 05          | 0.1331s                      |
+| 06          | 0.2461s                       |
+| 07          | 2.1200s                       |
 
 
 **Final Scoring:**
