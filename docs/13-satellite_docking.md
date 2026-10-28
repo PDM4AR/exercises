@@ -1,200 +1,180 @@
-# PDM4AR Satellite Docking
+# Exercise 13: Spaceship Navigation and Docking
 
-This exercise tackles a complex problem in space exploration - navigating and docking a satellite through challenging space environments.
-The goal is to reach the predefined target location using the available thrusters of the satellite, which force can be controlled.
+Build an autonomous agent that guides a spaceship to a target pose and velocity while avoiding obstacles. Your agent must work in closed loop: it receives the simulated state and returns commands throughout the mission.
 
-## Task
+The exercise has three public scenarios and six private scenarios. The public cases introduce static navigation, docking and moving obstacles. The private cases vary the initial conditions, geometry and obstacle motion, and some include external disturbances. Your implementation must handle the scenario data supplied at runtime rather than a specific map or recorded trajectory.
 
-Your task is to write the planning stack for the agent.
-For testing and evaluation, the agent is then coupled with a simulator in closed-loop.
-At each simulation step, the agent receives observations (about its state and other obstacles' state) and it is expected
-to return actuation commands.
+## What you must implement
 
-<!-- TODO change the image -->
-![sim2agent](https://user-images.githubusercontent.com/18750753/144580159-d4d29506-03b2-49b9-b4b8-3cde701cc7d4.png)
+Complete the student code in `src/pdm4ar/exercises/ex13/`.
 
-Irrespective of the approach you choose, make sure to preserve the existing `Agent` interface (or it won't work with the
-simulator).
+| File | Your responsibility |
+| --- | --- |
+| `spaceship.py` | Implement the nominal vehicle dynamics in `SpaceshipDyn.get_dynamics()`, using the state, input and time conventions below. The template derives the Jacobians from this expression. |
+| `planner.py` | Produce a dynamically feasible state trajectory and command sequence from the supplied initial state to the goal, respecting the vehicle and environment constraints. |
+| `agent.py` | Connect planning to the simulator: initialize the agent, follow the trajectory and respond to changes in the observed state during the mission. |
+| `discretization.py` | Provided integration and discretization utilities. Understand their inputs, outputs and time convention before using them. |
 
-You have the freedom to experiment and implement any planning algorithm you deem appropriate.
-However, we provide a template to solve the problem adopting a sequential convexification approach.
+Preserve the `SpaceshipAgent` class name, callback signatures and simulator data types. You may add helpers and internal parameters. The provided planner contains an SCvx skeleton, but you may use another planning method that satisfies the same requirements.
 
-## Scenarios
+The task is to implement your own planning and control stack. The reference trajectories and videos below illustrate successful behaviour; reproducing their exact path is not required.
 
-Your agent will be tested in three different scenarios:
+## Vehicle model and conventions
 
-1. **Scenario 1: Dodging Planets with a Target Goal**
-    - In this scenario, the satellite needs to avoid one or multiple planets while trying to arrive at a fixed final goal, $X_1$. 
+The spaceship moves in a plane and has one steerable rear thruster. Its orientation, steering angle and changing mass affect its motion.
 
-   ![Planets Image](img/config_target.png)
+<img src="img/spaceship.png" alt="Spaceship geometry and steerable rear thruster" width="540">
 
+The state and command ordering are
 
-2. **Scenario 2: Dodging Planets with a Docking Goal**
-    - The satellite must navigate around one or multiple planets while successfully docking at the target $X_1$.
+$$
+X = [x, y, \psi, v_x, v_y, \omega, \delta, m]^\top,
+\qquad U = [T, u_\delta]^\top.
+$$
 
-   ![Satellites Image](img/config_planets.png)
+| Quantity | Meaning and convention |
+| --- | --- |
+| `x`, `y` | Position in the world frame [m]. |
+| `psi` | Heading of the body frame relative to the world frame [rad]. |
+| `vx`, `vy` | Translational velocity components in the **body frame** [m/s]. |
+| `dpsi` ($\omega$) | Angular velocity [rad/s]. |
+| `delta` | Thruster steering angle relative to the body frame [rad]. |
+| `m` | Vehicle mass, including remaining fuel [kg]. |
+| `thrust` ($T$) | Signed thrust command [N]. |
+| `ddelta` ($u_\delta$) | Rate of change of the steering angle [rad/s], despite its name. |
 
-3. **Scenario 3: Dodging Planets and the asteroid field with a Docking Goal**
-    - Similar to Scenario 2, but with moving obstacles. Here the moving osbtacles are asteroids with linear trajectories.
+Use the supplied geometry and physical parameters rather than hard-coding them. The authoritative model and limits are `SpaceshipModel` and `SpaceshipState` in `dg_commons/sim/models/spaceship.py`, and `SpaceshipGeometry` and `SpaceshipParameters` in `spaceship_structures.py`.
 
-   ![Mov Satellites Image](img/config_asteroids.png)
+The supplied planning interface uses normalized time $\tau \in [0,1]$ and a final-time parameter `p[0]`. The dynamics returned to the discretizer must describe the derivative with respect to normalized time, including the corresponding final-time scaling. The simulator itself uses physical seconds. The provided dynamics check compares the nominal model with the simulator; it is a debugging aid, not a graded task by itself.
 
-In `exercises_def>ex13` you can find also a `config_local.yaml` file with a couple instructions to create your own local test files, moving around the starting point or the goal, planets or asteroids, changing their dimensions or velocity. To choose which test cases to run, you have to modify the `get_config.py` file in the same folder.
+## Scenarios and goals
 
-## Spaceship dynamics
-The spaceship's dynamics are represented by the following equations. 
-Note that the pose and velocities are expressed in global frame.
+The public cases are selected from `src/pdm4ar/exercises_def/ex13/`.
 
-1. **Position Dynamics:**
-    - $\frac{dx}{dt} = v_x$
-    - $\frac{dy}{dt} = v_y$
+| Public case | Goal | Environment |
+| --- | --- | --- |
+| `config_1_public.yaml` | Static target pose and velocity. | One planet; no moving obstacles or disturbance. |
+| `config_2_public.yaml` | Docking. | Two planets; no moving obstacles or disturbance. |
+| `config_3_public.yaml` | Docking. | One planet and four moving asteroids; no disturbance. |
 
-2. **Orientation Dynamics:**
-    - $\frac{d\psi}{dt} = \dot{\psi}$
+### Static target
 
-3. **Velocity Dynamics:**
-    - $\frac{dv_x}{dt} = \frac{1}{m} \cos(\psi) \cdot (F_{r} + F_{l})$
-    - $\frac{dv_y}{dt} = \frac{1}{m} \sin(\psi) \cdot (F_{r} + F_{l})$
-4. **Angular Velocity Dynamics:**
-    - $\frac{d\dot{\psi}}{dt} = \frac{l_m}{I} \cdot (F_{r} - F_{l})$
+A `SpaceshipTarget` specifies the desired position, heading and translational velocity. Reaching the target position alone is insufficient: all three tolerances must be satisfied at the same time. There is no dock structure in this scenario.
 
-If the spaceship's state is represented by $X = [x, y, \psi, v_x, v_y, \dot{\psi}]$, and the control inputs 
-are $U = [F_{r}, F_{l}]$, we obtain the following dynamics equations:
+### Docking target
 
-1. **Dynamics:**
-    - $\frac{dX(t)}{dt} = f(X(t), U(t))$
+A `DockingTarget` adds a dock with a base and two arms. Reach the configured pose and velocity while respecting the dock geometry and opening. The spaceship has a finite outline, so a collision-free centre point does not by itself guarantee sufficient clearance.
 
-The satellite you have the control over has two side thrusters where you are able to individually control the amount of thrust to
-produce $F_{r}$ and $F_{l}$. The thrusters are mounted on the side of the satellite. The velocity $v_x$ and $v_y$ are the velocities in the x and y axis direction of the satellite with respect to the world frame x-axis and y-axis. The angle $\psi$ is the angle of the satellite with respect to the x-axis. The length of the spaceship is $l$.
+The dock dimensions come from the scenario. `DockingTarget.get_landing_constraint_points()` exposes its geometry. Inspect the goal object and the scenario obstacles rather than assuming a fixed dock position, heading or size. `DockingTarget` is a subclass of `SpaceshipTarget`, but it requires the additional geometric constraints.
 
-You may check your implementation of the dynamics in the init function in `planner.py`, right after the creation of the integrator object.
+### Moving obstacles and disturbances
 
-The two following figures illustrate the geometrical parameters as well as the state and input.
+Planets are stationary circular obstacles. Asteroids are circular obstacles with prescribed constant motion; their initial position, orientation, local-frame velocity and radius are supplied through `AsteroidParams`. Account for their position at the time the spaceship passes them, including when planning after the start of the episode.
 
-![Spaceship Dynamics](img/satellite-dynamics.png)
-![Spaceship Dynamics](img/satellite-geometry.png)
+Some private cases apply a short external acceleration disturbance. During its activation interval, a sampled linear acceleration in the world frame and a sampled angular acceleration are held constant. These accelerations affect the simulation but are not additional commands available to your agent. Your nominal dynamics should remain the supplied vehicle model; use the observed state to handle departures from a planned trajectory. Do not assume that every scenario has a disturbance or that its timing and magnitude are known to the agent.
 
-## Constraints
+The six private cases cover the same navigation, docking and obstacle-handling requirements with different configurations. They are not additional implementation tasks, and their maps and recordings are not distributed with the student exercise.
 
-There are several constraints that need to be satisfied, [$x_0, y_0$] is the starting location and [$x_1, y_1$] is the goal location:
+## Simulator interface
 
-- The initial and final inputs needs to be zero: $U(t_0) = U(t_f) = 0$
-- The satellite needs to arrive close to the goal
-    - $\left\lVert \begin{bmatrix} x(t_f) \\ y(t_f) \end{bmatrix} - \begin{bmatrix} x_{\text{1}} \\ y_{\text{1}}
-      \end{bmatrix} \right\rVert _{2} < \text{pos\_tol}$
-- with a specified orientation.
-    - $\left\lVert \psi(t_f) - \psi_{\text{1}} \right\rVert _{1} < \text{dir\_tol}$
-- The satellite needs to arrive with a specified velocity.
-    - $\left\lVert \begin{bmatrix} v_x(t_f) \\ v_y(t_f) \end{bmatrix} - \begin{bmatrix} v_{x,1} \\ v_{y,1}
-      \end{bmatrix} \right\rVert _{2} < \text{vel\_tol}$
-- The satellite needs to dodge every obstacle in its path: $(x, y) \bigoplus \mathcal{X}_{Rocket}(\psi) \notin Obstacle
-  \quad \forall Obstacle \in Obstacles$
-- Control inputs, $F_{l}$ and $F_{r}$ are limited: $F_{l}$ and $F_{r} \in [-F_{\text{max}}, F_{\text{max}}]$.
-- You have a maximum time to reach the goal position: $t_f \leq t_f^{max}$
+The simulator integrates the motion with a 0.01 s timestep and requests a new command every 0.1 s of simulated time.
 
-## Evaluation Metrics
+| Entry point | Information available | Required behaviour |
+| --- | --- | --- |
+| `SpaceshipAgent.__init__` | Initial vehicle state, planet parameters and asteroid parameters. | Store and initialize the data needed by your agent. |
+| `on_episode_init(init_sim_obs)` | Player identity, vehicle geometry and parameters, mission goal and scenario geometry. | Prepare the agent for the episode. Initial planning time is excluded from the runtime term in the score. |
+| `get_commands(sim_obs)` | Current simulated time and observed states. | Return a valid `SpaceshipCommands(thrust=..., ddelta=...)` for the current state. Time spent here, including any planning or plotting, contributes to the runtime metric. |
 
-The quality of the satellite's trajectory is evaluated based on several key factors. The following list describes the metrics in order of priorities:
+The simulation pauses while a callback runs; a slow callback does not cause simulated time to advance. This does not remove the computation-time penalty or the overall evaluation timeout.
 
-1.1. **No Collision** You neither leave the designated boundary nor collide with any obstacle.
+If you use sampled trajectories, return correctly ordered timestamps and the expected state and command types. Planning again during an episode must use the current observed state and the current simulation time, rather than restarting the mission from its original initial condition. Decide how to track and update trajectories within your implementation; no particular feedback law or replanning schedule is required.
 
-1.2. **Mission Accomplishment** You reach the goal region.
+## Requirements
 
-2.1. **Time Taken To Reach the Goal:** The time taken to reach the goal.
+A valid mission must meet all of the following:
 
-2.2. **Distance travelled:** The length of the taken trajectory.
+- Reach the configured target position, heading and translational velocity within their tolerances. Heading is an angle; physically equivalent headings differ by multiples of $2\pi$.
+- Keep the whole spaceship clear of planets, moving asteroids and the dock structure, and inside the map boundary throughout the motion.
+- Respect `thrust_limits`, `delta_limits`, `ddelta_limits` and the vehicle velocity limits. Keep the mass above the dry mass `m_v`.
+- Use commands consistent with the actual vehicle state. The initial actuator command is zero; changing a plan must not reset the vehicle or its actuators.
+- Finish within **60 s of simulated time**. This is separate from the wall-clock evaluation timeout.
 
-2.3. **Actuation effort:** The average of the absolute value of the thrusters' force.
+The current public scenarios use a position tolerance of 0.5 m, a heading tolerance of 0.1 rad and a velocity tolerance of 0.2 m/s. Read the values from each goal instead of assuming that they are universal constants. The goal checks and collision reports are defined by the simulator and exercise code.
 
-2.4. **The precision of the planner:** Distance to the goal at the end of the episode.
+## Evaluation
 
-2.5. **Planning Efficiency:** We consider the average time spent in the "get_commands" method as a proxy for efficiency
-   and quality of the planner.
+Each scenario produces a score. The overall evaluation averages the scenario scores. Successful, collision-free execution is the main objective; efficiency and final accuracy distinguish successful runs.
 
-The metric is a weigthed sum of the different metrics mentionned above with 1000 being the maximum. Note that it is theoretically impossible to reach full score as we penalise computation time and actualtion effort which are by definition none zero if the mission is accomplished (but can be optimized). You can verify more precisely the function computing the final score in  `src/pdm4ar/exercises_def/ex13/perf_metrics.py`.
+The current scoring rule is
 
-As a reference, the TA solution receives the following score on the private test cases:
+$$
+S = 1000(s-c)
+-100\bar{t}_{\mathrm{comp}}
+-5d_{\mathrm{goal}}
+-2d_{\mathrm{path}}
+-\frac{10}{3}t_{\mathrm{ep}}
+-10\bar{T}.
+$$
 
-| Scenario            | Score       |
-|---------------------|-------------|
-| Average             |     873.53  |
-| Scenario 1          |     891.98  |
-| Scenario 2          |     874.90  |
-| Scenario 3          |     853.70  |
+| Term | Meaning | Effect on score |
+| --- | --- | --- |
+| $s$ | Goal reached: 1 if successful, 0 otherwise. | +1000 points for success. |
+| $c$ | Collision occurred: 1 if any collision is reported, 0 otherwise. | −1000 points for a collision. |
+| $\bar{t}_{\mathrm{comp}}$ | Mean runtime of `get_commands` [s]. | −100 points per second of mean runtime. |
+| $d_{\mathrm{goal}}$ | Final Euclidean distance to the target position [m]. | −5 points per metre. |
+| $d_{\mathrm{path}}$ | Total distance travelled [m]. | −2 points per metre. |
+| $t_{\mathrm{ep}}$ | Episode duration [s]. | −10/3 points per second. |
+| $\bar{T}$ | Time integral of absolute applied thrust, divided by episode duration [N]. | −10 points per unit of mean absolute thrust. |
 
-Use these numbers as a guideline to understand the order of magnitude of expected performance for a descently optimized solution.
+Actuation effort measures **mean absolute thrust**, not fuel consumption or the total thrust integral. The runtime term excludes `on_episode_init` but includes replanning performed inside `get_commands`. Scores can be negative; they are not clipped to the range 0–1000. A score of 1000 is an ideal upper bound before efficiency penalties.
 
-## Data  Structures
+Runtime depends on the machine and workload. Compare success, collisions and trajectories alongside the score, and use a consistent environment when comparing computation times. The examples below are demonstrations, not exact numerical targets for your implementation.
 
-The various data structures needed for the development of the exercise can be inspected in the following files:
+## Run your student implementation
 
-- SatelliteState & SatelliteCommands: `dg_commons/sim/models/satellite.py`
-- SatelliteGeometry & SatelliteParameters: `dg_commons/sim/models/satellite_structure.py`
-- AsteroidParams & PlanetParams: `src/pdm4ar/exercises_def/ex13/utils_params.py`
+From the student repository, in the configured Python environment:
 
-## Code Structure
+```bash
+python src/pdm4ar/main.py -e 13
+```
 
-The various data structures needed for the development of the exercise can be inspected in the following files:
+Choose public configurations in `src/pdm4ar/exercises_def/ex13/get_config.py`. Reports and animations are written under `out/13/`. You may create local YAML scenarios to test other initial states, goals and obstacle arrangements; these do not replace the provided evaluation cases.
 
-- **agent.py**: Interface with the simulator.
-- **planner.py**: SCvx skeleton.
-- **satellite.py**: Helper file for transfer of dynamics between the planner and discretization.
-- **discretization.py**: ZeroOrderHold and FirstOrderHold Implementation for convexification. Note that here you are not required to modify anything, but you still have to understand what the functions do for the completion of the algorithm.
+Submit your implementation in `src/pdm4ar/exercises/ex13/`. Preserve the supplied interfaces and keep the simulator, evaluation code and official test configurations unchanged in your submission. A solution should use the state and scenario provided through the interface, not depend on test filenames, seeds or pre-recorded commands.
 
-## Hints
+## Public reference videos
 
-We developed the exercises based on the following
-paper ([Convex Optimisation for Trajectory Generation](https://arxiv.org/pdf/2106.09125.pdf)) on SCvx, the planning
-method used in 2021 by SpaceX to land their spaceship on a moving platform in the middle of the ocean. We recommend to use
-such a method to solve the problem, but you are free to come up with your own solution. We made available some basic
-skeleton structure to implement the SCvx pipeline in the **planner.py**. The **discretization.py** file provides an
-implementation of the ZeroOrderHold and FirstOrderHold that is used in the convexification step of the SCvx pipeline to
-linearize and discretize around a reference
-trajectory ([Discretization Performance and Accuracy Analysis for the Powered Descent Guidance Problem](https://www.researchgate.net/publication/330200259_Discretization_Performance_and_Accuracy_Analysis_for_the_Rocket_Powered_Descent_Guidance_Problem)
-and [A Real-Time Algorithm  for Non-Convex Powered Descent Guidance](https://depts.washington.edu/uwrainlab/wordpress/wp-content/uploads/2020/01/AIAA_SciTech_2020.pdf)).
+These recordings show the reference agent on the public configurations using the standard simulator visualizer: planets are brown, moving asteroids are green and the spaceship is blue. They illustrate one possible behaviour; reproducing the same trajectory is not required.
 
-### SCvx
+### Public 1 — Static target
 
-If you decide to go with the SCvx implementation here is an overview of the general algorithm:
+The reference run avoids the planet and reaches the static target pose and velocity without a collision.
 
-![SCvx algorithm diagram](img/SCP-algorithm-illustration.png)
+<video controls preload="metadata" width="640" style="max-width: 100%; height: auto;" poster="img/ex13_public_1.png" aria-label="Public 1 reference run: static target around one planet">
+  <source src="img/ex13_public_1.mp4" type="video/mp4">
+  <a href="img/ex13_public_1.mp4">Download the public 1 reference video.</a>
+</video>
 
-- compute initial guess for state and input sequences
-- begin loop: 
-    - convexification step: compute discretization step of the linear dynamics around the current guess and populate problem parameters depending on the current guess
-    - solve optimization problem
-    - check convergence of the solution: if converged, exit loop otherwise, update trust region according to the paper
-- extract solutions to return valid commands and trajectory.
+[Watch or download the public 1 video](img/ex13_public_1.mp4)
 
-We strongly suggest to read at least the pages 26 to 37 to understand the whole setting of SCvx.
-We also recommand to read the previous 25 pages for better understanding of the underlying concepts of SPC algorithms (especially figure 11). You will also find an example of a theoritical application pages 47 to 52. 
-We might have forgotten to mention important pages, we thus strongly encourage you to explore the rest of the paper by yourself.
+### Public 2 — Docking around planets
 
-<!-- In the paper "A Real-Time Algorithm for Non-Convex Powered Descent Guidance" (https://depts.washington.edu/uwrainlab/wordpress/wp-content/uploads/2020/01/AIAA_SciTech_2020.pdf), you will find the use of \textit{Scaling Matrices} to scale states, inputs and parameters to produce numerically well-conditioned optimization problems. Our solution implementation only made use of scaling the parameters, not touching on states and inputs, and converged reliably. We recommend to use the same approach and  only introducing the normalization of states and inputs if you are facing numerical issues. -->
+The reference run reaches the docking goal without a collision.
 
-### Docking targets and landing constraints
+<video controls preload="metadata" width="640" style="max-width: 100%; height: auto;" poster="img/ex13_public_2.png" aria-label="Public 2 reference run: docking around two planets">
+  <source src="img/ex13_public_2.mp4" type="video/mp4">
+  <a href="img/ex13_public_2.mp4">Download the public 2 reference video.</a>
+</video>
 
-In addition, the docker goal class has a method to return notable points (get_landing_constraint_points). Try to think how you can use them to create a valid constraints. (We suggest to activate the landing constraints only on the final [5-7] steps). You can visualize a representation of the docking goal as an image in the out folder to get a better idea of which points are returned:
+[Watch or download the public 2 video](img/ex13_public_2.mp4)
 
-![Docking goal](img/landing_constraints.jpg)
+### Public 3 — Docking through moving asteroids
 
-As a general and final advice try to understand the method **before** starting to code.
+The reference run avoids the moving asteroids and reaches the docking goal without a collision.
 
-### Plotting function
+<video controls preload="metadata" width="640" style="max-width: 100%; height: auto;" poster="img/ex13_public_3.png" aria-label="Public 3 reference run: docking with four moving asteroids">
+  <source src="img/ex13_public_3.mp4" type="video/mp4">
+  <a href="img/ex13_public_3.mp4">Download the public 3 reference video.</a>
+</video>
 
-To help you get started debugging the exercise, we’ve included a simple plotting helper, `plot_traj`, in `src/pdm4ar/axercises_def/ex13/utils_plot.py`. It’s an example of a plot that can be useful during debugging; feel free to extend it or design your own visualizations. We strongly encourage you to plot whatever you need to better understand your code’s behavior and pinpoint issues. The plotting feature can be enabled and disabled in the config class present in `agent.py`. The figure below shows an exmple where the trajectory has been followed pefectly. The black arrows and continuous lines represent the computed heading of the satellite and its trajectory. The red arrows and dotted line represent the simulated heading and trajectory. The image refreshes during simulation enabaling you to visualise the simulation while it is happening and don't need to wait for the videos to be created. This is particulary useful when running multiple configs at once. The refresh rate of the image can be changed in the `get_command()` in the angent class.
-
-![Plotting functione example](img/final_traj.png)
-
-## Dynamics check
-
-To help you validate your dynamics model, we have implemented a function that simulates the agent using your dynamics on a prerecorded set of inputs and compares the results against the ground truth. This verification is automatically performed in the planner’s constructor. We strongly recommend ensuring that your implementation passes this dynamics check before proceeding with the rest of your solution. Note that this function is provided solely as a debugging tool and will not be used in the final evaluation.
-
-## Available Optimization Tools
-
-If your solution needs to solve an optimization problem, we have added powerful libraries in the container to solve
-optimization problems. For instance, `scipy.optimize`, PuLP, cvxpy and cvxopt. We tested cvxpy with "ECOS" and "CLARABEL" as
-solvers for our SCvx pipeline. If you want to use other optimizers, or you are not using SCvx to solve the problem,
-**please consider that we have not tested it**.
-
-Moreover, we suggest looking into DCP and DPP systems. DCP stands for [Disciplined Convex Programming](https://www.cvxpy.org/tutorial/dcp/index.html), while DPP stands for [Disciplined Parametrized Programming](https://www.cvxpy.org/tutorial/dpp/index.html). Both are rulesets you should follow to build a convex problem (DCP) that is also fast and efficient to solve repeatedly with different parameters (DPP), as in your case.
+[Watch or download the public 3 video](img/ex13_public_3.mp4)
