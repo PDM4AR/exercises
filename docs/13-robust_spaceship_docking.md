@@ -1,4 +1,4 @@
-# Exercise 13: Spaceship Navigation and Docking
+# Exercise 13: Robust Spaceship Docking
 
 Build an autonomous agent that guides a spaceship to a target pose and velocity while avoiding obstacles. Your agent must work in closed loop: it receives the simulated state and returns commands throughout the mission.
 
@@ -139,6 +139,8 @@ python src/pdm4ar/main.py -e 13
 ```
 
 Choose public configurations in `src/pdm4ar/exercises_def/ex13/get_config.py`. Reports and animations are written under `out/13/`. You may create local YAML scenarios to test other initial states, goals and obstacle arrangements; these do not replace the provided evaluation cases.
+
+The report includes one annotated video with a dashed executed path, a right-hand panel showing live goal errors and tolerances, applied commands and collision status. The original state/command plots are also retained. If the simulator supplies disturbance metadata, its activation interval is highlighted. These views use simulator logs only and work without planner-specific instrumentation. You can customize `src/pdm4ar/exercises_def/ex13/visualization.py` for local debugging; those edits are not part of your submitted solution.
 
 Submit your implementation in `src/pdm4ar/exercises/ex13/`. Preserve the supplied interfaces and keep the simulator, evaluation code and official test configurations unchanged in your submission. A solution should use the state and scenario provided through the interface, not depend on test filenames, seeds or pre-recorded commands.
 
