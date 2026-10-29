@@ -155,7 +155,8 @@ def sim_context_from_yaml(file_path: str):
             arms_length=conf_goal["arms_length"],
             offset=conf_goal["offset"],
         )
-        landing_shape = goal.get_landing_base()
+        # Use the complete visible dock so both arms participate in collisions.
+        landing_shape = goal.get_plottable_geometry()
         obsgeo = ObstacleGeometry.default_static(color="blue")
         static_obstacles += [StaticObstacle(shape=landing_shape, geometry=obsgeo)]
     else:
