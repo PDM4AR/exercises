@@ -6,8 +6,6 @@ Guide a spaceship to a target position, heading and velocity while avoiding plan
 
 Implement the planning and control agent in `src/pdm4ar/exercises/ex13/`. Compute a feasible trajectory from the supplied state to the goal, then use simulator observations to follow it and correct deviations.
 
-<img src="img/simulator_agent.png" alt="The simulator sends observations to the agent, which returns actuation commands" width="800">
-
 The template includes a **successive convexification (SCvx)** skeleton. You may use another planning method. Preserve the `SpaceshipAgent` class name and the simulator interface.
 
 ## Code structure
@@ -20,6 +18,8 @@ The template includes a **successive convexification (SCvx)** skeleton. You may 
 | `discretization.py` | Discretization and integration. | Use the supplied zero-order/first-order hold methods and dynamics check. These are already implemented. |
 
 At episode start, the agent receives the state, goal and environment and requests a trajectory from the planner. During flight, the simulator calls `get_commands` every **0.1 s of simulated time**. The agent returns a command; the simulator advances the motion and returns new observations.
+
+<img src="img/simulator_agent.png" alt="The simulator sends observations to the agent, which returns actuation commands" width="800">
 
 ## Vehicle model
 
