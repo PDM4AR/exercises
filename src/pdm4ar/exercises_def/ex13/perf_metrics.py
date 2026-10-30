@@ -111,7 +111,7 @@ def ex13_metrics(sim_context: SimContext) -> Tuple[AvgPlayerMetrics, List[Player
         distance2goal = goal_poly.distance(last_point)
 
         # actuation effort
-        abs_acc = agent_log.commands.transform_values(lambda u: (abs(u.F_right) + abs(u.F_left)))
+        abs_acc = agent_log.commands.transform_values(lambda u: abs(u.thrust))
         actuation_effort = seq_integrate(abs_acc).values[-1] / duration
 
         # computation time

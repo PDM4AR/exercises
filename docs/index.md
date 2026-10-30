@@ -19,7 +19,7 @@ Welcome to PDM4AR programming exercises for autonomous robots :airplane: :helico
 * [Collision Checking](06-collisionchecking.md)
 
 #### Group Exercises
-* [Satellite Docking](13-satellite_docking.md)
+* [Spaceship Navigation and Docking](13-robust_spaceship_docking.md)
 * [Multi-agent Goal Collection](14-multiagent_collection.md)
 
 #### Previous Exercises
