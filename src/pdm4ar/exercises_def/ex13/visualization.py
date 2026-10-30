@@ -128,20 +128,27 @@ def _scene(context):
 
 
 def create_diagnostic_animation(file_path, context, fps=10):
-    """Live disturbance and goal/control status, without solution internals."""
+    """Live goal/control status; the spaceship turns red during a disturbance."""
     renderer, ax = _scene(context)
     fig = ax.figure
     bodies, actions = {}, {}
     status = ax.text(1.02, 0.98, "", transform=ax.transAxes, va="top", fontsize=9,
                      family="monospace")
+    disturbance_banner = ax.text(
+        0.5, 0.98, "EXTERNAL DISTURBANCE", transform=ax.transAxes,
+        ha="center", va="top", color="white", weight="bold",
+        bbox=dict(facecolor="crimson", edgecolor="none", pad=5), visible=False,
+    )
     fig.subplots_adjust(right=0.66)
-    start, end = float(context.log.get_init_time()), float(context.log.get_last_time())
+    start = float(context.log.get_init_time())
+    end = max(float(context.log[player].states.get_end()) for player in context.missions)
     frames = np.linspace(start, end, max(2, int(np.ceil((end - start) * fps)) + 1))
     writer = FFMpegWriter(fps=fps, bitrate=2000)
     try:
         with writer.saving(fig, str(file_path), dpi=100):
             for t in frames:
                 lines = [f"Simulation time: {t:.1f} s"]
+                any_disturbance_active = False
                 for player, log in context.log.items():
                     # Dynamic obstacles may stop logging before the spaceship does.
                     sample_t = min(max(t, float(log.states.get_start())), float(log.states.get_end()))
@@ -155,6 +162,10 @@ def create_diagnostic_animation(file_path, context, fps=10):
                     state, goal = entry.state, context.missions[player]
                     window = _disturbance_window(context, player)
                     disturbance_active = window is not None and window[0] <= t < window[1]
+                    any_disturbance_active |= disturbance_active
+                    body_color = "crimson" if disturbance_active else context.models[player].model_geometry.color
+                    bodies[player][0].set_facecolor(body_color)
+                    bodies[player][0].set_edgecolor(body_color)
                     errors = goal_errors(state, goal)
                     lines += [f"\n{player}", "Goal errors / tolerances:"]
                     for label, value, tol, unit in zip(("pos", "heading", "vel"), errors,
@@ -174,6 +185,7 @@ def create_diagnostic_animation(file_path, context, fps=10):
                         lines.append(f"Fuel: {state.m - params.m_v:.3f} kg")
                     lines.append(f"External disturbance: {'ON' if disturbance_active else 'OFF'}")
                 status.set_text("\n".join(lines))
+                disturbance_banner.set_visible(any_disturbance_active)
                 writer.grab_frame()
     finally:
         plt.close(fig)
