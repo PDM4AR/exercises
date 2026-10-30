@@ -6,6 +6,8 @@ Guide a spaceship to a target position, heading and velocity while avoiding plan
 
 Implement the planning and control agent in `src/pdm4ar/exercises/ex13/`. Compute a feasible trajectory from the supplied state to the goal, then use simulator observations to follow it and correct deviations.
 
+<img src="img/simulator_agent.png" alt="The simulator sends observations to the agent, which returns actuation commands" width="800">
+
 The template includes a **successive convexification (SCvx)** skeleton. You may use another planning method. Preserve the `SpaceshipAgent` class name and the simulator interface.
 
 ## Code structure
@@ -19,8 +21,6 @@ The template includes a **successive convexification (SCvx)** skeleton. You may 
 
 At episode start, the agent receives the state, goal and environment and requests a trajectory from the planner. During flight, the simulator calls `get_commands` every **0.1 s of simulated time**. The agent returns a command; the simulator advances the motion and returns new observations.
 
-<img src="img/simulator_agent.png" alt="The simulator sends observations to the agent, which returns actuation commands" width="800">
-
 ## Vehicle model
 
 The spaceship moves in a plane using one steerable rear thruster. Its mass changes as fuel is used.
@@ -29,10 +29,10 @@ The spaceship moves in a plane using one steerable rear thruster. Its mass chang
 
 The state and command vectors are:
 
-$$
+```math
 X = [x, y, \psi, v_x, v_y, \omega, \delta, m]^\top,
 \qquad U = [T, u_\delta]^\top.
-$$
+```
 
 $x,y$ are world-frame coordinates, $\psi$ is the heading, $v_x,v_y$ are **body-frame velocities**, $\omega$ is the angular velocity, $\delta$ is the thruster angle and $m$ is the total mass. The commands are thrust $T$ (`thrust`, in N) and steering rate $u_\delta$ (`ddelta`, in rad/s).
 
@@ -40,7 +40,7 @@ $x,y$ are world-frame coordinates, $\psi$ is the heading, $v_x,v_y$ are **body-f
 
 The nominal dynamics in physical time $t$ are:
 
-$$
+```math
 \begin{aligned}
 \dot{x} &= v_x\cos\psi - v_y\sin\psi, \\
 \dot{y} &= v_x\sin\psi + v_y\cos\psi, \\
@@ -51,7 +51,7 @@ $$
 \dot{\delta} &= u_\delta, \\
 \dot{m} &= -C_T T.
 \end{aligned}
-$$
+```
 
 $l_r$ is the distance from the centre of mass to the rear thruster, $I_z$ is the moment of inertia, and $C_T$ is the coefficient in the mass-change equation. Use `sg.l_r`, `sg.Iz` and `sp.C_T` for these parameters. The terms $\omega v_y$ and $-\omega v_x$ arise because velocity is expressed in the rotating body frame.
 
@@ -61,10 +61,10 @@ Implement these equations with SymPy in `SpaceshipDyn.get_dynamics()` in `src/pd
 
 The discretizer uses normalized time $\tau = t/t_f \in [0,1]$, with final time $t_f$ stored in `p[0]`. Scale the returned dynamics accordingly:
 
-$$
+```math
 \frac{dX}{d\tau} = t_f f(X,U),
 \qquad \text{where } \frac{dX}{dt} = f(X,U).
-$$
+```
 
 After implementing the equations, enable `SolverParameters.check_dynamics` to compare your model with the simulator. The nominal model and physical limits are defined by `SpaceshipModel`, `SpaceshipGeometry` and `SpaceshipParameters` in `dg_commons/sim/models/spaceship.py` and `spaceship_structures.py`.
 
@@ -151,24 +151,24 @@ The trajectory must satisfy the vehicle dynamics and the following constraints. 
 
 Start from the supplied state, with zero commands at the beginning and end of the mission:
 
-$$
+```math
 X(0)=X_0, \qquad U(0)=U(t_f)=0.
-$$
+```
 
 ### Goal position, orientation and velocity
 
 At arrival, all three goal conditions must hold at the same time:
 
-$$
+```math
 \begin{aligned}
 \left\|\begin{bmatrix}x(t_f)-x_g\\y(t_f)-y_g\end{bmatrix}\right\|_2
 &< \texttt{pos\_tol}, \\
-\left|\operatorname{wrap}_{[-\pi,\pi]}\!\left(\psi(t_f)-\psi_g\right)\right|
+\left|\mathrm{wrap}_{[-\pi,\pi]}\!\left(\psi(t_f)-\psi_g\right)\right|
 &< \texttt{dir\_tol}, \\
 \left\|\begin{bmatrix}v_x(t_f)-v_{x,g}\\v_y(t_f)-v_{y,g}\end{bmatrix}\right\|_2
 &< \texttt{vel\_tol}.
 \end{aligned}
-$$
+```
 
 Use the tolerances supplied by the goal. Heading error is measured modulo $2\pi$, and velocity components are in the body frame.
 
@@ -192,9 +192,9 @@ Respect the supplied bounds throughout the trajectory:
 
 Reach the goal within **60 s of simulated time**:
 
-$$
+```math
 0<t_f\leq 60\ \mathrm{s}.
-$$
+```
 
 Time is measured from the start of the episode. This is separate from the wall-clock evaluation timeout.
 
