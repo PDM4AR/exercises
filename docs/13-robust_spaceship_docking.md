@@ -110,7 +110,7 @@ Asteroids are circular `DynObstacleModel` objects created in `utils_config.py`. 
 
 The sampled accelerations stay constant for `duration` seconds from `start_time`. The linear acceleration is rotated into the spaceship's body frame before being added to its dynamics. After the burst, the extra acceleration is zero, but the resulting position and velocity deviations remain.
 
-Public case 3 uses the following configuration, active for **$2.5 \leq t < 5.0$ s**:
+Public case 3 uses the following configuration, active for **$2.5 \leq t \lt 5.0$ s**:
 
 ```yaml
 dynamics_disturbance:
@@ -157,18 +157,13 @@ X(0)=X_0, \qquad U(0)=U(t_f)=0.
 
 ### Goal position, orientation and velocity
 
-At arrival, all three goal conditions must hold at the same time:
+At arrival, all three errors must be below their corresponding tolerances:
 
-```math
-\begin{aligned}
-\left\|\begin{bmatrix}x(t_f)-x_g\\y(t_f)-y_g\end{bmatrix}\right\|_2
-&< \texttt{pos\_tol}, \\
-\left|\mathrm{wrap}_{[-\pi,\pi]}\!\left(\psi(t_f)-\psi_g\right)\right|
-&< \texttt{dir\_tol}, \\
-\left\|\begin{bmatrix}v_x(t_f)-v_{x,g}\\v_y(t_f)-v_{y,g}\end{bmatrix}\right\|_2
-&< \texttt{vel\_tol}.
-\end{aligned}
-```
+| Quantity | Error at arrival | Tolerance |
+| --- | :---: | --- |
+| Position | $\sqrt{(x(t_f)-x_g)^2 + (y(t_f)-y_g)^2}$ | `pos_tol` |
+| Heading | $\lvert\mathrm{wrap}_{[-\pi,\pi]}(\psi(t_f)-\psi_g)\rvert$ | `dir_tol` |
+| Body-frame velocity | $\sqrt{(v_x(t_f)-v_{x,g})^2 + (v_y(t_f)-v_{y,g})^2}$ | `vel_tol` |
 
 Use the tolerances supplied by the goal. Heading error is measured modulo $2\pi$, and velocity components are in the body frame.
 
@@ -181,22 +176,16 @@ The **entire spaceship footprint** must stay inside the map and avoid planets, m
 Respect the supplied bounds throughout the trajectory:
 
 | Quantity | Constraint | Parameter |
-| --- | --- | --- |
+| --- | :---: | --- |
 | Thrust | $T_{\min}\leq T(t)\leq T_{\max}$ | `sp.thrust_limits` |
 | Thruster angle | $\delta_{\min}\leq\delta(t)\leq\delta_{\max}$ | `sp.delta_limits` |
 | Thruster steering rate | $u_{\delta,\min}\leq u_\delta(t)\leq u_{\delta,\max}$ | `sp.ddelta_limits` |
-| Body-frame velocity components | $v_{\min}\leq v_x(t),v_y(t)\leq v_{\max}$ | `sp.vx_limits` |
+| Body-frame velocity | $v_{\min}\leq v_x(t),v_y(t)\leq v_{\max}$ | `sp.vx_limits` |
 | Mass | $m(t)\geq m_v$ | `sp.m_v` (dry mass) |
 
 ### Mission time
 
-Reach the goal within **60 s of simulated time**:
-
-```math
-0<t_f\leq 60\ \mathrm{s}.
-```
-
-Time is measured from the start of the episode. This is separate from the wall-clock evaluation timeout.
+Reach the goal within **60 s of simulated time**, with $0 \lt t_f \leq 60$ s measured from the start of the episode. This is separate from the wall-clock evaluation timeout.
 
 ## Evaluation
 
