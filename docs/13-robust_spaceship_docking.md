@@ -233,3 +233,9 @@ The simulation pauses during agent callbacks. Computation in `get_commands`, inc
 Copy a public YAML file to a new name, such as `config_custom.yaml`, in `src/pdm4ar/exercises_def/ex13/`. Add the name to the list in `get_config.py` and run the exercise. `config_local.yaml` documents the available fields.
 
 Vary the initial state, translate and rotate the dock, and change asteroid positions and velocities. Try different disturbance start times, durations, strengths and seeds. Build docking constraints from the supplied geometry so they follow the goal pose. Inspect complete runs and check the executed trajectory and clearance of the whole spaceship.
+
+### Plotting
+
+You can adapt the plots for local debugging. Set `Config.PLOT = True` in `src/pdm4ar/exercises/ex13/agent.py` to compare planned and executed trajectories. The helper `plot_traj` in `src/pdm4ar/exercises_def/ex13/utils_plot.py` updates `out/13/index.html_resources/final_traj.png` during the simulation; you can extend it with your own diagnostics.
+
+To change the video, edit `create_diagnostic_animation` in `visualization.py`. Report plots are assembled by `_ex13_vis` in `ex13.py`. Both files are in `src/pdm4ar/exercises_def/ex13/`. Changes to these visualization helpers are for local debugging and are not part of your submission.
