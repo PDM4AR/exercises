@@ -1,4 +1,3 @@
-import ast
 from dataclasses import dataclass, field
 from typing import Union
 
@@ -6,10 +5,10 @@ import cvxpy as cvx
 from dg_commons import PlayerName
 from dg_commons.seq import DgSampledSequence
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
-from dg_commons.sim.models.satellite import SatelliteCommands, SatelliteState
-from dg_commons.sim.models.satellite_structures import (
-    SatelliteGeometry,
-    SatelliteParameters,
+from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
+from dg_commons.sim.models.spaceship_structures import (
+    SpaceshipGeometry,
+    SpaceshipParameters,
 )
 
 from pdm4ar.exercises.ex13.discretization import *
@@ -24,7 +23,7 @@ class SolverParameters:
     """
 
     # Cvxpy solver parameters
-    solver: str = "ECOS"  # specify solver to use
+    solver: str = "CLARABEL"  # specify solver to use
     verbose_solver: bool = False  # if True, the optimization steps are shown
     max_iterations: int = 100  # max algorithm iterations
 
@@ -41,22 +40,24 @@ class SolverParameters:
     alpha: float = 2.0  # div factor trust region update
     beta: float = 3.2  # mult factor trust region update
 
+    check_dynamics: bool = False  # Enable after implementing spaceship.py.
+
     # Discretization constants
     K: int = 50  # number of discretization steps
     N_sub: int = 5  # used inside ode solver inside discretization
     stop_crit: float = 1e-5  # Stopping criteria constant
 
 
-class SatellitePlanner:
+class SpaceshipPlanner:
     """
     Feel free to change anything in this class.
     """
 
     planets: dict[PlayerName, PlanetParams]
     asteroids: dict[PlayerName, AsteroidParams]
-    satellite: SatelliteDyn
-    sg: SatelliteGeometry
-    sp: SatelliteParameters
+    spaceship: SpaceshipDyn
+    sg: SpaceshipGeometry
+    sp: SpaceshipParameters
     params: SolverParameters
 
     # Simpy variables
@@ -76,8 +77,8 @@ class SatellitePlanner:
         self,
         planets: dict[PlayerName, PlanetParams],
         asteroids: dict[PlayerName, AsteroidParams],
-        sg: SatelliteGeometry,
-        sp: SatelliteParameters,
+        sg: SpaceshipGeometry,
+        sp: SpaceshipParameters,
     ):
         """
         Pass environment information to the planner.
@@ -90,18 +91,16 @@ class SatellitePlanner:
         # Solver Parameters
         self.params = SolverParameters()
 
-        # Satellite Dynamics
-        self.satellite = SatelliteDyn(self.sg, self.sp)
+        # Spaceship Dynamics
+        self.spaceship = SpaceshipDyn(self.sg, self.sp)
 
         # Discretization Method
-        # self.integrator = ZeroOrderHold(self.Satellite, self.params.K, self.params.N_sub)
-        self.integrator = FirstOrderHold(self.satellite, self.params.K, self.params.N_sub)
+        # self.integrator = ZeroOrderHold(self.spaceship, self.params.K, self.params.N_sub)
+        self.integrator = FirstOrderHold(self.spaceship, self.params.K, self.params.N_sub)
 
-        # Check dynamics implementation (pass this test before going further. It is not part of the final evaluation, so you can comment it out later)
-        if not self.integrator.check_dynamics():
-            raise ValueError("Dynamics check failed.")
-        else:
-            print("Dynamics check passed.")
+        # Opt-in: the placeholder dynamics deliberately do not pass this check.
+        if self.params.check_dynamics and not self.integrator.check_dynamics():
+            raise ValueError("Dynamics check failed: implement SpaceshipDyn.get_dynamics().")
 
         # Variables
         self.variables = self._get_variables()
@@ -121,8 +120,8 @@ class SatellitePlanner:
         self.problem = cvx.Problem(objective, constraints)
 
     def compute_trajectory(
-        self, init_state: SatelliteState, goal_state: DynObstacleState
-    ) -> tuple[DgSampledSequence[SatelliteCommands], DgSampledSequence[SatelliteState]]:
+        self, init_state: SpaceshipState, goal_state: DynObstacleState
+    ) -> tuple[DgSampledSequence[SpaceshipCommands], DgSampledSequence[SpaceshipState]]:
         """
         Compute a trajectory from init_state to goal_state.
         """
@@ -145,16 +144,13 @@ class SatellitePlanner:
             update stopping criterion
         """
 
-        self._convexification()
-        try:
-            error = self.problem.solve(verbose=self.params.verbose_solver, solver=self.params.solver)
-        except cvx.SolverError:
-            print(f"SolverError: {self.params.solver} failed to solve the problem.")
-
-        # Example data: sequence from array
-        mycmds, mystates = self._extract_seq_from_array()
-
-        return mycmds, mystates
+        # Runnable placeholder, not a planning solution. Replace it with the
+        # SCvx loop above (or another planner) using the helper methods below.
+        # The stationary reference keeps state dimensions/mass well-defined.
+        times = [0.0, 60.0]
+        commands = DgSampledSequence(timestamps=times, values=[SpaceshipCommands(0.0, 0.0)] * 2)
+        states = DgSampledSequence(timestamps=times, values=[init_state, init_state])
+        return commands, states
 
     def initial_guess(self) -> tuple[NDArray, NDArray, NDArray]:
         """
@@ -162,9 +158,9 @@ class SatellitePlanner:
         """
         K = self.params.K
 
-        X = np.zeros((self.satellite.n_x, K))
-        U = np.zeros((self.satellite.n_u, K))
-        p = np.zeros((self.satellite.n_p))
+        X = np.zeros((self.spaceship.n_x, K))
+        U = np.zeros((self.spaceship.n_u, K))
+        p = np.zeros((self.spaceship.n_p))
 
         return X, U, p
 
@@ -180,9 +176,9 @@ class SatellitePlanner:
         Define optimisation variables for SCvx.
         """
         variables = {
-            "X": cvx.Variable((self.satellite.n_x, self.params.K)),
-            "U": cvx.Variable((self.satellite.n_u, self.params.K)),
-            "p": cvx.Variable(self.satellite.n_p),
+            "X": cvx.Variable((self.spaceship.n_x, self.params.K)),
+            "U": cvx.Variable((self.spaceship.n_u, self.params.K)),
+            "p": cvx.Variable(self.spaceship.n_p),
         }
 
         return variables
@@ -192,7 +188,7 @@ class SatellitePlanner:
         Define problem parameters for SCvx.
         """
         problem_parameters = {
-            "init_state": cvx.Parameter(self.satellite.n_x)
+            "init_state": cvx.Parameter(self.spaceship.n_x)
             # ...
         }
 
@@ -248,19 +244,9 @@ class SatellitePlanner:
         pass
 
     @staticmethod
-    def _extract_seq_from_array() -> tuple[DgSampledSequence[SatelliteCommands], DgSampledSequence[SatelliteState]]:
-        """
-        Example of how to create a DgSampledSequence from numpy arrays and timestamps.
-        """
-        ts = (0, 1, 2, 3, 4)
-        # in case my planner returns 3 numpy arrays
-        F = np.array([0, 1, 2, 3, 4])
-        ddelta = np.array([0, 0, 0, 0, 0])
-        cmds_list = [SatelliteCommands(f, dd) for f, dd in zip(F, ddelta)]
-        mycmds = DgSampledSequence[SatelliteCommands](timestamps=ts, values=cmds_list)
-
-        # in case my state trajectory is in a 2d array
-        npstates = np.random.rand(len(ts), 6)
-        states = [SatelliteState(*v) for v in npstates]
-        mystates = DgSampledSequence[SatelliteState](timestamps=ts, values=states)
-        return mycmds, mystates
+    def _extract_seq_from_array(timestamps, X, U):
+        """Convert X (8 x K), U (2 x K) and physical timestamps to sequences."""
+        states = [SpaceshipState(*column) for column in np.asarray(X).T]
+        commands = [SpaceshipCommands(*column) for column in np.asarray(U).T]
+        return (DgSampledSequence(timestamps=timestamps, values=commands),
+                DgSampledSequence(timestamps=timestamps, values=states))

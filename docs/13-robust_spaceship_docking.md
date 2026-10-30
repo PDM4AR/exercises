@@ -2,7 +2,7 @@
 
 Build an autonomous agent that guides a spaceship to a target pose and velocity while avoiding obstacles. Your agent must work in closed loop: it receives the simulated state and returns commands throughout the mission.
 
-The exercise has three public scenarios and six private scenarios. The public cases introduce static navigation, docking and moving obstacles. The private cases vary the initial conditions, geometry and obstacle motion, and some include external disturbances. Your implementation must handle the scenario data supplied at runtime rather than a specific map or recorded trajectory.
+The exercise has three public scenarios and six private scenarios. The public cases introduce docking around stationary planets and moving obstacles, with optional external disturbances. The private cases vary the initial conditions, geometry and obstacle motion, and some include external disturbances. Your implementation must handle the scenario data supplied at runtime rather than a specific map or recorded trajectory.
 
 ## What you must implement
 
@@ -55,23 +55,23 @@ The public cases are selected from `src/pdm4ar/exercises_def/ex13/`.
 | --- | --- | --- |
 | `config_1_public.yaml` | Static target pose and velocity. | One planet; no moving obstacles or disturbance. |
 | `config_2_public.yaml` | Docking. | Two planets; no moving obstacles or disturbance. |
-| `config_3_public.yaml` | Docking. | One planet and four moving asteroids; no disturbance. |
+| `config_3_public.yaml` | Docking. | One planet, four moving asteroids and a configured external disturbance. |
 
 ### Static target
 
-A `SpaceshipTarget` specifies the desired position, heading and translational velocity. Reaching the target position alone is insufficient: all three tolerances must be satisfied at the same time. There is no dock structure in this scenario.
+A `SpaceshipTarget` specifies the desired position, heading and translational velocity. Reaching the target position alone is insufficient: all three tolerances must be satisfied at the same time. This goal type has no dock structure; public case 1 uses this goal type.
 
 ### Docking target
 
 A `DockingTarget` adds a dock with a base and two arms. Reach the configured pose and velocity while respecting the dock geometry and opening. The spaceship has a finite outline, so a collision-free centre point does not by itself guarantee sufficient clearance.
 
-The dock dimensions come from the scenario. `DockingTarget.get_landing_constraint_points()` exposes its geometry. Inspect the goal object and the scenario obstacles rather than assuming a fixed dock position, heading or size. `DockingTarget` is a subclass of `SpaceshipTarget`, but it requires the additional geometric constraints.
+The base and both arms are physical collision obstacles, using the same geometry as the video. The dock dimensions come from the scenario: its opening width is `2 * (pos_tolerance + add_land_space)`, its arm length is `pos_tolerance + arms_length`, and `offset` places the base behind the target along its heading. The current public docking goals use a 2 m opening, 1.8 m arms and a 1.8 m base offset. `DockingTarget.get_landing_constraint_points()` exposes its geometry. Inspect the goal object and the scenario obstacles rather than assuming a fixed dock position, heading or size. `DockingTarget` is a subclass of `SpaceshipTarget`, but it requires the additional geometric constraints.
 
 ### Moving obstacles and disturbances
 
 Planets are stationary circular obstacles. Asteroids are circular obstacles with prescribed constant motion; their initial position, orientation, local-frame velocity and radius are supplied through `AsteroidParams`. Account for their position at the time the spaceship passes them, including when planning after the start of the episode.
 
-Some private cases apply a short external acceleration disturbance. During its activation interval, a sampled linear acceleration in the world frame and a sampled angular acceleration are held constant. These accelerations affect the simulation but are not additional commands available to your agent. Your nominal dynamics should remain the supplied vehicle model; use the observed state to handle departures from a planned trajectory. Do not assume that every scenario has a disturbance or that its timing and magnitude are known to the agent.
+Scenarios can apply a short external acceleration disturbance through the optional `dynamics_disturbance` YAML block. During its activation interval, a sampled linear acceleration in the world frame and a sampled angular acceleration are held constant. These accelerations affect the simulation but are not additional commands available to your agent. Your nominal dynamics should remain the supplied vehicle model; use the observed state to handle departures from a planned trajectory. Do not assume that every scenario has a disturbance or that its timing and magnitude are known to the agent.
 
 The six private cases cover the same navigation, docking and obstacle-handling requirements with different configurations. They are not additional implementation tasks, and their maps and recordings are not distributed with the student exercise.
 
@@ -99,7 +99,7 @@ A valid mission must meet all of the following:
 - Use commands consistent with the actual vehicle state. The initial actuator command is zero; changing a plan must not reset the vehicle or its actuators.
 - Finish within **60 s of simulated time**. This is separate from the wall-clock evaluation timeout.
 
-The current public scenarios use a position tolerance of 0.5 m, a heading tolerance of 0.1 rad and a velocity tolerance of 0.2 m/s. Read the values from each goal instead of assuming that they are universal constants. The goal checks and collision reports are defined by the simulator and exercise code.
+The public scenarios use a position tolerance of 0.5 m; heading and velocity tolerances vary by scenario. Read the values from each goal instead of assuming that they are universal constants. The goal checks and collision reports are defined by the simulator and exercise code.
 
 ## Evaluation
 
@@ -138,17 +138,19 @@ From the student repository, in the configured Python environment:
 python src/pdm4ar/main.py -e 13
 ```
 
-Choose public configurations in `src/pdm4ar/exercises_def/ex13/get_config.py`. Reports and animations are written under `out/13/`. You may create local YAML scenarios to test other initial states, goals and obstacle arrangements; these do not replace the provided evaluation cases.
+The starter is runnable before you implement the solution: its placeholder planner returns zero commands and a stationary reference. This is only a report-generation baseline and will not complete the missions. Implement `SpaceshipDyn.get_dynamics()` in `spaceship.py`, enable `SolverParameters.check_dynamics` to validate it, and replace the placeholder in `SpaceshipPlanner.compute_trajectory()`. The SCvx helper methods remain available as a starting point.
 
-The report includes one annotated video with a dashed executed path, a right-hand panel showing live goal errors and tolerances, applied commands and collision status. The original state/command plots are also retained. If the simulator supplies disturbance metadata, its activation interval is highlighted. These views use simulator logs only and work without planner-specific instrumentation. You can customize `src/pdm4ar/exercises_def/ex13/visualization.py` for local debugging; those edits are not part of your submitted solution.
+Choose public configurations in `src/pdm4ar/exercises_def/ex13/get_config.py`. One combined report with all three videos and state/command plots is written to `out/13/index.html` (media files are in `index.html_resources/`). You may create local YAML scenarios to test other initial states, goals and obstacle arrangements; these do not replace the provided evaluation cases.
+
+The report includes one annotated video with a right-hand panel showing live goal errors and tolerances, applied commands and collision status. The original state/command plots are also retained. If the simulator supplies disturbance metadata, the panel displays `External disturbance: ON/OFF`. These views use simulator logs only and work without planner-specific instrumentation. You can customize `src/pdm4ar/exercises_def/ex13/visualization.py` for local debugging; those edits are not part of your submitted solution.
 
 Submit your implementation in `src/pdm4ar/exercises/ex13/`. Preserve the supplied interfaces and keep the simulator, evaluation code and official test configurations unchanged in your submission. A solution should use the state and scenario provided through the interface, not depend on test filenames, seeds or pre-recorded commands.
 
 ## Public reference videos
 
-These recordings show the reference agent on the public configurations using the standard simulator visualizer: planets are brown, moving asteroids are green and the spaceship is blue. They illustrate one possible behaviour; reproducing the same trajectory is not required.
+These recordings show the reference agent on the public configurations, with executed and planned trajectories, disturbance intervals and accepted replanning events. Planets are brown, moving asteroids are green and the spaceship is blue. They illustrate one possible behaviour; reproducing the same trajectory is not required.
 
-### Public 1 — Static target
+### Public 1 — Static target around one planet
 
 The reference run avoids the planet and reaches the static target pose and velocity without a collision.
 

@@ -7,10 +7,10 @@ from dg_commons.sim.agents import Agent
 from dg_commons.sim.goals import PlanningGoal
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.models.obstacles_dyn import DynObstacleState
-from dg_commons.sim.models.satellite import SatelliteCommands, SatelliteState
-from dg_commons.sim.models.satellite_structures import SatelliteGeometry, SatelliteParameters
+from dg_commons.sim.models.spaceship import SpaceshipCommands, SpaceshipState
+from dg_commons.sim.models.spaceship_structures import SpaceshipGeometry, SpaceshipParameters
 
-from pdm4ar.exercises.ex13.planner import SatellitePlanner
+from pdm4ar.exercises.ex13.planner import SpaceshipPlanner
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
 from pdm4ar.exercises_def.ex13.utils_params import PlanetParams, AsteroidParams
 from pdm4ar.exercises_def.ex13.utils_plot import plot_traj
@@ -18,7 +18,7 @@ from pdm4ar.exercises_def.ex13.utils_plot import plot_traj
 
 # HINT: as a good practice we suggest to use the config class to centralise activation of the debugging options
 class Config:
-    PLOT = True
+    PLOT = False  # Optional planned/actual trajectory debugging (adds runtime).
     VERBOSE = False
 
 
@@ -31,7 +31,7 @@ class MyAgentParams:
     my_tol: float = 0.1
 
 
-class SatelliteAgent(Agent):
+class SpaceshipAgent(Agent):
     # How does it enter in the simulation? The SpaceshipAgent object is created as value
     # corresponding to key "PDM4ARSpaceship" in dict "players", which is an attribute of
     # SimContext returned by "sim_context_from_yaml" in utils_config.py
@@ -41,30 +41,30 @@ class SatelliteAgent(Agent):
     Do *NOT* modify the naming of the existing methods and input/output types.
     """
 
-    init_state: SatelliteState
+    init_state: SpaceshipState
     planets: dict[PlayerName, PlanetParams]
     asteroids: dict[PlayerName, AsteroidParams]
     goal_state: DynObstacleState
 
-    cmds_plan: DgSampledSequence[SatelliteCommands]
-    state_traj: DgSampledSequence[SatelliteState]
+    cmds_plan: DgSampledSequence[SpaceshipCommands]
+    state_traj: DgSampledSequence[SpaceshipState]
     myname: PlayerName
-    planner: SatellitePlanner
+    planner: SpaceshipPlanner
     goal: PlanningGoal
     static_obstacles: Sequence[StaticObstacle]
-    sg: SatelliteGeometry
-    sp: SatelliteParameters
+    sg: SpaceshipGeometry
+    sp: SpaceshipParameters
 
     def __init__(
         self,
-        init_state: SatelliteState,
+        init_state: SpaceshipState,
         planets: dict[PlayerName, PlanetParams],
         asteroids: dict[PlayerName, AsteroidParams],
     ):
         """
         Initializes the agent.
         This method is called by the simulator only before the beginning of each simulation.
-        Provides the SatelliteAgent with information about its environment, i.e. planet and satellite parameters and its initial position.
+        Provides the SpaceshipAgent with information about its environment, i.e. planet and spaceship parameters and its initial position.
         """
         self.actual_trajectory = []
         self.init_state = init_state
@@ -83,17 +83,15 @@ class SatelliteAgent(Agent):
         self.myname = init_sim_obs.my_name
         self.sg = init_sim_obs.model_geometry
         self.sp = init_sim_obs.model_params
-        self.planner = SatellitePlanner(planets=self.planets, asteroids=self.asteroids, sg=self.sg, sp=self.sp)
+        self.planner = SpaceshipPlanner(planets=self.planets, asteroids=self.asteroids, sg=self.sg, sp=self.sp)
         assert isinstance(init_sim_obs.goal, SpaceshipTarget | DockingTarget)
         # make sure you consider both types of goals accordingly
         # (Docking is a subclass of SpaceshipTarget and may require special handling
         # to take into account the docking structure)
         self.goal_state = init_sim_obs.goal.target
 
-        # Plot docking station (this is optional, for better visualization)
-        if Config.PLOT and isinstance(init_sim_obs.goal, DockingTarget):
-            A, B, C, A1, A2, half_p_angle = init_sim_obs.goal.get_landing_constraint_points()
-            init_sim_obs.goal.plot_landing_points(A, B, C, A1, A2)
+        # Dock geometry and map boundaries are available via init_sim_obs.goal
+        # and init_sim_obs.dg_scenario.static_obstacles. Pass them to your planner.
 
         #
         # TODO: Implement Compute Initial Trajectory
@@ -101,7 +99,7 @@ class SatelliteAgent(Agent):
 
         self.cmds_plan, self.state_traj = self.planner.compute_trajectory(self.init_state, self.goal_state)
 
-    def get_commands(self, sim_obs: SimObservations) -> SatelliteCommands:
+    def get_commands(self, sim_obs: SimObservations) -> SpaceshipCommands:
         """
         This method is called by the simulator at every simulation time step. (0.1 sec)
         We suggest to perform two tasks here:
@@ -132,6 +130,6 @@ class SatelliteAgent(Agent):
         # FirstOrderHold
         cmds = self.cmds_plan.at_interp(sim_obs.time)
 
-        return SatelliteCommands(
-            F_left=1, F_right=1
-        )  # can be replaced by SatelliteCommands(F_left=1, F_right=1) if you want to test constant commands
+        # TODO: Track the plan in closed loop and replan when needed.
+        # The unimplemented planner supplies zero commands so the template runs.
+        return cmds
