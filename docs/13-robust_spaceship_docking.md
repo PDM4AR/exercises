@@ -6,6 +6,8 @@ Guide a spaceship to a target position, heading and velocity while avoiding plan
 
 Implement the planning and control agent in `src/pdm4ar/exercises/ex13/`. Compute a feasible trajectory from the supplied state to the goal, then use simulator observations to follow it and correct deviations.
 
+<img src="img/simulator_agent.png" alt="The simulator sends observations to the agent, which returns actuation commands" width="800">
+
 The template includes a **successive convexification (SCvx)** skeleton. You may use another planning method. Preserve the `SpaceshipAgent` class name and the simulator interface.
 
 ## Code structure
@@ -78,6 +80,8 @@ In the first case, navigate around a planet and reach the target position with t
   <source src="img/ex13_public_1.mp4" type="video/mp4">
 </video>
 
+<img src="img/ex13_public_1.gif" alt="Public 1: reaching a target position and orientation" width="800" style="display: none;">
+
 ### 2. Enter a dock
 
 The second case introduces docking. A dock consists of a base and two arms around the target pose. All three segments are physical obstacles. Enter through the open side and reach the target pose without any part of the spaceship touching the structure.
@@ -93,6 +97,8 @@ In this case, you must navigate between the planets and land safely inside the d
 <video controls controlslist="nodownload" preload="metadata" width="800" style="max-width: 100%; height: auto;" poster="img/ex13_public_2.png" aria-label="Public 2: entering a dock">
   <source src="img/ex13_public_2.mp4" type="video/mp4">
 </video>
+
+<img src="img/ex13_public_2.gif" alt="Public 2: entering a dock" width="800" style="display: none;">
 
 ### 3. Dock with moving obstacles and a disturbance
 
@@ -122,6 +128,8 @@ The spaceship is **red during the disturbance** in the video and blue otherwise.
 <video controls controlslist="nodownload" preload="metadata" width="800" style="max-width: 100%; height: auto;" poster="img/ex13_public_3.png" aria-label="Public 3: docking with moving asteroids; the spaceship turns red during the disturbance from 2.5 to 5 seconds">
   <source src="img/ex13_public_3.mp4" type="video/mp4">
 </video>
+
+<img src="img/ex13_public_3.gif" alt="Public 3: docking with moving asteroids; the spaceship is red during the disturbance" width="800" style="display: none;">
 
 ## Successive convexification
 
