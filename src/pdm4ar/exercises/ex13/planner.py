@@ -144,6 +144,15 @@ class SpaceshipPlanner:
             update stopping criterion
         """
 
+        self._convexification()
+        try:
+            error = self.problem.solve(verbose=self.params.verbose_solver, solver=self.params.solver)
+        except cvx.SolverError:
+            print(f"SolverError: {self.params.solver} failed to solve the problem.")
+
+        # Example data: sequence from array
+        # mycmds, mystates = self._extract_seq_from_array(timestamps, X, U)
+
         # Runnable placeholder, not a planning solution. Replace it with the
         # SCvx loop above (or another planner) using the helper methods below.
         # The stationary reference keeps state dimensions/mass well-defined.
