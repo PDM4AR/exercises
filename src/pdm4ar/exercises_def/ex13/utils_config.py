@@ -1,5 +1,4 @@
 from decimal import Decimal as D
-from math import cos, sin, pi
 from typing import Any
 from copy import deepcopy
 
@@ -17,13 +16,13 @@ from dg_commons.sim.models.obstacles_dyn import (
     DynObstacleState,
     DynObstacleCommands,
 )
-from dg_commons.sim.models.satellite import SatelliteState, SatelliteModel
+from dg_commons.sim.models.spaceship import SpaceshipState
 from dg_commons.sim.scenarios.structures import DgScenario
 from dg_commons.sim.simulator import SimContext
-from numpy import arctan2
 from shapely import LineString, Point
 from shapely.geometry.base import BaseGeometry
 
+from pdm4ar.exercises_def.ex13.disturbance import spaceship_model_from_config
 from pdm4ar.exercises_def.ex13.goal import SpaceshipTarget, DockingTarget
 from pdm4ar.exercises_def.ex13.utils_params import AsteroidParams, PlanetParams
 
@@ -39,11 +38,9 @@ def _parse_planets(
 ) -> tuple[
     list[BaseGeometry],
     dict[PlayerName, PlanetParams],
-    dict[PlayerName, NPAgent],
 ]:
     planets = []
     planet_params = {}
-    satellites_players = {}
 
     for pn, p in c["planets"].items():
         planet = Point(p["center"]).buffer(p["radius"])
@@ -55,7 +52,7 @@ def _parse_planets(
 
         planets.append(planet)
 
-    return planets, planet_params, satellites_players
+    return planets, planet_params
 
 
 def _parse_asteroid(
@@ -66,11 +63,11 @@ def _parse_asteroid(
         s = Point(start)
         v = Point(velocity)
 
-        satellite_1 = DynObstacleState(x=s.x, y=s.y, psi=orientation, vx=v.x, vy=v.y, dpsi=0)
-        satellite_1_shape = Point(0, 0).buffer(radius)
+        asteroid_state = DynObstacleState(x=s.x, y=s.y, psi=orientation, vx=v.x, vy=v.y, dpsi=0)
+        asteroid_shape = Point(0, 0).buffer(radius)
         dyn_obstacle = DynObstacleModel(
-            satellite_1,
-            shape=satellite_1_shape,
+            asteroid_state,
+            shape=asteroid_shape,
             og=ObstacleGeometry(m=500, Iz=50, e=0.5),
             op=DynObstacleParameters(vx_limits=(-100, 100), acc_limits=(-10, 10)),
             tag="asteroid",
@@ -105,22 +102,22 @@ def _parse_asteroid(
 
 
 def sim_context_from_yaml(file_path: str):
-    from pdm4ar.exercises.ex13.agent import SatelliteAgent
+    """Load scenario geometry, agent and optional dynamics disturbance from its YAML."""
+    from pdm4ar.exercises.ex13.agent import SpaceshipAgent
 
     config = _load_config(file_path=file_path)
 
-    # Spaceship new
+    # Initial spaceship state
     assert len(config["agents"].keys()) == 1, "Only one player today"
     name = list(config["agents"])[0]
     playername = PlayerName(name)
-    x0 = SatelliteState(**config["agents"][name]["state"])
+    x0 = SpaceshipState(**config["agents"][name]["state"])
 
-    # obstacles (planets + satellites)
+    # Static planets and moving asteroids
     if "planets" in config:
-        planets, planets_params, satellites_npagents = _parse_planets(config)
+        planets, planets_params = _parse_planets(config)
     else:
         planets, planets_params = [], {}
-        satellites_npagents = {}
 
     if "asteroids" in config:
         asteroids, asteroids_params, asteroids_npagents = _parse_asteroid(config["asteroids"])
@@ -155,7 +152,8 @@ def sim_context_from_yaml(file_path: str):
             arms_length=conf_goal["arms_length"],
             offset=conf_goal["offset"],
         )
-        landing_shape = goal.get_landing_base()
+        # Use the complete visible dock so both arms participate in collisions.
+        landing_shape = goal.get_plottable_geometry()
         obsgeo = ObstacleGeometry.default_static(color="blue")
         static_obstacles += [StaticObstacle(shape=landing_shape, geometry=obsgeo)]
     else:
@@ -163,21 +161,19 @@ def sim_context_from_yaml(file_path: str):
     missions = {playername: goal}
 
     # models & players
-    initstate = SatelliteState(**config["agents"][name]["state"])
+    initstate = SpaceshipState(**config["agents"][name]["state"])
     players = {
-        playername: SatelliteAgent(
+        playername: SpaceshipAgent(
             init_state=deepcopy(initstate),
             planets=deepcopy(planets_params),
             asteroids=deepcopy(asteroids_params),
         )
     }
 
-    # Dynamic obstacles (satellites + asteroids) added to models (as obstacles) and players(their names)
-    models = {playername: SatelliteModel.default(x0)}
+    # Spaceship dynamics, including the optional disturbance from this YAML.
+    models = {playername: spaceship_model_from_config(x0, config)}
 
-    for p, sagent in satellites_npagents.items():
-        players[p] = sagent  # sagent is dg_commons.sim.agents.NPAgent object
-
+    # Add moving asteroids and their constant-command agents.
     for a, s in asteroids.items():
         models[a] = s  # s is dg_commons.sim.models.obstacles_dyn.DynObstacleModel object
 
@@ -185,7 +181,7 @@ def sim_context_from_yaml(file_path: str):
         players[a] = aagent  # aagent is dg_commons.sim.agents.NPAgent object
 
     return SimContext(
-        dg_scenario=DgScenario(static_obstacles=static_obstacles),  # need satellites
+        dg_scenario=DgScenario(static_obstacles=static_obstacles),  # planets, boundary and dock
         models=models,
         players=players,
         missions=missions,

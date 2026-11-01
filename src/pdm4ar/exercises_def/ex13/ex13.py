@@ -7,7 +7,7 @@ import yaml
 from dg_commons import fd
 from dg_commons.sim.log_visualisation import plot_player_log
 from dg_commons.sim.simulator import SimContext
-from dg_commons.sim.simulator_animation import create_animation
+from pdm4ar.exercises_def.ex13.visualization import create_diagnostic_animation
 from dg_commons.sim.utils import run_simulation
 from reprep import MIME_MP4, Report
 from collections import defaultdict
@@ -49,14 +49,7 @@ def _ex13_vis(sim_context: SimContext) -> Report:
     r = Report("EpisodeVisualisation")
     gif_viz = r.figure(cols=1)
     with gif_viz.data_file("Animation", MIME_MP4) as fn:
-        create_animation(
-            file_path=fn,
-            sim_context=sim_context,
-            figsize=(16, 16),
-            dt=50,
-            dpi=120,
-            plot_limits=[[-12, 27], [-12, 12]],  # plot_limits = [horizontal, vertical]
-        )
+        create_diagnostic_animation(fn, sim_context)
     # state/commands plots
     for pn in sim_context.log.keys():
         if "PDM4AR" not in pn:
