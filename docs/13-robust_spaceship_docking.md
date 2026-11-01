@@ -49,11 +49,11 @@ The nominal dynamics in physical time $t$ are:
 \dot{v}_y &= \frac{T}{m}\sin\delta - \omega v_x, \\
 \dot{\omega} &= -\frac{l_r}{I_z}T\sin\delta, \\
 \dot{\delta} &= u_\delta, \\
-\dot{m} &= -C_T T.
+\dot{m} &= -C_T\,\lvert T\rvert.
 \end{aligned}
 ```
 
-$l_r$ is the distance from the centre of mass to the rear thruster, $I_z$ is the moment of inertia, and $C_T$ is the coefficient in the mass-change equation. Use `sg.l_r`, `sg.Iz` and `sp.C_T` for these parameters. The terms $\omega v_y$ and $-\omega v_x$ arise because velocity is expressed in the rotating body frame.
+$l_r$ is the distance from the centre of mass to the rear thruster, $I_z$ is the moment of inertia, and $C_T$ is the coefficient in the mass-change equation; fuel is consumed for both positive and negative thrust. Use `sg.l_r`, `sg.Iz` and `sp.C_T` for these parameters. The terms $\omega v_y$ and $-\omega v_x$ arise because velocity is expressed in the rotating body frame.
 
 ### Implementing the dynamics
 
@@ -66,7 +66,7 @@ The discretizer uses normalized time $\tau = t/t_f \in [0,1]$, with final time $
 \qquad \text{where } \frac{dX}{dt} = f(X,U).
 ```
 
-After implementing the equations, enable `SolverParameters.check_dynamics` to compare your model with the simulator. The nominal model and physical limits are defined by `SpaceshipModel`, `SpaceshipGeometry` and `SpaceshipParameters` in `dg_commons/sim/models/spaceship.py` and `spaceship_structures.py`.
+After implementing the equations, enable `SolverParameters.check_dynamics` to compare your model with the simulator. The nominal model and physical limits are defined by `SpaceshipModel`, `SpaceshipGeometry` and `SpaceshipParameters` in `dg_commons/sim/models/spaceship.py` and `spaceship_structures.py`; `FuelSpaceshipModel` in `src/pdm4ar/exercises_def/ex13/disturbance.py` changes only the mass equation to use $\lvert T\rvert$.
 
 ## Public cases
 

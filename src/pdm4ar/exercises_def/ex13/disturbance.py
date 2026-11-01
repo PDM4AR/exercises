@@ -26,7 +26,20 @@ class DynamicsDisturbanceParams:
             raise ValueError("Disturbance standard deviations must be non-negative.")
 
 
-class DisturbedSpaceshipModel(SpaceshipModel):
+class FuelSpaceshipModel(SpaceshipModel):
+    """dg-commons spaceship whose mass decreases with |thrust| (fuel is used in both directions)."""
+
+    @classmethod
+    def default(cls, x0: SpaceshipState):
+        return cls(x0=x0, rg=SpaceshipGeometry.default(), sp=SpaceshipParameters.default())
+
+    def dynamics(self, x0: SpaceshipState, u: SpaceshipCommands) -> SpaceshipState:
+        derivative = super().dynamics(x0=x0, u=u)
+        # dg-commons uses dm = -C_T * thrust; negative thrust must not add mass.
+        return replace(derivative, m=-abs(derivative.m))
+
+
+class DisturbedSpaceshipModel(FuelSpaceshipModel):
     """Spaceship model with a reproducible, time-limited world-frame acceleration.
 
     The disturbance is sampled once when the model is created and is held
@@ -107,7 +120,7 @@ def spaceship_model_from_config(x0: SpaceshipState, config: Mapping[str, Any]) -
     """
     disturbance_config = config.get("dynamics_disturbance")
     if disturbance_config is None:
-        return SpaceshipModel.default(x0)
+        return FuelSpaceshipModel.default(x0)
 
     disturbance = DynamicsDisturbanceParams(
         start_time=float(disturbance_config["start_time"]),

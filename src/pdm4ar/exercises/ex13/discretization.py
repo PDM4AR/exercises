@@ -4,7 +4,8 @@ from numpy.typing import NDArray
 from scipy.integrate import odeint
 
 from pdm4ar.exercises.ex13.spaceship import SpaceshipDyn
-from dg_commons.sim.models.spaceship import SpaceshipModel, SpaceshipState, SpaceshipCommands
+from dg_commons.sim.models.spaceship import SpaceshipState, SpaceshipCommands
+from pdm4ar.exercises_def.ex13.disturbance import FuelSpaceshipModel
 
 
 class DiscretizationMethod:
@@ -94,7 +95,7 @@ class DiscretizationMethod:
         )
         for state, command, final_time in samples:
             parameters = np.array([final_time])
-            model = SpaceshipModel(state, self.spaceship.sg, self.spaceship.sp)
+            model = FuelSpaceshipModel(state, self.spaceship.sg, self.spaceship.sp)
             expected = final_time * model.dynamics(state, command).as_ndarray()
             actual = np.asarray(self.f(state.as_ndarray(), command.as_ndarray(), parameters), dtype=float).reshape(-1)
             if not np.allclose(actual, expected, rtol=1e-7, atol=1e-9):
