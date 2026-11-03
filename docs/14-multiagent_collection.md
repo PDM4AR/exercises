@@ -1,7 +1,7 @@
 # Multi-agent Goal Collection [Final '25]
 
 ## Problem description
-Your task is to implement a planning and control system for a fleet of differential drive robots. The robots must autonomously navigate a warehouse environment to collect goals and deliver them to designated collection points. Robots automatically pick up a goal when they reach a close proximity and deposit it upon entering the collection area. Each robot has a scenario-defined carrying capacity. A robot automatically unloads its complete inventory when it enters a collection point.
+Your task is to implement a planning and control system for a fleet of differential drive robots. The robots navigate the environment, collect goals, and deliver them to any collection point. Pickups and deliveries are triggered when the robot's reference point `(x, y)` lies strictly inside the corresponding polygon; overlap of the robot's footprint alone is not sufficient. Each robot has a scenario-defined carrying capacity and automatically unloads its complete inventory at a collection point.
 
 To test your agent, you are provided with a simulation environment. The environment provides observations to each agent at each time step and expects control commands in return. Additionally, an one-time global planning phase occurs before the simulation starts, allowing you to coordinate all agents to maximize overall efficiency.
 
@@ -16,7 +16,7 @@ You can find all `TODOs` for this exercise in `src/pdm4ar/exercises/ex14/agent.p
 
 ### 1. One-time Global Planning
 
-To develop your own global planner, implement the `Pdm4arGlobalPlanner.send_plan(...)` method. The method receives an `InitSimGlobalObservations` object and generates a serialized global plan in `str` type, which will be broadcasted to all agents. You can encode any information you want into this global plan.
+To develop your own global planner, implement the `Pdm4arGlobalPlanner.send_plan(...)` method. The method receives an `Ex14InitSimGlobalObservations` object and generates a serialized global plan in `str` type, which will be broadcast to all agents. You can encode any information you want into this global plan.
 
 Every agent exposes an `Pdm4arAgent.on_receive_global_plan(...)` callback which is called when the global plan is received. You can use this callback to parse the received global plan and initialize your agent's internal states.
 
@@ -34,6 +34,8 @@ To help to define and serialize/deserialize structured message (i.e., the global
 - The carrying capacity of each robot in `agent_capacities`
 - All map information (boundaries and static obstacles)
 
+The global planner also receives each robot's model geometry and parameters through `players_obs`. Include capacities, goal values, ownership, and collection-point information in the broadcast if the agents need them: these are not all present in the per-step sensor observations.
+
 `src/pdm4ar/exercises/ex14/agent.py::GlobalPlanMessage` is an example `Pydantic` model for defining a structured global plan message. You can modify it or create your own structure as needed.
 
 ### 2. Agent Control
@@ -50,7 +52,7 @@ After the global planning phase, the simulation starts. Each robot is controlled
 2. **Overriding `on_receive_global_plan(serialized_msg: str)`**: This method receives the string returned by the global planner's `send_plan(...)` method. You can deserialize it here and store the information for use during execution.
 
 3. **Overriding `get_commands(sim_obs: Ex14SimObservations) -> DiffDriveCommands`**: This method is called every `dt_commands` seconds (0.1s by default) and must return control commands. `Ex14SimObservations` extends the base `dg_commons` observation with:
-   - `players`: A mapping of player names to `PlayerObservations` objects, which contain:
+   - `players`: A mapping of player names to `Ex14PlayerObservations` objects, which contain:
      - `state`: The player's current state (e.g., `DiffDriveState`)
      - `occupancy`: The player's footprint polygon
      - `collected_goal_ids`: The IDs of the goals currently carried by this player
@@ -58,12 +60,12 @@ After the global planning phase, the simulation starts. Each robot is controlled
    - `available_goals`: A mapping of goal IDs to `SharedGoalObservation` objects (only includes goals not yet collected), each containing:
      - `occupancy`: The goal's polygon footprint
 
-:warning: Only players and available goals within the sensor range and line-of-sight are included in `SimObservations` (see [Observations and Sensors](#obs-sensor) below for details).
+:warning: Your own player observation is always included. Other players and available goals are filtered by sensor range and line of sight (see [Observations and Sensors](#obs-sensor)).
 
 #### Simulation loop
 At the beginning of the simulation, the method `on_episode_init` is called for each agent.
 
-The simulation then enters a loop, where at each timestep the simulator calls the `get_commands` method of each agent.
+After initialization and the one-time global-plan broadcast, the simulation advances in 0.01 s steps. It calls `get_commands` every 0.1 s for each robot that has not been disabled, holding the latest command between calls.
 The method `get_commands` receives the latest "sensed" observations and is expected to return control commands.
 
 ![sim2agent](https://user-images.githubusercontent.com/18750753/144580159-d4d29506-03b2-49b9-b4b8-3cde701cc7d4.png)
@@ -76,7 +78,7 @@ Another robot or goal in the gray (occluded) area would not be visible to the ag
 
 ![image](https://user-images.githubusercontent.com/18750753/207558372-afd91da4-4e0d-47a0-ae54-eb6dc7e013f4.png)
 
-The available observations in `sim_obs.players` will only include robots within sensor range and line-of-sight. Similarly, `sim_obs.available_goals` will only include goals that are:
+In addition to the agent's own observation, `sim_obs.players` includes other robots whose footprints intersect its visible sensor area. Similarly, `sim_obs.available_goals` only includes goals that are:
 - Not yet collected by any agent
 - Within sensor range and line-of-sight
 
@@ -84,13 +86,13 @@ The available observations in `sim_obs.players` will only include robots within 
 
 ### Rules and Mechanics
 
-1. **No communication after global planning**: After the initial global planning phase, each robot operates independently based on its local observations and the pre-computed global plan. **No further communication or coordination between robots is allowed (No global variables, no shared memory, no inter-agent messaging, no file sharing, etc.).**
+1. **No communication after global planning**: After the initial global planning phase, each robot operates independently based on its local observations and the pre-computed global plan. **No further explicit communication between robots is allowed (no shared global state, shared memory, inter-agent messaging, file sharing, etc.).**
 
 2. **Automatic goal collection**: When a robot with spare capacity enters a goal's polygon, it automatically picks up that goal. This is handled by the `SharedPolygonGoalsManager` in the simulator.
 
 3. **Automatic goal delivery**: When a robot with a non-empty inventory enters a collection point's polygon, it automatically drops off every carried goal. This is also handled by the `SharedPolygonGoalsManager`.
 
-4. **Varying capacity**: Each robot's capacity is defined by the scenario and is available to the global planner through `agent_capacities`.
+4. **Varying capacity**: Each robot's capacity is defined by its scenario `capacity` field (default: 1) and is available to the global planner through `agent_capacities`. Carried goals remain in that robot's inventory until delivery.
 
 5. **Goal ownership**: A goal may have an `assigned_robot`. Any robot can collect and deliver it, but it counts only when the assigned robot delivers it. If another robot delivers it, the goal earns neither the delivery reward nor its revenue, and the task counts as not accomplished, so the early completion bonus is lost. Goals without an assignment count for any robot.
 
@@ -98,17 +100,19 @@ The available observations in `sim_obs.players` will only include robots within 
    ```python
    revenue_i = value_i * max(0.2, 1.0 - t_i / max_sim_time)
    ```
-   where `t_i` is the delivery time and `max_sim_time` is 60 s. A late delivery still earns at least 20% of the goal's value, while a goal that is never delivered earns nothing. The order in which the goals are delivered therefore matters: delivering valuable goals early pays off.
+   where `t_i` is the delivery time and `max_sim_time` is 60 s. A late delivery still earns at least 20% of the goal's value, while a goal that is never delivered earns nothing. The order in which the goals are delivered therefore matters: delivering valuable goals early 
 
-7. **Disable after collision**: If a robot collides with an obstacle (static or another robot), it is considered "disabled" and can no longer move or collect/deliver goals for the remainder of the simulation.
+7. **Disable after collision**: A robot that collides with a static obstacle or another robot is disabled: subsequent wheel commands cannot move it, and it remains an obstacle for other robots. The simulator stops requesting commands from disabled robots.
 
 8. **Decentralized execution**: Each agent instance runs the same policy you design, acting only on local observations without direct communication.
 
 ### Termination Conditions
 The *simulation terminates* upon one of the following cases:
-- **Success**: All goals have been collected and delivered to collection points
-- **Timeout**: The maximum simulation time (`max_sim_time`) is reached
+- **Physical completion**: All goals have been collected and delivered to collection points
+- **Timeout**: Simulation time exceeds `max_sim_time` (60 s)
 - **All agents collided**: All robots have collided and are disabled
+
+Physical completion does not check goal ownership. A goal delivered by the wrong robot can therefore end the simulation while still receiving no revenue or reward.
 
 ### Differential drive model
 The robot is a differential drive robot modeled according to the one seen in `Lecture 4: Steering`.
@@ -129,6 +133,8 @@ Note that the simulator will enforce the following constraints:
 
 If the actuation limits are violated, the simulator will simply clip the value to the limits. However, the actuation effort penalty will still be computed based on the original command values you provided. See [Performance Criteria and Scoring](#performance-criteria-and-scoring) below for details.
 
+The scenario builder uses wheel limits of ±10 rad/s, giving a maximum straight-line speed of 2 m/s. Commands specify wheel velocities directly.
+
 ## Performance Criteria and Scoring
 {:#performance-criteria-and-scoring}
 
@@ -146,13 +152,13 @@ For each player, the following metrics are tracked:
 ### Overall Metrics (`AllPlayerMetrics`)
 The overall performance combines all players' metrics:
 - **`num_collided_players`**: Total number of players that crashed
-- **`num_goals_delivered`**: Total number of goals delivered by all players
-- **`total_revenue`**: Sum of the time-dependent revenues of all delivered goals (see [Goal values](#rules-and-mechanics))
+- **`num_goals_delivered`**: Total number of deliveries by all players, excluding goals delivered by the wrong robot
+- **`total_revenue`**: Sum of the time-dependent revenues of those deliveries (see [Goal values](#rules-and-mechanics))
 - **`total_travelled_distance`**: Sum of distances traveled by all players
 - **`max_sim_time`**: Maximum simulation time allowed
-- **`task_accomplishment_time`**: Total time taken to deliver all goals (time when last goal was delivered). It equals `max_sim_time` if any goal is not delivered or is delivered by a robot it is not assigned to
+- **`task_accomplishment_time`**: Total time taken to deliver all goals (time when last goal was delivered). It equals `max_sim_time` if any goal is not delivered
 - **`total_actuation_effort`**: Sum of actuation efforts of all players
-- **`avg_computation_time`**: Average computation time across all players (per `get_commands` call)
+- **`avg_computation_time`**: Arithmetic mean of the per-player average `get_commands` wall-clock times
 - **`global_planning_time`**: Total time spent on global planning (execution time of `send_plan` method)
 
 ### Score Function
@@ -170,26 +176,20 @@ score -= max(0.0, global_planning_time - 60) * 10
 ```
 
 **Key takeaways**:
-- **Primary objective**: Maximize the revenue of the delivered goals. Each delivery earns a flat 100 points plus its time-decayed value, so a valuable goal delivered early is worth about twice a cheap one delivered late
-- **Critical penalty**: Avoid collisions (500 point penalty per collision)
-- **Plan the order**: Revenue decays with delivery time, so deliver high-value goals first.
-- **Respect assignments**: A goal delivered by a robot it is not assigned to earns nothing and cancels the early completion bonus.
-- **Early completion bonus**: Finish the whole task faster to earn bonus points (10 points per second saved)
+- **Objective**: Maximize the complete score. Each correct delivery earns 100 points plus revenue; completing every goal also unlocks the time bonus. Revenue alone is not the objective.
+- **Collision penalty**: 500 point penalty per collided robot. Avoid collisions!
+- **Plan the order**: Earlier delivery of valuable goals increases revenue, so plan accordingly
+- **Respect assignments**: A goal delivered by a robot it is not assigned to earns nothing.
+- **Early completion bonus**: Deliver every goal with the correct robot to earn 10 points per second saved. If even one goal is missing completion time is 60 s and the bonus is zero
 - **Efficiency matters**:
   - Minimize travel distance (0.5 point penalty per unit distance - highest weight among efficiency metrics)
   - Minimize actuation effort (0.01 point penalty per unit effort)
-- **Computation time budget**: Keep `get_commands` execution time under the control rate (0.1s). Penalty of 100 points per second over budget.
+- **Computation time budget**: The penalty is `100 * max(0, avg_computation_time - 0.1)`. It applies to the mean defined above, not separately to every slow call. 
 - **Global planning budget**: Keep global planning under 60 seconds (10 point penalty per second over budget). But sometimes spending more time here can be worth it if it leads to better overall performance.
 - **Higher scores are better**
 
 ### Reference Scores
-We provide the scores of the private test cases using our baseline implementation below for your reference:
-
-| Test Case        | Reference Score |
-| ---------------- | --------------- |
-| config_1_private | 489.43          |
-| config_2_private | 904.30          |
-| config_3_private | 1255.45         |
+TO BE GENERATED
 
 ## Test cases
 The test cases on the server differ from the ones provided locally only by configuration parameters (number of robots, number of goals, map layout, etc.). Your solution should be general enough to handle different scenarios. But don't be worried, the topology of the environment will remain similar to the ones provided in the local tests.
@@ -230,7 +230,7 @@ Note that running your agent in closed loop might not be the best way to build e
 To avoid hard-coded solutions, we will test your submissions on different instances of the environment. You can make sure that your solution can deal with different instances by changing the parameters in the config files or by creating new ones in the folder `exercises_def/ex14/*`. If you create new configs, make sure to add them to the `exercises_def/ex14/ex14.py` file in the appropriate method.
 
 **Test faster**:
-To speed up testing, you can reduce the animation resolution or disable visualization during development. Check the configuration parameters in `exercises_def/ex14/ex14.py`.
+The standard student runner renders an animation after each simulation. Its rendering parameters are in `exercises_def/ex14/ex14.py::_ex14_vis`. Animation rendering is separate from scoring and is not part of `global_planning_time` or the per-command computation metric.
 
 **Use the global planner wisely**:
 The one-time global planning phase is powerful. Consider:
@@ -245,7 +245,7 @@ While static obstacles are known in advance, other robots are dynamic obstacles.
 - Implement local collision avoidance
 
 **Monitor goal availability**:
-The `sim_obs.available_goals` dictionary only includes goals that haven't been collected yet. If a goal you were planning to collect disappears from this dictionary, it means another robot collected it first. Your agent should be able to adapt and select a different goal.
+The `sim_obs.available_goals` dictionary only includes uncollected goals currently visible to the sensor. A goal can disappear because it was collected, left sensor range, or became occluded. Keep the global plan's goal information and track observed pickup/inventory events. The agent's own `collected_goal_ids` tuple is always available in its player observation.
 
 **Debug using observations**:
 You can return extra information for visualization using the `on_get_extra()` method in your agent. This information can be visualized in the report.

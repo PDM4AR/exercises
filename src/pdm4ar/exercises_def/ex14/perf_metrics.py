@@ -137,16 +137,14 @@ def ex14_metrics(sim_context: SimContext) -> Tuple[AllPlayerMetrics, List[Player
         )
         agents_perf.append(pm)
 
-    task_accomplishment_time = 0
-    for goal_id in goal_manager.all_goals.keys():
-        goal = goal_manager.all_goals[goal_id]
-        # a goal delivered by the wrong robot leaves the task unaccomplished
-        wrong_robot = getattr(goal, "assigned_robot", None) not in (None, goal.collected_by)
-        if goal.delivery_time is None or wrong_robot:
-            task_accomplishment_time = max_sim_time
-            break
-        else:
-            task_accomplishment_time = max(task_accomplishment_time, goal_manager.all_goals[goal_id].delivery_time)
+    # Physical completion is independent of ownership. Wrong-robot deliveries
+    # earn nothing above, but do not force a completed episode's clock to 60 s.
+    if any(goal.delivery_time is None for goal in goal_manager.all_goals.values()):
+        task_accomplishment_time = max_sim_time
+    elif goal_manager.all_goals:
+        task_accomplishment_time = float(sim_context.time)
+    else:
+        task_accomplishment_time = 0.0
     num_collided_players = [p.collided for p in agents_perf].count(True)
     num_goals_delivered = sum([p.num_goal_delivered for p in agents_perf])
     total_revenue = sum([p.revenue for p in agents_perf])
