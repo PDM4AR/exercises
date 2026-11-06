@@ -42,7 +42,7 @@ class SpaceshipTarget(PlanningGoal):
 
         # Create a line from the center to the calculated endpoint
         line = LineString([(self.target.x, self.target.y), (line_end_x, line_end_y)])
-        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_thickness = 0.05
         line_buffer = line.buffer(line_thickness, cap_style=2)
 
         return line_buffer
@@ -65,7 +65,7 @@ class SpaceshipTarget(PlanningGoal):
 @dataclass(frozen=True)
 class DockingTarget(SpaceshipTarget):
     # This class defines the goal dock station
-    # add_land_space together with pos_tol defines the lenght of the landing base
+    # add_land_space together with pos_tol defines the length of the landing base
     add_land_space: float
     # length of the arms
     arms_length: float
@@ -87,14 +87,14 @@ class DockingTarget(SpaceshipTarget):
         line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol + self.add_land_space) * cospsi
 
         line_dock = LineString([(line_dock_x_start, line_dock_y_start), (line_dock_x_end, line_dock_y_end)])
-        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_thickness = 0.05
         line_dock_buffer = line_dock.buffer(line_thickness, cap_style=2)
 
         # define the first arm
         line_catch_x_end = line_dock_x_start + (self.pos_tol + self.arms_length) * cospsi
         line_catch_y_end = line_dock_y_start + (self.pos_tol + self.arms_length) * sinpsi
         line_catch = LineString([(line_dock_x_start, line_dock_y_start), (line_catch_x_end, line_catch_y_end)])
-        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_thickness = 0.05
         line_catch_buffer = line_catch.buffer(line_thickness, cap_style=2)
         combined_polygon = unary_union([line_dock_buffer, line_catch_buffer])
 
@@ -102,7 +102,7 @@ class DockingTarget(SpaceshipTarget):
         line_catch_x_end = line_dock_x_end + (self.pos_tol + self.arms_length) * cospsi
         line_catch_y_end = line_dock_y_end + (self.pos_tol + self.arms_length) * sinpsi
         line_catch = LineString([(line_dock_x_end, line_dock_y_end), (line_catch_x_end, line_catch_y_end)])
-        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_thickness = 0.05
         line_catch_buffer = line_catch.buffer(line_thickness, cap_style=2)
 
         # Combine the goal shape and the line into a single geometry (using union)
@@ -121,7 +121,7 @@ class DockingTarget(SpaceshipTarget):
         line_dock_y_end = self.target.y - offset_y * sinpsi - (self.pos_tol + self.add_land_space) * cospsi
 
         line_dock = LineString([(line_dock_x_start, line_dock_y_start), (line_dock_x_end, line_dock_y_end)])
-        line_thickness = 0.05  # Adjust the thickness of the line if needed
+        line_thickness = 0.05
         line_dock_buffer = line_dock.buffer(line_thickness, cap_style=2)
         return line_dock_buffer
 

@@ -8,7 +8,7 @@ from zuper_commons.types import ZValueError
 from zuper_commons.text import remove_escapes
 
 from pdm4ar.available_exercises import available_exercises
-from pdm4ar.exercises_def.structures import Exercise, ExerciseEvaluator, out_dir
+from pdm4ar.exercises_def.structures import Exercise, ExerciseEvaluator, embed_videos, out_dir
 from pdm4ar.exercises_def import logger
 
 
@@ -39,6 +39,7 @@ def run_exercise(exercise: str, evaluation_mode=False):
 
     report_file = os.path.join(out_main, "index.html")
     report.to_html(report_file)
+    embed_videos(report_file)
     result_str = remove_escapes(str(perf))
     logger.info(f"\n<<<<<\n{result_str}\n>>>>>")
 

@@ -42,7 +42,7 @@ class SpaceshipDyn:
         # TODO: Implement nominal dynamics, scaled by final time self.p[0].
         # vx/vy are body-frame velocities; ddelta is the nozzle angular rate.
 
-        f = spy.zeros(self.n_x, 1)  # replace this line by computing the dynamics like in following example
+        f = spy.zeros(self.n_x, 1)  # replace with your dynamics, as in the example below
         "f[0] = ..."
         "f[1] = ..."
         "..."

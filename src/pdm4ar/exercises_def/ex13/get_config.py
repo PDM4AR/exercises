@@ -9,6 +9,7 @@ def get_config() -> List[str]:
         "config_1_public.yaml",
         "config_2_public.yaml",
         "config_3_public.yaml",
+        "config_4_public.yaml",
         # "config_local.yaml",
     ]
 
