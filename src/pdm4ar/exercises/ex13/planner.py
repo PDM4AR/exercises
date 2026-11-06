@@ -27,7 +27,7 @@ class SolverParameters:
     verbose_solver: bool = False  # if True, the optimization steps are shown
     max_iterations: int = 100  # max algorithm iterations
 
-    # SCVX parameters (Add paper reference)
+    # SCvx parameters
     lambda_nu: float = 1e5  # slack variable weight
     weight_p: NDArray = field(default_factory=lambda: 10 * np.array([[1.0]]).reshape((1, -1)))  # weight for final time
 
@@ -60,7 +60,7 @@ class SpaceshipPlanner:
     sp: SpaceshipParameters
     params: SolverParameters
 
-    # Simpy variables
+    # SymPy variables
     x: spy.Matrix
     u: spy.Matrix
     p: spy.Matrix
@@ -234,7 +234,7 @@ class SpaceshipPlanner:
             self.X_bar, self.U_bar, self.p_bar
         )
 
-        # HINT: be aware that the matrices returned by calculate_discretization are flattened in F order (this way affect your code later when you use them)
+        # HINT: the matrices returned by calculate_discretization are flattened in Fortran (column-major) order.
 
         self.problem_parameters["init_state"].value = self.X_bar[:, 0]
         # ...

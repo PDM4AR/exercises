@@ -134,3 +134,32 @@ def out_dir(exercise: str) -> str:
     assert os.path.isdir(repo_dir)
     out_main = os.path.join(repo_dir, "out", exercise)
     return out_main
+
+
+REPORT_CSS = """<style>
+body { max-width: 1200px; margin: 0 auto; padding: 0 16px 32px; font-family: system-ui, sans-serif; }
+h { font-family: inherit; font-size: 125%; margin: 0.6em 0 0.4em; }
+.report-node { margin-bottom: 1.5em; padding: 0.4em 0.8em; }
+.report-figure { background: none; }
+pre.report-text { background: #f5f5f5; padding: 0.6em 0.9em; border-radius: 4px; }
+img { max-width: 100%; height: auto; border: none; }
+video { display: block; margin: 0.8em 0; }
+</style>
+"""
+
+
+def embed_videos(report_file: str) -> None:
+    """reprep only links MP4 files (hidden as data nodes): turn each link into a playable video.
+
+    Also adds a light stylesheet for spacing and readability.
+    """
+    with open(report_file) as f:
+        html = f.read()
+    html = html.replace("<body>", REPORT_CSS + "<body>", 1)  # reprep writes no </head>
+    html = re.sub(
+        r'<p class="datanode"><a href="([^"]+\.mp4)">([^<]*)</a>:\s*video/mp4</p>',
+        r'<video controls preload="metadata" style="width: 100%; max-width: 1100px" src="\1" title="\2"></video>',
+        html,
+    )
+    with open(report_file, "w") as f:
+        f.write(html)
