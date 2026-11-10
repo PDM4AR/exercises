@@ -196,17 +196,21 @@ The quality of the spaceship's trajectory is evaluated based on several key fact
 
 The score is a weighted sum of the metrics mentioned above with 1000 being the maximum. Note that it is theoretically impossible to reach full score as we penalise computation time and actuation effort, which are by definition non-zero if the mission is accomplished (but can be optimized). You can find the function computing the final score in `src/pdm4ar/exercises_def/ex13/perf_metrics.py`.
 
-Your solution will be tested on the server on a total of eight test cases, two per scenario introduced above. As a reference, the TA solution receives the following score on the private test cases:
+Your solution will be tested on the server on a total of eight test cases, two per scenario introduced above. We provide the following reference scores on the private test cases:
 
-| Scenario            | Score       |
-|---------------------|-------------|
-| Average             |     871.25  |
-| Scenario 1          |     883.51  |
-| Scenario 2          |     870.10  |
-| Scenario 3          |     874.67  |
-| Scenario 4          |     856.73  |
+| Scenario   | Test case | Score  |
+|------------|-----------|--------|
+| Scenario 1 | Private 1 | 889.01 |
+|            | Private 2 | 878.06 |
+| Scenario 2 | Private 3 | 892.36 |
+|            | Private 4 | 862.31 |
+| Scenario 3 | Private 5 | 875.68 |
+|            | Private 6 | 868.49 |
+| Scenario 4 | Private 7 | 884.20 |
+|            | Private 8 | 856.79 |
+| **Average**|           | **875.86** |
 
-Use these numbers as a guideline to understand the order of magnitude of expected performance for a decently optimized solution.
+Use these numbers as a guideline for the order of magnitude of the expected performance.
 
 ## Run your implementation
 
