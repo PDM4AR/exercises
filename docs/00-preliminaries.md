@@ -61,7 +61,7 @@ Instructions on group formation are provided via Piazza.
 
 | Exercise **ID** | **Topic**                   | Evaluation **opens** | Evaluation **closes**        | **Deadline status** | Available Submissions |
 | --------------- | --------------------------- | -------------------- | ---------------------------- | ------------------- | --------------------- |
-| 13              | Satellite Docking           | 11th of November     | 1st of December (23:59 CET)  | tentative           | 10                    |
+| 13              | Spaceship Navigation and Docking           | 11th of November     | 1st of December (23:59 CET)  | confirmed           | 10                    |
 | 14              | Multi-agent Goal Collection | 2nd of December      | 22nd of December (23:59 CET) |  tentative           | 10                    |
 
 #### **Extra** exercises from previous years, not graded
