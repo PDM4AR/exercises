@@ -11,7 +11,7 @@ from shapely.affinity import rotate, translate
 from shapely.geometry import Point, Polygon, box
 from shapely.geometry.base import BaseGeometry
 
-from pdm4ar.exercises_def.ex14.goal_values import GOAL_VALUE_MAX, GOAL_VALUE_MIN, validate_goal_value
+from pdm4ar.exercises_def.ex14.simulation.goal_values import GOAL_VALUE_MAX, GOAL_VALUE_MIN, validate_goal_value
 
 DEFAULT_BOUNDARY: list[list[float]] = [
     [-11.0, -11.0],
@@ -138,7 +138,6 @@ def generate_random_config(
             other_points=placed_points + agent_positions,
         )
         agent_positions.append((location, agent_radius))
-
 
         agents[f"PDM4AR_{idx + 1}"] = {
             "state": {"x": location.x, "y": location.y, "psi": rng.uniform(-math.pi, math.pi)},
@@ -381,7 +380,7 @@ if __name__ == "__main__":
         num_goals=12,
         num_collection_points=2,
         num_obstacles=10,
-        seed=42,
+        seed=638,
         config_name="random_ex14_config",
     )
     target_path = Path(__file__).resolve().parent / "random_ex14_config.yaml"

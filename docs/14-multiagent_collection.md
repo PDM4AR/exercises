@@ -27,7 +27,7 @@ To help to define and serialize/deserialize structured message (i.e., the global
 
 #### Available Data Structures:
 
-`src/pdm4ar/exercises_def/ex14/simulator.py::Ex14InitSimGlobalObservations` extends the base `dg_commons` observation for this exercise and contains:
+`src/pdm4ar/exercises_def/ex14/simulation/simulator.py::Ex14InitSimGlobalObservations` extends the base `dg_commons` observation for this exercise and contains:
 - Initial positions of all robots
 - Locations and values of all goals (as local `ValuedSharedPolygonGoal` objects; each goal also exposes its optional `assigned_robot`)
 - Locations of all collection points (as `shared_goals.py::CollectionPoint` objects)
@@ -138,7 +138,7 @@ The scenario builder uses wheel limits of ±10 rad/s, giving a maximum straight-
 ## Performance Criteria and Scoring
 {:#performance-criteria-and-scoring}
 
-Your solution will be evaluated based on multiple criteria. The performance metrics are defined in `exercises_def/ex14/perf_metrics.py`.
+Your solution will be evaluated based on multiple criteria. The performance metrics are defined in `exercises_def/ex14/scoring/perf_metrics.py`.
 
 ### Individual Player Metrics (`PlayerMetrics`)
 For each player, the following metrics are tracked:
@@ -195,9 +195,9 @@ TO BE GENERATED
 The test cases on the server differ from the ones provided locally only by configuration parameters (number of robots, number of goals, map layout, etc.). Your solution should be general enough to handle different scenarios. But don't be worried, the topology of the environment will remain similar to the ones provided in the local tests.
 
 ### Generate new test cases
-You can create new test cases by adding new configuration files in the `exercises_def/ex14/` folder and adding them to the list of available configurations in the `exercises_def/ex14/ex14.py` file.
+You can create new test cases by adding new configuration files in the `exercises_def/ex14/test_cases/` folder and adding them to the list of available configurations in the `exercises_def/ex14/ex14.py` file.
 
-:sparkles: We provide a script to generate random configurations for this exercise at `exercises_def/ex14/random_config.py`. Feel free to modify and use it to create new test cases for your own testing.
+:sparkles: We provide a script to generate random configurations for this exercise at `exercises_def/ex14/test_cases/random_config.py`. Feel free to modify and use it to create new test cases for your own testing.
 
 ## Run the exercise
 
@@ -227,7 +227,7 @@ Note that every robot is running _"the same"_ agent that you designed. Try to le
 Note that running your agent in closed loop might not be the best way to build early prototypes. Adding custom visualization might be tedious and creating the animation might take some seconds every time. We suggest developing and testing first your agent's planning on a specific snapshot of the environment.
 
 **Test on different instances**:
-To avoid hard-coded solutions, we will test your submissions on different instances of the environment. You can make sure that your solution can deal with different instances by changing the parameters in the config files or by creating new ones in the folder `exercises_def/ex14/*`. If you create new configs, make sure to add them to the `exercises_def/ex14/ex14.py` file in the appropriate method.
+To avoid hard-coded solutions, we will test your submissions on different instances of the environment. You can make sure that your solution can deal with different instances by changing the parameters in the config files or by creating new ones in the folder `exercises_def/ex14/test_cases/`. If you create new configs, make sure to add them to the `exercises_def/ex14/ex14.py` file in the appropriate method.
 
 **Test faster**:
 The standard student runner renders an animation after each simulation. Its rendering parameters are in `exercises_def/ex14/ex14.py::_ex14_vis`. Animation rendering is separate from scoring and is not part of `global_planning_time` or the per-command computation metric.

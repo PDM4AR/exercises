@@ -16,9 +16,9 @@ from dg_commons.sim.shared_goals import CollectionPoint, SharedPolygonGoal
 from dg_commons.sim.sim_perception import FovObsFilter, ObsFilter
 from dg_commons.sim.simulator import SimContext
 from pdm4ar.exercises.ex14.agent import Pdm4arAgent, Pdm4arGlobalPlanner
-from pdm4ar.exercises_def.ex14.agent_process import AgentProcess
-from pdm4ar.exercises_def.ex14.goal_values import ValuedSharedPolygonGoal, validate_goal_value
-from pdm4ar.exercises_def.ex14.simulator import Ex14GlobalPlanner, Ex14SharedPolygonGoalsManager
+from pdm4ar.exercises_def.ex14.simulation.agent_process import AgentProcess
+from pdm4ar.exercises_def.ex14.simulation.goal_values import ValuedSharedPolygonGoal, validate_goal_value
+from pdm4ar.exercises_def.ex14.simulation.simulator import Ex14GlobalPlanner, Ex14SharedPolygonGoalsManager
 from shapely import LinearRing, Point, Polygon
 
 

@@ -12,7 +12,7 @@ from dg_commons.sim.models.diff_drive_structures import DiffDriveGeometry, DiffD
 from dg_commons.sim.models.obstacles import StaticObstacle
 from numpydantic import NDArray
 from pydantic import BaseModel
-from pdm4ar.exercises_def.ex14.simulator import Ex14InitSimGlobalObservations, Ex14SimObservations
+from pdm4ar.exercises_def.ex14.simulation.simulator import Ex14InitSimGlobalObservations, Ex14SimObservations
 
 class GlobalPlanMessage(BaseModel):
     # TODO: modify/add here the fields you need to send your global plan

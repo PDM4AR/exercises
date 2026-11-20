@@ -7,7 +7,7 @@ from dg_commons import DgSampledSequence, PlayerName, iterate_with_dt, seq_integ
 from dg_commons.sim.models.diff_drive import DiffDriveState
 from dg_commons.sim.simulator import SimContext
 from pdm4ar.exercises_def import PerformanceResults
-from pdm4ar.exercises_def.ex14.goal_values import goal_revenue
+from pdm4ar.exercises_def.ex14.simulation.goal_values import goal_revenue
 from shapely.geometry import Point, Polygon
 
 DELIVERY_REWARD: float = 100.0
