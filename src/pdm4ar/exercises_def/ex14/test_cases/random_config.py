@@ -380,7 +380,7 @@ if __name__ == "__main__":
         num_goals=12,
         num_collection_points=2,
         num_obstacles=10,
-        seed=638,
+        seed=0,
         config_name="random_ex14_config",
     )
     target_path = Path(__file__).resolve().parent / "random_ex14_config.yaml"

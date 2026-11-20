@@ -1,7 +1,7 @@
-# Multi-agent Goal Collection [Final '25]
+# Multi-agent Goal Collection [Final '26]
 
 ## Problem description
-Your task is to implement a planning and control system for a fleet of differential drive robots. The robots navigate the environment, collect goals, and deliver them to any collection point. Pickups and deliveries are triggered when the robot's reference point `(x, y)` lies strictly inside the corresponding polygon; overlap of the robot's footprint alone is not sufficient. Each robot has a scenario-defined carrying capacity and automatically unloads its complete inventory at a collection point.
+Your task is to implement a planning and control system for a fleet of differential drive robots. The robots navigate the environment, collect goals, and deliver them to any collection point. Pickups and deliveries are triggered when the robot's reference point `(x, y)` lies inside the corresponding polygon; overlap of the robot's footprint alone is not sufficient. Each robot has a scenario-defined carrying capacity and automatically unloads its complete inventory at a collection point.
 
 To test your agent, you are provided with a simulation environment. The environment provides observations to each agent at each time step and expects control commands in return. Additionally, an one-time global planning phase occurs before the simulation starts, allowing you to coordinate all agents to maximize overall efficiency.
 
