@@ -12,11 +12,13 @@ from dg_commons.sim.models.diff_drive import DiffDriveModel, DiffDriveState
 from dg_commons.sim.models.diff_drive_structures import DiffDriveGeometry, DiffDriveParameters
 from dg_commons.sim.models.obstacles import StaticObstacle
 from dg_commons.sim.scenarios import DgScenario
-from dg_commons.sim.shared_goals import CollectionPoint, SharedPolygonGoal, SharedPolygonGoalsManager
+from dg_commons.sim.shared_goals import CollectionPoint, SharedPolygonGoal
 from dg_commons.sim.sim_perception import FovObsFilter, ObsFilter
 from dg_commons.sim.simulator import SimContext
 from pdm4ar.exercises.ex14.agent import Pdm4arAgent, Pdm4arGlobalPlanner
-from pdm4ar.exercises_def.ex14.agent_process import AgentProcess
+from pdm4ar.exercises_def.ex14.simulation.agent_process import AgentProcess
+from pdm4ar.exercises_def.ex14.simulation.goal_values import ValuedSharedPolygonGoal, validate_goal_value
+from pdm4ar.exercises_def.ex14.simulation.simulator import Ex14GlobalPlanner, Ex14SharedPolygonGoalsManager
 from shapely import LinearRing, Point, Polygon
 
 
@@ -25,6 +27,8 @@ def load_config(file_path: str) -> Mapping[str, Any]:
         config: dict[str, Any] = yaml.safe_load(file)
         if "config_name" not in config:
             config["config_name"] = file_path.split("/")[-1].split(".")[0]
+        for goal_data in config.get("shared_goals", []):
+            validate_goal_value(goal_data)
     return fd(config)
 
 
@@ -44,6 +48,7 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
     # add agents
     agents_dict = config["agents"]
     players, models, missions = {}, {}, {}
+    agent_capacities: dict[PlayerName, int] = {}
     for pn, p_attr in agents_dict.items():
         x0 = DiffDriveState(**p_attr["state"])
         color = p_attr["color"]
@@ -51,6 +56,7 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
             x0=x0, vg=DiffDriveGeometry.default(color=color), vp=DiffDriveParameters.default(omega_limits=(-10, 10))
         )
         models[pn] = model
+        agent_capacities[pn] = p_attr.get("capacity", 1)
         player = AgentProcess(Pdm4arAgent)
         # player = Pdm4arAgent()
         players[pn] = player
@@ -59,7 +65,7 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
     sensors: dict[PlayerName, ObsFilter] = defaultdict(lambda: FovObsFilter(deepcopy(lidar2d)))
 
     # global planner
-    global_planner = Pdm4arGlobalPlanner()
+    global_planner = Ex14GlobalPlanner(Pdm4arGlobalPlanner(), agent_capacities)
 
     # shared goals manager (optional)
     shared_goals_manager = None
@@ -68,7 +74,12 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
         shared_goals: List[SharedPolygonGoal] = []
         for goal_data in config["shared_goals"]:
             goal_poly = Point(goal_data["center"]).buffer(goal_data["radius"])
-            shared_goal = SharedPolygonGoal(goal_id=goal_data["id"], polygon=goal_poly)
+            shared_goal = ValuedSharedPolygonGoal(
+                goal_id=goal_data["id"],
+                polygon=goal_poly,
+                value=validate_goal_value(goal_data),
+                assigned_robot=goal_data.get("assigned_robot"),
+            )
             shared_goals.append(shared_goal)
 
         # Parse collection points
@@ -79,7 +90,11 @@ def sim_context_from_config(config: Mapping[str, Any]) -> SimContext:
             collection_points.append(collection_point)
 
         # Create the manager
-        shared_goals_manager = SharedPolygonGoalsManager(shared_goals=shared_goals, collection_points=collection_points)
+        shared_goals_manager = Ex14SharedPolygonGoalsManager(
+            shared_goals=shared_goals,
+            collection_points=collection_points,
+            agent_capacities=agent_capacities,
+        )
 
     return SimContext(
         dg_scenario=DgScenario(static_obstacles=static_obstacles),

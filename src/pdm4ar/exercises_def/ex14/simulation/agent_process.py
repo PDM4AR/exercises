@@ -10,7 +10,7 @@ from typing import Any, Literal, Optional
 import cloudpickle as cp
 from dg_commons.sim.agents import Agent
 from dg_commons.sim.simulator_structures import InitSimObservations, SimObservations
-from pdm4ar.exercises_def.ex14.restricted_loads import restricted_loads
+from pdm4ar.exercises_def.ex14.simulation.restricted_loads import restricted_loads
 
 MsgOp = Literal["call", "close", "ok", "err"]
 

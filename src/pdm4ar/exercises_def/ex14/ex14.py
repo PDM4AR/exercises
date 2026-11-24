@@ -5,11 +5,12 @@ from typing import Any, List, Mapping, Tuple, Dict
 import numpy as np
 import yaml
 from dg_commons import fd
-from dg_commons.sim.simulator import SimContext, Simulator
-from dg_commons.sim.simulator_animation import create_animation
+from dg_commons.sim.simulator import SimContext
+from pdm4ar.exercises_def.ex14.simulation.animation import create_ex14_animation
 from pdm4ar.exercises_def import Exercise
-from pdm4ar.exercises_def.ex14.perf_metrics import ex14_metrics
-from pdm4ar.exercises_def.ex14.utils_config import load_config, sim_context_from_config
+from pdm4ar.exercises_def.ex14.scoring.perf_metrics import ex14_metrics
+from pdm4ar.exercises_def.ex14.simulation.simulator import Ex14Simulator
+from pdm4ar.exercises_def.ex14.test_cases.utils_config import load_config, sim_context_from_config
 from reprep import MIME_MP4, Report
 from collections import defaultdict
 
@@ -18,7 +19,7 @@ def ex14_evaluation(sim_config: Mapping[str, Any], ex_out=None) -> Tuple[float, 
     sim_context: SimContext = sim_context_from_config(sim_config)
     r = Report("Final25-" + sim_context.description)
     # run simulation
-    sim = Simulator()
+    sim = Ex14Simulator()
     sim.run(sim_context)
     # visualisation
     report = _ex14_vis(sim_context=sim_context)
@@ -47,7 +48,7 @@ def _ex14_vis(sim_context: SimContext) -> Report:
     r = Report("EpisodeVisualisation")
     gif_viz = r.figure(cols=1)
     with gif_viz.data_file("Animation", MIME_MP4) as fn:
-        create_animation(
+        create_ex14_animation(
             file_path=fn,
             sim_context=sim_context,
             figsize=(16, 16),
@@ -60,12 +61,12 @@ def _ex14_vis(sim_context: SimContext) -> Report:
 
 
 def get_exercise14():
-    config_dir = Path(__file__).parent
+    config_dir = Path(__file__).parent / "test_cases"
     config_files = ["config_1.yaml", "config_2.yaml", "config_3.yaml"]
     test_values: List[Mapping[str, Any]] = [load_config(str(config_dir / config_file)) for config_file in config_files]
 
     return Exercise[SimContext, None](
-        desc="Final'25- planning course exercise.",
+        desc="Final'26 - planning course exercise.",
         evaluation_fun=ex14_evaluation,
         perf_aggregator=lambda x: ex14_performance_aggregator(x),
         test_values=test_values,
