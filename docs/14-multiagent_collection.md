@@ -188,7 +188,17 @@ score -= max(0.0, global_planning_time - 60) * 10
 - **Higher scores are better**
 
 ### Reference Scores
-TO BE GENERATED
+We provide the scores of the private test cases using our baseline implementation below for your reference:
+
+| Test Case                  | Reference Score |
+| -------------------------- | --------------- |
+| config_freespace_private_1 | 1775.60         |
+| config_freespace_private_2 | 1730.29         |
+| config_single_private_1    | 949.23          |
+| config_single_private_2    | 702.69          |
+| config_warehouse_private_1 | 1273.82         |
+| config_warehouse_private_2 | 1305.71         |
+| **Average**                | **1289.56**     |
 
 ## Test cases
 The test cases on the server differ from the ones provided locally only by configuration parameters (number of robots, number of goals, map layout, etc.). Your solution should be general enough to handle different scenarios. But don't be worried, the topology of the environment will remain similar to the ones provided in the local tests.
