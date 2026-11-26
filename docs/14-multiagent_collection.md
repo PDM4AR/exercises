@@ -1,12 +1,12 @@
 # Multi-agent Goal Collection [Final '26]
 
 ## Problem description
-Your task is to implement a planning and control system for a fleet of differential drive robots. The robots navigate the environment, collect goals, and deliver them to any collection point. Pickups and deliveries are triggered when the robot's reference point `(x, y)` lies inside the corresponding polygon; overlap of the robot's footprint alone is not sufficient. Each robot has a scenario-defined carrying capacity and automatically unloads its complete inventory at a collection point.
-To test your agent, you are provided with a simulation environment. The environment provides observations to each agent at each time step and expects control commands in return. Additionally, an one-time global planning phase occurs before the simulation starts, allowing you to coordinate all agents to maximize overall efficiency.
+Your task is to implement a planning and control system for a fleet of differential drive robots. The robots navigate the environment, collect goals, and deliver them to any collection point. Pickups and deliveries are triggered when the robot's reference point `(x, y)` (its center) lies inside the corresponding polygon. Each robot has a scenario-defined carrying capacity and automatically unloads its complete inventory at a collection point.
+To test your agent, you are provided with a simulation environment. The environment provides observations to each agent at each time step and expects control commands in return. Additionally, a one-time global planning phase occurs before the simulation starts, allowing you to coordinate all agents to maximize overall efficiency.
 
 See below an image of the environment:
 
-![image](img/multiagent_collection_example.png)
+![image](img/ex14_warehouse_example.png)
 
 
 ## Task Overview
@@ -93,7 +93,7 @@ In addition to the agent's own observation, `sim_obs.players` includes other rob
 
 4. **Varying capacity**: Each robot's capacity is defined by its scenario `capacity` field (default: 1) and is available to the global planner through `agent_capacities`. Carried goals remain in that robot's inventory until delivery.
 
-5. **Goal ownership**: A goal may have an `assigned_robot`. Any robot can collect and deliver it, but it counts only when the assigned robot delivers it. If another robot delivers it, the goal earns neither the delivery reward nor its revenue, and the task counts as not accomplished, so the early completion bonus is lost. Goals without an assignment count for any robot.
+5. **Goal ownership**: A goal may have an `assigned_robot`. Any robot can collect and deliver it, but it counts only when the assigned robot delivers it. If another robot delivers it, the goal earns neither the delivery reward nor its revenue. Goals without an assignment count for any robot.
 
 6. **Goal values**: Every goal has an integer `value` between 10 and 100 dollars. The revenue earned for a goal decays linearly with the time at which it is **delivered** (not picked up):
    ```python
@@ -107,11 +107,10 @@ In addition to the agent's own observation, `sim_obs.players` includes other rob
 
 ### Termination Conditions
 The *simulation terminates* upon one of the following cases:
-- **Physical completion**: All goals have been collected and delivered to collection points
+- **Physical completion**: All goals have been collected and delivered to collection points (completion is triggered regardless of the goal ownership)
 - **Timeout**: Simulation time exceeds `max_sim_time` (60 s)
 - **All agents collided**: All robots have collided and are disabled
 
-Physical completion does not check goal ownership. A goal delivered by the wrong robot can therefore end the simulation while still receiving no revenue or reward.
 
 ### Differential drive model
 The robot is a differential drive robot modeled according to the one seen in `Lecture 4: Steering`.
@@ -179,7 +178,7 @@ score -= max(0.0, global_planning_time - 60) * 10
 - **Collision penalty**: 500 point penalty per collided robot. Avoid collisions!
 - **Plan the order**: Earlier delivery of valuable goals increases revenue, so plan accordingly
 - **Respect assignments**: A goal delivered by a robot it is not assigned to earns nothing.
-- **Early completion bonus**: Deliver every goal with the correct robot to earn 10 points per second saved. If even one goal is missing completion time is 60 s and the bonus is zero
+- **Early completion bonus**: If even one goal is missing completion time is 60 s and the bonus is zero
 - **Efficiency matters**:
   - Minimize travel distance (0.5 point penalty per unit distance - highest weight among efficiency metrics)
   - Minimize actuation effort (0.01 point penalty per unit effort)
@@ -201,12 +200,26 @@ We provide the scores of the private test cases using our baseline implementatio
 | **Average**                | **1289.56**     |
 
 ## Test cases
-The test cases on the server differ from the ones provided locally only by configuration parameters (number of robots, number of goals, map layout, etc.). Your solution should be general enough to handle different scenarios. But don't be worried, the topology of the environment will remain similar to the ones provided in the local tests.
+You will be tested on 3 different topologies and robot configurations. 
+### Configuration 1 - Single robot
+The first configuration has a single robot navigating a warehouse-like environment. This case tests your local planner's ability to avoid obstacles and your global planner's ability to maximise the total revenue, without coordinating a fleet. 
+![image](img/ex14_single.png)
+Here, the fact that some goals are assigned to the robot and some are not makes no difference, as there is a single robot operating. To further stress and test your local controller, we provide you with a `config_0.yaml` file with a single goal and a maze-like environment. However, the private test cases for the single robot instance will be more similar to the configuration in the picture above
+
+### Configuration 2 - Coordinated fleet in a warehouse-like environment
+The second configuration has multiple robots navigating a warehouse-like environment with tight aisles. This instance will test your framework's ability to maximize revenue, while avoiding collisions and conflicts between robots in tight spaces. Think of how to resolve these conflicts during the global planning phase or with local avoidance protocols. 
+![image](img/ex14_warehouse_example.png)
+
+### Configuration 3 - Coordinated fleet in a freespace environment
+The third configuration has multiple robots navigating a freespace environment with randomly placed obstacles.
+![image](img/ex14_freespace.png)
+
+The test cases on the server differ from the ones provided locally only by configuration parameters (number of robots, number of goals, map layout, etc.). Your solution should be general enough to handle different scenarios. But don't be worried, the topology of the environment will remain similar to the ones provided in the local tests. You will be evaluated on two different instances of each configuration.
 
 ### Generate new test cases
 You can create new test cases by adding new configuration files in the `exercises_def/ex14/test_cases/` folder and adding them to the list of available configurations in the `exercises_def/ex14/ex14.py` file.
 
-:sparkles: We provide a script to generate random configurations for this exercise at `exercises_def/ex14/test_cases/random_config.py`. Feel free to modify and use it to create new test cases for your own testing.
+:sparkles: We provide a script to generate random configurations for this exercise at `exercises_def/ex14/test_cases/random_config.py`. Feel free to modify and use it to create new test cases for your own testing. 
 
 ## Run the exercise
 
