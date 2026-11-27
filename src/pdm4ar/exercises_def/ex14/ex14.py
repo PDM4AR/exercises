@@ -62,7 +62,7 @@ def _ex14_vis(sim_context: SimContext) -> Report:
 
 def get_exercise14():
     config_dir = Path(__file__).parent / "test_cases"
-    config_files = ["config_1.yaml", "config_2.yaml", "config_3.yaml"]
+    config_files = ["config_0.yaml", "config_1.yaml", "config_2.yaml", "config_3.yaml"]
     test_values: List[Mapping[str, Any]] = [load_config(str(config_dir / config_file)) for config_file in config_files]
 
     return Exercise[SimContext, None](

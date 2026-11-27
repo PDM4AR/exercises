@@ -1,8 +1,4 @@
 # Low-level controller case: one robot and one goal in a cluttered zig-zag map.
-# The wall gaps alternate sides (right, then left), so the robot has to wind up to the goal near the top
-# and come back down into the middle corridor to deliver it.
-# Passages are at least 2.5 m wide: the reference local A* inflates obstacles by 0.81 m on a 0.3 m grid
-# and gets stuck in front of a 2.1 m gap.
 agents:
   PDM4AR_1:
     state:
